@@ -1,38 +1,130 @@
-.App {
-  text-align: center;
+.item {
+  color: #fff;
+  border-radius: 5px;
+  padding: 20px;
+  font-size: 150%;
 }
 
-.App-logo {
-  height: 40vmin;
+.wrapper {
+  width: 600px;
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: repeat(5, 100px);
+  grid-template-rows: repeat(5, 100px);
+  grid-auto-flow: row;
+}
+
+.greenArea {
+  background-color: #93D08C;
+  width: 100vw;
+  height: 50vh;
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, grey 1px, transparent 1px),
+    linear-gradient(to bottom, grey 1px, transparent 1px);
+}
+
+.blueArea {
+  background-color: #93D08C;
+  width: 100vw;
+  height: 50vh;
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, grey 1px, transparent 1px),
+    linear-gradient(to bottom, grey 1px, transparent 1px);
+}
+
+.electrode {
+  background-color: black;
+  width: 110px;
+  height: 110px;
+}
+.electrode2 {
+  background-color: black;
+  width: 110px;
+  height: 110px;
+}
+
+.react-contextmenu {
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid rgba(0,0,0,.15);
+  border-radius: .25rem;
+  color: #373a3c;
+  font-size: 16px;
+  margin: 2px 0 0;
+  min-width: 160px;
+  outline: none;
+  opacity: 0;
+  padding: 5px 0;
   pointer-events: none;
+  text-align: left;
+  transition: opacity 250ms ease !important;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.react-contextmenu.react-contextmenu--visible {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 9999;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.react-contextmenu-item {
+  background: 0 0;
+  border: 0;
+  color: #373a3c;
+  cursor: pointer;
+  font-weight: 400;
+  line-height: 1.5;
+  padding: 3px 20px;
+  text-align: inherit;
+  white-space: nowrap;
 }
 
-.App-link {
-  color: #61dafb;
+.react-contextmenu-item.react-contextmenu-item--active,
+.react-contextmenu-item.react-contextmenu-item--selected {
+  color: #fff;
+  background-color: #20a0ff;
+  border-color: #20a0ff;
+  text-decoration: none;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.react-contextmenu-item.react-contextmenu-item--disabled,
+.react-contextmenu-item.react-contextmenu-item--disabled:hover {
+  background-color: transparent;
+  border-color: rgba(0,0,0,.15);
+  color: #878a8c;
 }
+
+.react-contextmenu-item--divider {
+  border-bottom: 1px solid rgba(0,0,0,.15);
+  cursor: inherit;
+  margin-bottom: 3px;
+  padding: 2px 0;
+}
+.react-contextmenu-item--divider:hover {
+  background-color: transparent;
+  border-color: rgba(0,0,0,.15);
+}
+
+.react-contextmenu-wrapper {
+  /* width: 110px; */
+  position: absolute;
+}
+
+.selected {
+  /* border: blue;
+  border-width: 2;
+  border-style: solid; */
+  /* stroke-width: 5px;
+  stroke: blue; */
+  outline-color: rgb(0, 0, 255);;
+  outline-style: solid;
+  outline-width: 5px;
+  outline-offset: -5px;
+	cursor: pointer;
+}
+
+.dragging {
+  cursor: grabbing;
+}
+

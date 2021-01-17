@@ -1,112 +1,105 @@
-import React, { useRef, useEffect, useState } from "react"
-import ReactDraggable from 'react-draggable';
+import React, { useEffect, useState, useCallback } from "react"
+import DraggableItem from "./DraggableItem"
+// import DragSelect from "dragselect"
 
-const numButtons = 25
-
-const canvasSize = { width: "100vw", height: "50vh" }
-
-function DraggableItem({ deltas, setSelected, setDeltas, selected, id, delta, onSelect, onDrag, children }) {
-    const [isDragging, setIsDragging] = React.useState(false);
-    const isSelected = selected && selected.indexOf(id) >= 0;
-
-    let transform = null
-    if (isSelected)
-        transform = { transform: `translate(${delta.x + deltas[id][0]}px, ${delta.y + deltas[id][1]}px)` }
-
-    if (!isSelected)
-        transform = { transform: `translate(${deltas[id][0]}px, ${deltas[id][1]}px)` }
-
-    function handleClick(e, idx) {
-        if (e.shiftKey) {
-            onSelect(idx);
-        }
-    }
-
-    const dragItem = useRef(null);
-
-    return (
-        <ReactDraggable
-            axis='none'
-            onStart={() => { setIsDragging(true) }}
-            onDrag={(e, data) => { onDrag({ x: data.x, y: data.y }, id) }}
-            onStop={(e, data) => {
-                let copy = [...deltas]
-
-                for (var i = 0; i < selected.length; i++)
-                    copy[selected[i]] = [delta.x + deltas[selected[i]][0], delta.y + deltas[selected[i]][1]]
-
-                setDeltas(copy)
-                setSelected([])
-                setIsDragging(false)
-                onDrag({ x: 0, y: 0 })
-            }}
-            position={{ x: 0, y: 0 }}
-            disabled={!isSelected}
-            grid={[40, 40]}
-            nodeRef={dragItem}
-        >
-            <g ref={dragItem}>
-                <g style={transform}>
-                    <g className={`${isSelected ? "selected" : ""} ${isDragging ? "dragging" : ""}`} onClick={e => handleClick(e, id)}>
-                        {children}
-                    </g>
-                </g>
-            </g>
-
-        </ReactDraggable >
-
-    )
-}
+const numCols = 5
+const numRows = 5
+const numButtons = numCols * numRows
 
 function DraggableElements(props) {
-    let { boxSelectHist, combined, ...restProps } = props
+    let { combined, ...restProps } = props
 
-    let draggable = boxSelectHist.map((boxSelected, idx) => {
-        if (boxSelected) {
-            let xBoi = idx % 5 * 120, yBoi = Math.floor(idx / 5) * 120
-            return (
-                <DraggableItem key={idx} id={idx} {...restProps}>
-                    <rect x={xBoi} y={yBoi} width="110" height="110" fill="black" key={idx} />
+    /* with dragselect in the future hopefully */
+    // useEffect(
+    //     () => {
+    //         let dragBoop = new DragSelect({
+    //             selectables: document.querySelectorAll('rect.electrode'),
+    //             area: document.querySelector("svg.greenArea"),
+    //             // callback: e => console.log(e)
+    //         });
+    //         dragBoop.subscribe("elementselect", (elec) => { console.log("huzzah") })
+    //         // console.log(dragBoop.getSelectables())
+    //     }
+    // )
+
+    let draggable = []
+    for (var r = 0; r < numRows; r++) {
+        for (var c = 0; c < numCols; c++) {
+            let ind = numCols * r + c
+            draggable.push(
+                <DraggableItem key={ind} id={ind} {...restProps}>
+                    <rect x={c * 120} y={r * 120} width="110" height="110" fill="black" key={ind} className="electrode" />
                 </DraggableItem>
             )
         }
-    })
-
-    let filtered = draggable.filter(function (el) {
-        return el != null;
-    });
-
-    if (combined.length > 0) {
-        for (var i = 0; i < combined.length; i++)
-            filtered.push(
-                <DraggableItem key={numButtons} id={numButtons} {...restProps}>
-                    <polygon fill="black" points={combined[i]} />
-                </DraggableItem>
-            )
     }
+
+    // if (combined.length > 0) {
+    //     for (var i = 0; i < combined.length; i++)
+    //         draggable.push(
+    //             <DraggableItem key={numButtons} id={numButtons} {...restProps}>
+    //                 <polygon fill="black" points={combined[i]} />
+    //             </DraggableItem>
+    //         )
+    // }
     return (
-        <>{filtered}</>
+        <>{draggable}</>
     )
 }
 
 export function Canvas(props) {
     const [selected, setSelected] = React.useState([]);
+    // console.log(selected.slice(0, 10))
+    const [created, setCreated] = React.useState([])
+    console.log("created| ", created)
 
     const [delta, setDelta] = React.useState({ x: 0, y: 0 });
     function handleDrag(delta) { setDelta(delta); }
 
     const [deltas, setDeltas] = React.useState(new Array(numButtons).fill([0, 0]));
 
-    function select(idx) {
-        const newSelection = selected.indexOf(idx) >= 0 ? selected.filter(item => item !== idx) : [...selected, idx];
-        setSelected(newSelection);
-    }
-    let { boxSelectHist, combiUnselect, db } = props
+    const [mouseDown, setMouseDown] = useState(false)
+
+    const handleMouseDown = useCallback(() => {
+        console.log("set mouse down")
+        setMouseDown(true)
+    }, []);
+
+    const handleMouseUp = useCallback(() => { setMouseDown(false) }, [])
+
+    useEffect(() => {
+        window.addEventListener('mousedown', handleMouseDown);
+        window.addEventListener('mouseup', handleMouseUp)
+        return () => {
+            window.removeEventListener('mousedown', handleMouseDown);
+            window.removeEventListener('mouseup', handleMouseUp)
+        };
+    }, [handleMouseDown, handleMouseUp]);
+
+    // function select(idx) {
+    //     const newSelection = selected.indexOf(idx) >= 0 ? selected.filter(item => item !== idx) : [...selected, idx];
+    //     setSelected(newSelection);
+    // }
+
+    // const select = useCallback((idx) => {
+    //     if (mouseDown && created[idx]) {
+    //         setSelected([...new Set([...selected, idx])]);
+    //     }
+    // }, [mouseDown, selected]);
+
+    // const create = useCallback((idx) => {
+    //     console.log("created in create| " + created)
+    //     const newCreation = created.indexOf(idx) >= 0 ? created.filter(item => item !== idx) : [...created, idx]
+    //     setCreated(newCreation)
+    // }, [created, setCreated])
+
+    let { combiUnselect, db } = props
 
     const [combined, setCombined] = React.useState([])
 
-    const [ewdContents, setewdContents] = useState({ layout: [] })
+    const [ewdContents, setEwdContents] = useState({ layout: [] })
 
+    {/*
     function handleCombine(e) {
         // using selected and deltas, want to replace selected electrodes with one big one
         // want to enable even weirdly shaped ones -- only requirement is continguity
@@ -149,7 +142,9 @@ export function Canvas(props) {
         setCombined(combined.concat(pts))
         // any elems >= index numButtons is a combined elem w/ initial pos (0, 0)
     }
+    */}
 
+    {/*
     function handleSave(e) {
         let newContents = []
         for (var i = 0; i < combined.length; i++) {
@@ -163,7 +158,7 @@ export function Canvas(props) {
             if (boxSelectHist[j]) {
                 var x = j % 5 * 120
                 var y = Math.floor(j / 5) * 120
-                let boop = "square" + x + " " + y
+                let boop = "square " + x + " " + y
                 newContents.push(boop)
                 console.log(boop)
             }
@@ -173,9 +168,10 @@ export function Canvas(props) {
         console.log("0,0,0,0,0,0,0,0;100")
         console.log("#ENDOFSEQUENCE#")
         console.log("#ENDOFREPEAT#")
-        setewdContents({ layout: newContents })
+        setEwdContents({ layout: newContents })
         db.formData.put({ id: "layout", value: newContents })
     }
+    */}
 
     useEffect(
         () => {
@@ -200,7 +196,7 @@ export function Canvas(props) {
                 if (!dbLayout) await db.formData.add({ id: 'layout', value: [] })
 
                 // set the initial values
-                setewdContents({ layout: dbLayout ? dbLayout.value : [] })
+                setEwdContents({ layout: dbLayout ? dbLayout.value : [] })
             }).catch(e => {
                 // log any errors
                 console.log(e.stack || e)
@@ -216,19 +212,21 @@ export function Canvas(props) {
 
     return (
         <div>
-            <button onClick={handleCombine}>Combine</button>
-            <button onClick={handleSave}>Save</button>
-            <svg className="canvas blueArea" {...canvasSize} xmlns="http://www.w3.org/2000/svg"  >
+            {/* <button onClick={handleCombine}>Combine</button> */}
+            {/* <button onClick={handleSave}>Save</button> */}
+            <svg className="greenArea" xmlns="http://www.w3.org/2000/svg"  >
                 <DraggableElements
                     deltas={deltas}
                     setSelected={setSelected}
                     setDeltas={setDeltas}
                     selected={selected}
-                    onSelect={select}
+                    // onSelect={select}
                     delta={delta}
                     onDrag={handleDrag}
-                    boxSelectHist={boxSelectHist}
+                    created={created}
+                    create={setCreated}
                     combined={combined}
+                    mouseDown={mouseDown}
                 >
 
                 </DraggableElements>

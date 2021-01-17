@@ -8,7 +8,7 @@
     "@testing-library/user-event": "^12.1.10",
     "cra-template": "1.1.0",
     "dexie": "^3.0.3",
-    "dragselect": "^1.15.1",
+    "dragselect": "^2.0.2",
     "file-loader": "^6.2.0",
     "idb": "^5.0.7",
     "react": "^17.0.1",

@@ -9,7 +9,7 @@
   width: 600px;
   display: grid;
   grid-gap: 10px;
-  grid-template-columns: repeat(5, 100px);
+  grid-template-columns: repeat(7, 100px);
   grid-template-rows: repeat(5, 100px);
   grid-auto-flow: row;
 }
@@ -17,30 +17,22 @@
 .greenArea {
   background-color: #93D08C;
   width: 100vw;
-  height: 50vh;
+  height: 100vh;
   background-size: 40px 40px;
   background-image:
     linear-gradient(to right, grey 1px, transparent 1px),
     linear-gradient(to bottom, grey 1px, transparent 1px);
 }
 
-.blueArea {
-  background-color: #93D08C;
-  width: 100vw;
-  height: 50vh;
+/* .electrode {
+  background-color: #c4d4c3;
   background-size: 40px 40px;
   background-image:
     linear-gradient(to right, grey 1px, transparent 1px),
     linear-gradient(to bottom, grey 1px, transparent 1px);
-}
-
-.electrode {
-  background-color: black;
-  width: 110px;
-  height: 110px;
-}
+} */
 .electrode2 {
-  background-color: black;
+  background-color: #c4d4c3;
   width: 110px;
   height: 110px;
 }
@@ -117,14 +109,26 @@
   border-style: solid; */
   /* stroke-width: 5px;
   stroke: blue; */
+
   outline-color: rgb(0, 0, 255);;
   outline-style: solid;
   outline-width: 5px;
   outline-offset: -5px;
-	cursor: pointer;
+  cursor: pointer;
+}
+
+.exist {
+  fill-opacity: 1.0;
+}
+
+.noExist {
+  fill-opacity: 0.0;
 }
 
 .dragging {
   cursor: grabbing;
 }
 
+/* .electrode:hover {
+  fill-opacity: 1.0;
+} */

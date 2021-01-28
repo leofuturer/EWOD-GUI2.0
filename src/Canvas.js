@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react"
 import DraggableItem from "./DraggableItem"
+
 // import DragSelect from "dragselect"
 
 const numCols = 5
@@ -48,24 +49,43 @@ function DraggableElements(props) {
 }
 
 export function Canvas(props) {
-    const [selected, setSelected] = React.useState([]);
-    // console.log(selected.slice(0, 10))
-    const [created, setCreated] = React.useState([])
-    console.log("created| ", created)
+    const [selected, setSelected] = useState([]);
+    const [created, setCreated] = useState([])
+    // console.log(created)
 
-    const [delta, setDelta] = React.useState({ x: 0, y: 0 });
+    const [delta, setDelta] = useState({ x: 0, y: 0 });
     function handleDrag(delta) { setDelta(delta); }
 
-    const [deltas, setDeltas] = React.useState(new Array(numButtons).fill([0, 0]));
+    const [deltas, setDeltas] = useState(new Array(numButtons).fill([0, 0]));
 
     const [mouseDown, setMouseDown] = useState(false)
 
-    const handleMouseDown = useCallback(() => {
+    const handleMouseDown = useCallback((event) => {
+        console.log(event)
+        switch (event.which) {
+            case 1:
+                console.log('Left Mouse button pressed.');
+                break;
+            case 2:
+                console.log('Middle Mouse button pressed.');
+                break;
+            case 3:
+                console.log('Right Mouse button pressed.');
+                break;
+            default:
+                console.log('You have a strange Mouse!');
+        }
         console.log("set mouse down")
         setMouseDown(true)
     }, []);
 
-    const handleMouseUp = useCallback(() => { setMouseDown(false) }, [])
+    const [drawing, setDrawing] = useState(false)
+    console.log(drawing)
+    const handleMouseUp = useCallback(() => {
+        console.log("mouse up");
+        setDrawing(false);
+        setMouseDown(false)
+    }, [])
 
     useEffect(() => {
         window.addEventListener('mousedown', handleMouseDown);
@@ -93,11 +113,15 @@ export function Canvas(props) {
     //     setCreated(newCreation)
     // }, [created, setCreated])
 
+    function turnOnDraw(e) {
+        setSelected([])
+        setDrawing(!drawing)
+    }
+
+    /* ########################### COMBINE STUFF START ########################### */
     let { combiUnselect, db } = props
 
-    const [combined, setCombined] = React.useState([])
-
-    const [ewdContents, setEwdContents] = useState({ layout: [] })
+    const [combined, setCombined] = useState([])
 
     {/*
     function handleCombine(e) {
@@ -143,6 +167,11 @@ export function Canvas(props) {
         // any elems >= index numButtons is a combined elem w/ initial pos (0, 0)
     }
     */}
+
+    /* ########################### COMBINE STUFF END ########################### */
+
+    /* ########################### IDB STUFF START ########################### */
+    const [ewdContents, setEwdContents] = useState({ layout: [] })
 
     {/*
     function handleSave(e) {
@@ -209,9 +238,11 @@ export function Canvas(props) {
         // run effect whenever the database connection changes
         [db]
     )
+    /* ########################### IDB STUFF END ########################### */
 
     return (
         <div>
+            <button onClick={turnOnDraw}>Draw</button>
             {/* <button onClick={handleCombine}>Combine</button> */}
             {/* <button onClick={handleSave}>Save</button> */}
             <svg className="greenArea" xmlns="http://www.w3.org/2000/svg"  >
@@ -220,7 +251,7 @@ export function Canvas(props) {
                     setSelected={setSelected}
                     setDeltas={setDeltas}
                     selected={selected}
-                    // onSelect={select}
+                    drawing={drawing}
                     delta={delta}
                     onDrag={handleDrag}
                     created={created}

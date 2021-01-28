@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react"
 import DraggableItem from "./DraggableItem"
+import { Motion, spring } from "react-motion"
+import MenuItem from '@material-ui/core/MenuItem';
 
 // import DragSelect from "dragselect"
 
@@ -60,11 +62,41 @@ export function Canvas(props) {
 
     const [mouseDown, setMouseDown] = useState(false)
 
+    /* ########################### CONTEXT MENU START ########################### */
+    const [xPos, setXPos] = useState("0px");
+    const [yPos, setYPos] = useState("0px");
+    const [showMenu, setShowMenu] = useState(false);
+
+    const handleContextMenu = useCallback(
+        (e) => {
+            e.preventDefault();
+            setXPos(`${e.pageX}px`);
+            setYPos(`${e.pageY}px`);
+            setShowMenu(true);
+        },
+        [setXPos, setYPos]
+    );
+
+    const handleClick = useCallback(() => {
+        showMenu && setShowMenu(false);
+    }, [showMenu]);
+
+    useEffect(() => {
+        document.addEventListener("click", handleClick);
+        document.addEventListener("contextmenu", handleContextMenu);
+        return () => {
+            document.removeEventListener("click", handleClick);
+            document.removeEventListener("contextmenu", handleContextMenu);
+        };
+    }, [handleClick, handleContextMenu]);
+
+    /* ########################### CONTEXT MENU END ########################### */
+
     const handleMouseDown = useCallback((event) => {
-        console.log(event)
         switch (event.which) {
             case 1:
-                console.log('Left Mouse button pressed.');
+                console.log("Left -- set mouse down")
+                setMouseDown(true)
                 break;
             case 2:
                 console.log('Middle Mouse button pressed.');
@@ -75,12 +107,9 @@ export function Canvas(props) {
             default:
                 console.log('You have a strange Mouse!');
         }
-        console.log("set mouse down")
-        setMouseDown(true)
     }, []);
 
     const [drawing, setDrawing] = useState(false)
-    console.log(drawing)
     const handleMouseUp = useCallback(() => {
         console.log("mouse up");
         setDrawing(false);
@@ -262,6 +291,48 @@ export function Canvas(props) {
 
                 </DraggableElements>
             </svg>
+            {/* CONTEXT MENU BELOW */}
+            <Motion
+                defaultStyle={{ opacity: 0 }}
+                style={{ opacity: !showMenu ? spring(0) : spring(1) }}
+            >
+                {(interpolatedStyle) => (
+                    <>
+                        {showMenu ? (
+                            <div
+                                className="menu-container"
+                                style={{
+                                    top: yPos,
+                                    left: xPos,
+                                    opacity: interpolatedStyle.opacity,
+                                }}
+                            >
+                                <ul
+                                    className="menu"
+                                    style={{
+                                        position: "absolute",
+                                        top: yPos,
+                                        left: xPos,
+
+                                        backgroundColor: "white",
+                                        padding: "10px 0px",
+                                        borderRadius: "5px",
+                                        boxShadow: "2px 2px 30px lightgrey"
+                                    }}
+                                >
+                                    <MenuItem>Cut</MenuItem>
+                                    <MenuItem>Copy</MenuItem>
+                                    <MenuItem>Paste</MenuItem>
+                                    <MenuItem>Delete</MenuItem>
+                                    <MenuItem>Add</MenuItem>
+                                </ul>
+                            </div>
+                        ) : (
+                                <></>
+                            )}
+                    </>
+                )}
+            </Motion>
         </div>
     );
 }

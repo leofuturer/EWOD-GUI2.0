@@ -1,32 +1,28 @@
-import React, { useRef, useEffect, useCallback } from "react"
+import React, { useRef, useEffect, useCallback, useState } from "react"
 import ReactDraggable from 'react-draggable';
 import "./App.css"
 
-function DraggableItem({ deltas, setSelected, setDeltas, selected, id, delta, onDrag, children, mouseDown, created, create, drawing }) {
-    const [isDragging, setIsDragging] = React.useState(false);
+function DraggableItem({ deltas, setSelected, setDeltas, selected, id, delta, onDrag, children, mouseDown, drawing }) {
+    const [isDragging, setIsDragging] = useState(false);
     const isSelected = selected && selected.indexOf(id) >= 0;
-    const isCreated = created && created.includes(id)
 
     let transform = null
+    let boop;
+    if (delta === null) boop = { x: 0, y: 0 }
+    else boop = delta
     if (isSelected)
-        transform = { transform: `translate(${delta.x + deltas[id][0]}px, ${delta.y + deltas[id][1]}px)` }
+        transform = { transform: `translate(${boop.x + deltas[id][0]}px, ${boop.y + deltas[id][1]}px)` }
 
     if (!isSelected)
         transform = { transform: `translate(${deltas[id][0]}px, ${deltas[id][1]}px)` }
 
     const dragItem = useRef(null);
 
+    // handles selection of existing electrodes
     const handleMouseOver = useCallback(() => {
-        // console.log("hewwo")
-        if (mouseDown === true && !isSelected) {
-            if (isCreated) {
-                // if (isSelected) setSelected(selected.filter(item => item !== id))
-                setSelected([...new Set([...selected, id])])
-            } else if (drawing) {
-                create([...new Set([...created, id])])
-            }
-        }
-    }, [mouseDown, created, selected])
+        if (mouseDown === true && !isSelected && !drawing && delta === null)
+            setSelected([...new Set([...selected, id])])
+    }, [mouseDown, selected])
 
     useEffect(() => {
         if (dragItem && dragItem.current) {
@@ -40,7 +36,10 @@ function DraggableItem({ deltas, setSelected, setDeltas, selected, id, delta, on
     return (
         <ReactDraggable
             axis='none'
-            onStart={() => { setIsDragging(true) }}
+            onStart={() => {
+                setIsDragging(true);
+                onDrag({ x: 0, y: 0 })
+            }}
             onDrag={(e, data) => { onDrag({ x: data.x, y: data.y }, id) }}
             onStop={(e, data) => {
                 let copy = [...deltas]
@@ -48,10 +47,10 @@ function DraggableItem({ deltas, setSelected, setDeltas, selected, id, delta, on
                 for (var i = 0; i < selected.length; i++)
                     copy[selected[i]] = [delta.x + deltas[selected[i]][0], delta.y + deltas[selected[i]][1]]
 
-                setDeltas(copy)
+                setDeltas((electrodes) => ({ initPositions: electrodes.initPositions, deltas: copy }))
                 setSelected([])
                 setIsDragging(false)
-                onDrag({ x: 0, y: 0 })
+                onDrag(null)
             }}
             position={{ x: 0, y: 0 }}
             disabled={!isSelected}
@@ -60,7 +59,7 @@ function DraggableItem({ deltas, setSelected, setDeltas, selected, id, delta, on
         >
             <g ref={dragItem}>
                 <g style={transform}>
-                    <g className={`${isSelected ? "selected" : ""} ${isDragging ? "dragging" : ""} ${isCreated ? "exist" : "noExist"}`}>
+                    <g className={`${isSelected ? "selected" : ""} ${isDragging ? "dragging" : ""}`}>
                         {children}
                     </g>
                 </g>

@@ -9,58 +9,88 @@ const numCols = 5
 const numRows = 5
 const numButtons = numCols * numRows
 
-function DraggableElements(props) {
-    let { combined, ...restProps } = props
-
-    /* with dragselect in the future hopefully */
-    // useEffect(
-    //     () => {
-    //         let dragBoop = new DragSelect({
-    //             selectables: document.querySelectorAll('rect.electrode'),
-    //             area: document.querySelector("svg.greenArea"),
-    //             // callback: e => console.log(e)
-    //         });
-    //         dragBoop.subscribe("elementselect", (elec) => { console.log("huzzah") })
-    //         // console.log(dragBoop.getSelectables())
-    //     }
-    // )
-
-    let draggable = []
-    for (var r = 0; r < numRows; r++) {
-        for (var c = 0; c < numCols; c++) {
-            let ind = numCols * r + c
-            draggable.push(
-                <DraggableItem key={ind} id={ind} {...restProps}>
-                    <rect x={c * 120} y={r * 120} width="110" height="110" fill="black" key={ind} className="electrode" />
-                </DraggableItem>
-            )
-        }
-    }
-
-    // if (combined.length > 0) {
-    //     for (var i = 0; i < combined.length; i++)
-    //         draggable.push(
-    //             <DraggableItem key={numButtons} id={numButtons} {...restProps}>
-    //                 <polygon fill="black" points={combined[i]} />
-    //             </DraggableItem>
-    //         )
-    // }
-    return (
-        <>{draggable}</>
-    )
-}
-
 export function Canvas(props) {
     const [selected, setSelected] = useState([]);
-    const [created, setCreated] = useState([])
-    // console.log(created)
+    // to hold existing electrodes' initial positions + deltas
+    const [electrodes, setElectrodes] = useState({
+        initPositions: [],
+        deltas: []
+    })
 
-    const [delta, setDelta] = useState({ x: 0, y: 0 });
+    const [delta, setDelta] = useState(null);
     function handleDrag(delta) { setDelta(delta); }
 
-    const [deltas, setDeltas] = useState(new Array(numButtons).fill([0, 0]));
-
     const [mouseDown, setMouseDown] = useState(false)
+
+    // sets mousedown status for selecting existing electrodes
+    const handleMouseDown = useCallback((event) => {
+        switch (event.which) {
+            case 1: // left mouse button pressed
+                setMouseDown(true)
+                break;
+            case 3: // right mouse button pressed
+                break;
+            default: // you're weird
+                break;
+        }
+    }, []);
+
+    const [drawing, setDrawing] = useState(false)
+
+    const handleMouseUp = useCallback(() => {
+        setDrawing(false);
+        setMouseDown(false)
+    }, [])
+
+    useEffect(() => {
+        window.addEventListener('mousedown', handleMouseDown);
+        window.addEventListener('mouseup', handleMouseUp)
+        return () => {
+            window.removeEventListener('mousedown', handleMouseDown);
+            window.removeEventListener('mouseup', handleMouseUp)
+        };
+    }, [handleMouseDown, handleMouseUp]);
+
+    // electrode curr pos = init + deltas[idx]
+    // wanna see if curr XY = electrodes[idx] + deltas[idx]
+    // creating new electrode
+    const handleMouseMove = useCallback((e) => {
+        if (drawing && mouseDown) {
+            let elecAtXY = false
+
+            // const initPositions = electrodes
+            const initPositions = electrodes.initPositions
+            const deltas = electrodes.deltas
+            const x = Math.floor(e.pageX / 40) * 40
+            const y = Math.floor(e.pageY / 40) * 40
+            for (var idx = 0; idx < deltas.length; idx++)
+                // if an electrode already exists at this position
+                if (x === initPositions[idx][0] + deltas[idx][0] && y === initPositions[idx][1] + deltas[idx][1]) {
+                    elecAtXY = true
+                    break
+                }
+            if (!elecAtXY) { // create new electrode
+                setElectrodes({
+                    initPositions: initPositions.concat([[x, y]]),
+                    deltas: deltas.concat([[0, 0]])
+                })
+            }
+        }
+    }, [drawing, mouseDown, electrodes]);
+
+    useEffect(() => { // mouseover eventlistener over whole canvas
+        // when dragging over a space that doesn't have an existing electrode, create new one
+        // and stick in electrodes arr
+        document.addEventListener('mousemove', handleMouseMove)
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove)
+        }
+    }, [handleMouseMove]);
+
+    function turnOnDraw(e) {
+        setSelected([])
+        setDrawing(!drawing)
+    }
 
     /* ########################### CONTEXT MENU START ########################### */
     const [xPos, setXPos] = useState("0px");
@@ -91,61 +121,6 @@ export function Canvas(props) {
     }, [handleClick, handleContextMenu]);
 
     /* ########################### CONTEXT MENU END ########################### */
-
-    const handleMouseDown = useCallback((event) => {
-        switch (event.which) {
-            case 1:
-                console.log("Left -- set mouse down")
-                setMouseDown(true)
-                break;
-            case 2:
-                console.log('Middle Mouse button pressed.');
-                break;
-            case 3:
-                console.log('Right Mouse button pressed.');
-                break;
-            default:
-                console.log('You have a strange Mouse!');
-        }
-    }, []);
-
-    const [drawing, setDrawing] = useState(false)
-    const handleMouseUp = useCallback(() => {
-        console.log("mouse up");
-        setDrawing(false);
-        setMouseDown(false)
-    }, [])
-
-    useEffect(() => {
-        window.addEventListener('mousedown', handleMouseDown);
-        window.addEventListener('mouseup', handleMouseUp)
-        return () => {
-            window.removeEventListener('mousedown', handleMouseDown);
-            window.removeEventListener('mouseup', handleMouseUp)
-        };
-    }, [handleMouseDown, handleMouseUp]);
-
-    // function select(idx) {
-    //     const newSelection = selected.indexOf(idx) >= 0 ? selected.filter(item => item !== idx) : [...selected, idx];
-    //     setSelected(newSelection);
-    // }
-
-    // const select = useCallback((idx) => {
-    //     if (mouseDown && created[idx]) {
-    //         setSelected([...new Set([...selected, idx])]);
-    //     }
-    // }, [mouseDown, selected]);
-
-    // const create = useCallback((idx) => {
-    //     console.log("created in create| " + created)
-    //     const newCreation = created.indexOf(idx) >= 0 ? created.filter(item => item !== idx) : [...created, idx]
-    //     setCreated(newCreation)
-    // }, [created, setCreated])
-
-    function turnOnDraw(e) {
-        setSelected([])
-        setDrawing(!drawing)
-    }
 
     /* ########################### COMBINE STUFF START ########################### */
     let { combiUnselect, db } = props
@@ -275,21 +250,23 @@ export function Canvas(props) {
             {/* <button onClick={handleCombine}>Combine</button> */}
             {/* <button onClick={handleSave}>Save</button> */}
             <svg className="greenArea" xmlns="http://www.w3.org/2000/svg"  >
-                <DraggableElements
-                    deltas={deltas}
-                    setSelected={setSelected}
-                    setDeltas={setDeltas}
-                    selected={selected}
-                    drawing={drawing}
-                    delta={delta}
-                    onDrag={handleDrag}
-                    created={created}
-                    create={setCreated}
-                    combined={combined}
-                    mouseDown={mouseDown}
-                >
-
-                </DraggableElements>
+                {electrodes.initPositions.map((startPos, ind) => {
+                    return (
+                        <DraggableItem key={ind} id={ind}
+                            deltas={electrodes.deltas}
+                            setDeltas={setElectrodes}
+                            setSelected={setSelected}
+                            selected={selected}
+                            delta={delta}
+                            onDrag={handleDrag}
+                            combined={combined}
+                            mouseDown={mouseDown}
+                            drawing={drawing}
+                        >
+                            <rect x={startPos[0]} y={startPos[1]} width="35" height="35" fill="black" key={ind} className="electrode" />
+                        </DraggableItem>)
+                })
+                }
             </svg>
             {/* CONTEXT MENU BELOW */}
             <Motion

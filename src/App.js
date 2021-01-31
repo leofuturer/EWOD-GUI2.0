@@ -4,6 +4,7 @@ import DragSelect from "dragselect"
 import Dexie from "dexie"
 
 import { Canvas } from "./Canvas.js"
+import Scroll from "./Scroll.js"
 
 const numCols = 5
 const numRows = 5
@@ -55,8 +56,11 @@ export default class App extends Component {
             })
           }
         </div> */}
-
-        <Canvas combiUnselect={this.combiUnselect} db={new Dexie('ElecDB')} />
+        <div>
+          <Canvas combiUnselect={this.combiUnselect} db={new Dexie('ElecDB')} />
+          <Scroll/>
+        </div>
+        
       </div>
     )
   }

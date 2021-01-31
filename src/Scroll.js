@@ -18,7 +18,7 @@ export default function Scroll(props){
                     setSelected(index);
                 }}
                 key={index}
-                >Content</Button>
+                >Frame Number: {`${index}`}</Button>
             })}
             <Button className={classes.add} onClick={()=>{
                 setActlist(actlist=>[...actlist, {x:0, y:0}]);

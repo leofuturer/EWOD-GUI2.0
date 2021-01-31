@@ -263,7 +263,8 @@ export function Canvas(props) {
                             mouseDown={mouseDown}
                             drawing={drawing}
                         >
-                            <rect x={startPos[0]} y={startPos[1]} width="35" height="35" fill="black" key={ind} className="electrode" onClick={()=>{alert("hello")}}/>
+                            <rect x={startPos[0]} y={startPos[1]} width="35" height="35" fill="black" key={ind} className="electrode" 
+                            onClick={()=>{alert("hello")}}/>
                         </DraggableItem>
                         )
                 })

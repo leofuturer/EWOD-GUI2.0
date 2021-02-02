@@ -1,26 +1,13 @@
-import React, { useEffect, useState, useCallback } from "react"
+import React, { useEffect, useState, useCallback, useContext } from "react"
 import DraggableItem from "./DraggableItem"
 import { Motion, spring } from "react-motion"
 import MenuItem from '@material-ui/core/MenuItem';
-
-// import DragSelect from "dragselect"
-
-const numCols = 5
-const numRows = 5
-const numButtons = numCols * numRows
+import Context from "./context"
 
 export function Canvas(props) {
-    const [selected, setSelected] = useState([]);
-    // to hold existing electrodes' initial positions + deltas
-    const [electrodes, setElectrodes] = useState({
-        initPositions: [],
-        deltas: []
-    })
-
-    const [delta, setDelta] = useState(null);
-    function handleDrag(delta) { setDelta(delta); }
-
-    const [mouseDown, setMouseDown] = useState(false)
+    const context = useContext(Context);
+    const { electrodes, drawing, mouseDown } = context.state
+    const { setMouseDown, setDrawing, setElectrodes, setSelected } = context
 
     // sets mousedown status for selecting existing electrodes
     const handleMouseDown = useCallback((event) => {
@@ -33,14 +20,12 @@ export function Canvas(props) {
             default: // you're weird
                 break;
         }
-    }, []);
-
-    const [drawing, setDrawing] = useState(false)
+    }, [setMouseDown]);
 
     const handleMouseUp = useCallback(() => {
         setDrawing(false);
         setMouseDown(false)
-    }, [])
+    }, [setDrawing, setMouseDown])
 
     useEffect(() => {
         window.addEventListener('mousedown', handleMouseDown);
@@ -76,7 +61,7 @@ export function Canvas(props) {
                 })
             }
         }
-    }, [drawing, mouseDown, electrodes]);
+    }, [drawing, electrodes, mouseDown, setElectrodes]);
 
     useEffect(() => { // mouseover eventlistener over whole canvas
         // when dragging over a space that doesn't have an existing electrode, create new one
@@ -202,7 +187,7 @@ export function Canvas(props) {
         console.log("#ENDOFSEQUENCE#")
         console.log("#ENDOFREPEAT#")
         setEwdContents({ layout: newContents })
-        db.formData.put({ id: "layout", value: newContents })
+        db.formput({ id: "layout", value: newContents })
     }
     */}
 
@@ -244,6 +229,7 @@ export function Canvas(props) {
     )
     /* ########################### IDB STUFF END ########################### */
 
+    /* ########################### IDB STUFF END ########################### */
     return (
         <div>
             <button onClick={turnOnDraw}>Draw</button>
@@ -252,19 +238,10 @@ export function Canvas(props) {
             <svg className="greenArea" xmlns="http://www.w3.org/2000/svg"  >
                 {electrodes.initPositions.map((startPos, ind) => {
                     return (
-                        <DraggableItem key={ind} id={ind}
-                            deltas={electrodes.deltas}
-                            setDeltas={setElectrodes}
-                            setSelected={setSelected}
-                            selected={selected}
-                            delta={delta}
-                            onDrag={handleDrag}
-                            combined={combined}
-                            mouseDown={mouseDown}
-                            drawing={drawing}
-                        >
+                        <DraggableItem key={ind} id={ind}>
                             <rect x={startPos[0]} y={startPos[1]} width="35" height="35" fill="black" key={ind} className="electrode" />
-                        </DraggableItem>)
+                        </DraggableItem>
+                    )
                 })
                 }
             </svg>
@@ -298,7 +275,7 @@ export function Canvas(props) {
                                     }}
                                 >
                                     <MenuItem>Cut</MenuItem>
-                                    <MenuItem>Copy</MenuItem>
+                                    <MenuItem >Copy</MenuItem>
                                     <MenuItem>Paste</MenuItem>
                                     <MenuItem>Delete</MenuItem>
                                     <MenuItem>Add</MenuItem>

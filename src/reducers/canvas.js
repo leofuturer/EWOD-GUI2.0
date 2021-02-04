@@ -35,9 +35,9 @@ export function canvasReducer(state = initialState, action){
     }
 }
 
-export const addElectrode = (list) => async (dispatch) => {
+export const addElectrode = (pos) => async (dispatch) => {
     try{
-        dispatch({type: ADD_ELECTRODE, payload: list});
+        dispatch({type: ADD_ELECTRODE, payload: pos});
     }catch(err){
         console.log(err);
     } 

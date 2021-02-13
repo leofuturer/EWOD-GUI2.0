@@ -3,8 +3,7 @@ import DraggableItem from "./DraggableItem"
 
 import Context from "./context"
 import { ContextMenu } from "./ContextMenu"
-
-const elecSize = 40
+import { elecSize } from "./constants"
 
 export function Canvas(props) {
     const context = useContext(Context);
@@ -66,16 +65,11 @@ export function Canvas(props) {
     useEffect(() => { // mouseover eventlistener over whole canvas
         // when dragging over a space that doesn't have an existing electrode, create new one
         // and stick in electrodes arr
-        document.addEventListener('mousemove', handleMouseMove)
+        document.querySelector(".greenArea").addEventListener('mousemove', handleMouseMove)
         return () => {
-            document.removeEventListener('mousemove', handleMouseMove)
+            document.querySelector(".greenArea").removeEventListener('mousemove', handleMouseMove)
         }
     }, [handleMouseMove]);
-
-    function turnOnDraw(e) {
-        setSelected([])
-        setDrawing(!drawing)
-    }
 
     /* ########################### CONTEXT MENU START ########################### */
     const [clipboard, setClipboard] = useState([])
@@ -127,7 +121,7 @@ export function Canvas(props) {
     /* ########################### CONTEXT MENU END ########################### */
 
     /* ########################### COMBINE STUFF START ########################### */
-    let { combiUnselect, db } = props
+    let { combiUnselect } = props
 
     const [combined, setCombined] = useState([])
 
@@ -178,82 +172,9 @@ export function Canvas(props) {
 
     /* ########################### COMBINE STUFF END ########################### */
 
-    /* ########################### IDB STUFF START ########################### */
-    const [ewdContents, setEwdContents] = useState({ layout: [] })
-
-    {/*
-    function handleSave(e) {
-        let newContents = []
-        for (var i = 0; i < combined.length; i++) {
-            var pos = combined[i].split(/,\s/)
-            let boop = "combine" + i + " " + pos[0] + " " + pos[1]
-            newContents.push(boop)
-            console.log(boop)
-        }
-
-        for (var j = 0; j < boxSelectHist.length; j++) {
-            if (boxSelectHist[j]) {
-                var x = j % 5 * 120
-                var y = Math.floor(j / 5) * 120
-                let boop = "square " + x + " " + y
-                newContents.push(boop)
-                console.log(boop)
-            }
-        }
-
-        console.log("#ENDOFLAYOUT#")
-        console.log("0,0,0,0,0,0,0,0;100")
-        console.log("#ENDOFSEQUENCE#")
-        console.log("#ENDOFREPEAT#")
-        setEwdContents({ layout: newContents })
-        db.formput({ id: "layout", value: newContents })
-    }
-    */}
-
-    useEffect(
-        () => {
-            // create the store
-            db.version(1).stores({ formData: 'id,value' })
-        },
-        // run effect whenever the database connection changes
-        [db]
-    )
-
-    useEffect(
-        () => {
-            // create the store
-            db.version(1).stores({ formData: 'id,value' })
-
-            // perform a read/write transatiction on the new store
-            db.transaction('rw', db.formData, async () => {
-                // get elec layout from the data
-                const dbLayout = await db.formData.get('layout')
-
-                // if the first or last name fields have not be added, add them
-                if (!dbLayout) await db.formData.add({ id: 'layout', value: [] })
-
-                // set the initial values
-                setEwdContents({ layout: dbLayout ? dbLayout.value : [] })
-            }).catch(e => {
-                // log any errors
-                console.log(e.stack || e)
-            })
-
-            // close the database connection if form is unmounted or the
-            // database connection changes
-            return () => db.close()
-        },
-        // run effect whenever the database connection changes
-        [db]
-    )
-    /* ########################### IDB STUFF END ########################### */
-
-    /* ########################### IDB STUFF END ########################### */
     return (
         <div>
-            <button onClick={turnOnDraw}>Draw</button>
             {/* <button onClick={handleCombine}>Combine</button> */}
-            {/* <button onClick={handleSave}>Save</button> */}
             <svg className="greenArea" xmlns="http://www.w3.org/2000/svg"  >
                 {electrodes.initPositions.map((startPos, ind) => {
                     return (

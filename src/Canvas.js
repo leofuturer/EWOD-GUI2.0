@@ -267,7 +267,7 @@ export function Canvas(props) {
                 {electrodes.initPositions.map((startPos, ind) => {
                     return (
                         <DraggableItem key={ind} id={ind}>
-                            <rect x={startPos[0]} y={startPos[1]} width="35" height="35" fill="black" key={ind} className="electrode" 
+                            <rect x={startPos[0]-3*elecSize} y={startPos[1]} width="35" height="35" fill="black" key={ind} className="electrode" 
                             style={{
                                 fill: (currentStep < pinActuate.length && pinActuate[currentStep].has(ind))?'red':'black'
                             }}

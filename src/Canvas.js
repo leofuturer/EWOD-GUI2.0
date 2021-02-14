@@ -257,28 +257,10 @@ export function Canvas(props) {
             <svg className="greenArea" xmlns="http://www.w3.org/2000/svg"  >
                 {electrodes.initPositions.map((startPos, ind) => {
                     return (
-<<<<<<< HEAD
-                        <DraggableItem key={ind} id={ind}
-                            deltas={electrodes.deltas}
-                            setDeltas={setElectrodes}
-                            setSelected={setSelected}
-                            selected={selected}
-                            delta={delta}
-                            onDrag={handleDrag}
-                            combined={combined}
-                            mouseDown={mouseDown}
-                            drawing={drawing}
-                        >
-                            <rect x={startPos[0]} y={startPos[1]} width="35" height="35" fill="black" key={ind} className="electrode" 
-                            onClick={()=>{alert("hello")}}/>
-                        </DraggableItem>
-                        )
-=======
                         <DraggableItem key={ind} id={ind}>
-                            <rect x={startPos[0]} y={startPos[1]} width="35" height="35" fill="black" key={ind} className="electrode" />
+                            <rect x={startPos[0]} y={startPos[1]} width="35" height="35" fill="black" key={ind} className="electrode" onClick={()=>{alert("hello")}}/>
                         </DraggableItem>
                     )
->>>>>>> 58b5172fedb826bad2b5d3105129e1d5cab981ca
                 })
                 }
             </svg>

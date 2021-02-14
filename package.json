@@ -14,11 +14,6 @@
     "file-loader": "^6.2.0",
     "idb": "^5.0.7",
     "react": "^17.0.1",
-<<<<<<< HEAD
-    "react-bootstrap": "^1.4.3",
-    "react-contextmenu": "^2.14.0",
-=======
->>>>>>> 58b5172fedb826bad2b5d3105129e1d5cab981ca
     "react-dom": "^17.0.1",
     "react-draggable": "4.3.1",
     "react-motion": "^0.5.2",

@@ -1,29 +1,32 @@
-import React, { useEffect, useState, useCallback }  from 'react'
-import ActuationSequence from './Actuation'
+import React, { useEffect, useState, useContext }  from 'react'
 import {makeStyles} from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
+import Context from "./context"
 
 export default function Scroll(props){
+    const context = useContext(Context);
     const classes = useStyles();
-    let actseq = new ActuationSequence(new Map(), []);
-    const [actlist, setActlist] = useState([]);
-    const [selected, setSelected] = useState(null);
+    const {pinActuate, currentStep} = context.state;
+    const {setCurrentStep} = context;
     return (
         <div className={classes.container}>
-            {actlist.map((item, index)=>{
+            {pinActuate.map((item, index)=>{
+                let append_string = "";
+                item.forEach((e)=>{append_string += (e.toString()+", ")});
+                append_string = append_string.slice(0,-2);
                 return <Button 
                 className={classes.button} 
-                style={{backgroundColor: selected===index?'#78b6c2':'#595a5e'}}
+                style={{backgroundColor: currentStep===index?'#78b6c2':'#595a5e'}}
                 onClick={()=>{
-                    setSelected(index);
+                    setCurrentStep(index);
                 }}
                 key={index}
-                >Frame Number: {`${index}`}</Button>
+                >
+                   {`Frame Number: ${index}      Actuated Pins: ${append_string}`}
+                </Button>
             })}
             <Button className={classes.add} onClick={()=>{
-                setActlist(actlist=>[...actlist, {x:0, y:0}]);
-                actseq.addTime();
-                setSelected(actlist.length);
+                setCurrentStep(pinActuate.length);
             }}>+</Button>
             <div style={{minWidth: "20px", height: "100px", backgroundColor:'transparent'}}></div>
 
@@ -50,7 +53,8 @@ const useStyles = makeStyles({
         height: "27vh",
         borderRadius: 5,
         color: 'white',
-        margin: "10px"
+        margin: "10px",
+        textTransform: 'none'
     },
     add: {
         width: "6%",

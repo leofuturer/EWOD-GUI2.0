@@ -8,8 +8,8 @@ const elecSize = 40
 
 export function Canvas(props) {
     const context = useContext(Context);
-    const { electrodes, drawing, mouseDown, selected } = context.state
-    const { setMouseDown, setDrawing, setElectrodes, setSelected } = context
+    const { electrodes, drawing, mouseDown, selected, startActuate, currentStep, pinActuate } = context.state
+    const { setMouseDown, setDrawing, setElectrodes, setSelected, setStartActuate, actuatePin } = context
 
     // sets mousedown status for selecting existing electrodes
     const handleMouseDown = useCallback((event) => {
@@ -249,16 +249,29 @@ export function Canvas(props) {
     /* ########################### IDB STUFF END ########################### */
 
     /* ########################### IDB STUFF END ########################### */
+    
+    function handleClick(ind){
+        if(startActuate){
+            actuatePin(ind);
+            console.log(`Actuate ${ind} electrode`)
+        }
+    }
+    
     return (
         <div>
             <button onClick={turnOnDraw}>Draw</button>
+            <button onClick={() => setStartActuate()}>Actuate</button>
             {/* <button onClick={handleCombine}>Combine</button> */}
             {/* <button onClick={handleSave}>Save</button> */}
             <svg className="greenArea" xmlns="http://www.w3.org/2000/svg"  >
                 {electrodes.initPositions.map((startPos, ind) => {
                     return (
                         <DraggableItem key={ind} id={ind}>
-                            <rect x={startPos[0]} y={startPos[1]} width="35" height="35" fill="black" key={ind} className="electrode" onClick={()=>{alert("hello")}}/>
+                            <rect x={startPos[0]} y={startPos[1]} width="35" height="35" fill="black" key={ind} className="electrode" 
+                            style={{
+                                fill: (currentStep < pinActuate.length && pinActuate[currentStep].has(ind))?'red':'black'
+                            }}
+                            onClick={()=>handleClick(ind)}/>
                         </DraggableItem>
                     )
                 })

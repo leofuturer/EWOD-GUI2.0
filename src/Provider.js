@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import Context from "./context"
+import Context from "./context";
+import ActuationSequence from "./Actuation";
 
 const Provider = props => {
     const [state, setState] = useState({
@@ -12,7 +13,7 @@ const Provider = props => {
         mouseDown: false,
         drawing: false,
         startActuate: false,
-        pinActuate: [new Set()],
+        pinActuate: [new ActuationSequence(0, "simple")],
         currentStep: 0,
     });
 
@@ -28,17 +29,25 @@ const Provider = props => {
                 setStartActuate: () => { setState((stateBoi) => ({...stateBoi, startActuate: !state.startActuate}))},
                 actuatePin: (pinNum) => {
                     let newList = state.pinActuate;
-                    if(newList[state.currentStep].has(pinNum)) newList[state.currentStep].delete(pinNum);
-                    else newList[state.currentStep].add(pinNum);
+                    newList[state.currentStep].actuatePin(pinNum);
                     setState((stateBoi) => ({...stateBoi, pinActuate: newList}));
                 },
                 setCurrentStep: (step) => {
                     setState((stateBoi) => ({...stateBoi, currentStep: step}));
-                    if(step >= state.pinActuate.length ){
+                    if(step >= state.pinActuate.length){
                         let newList = state.pinActuate;
-                        newList.push(new Set());
+                        newList.push(new ActuationSequence(step, "simple"));
                         setState((stateBoi) => ({...stateBoi, pinActuate: newList}));
                     }
+                },
+                addLoop: (from, to) =>{
+                    let newList = state.pinActuate;
+                    let newSeq = new ActuationSequence(newList.length, "loop");
+                    for(let i = from; i <= to; i++){
+                        newSeq.pushOneStep(newList[i]);
+                    }
+                    newList.push(newSeq);
+                    setState((stateBoi)=> ({...stateBoi, pinActuate: newList}));
                 }
             }}
         >

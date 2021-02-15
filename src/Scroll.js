@@ -12,7 +12,7 @@ export default function Scroll(props){
         <div className={classes.container}>
             {pinActuate.map((item, index)=>{
                 let append_string = "";
-                item.forEach((e)=>{append_string += (e.toString()+", ")});
+                item.content.forEach((e)=>{append_string += (e.toString()+", ")});
                 append_string = append_string.slice(0,-2);
                 return <Button 
                 className={classes.button} 

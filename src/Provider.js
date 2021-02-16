@@ -12,17 +12,9 @@ const Provider = props => {
         delta: null,
         mouseDown: false,
         drawing: false,
-        db: new Dexie('ElecDB'),
+        db: new Dexie('ElecDB')
     });
 
-    useEffect(
-        () => {
-            // create the store
-            state.db.version(1).stores({ formData: 'id,value' })
-        },
-        // run effect whenever the database connection changes
-        [state.db]
-    )
     useEffect(
         () => {
             // create the store
@@ -46,12 +38,7 @@ const Provider = props => {
                     })
                     setState((stateBoi) => ({ ...stateBoi, electrodes: { initPositions: initPos, deltas: dels } }))
                 }
-                // set the initial values
-                // setEwdContents({ layout: dbLayout ? dbLayout.value : [] })
-            }).catch(e => {
-                // log any errors
-                console.log(e.stack || e)
-            })
+            }).catch(e => console.log(e.stack || e))
 
             // close the database connection if form is unmounted or the
             // database connection changes

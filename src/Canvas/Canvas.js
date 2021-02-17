@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useCallback, useContext } from "react"
 import DraggableItem from "./DraggableItem"
 
-import Context from "./context"
-import { ContextMenu } from "./ContextMenu"
-import { elecSize } from "./constants"
+import Context from "../context"
+import { ContextMenu } from "../ContextMenu"
+import { elecSize } from "../constants"
 
-export function Canvas(props) {
+export function Canvas() {
     const context = useContext(Context);
     const { electrodes, drawing, mouseDown, selected } = context.state
     const { setMouseDown, setDrawing, setElectrodes, setSelected } = context
@@ -121,9 +121,6 @@ export function Canvas(props) {
     /* ########################### CONTEXT MENU END ########################### */
 
     /* ########################### COMBINE STUFF START ########################### */
-    let { combiUnselect } = props
-
-    const [combined, setCombined] = useState([])
 
     {/*
     function handleCombine(e) {

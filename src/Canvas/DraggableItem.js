@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useCallback, useState, useContext } from "react"
 import ReactDraggable from 'react-draggable';
-import "./App.css"
-import Context from "./context"
+import "./Canvas.css"
+import Context from "../context"
 
 function DraggableItem({ id, children }) {
     const context = useContext(Context)

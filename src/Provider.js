@@ -13,7 +13,7 @@ const Provider = props => {
         mouseDown: false,
         drawing: false,
         startActuate: false,
-        pinActuate: [new ActuationSequence(0, "simple")],
+        pinActuate: new Map([[0, new ActuationSequence(0, "simple")]]),
         currentStep: 0,
     });
 
@@ -29,24 +29,34 @@ const Provider = props => {
                 setStartActuate: () => { setState((stateBoi) => ({...stateBoi, startActuate: !state.startActuate}))},
                 actuatePin: (pinNum) => {
                     let newList = state.pinActuate;
-                    newList[state.currentStep].actuatePin(pinNum);
+                    newList.get(state.currentStep).actuatePin(pinNum);
                     setState((stateBoi) => ({...stateBoi, pinActuate: newList}));
                 },
                 setCurrentStep: (step) => {
-                    setState((stateBoi) => ({...stateBoi, currentStep: step}));
-                    if(step >= state.pinActuate.length){
+                    if(state.pinActuate.has(step)&&state.pinActuate.get(step).type ==='loop'){
+                        step++;
+                    }
+                    if(!state.pinActuate.has(step)){
                         let newList = state.pinActuate;
-                        newList.push(new ActuationSequence(step, "simple"));
+                        let newSeq = new ActuationSequence(step, "simple");
+                        if(state.pinActuate.has(step-1)&& state.pinActuate.get(step-1).type==='simple'){
+                            state.pinActuate.get(step-1).content.forEach(e=>{
+                                newSeq.content.add(e);
+                            })
+                        }
+                        newList.set(step, newSeq);
                         setState((stateBoi) => ({...stateBoi, pinActuate: newList}));
                     }
+                    setState((stateBoi) => ({...stateBoi, currentStep: step}));
                 },
                 addLoop: (from, to) =>{
                     let newList = state.pinActuate;
+                    let l = newList.length;
                     let newSeq = new ActuationSequence(newList.length, "loop");
                     for(let i = from; i <= to; i++){
                         newSeq.pushOneStep(newList[i]);
                     }
-                    newList.push(newSeq);
+                    newList.set(l, newSeq);
                     setState((stateBoi)=> ({...stateBoi, pinActuate: newList}));
                 }
             }}

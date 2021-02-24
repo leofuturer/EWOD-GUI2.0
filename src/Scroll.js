@@ -10,23 +10,24 @@ export default function Scroll(props){
     const {setCurrentStep} = context;
     return (
         <div className={classes.container}>
-            {pinActuate.map((item, index)=>{
+            {Array.from(pinActuate.keys()).map(key => {
+                let value = pinActuate.get(key);
                 let append_string = "";
-                item.content.forEach((e)=>{append_string += (e.toString()+", ")});
+                value.content.forEach((e)=>{append_string += (e.toString()+", ")});
                 append_string = append_string.slice(0,-2);
                 return <Button 
                 className={classes.button} 
-                style={{backgroundColor: currentStep===index?'#78b6c2':'#595a5e'}}
+                style={{backgroundColor: currentStep===key?'#78b6c2':'#595a5e'}}
                 onClick={()=>{
-                    setCurrentStep(index);
+                    setCurrentStep(key);
                 }}
-                key={index}
+                key={key}
                 >
-                   {`Frame Number: ${index}      Actuated Pins: ${append_string}`}
+                   {`Frame Number: ${key}      Actuated Pins: ${append_string}`}
                 </Button>
             })}
             <Button className={classes.add} onClick={()=>{
-                setCurrentStep(pinActuate.length);
+                setCurrentStep(pinActuate.size);
             }}>+</Button>
             <div style={{minWidth: "20px", height: "100px", backgroundColor:'transparent'}}></div>
 

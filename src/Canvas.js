@@ -136,7 +136,7 @@ export function Canvas() {
                         <DraggableItem key={ind} id={ind}>
                             <rect x={startPos[0]} y={startPos[1]} width="35" height="35" fill="black" key={ind} className="electrode"
                                 style={{
-                                    fill: (currentStep < pinActuate.length && pinActuate[currentStep].content.has(ind)) ? 'red' : 'black'
+                                    fill: (pinActuate.has(currentStep) && pinActuate.get(currentStep).content.has(ind)) ? 'red' : 'black'
                                 }}
                                 onClick={() => handleClick(ind)} />
                         </DraggableItem>

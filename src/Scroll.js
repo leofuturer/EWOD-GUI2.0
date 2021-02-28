@@ -37,13 +37,16 @@ export default function Scroll(props){
 
 const useStyles = makeStyles({
     container: {
+        zIndex: 2,
         display: "flex",
         flexDirection: "row",
+        position: "fixed",
+        left: 0,
+        bottom: -20,
         flexShrink: 0,
         overflowX: "scroll",
         width: "100vw",
-        height: "40vh",
-        marginTop: "20px",
+        height: "35vh",
         backgroundColor: "#868891",
         alignItems: 'center',
         scrollPaddingRight: "10px"

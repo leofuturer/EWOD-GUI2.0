@@ -18,6 +18,7 @@
   background-color: #93D08C;
   width: 80vw;
   height: 60vh;
+  margin-left: 10vw;
   background-size: 40px 40px;
   background-image:
     linear-gradient(to right, grey 1px, transparent 1px),

@@ -38,7 +38,7 @@ export default function Scroll(props){
         setMouseState(initState);
     }
 
-    const handleLoop = ()=>{
+    const handleLoop = () => {
         let from_int = parseInt(from);
         let to_int = parseInt(to);
         let repTime_int = parseInt(repTime);

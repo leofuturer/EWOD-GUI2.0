@@ -54,7 +54,7 @@ const Provider = props => {
                     let l = newList.length;
                     let newSeq = new ActuationSequence(newList.length, "loop");
                     for(let i = from; i <= to; i++){
-                        newSeq.pushOneStep(newList[i]);
+                        newSeq.pushOneStep(newList.get(i));
                     }
                     newList.set(l, newSeq);
                     setState((stateBoi)=> ({...stateBoi, pinActuate: newList}));

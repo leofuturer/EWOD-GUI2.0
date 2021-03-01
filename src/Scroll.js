@@ -19,7 +19,7 @@ export default function Scroll(props){
     const context = useContext(Context);
     const classes = useStyles();
     const {pinActuate, currentStep} = context.state;
-    const {setCurrentStep} = context;
+    const {setCurrentStep, addLoop} = context;
     const [mouseState, setMouseState] = useState(initState);
     const [open, setOpen] = useState(false);
     const [from, setFrom] = useState("");
@@ -38,6 +38,15 @@ export default function Scroll(props){
         setMouseState(initState);
     }
 
+    const handleLoop = ()=>{
+        let from_int = parseInt(from);
+        let to_int = parseInt(to);
+        if(from_int < to_int){
+            addLoop(from_int, to_int);
+        }
+        modelClose();
+    }
+
     const modelOpen = () => {setOpen(true)}
     const modelClose = () => {setOpen(false); handleClose();}
     const changeFrom = (event) => {setFrom(event.target.value)}
@@ -51,7 +60,8 @@ export default function Scroll(props){
                 let append_string = "";
                 value.content.forEach((e)=>{append_string += (e.toString()+", ")});
                 append_string = append_string.slice(0,-2);
-                return <Button 
+                if(value.type === "simple"){
+                    return <Button 
                 className={classes.button} 
                 style={{backgroundColor: currentStep===key?'#78b6c2':'#595a5e'}}
                 onClick={()=>{
@@ -61,6 +71,10 @@ export default function Scroll(props){
                 >
                    {`Frame Number: ${key}      Actuated Pins: ${append_string}`}
                 </Button>
+                }else{
+                    return null;
+                }
+                
             })}
             <Button className={classes.add} onClick={()=>{
                 setCurrentStep(pinActuate.size);
@@ -126,7 +140,7 @@ export default function Scroll(props){
                 <Button onClick={modelClose} color="primary">
                     Cancel
                 </Button>
-                <Button onClick={modelClose} color="primary">
+                <Button onClick={handleLoop} color="primary">
                     Confirm
                 </Button>
                 </DialogActions>

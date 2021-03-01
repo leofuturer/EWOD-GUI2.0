@@ -1,6 +1,6 @@
 import React, { useContext } from "react"
 import Context from "../context"
-import { SaveButton } from "./SaveButton"
+import SaveButton from "./SaveButton"
 import { UploadButton } from "./UploadButton"
 import { DownloadButton } from "./DownloadButton"
 

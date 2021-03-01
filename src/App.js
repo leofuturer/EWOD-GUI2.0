@@ -4,7 +4,6 @@ import { Canvas } from "./Canvas/Canvas.js"
 import { ControlPanel } from "./ControlPanel/ControlPanel"
 
 export default class App extends Component {
-
   render() {
     return (
       <div className="App">

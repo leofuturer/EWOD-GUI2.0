@@ -26,7 +26,7 @@ export function ContextMenu({ names, funcs }) {
         document.querySelector(".greenArea").addEventListener("contextmenu", handleContextMenu);
         return () => {
             document.removeEventListener("click", handleClick);
-            document.removeEventListener("contextmenu", handleContextMenu);
+            document.querySelector(".greenArea").removeEventListener("contextmenu", handleContextMenu);
         };
     }, [handleClick, handleContextMenu]);
     return (
@@ -61,7 +61,7 @@ export function ContextMenu({ names, funcs }) {
                                 {
                                     names.map((name, idx) => {
                                         return (
-                                            <MenuItem onClick={funcs[idx]}>{name}</MenuItem>
+                                            <MenuItem key={idx} onClick={funcs[idx]}>{name}</MenuItem>
                                         )
                                     })
                                 }

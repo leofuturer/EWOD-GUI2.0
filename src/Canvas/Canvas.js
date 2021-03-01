@@ -3,12 +3,13 @@ import DraggableItem from "./DraggableItem"
 
 import Context from "../context"
 import { ContextMenu } from "../ContextMenu"
-import { elecSize } from "../constants"
+import { ELEC_SIZE, CANVAS_HEIGHT, CANVAS_WIDTH } from "../constants"
 
 export function Canvas() {
     const context = useContext(Context);
     const { electrodes, drawing, mouseDown, selected } = context.state
-    const { setMouseDown, setDrawing, setElectrodes, setSelected } = context
+    // const { setMouseDown, setDrawing, setElectrodes, setSelected, setLayout } = context
+    const { setMouseDown, setDrawing, setElectrodes, setSelected, combined, setComboLayout } = context
 
     // sets mousedown status for selecting existing electrodes
     const handleMouseDown = useCallback((event) => {
@@ -45,14 +46,21 @@ export function Canvas() {
             // wanna see if curr XY = electrodes[idx] + deltas[idx]
             const initPositions = electrodes.initPositions
             const deltas = electrodes.deltas
-            const x = Math.floor(e.pageX / elecSize) * elecSize
-            const y = Math.floor(e.pageY / elecSize) * elecSize
+            const x = Math.floor(e.pageX / ELEC_SIZE) * ELEC_SIZE
+            const y = Math.floor(e.pageY / ELEC_SIZE) * ELEC_SIZE
             for (var idx = 0; idx < deltas.length; idx++)
                 // if an electrode already exists at this position
                 if (x === initPositions[idx][0] + deltas[idx][0] && y === initPositions[idx][1] + deltas[idx][1]) {
                     elecAtXY = true
                     break
                 }
+            if (!elecAtXY)
+                for (var ind = 0; ind < combined.length; ind++)
+                    if (combined[ind][0] === x && combined[ind][1] === y) {
+                        elecAtXY = true
+                        break
+                    }
+
             if (!elecAtXY) { // create new electrode
                 setElectrodes({
                     initPositions: initPositions.concat([[x, y]]),
@@ -87,8 +95,8 @@ export function Canvas() {
     function contextPaste(e) {
         if (clipboard.length > 0) {
             let newInits = []
-            let x = Math.floor(e.pageX / elecSize) * elecSize
-            let y = Math.floor(e.pageY / elecSize) * elecSize
+            let x = Math.floor(e.pageX / ELEC_SIZE) * ELEC_SIZE
+            let y = Math.floor(e.pageY / ELEC_SIZE) * ELEC_SIZE
             for (var i = 0; i < clipboard.length; i++)
                 newInits.push([x, y])
 
@@ -108,7 +116,7 @@ export function Canvas() {
         contextCopy()
         contextDelete()
     }
-    function contextDelete(e) {
+    function contextDelete() {
         let newPos = electrodes.initPositions.filter(function (val, ind) {
             return !selected.includes(ind)
         })
@@ -122,56 +130,69 @@ export function Canvas() {
 
     /* ########################### COMBINE STUFF START ########################### */
 
-    {/*
     function handleCombine(e) {
-        // using selected and deltas, want to replace selected electrodes with one big one
-        // want to enable even weirdly shaped ones -- only requirement is continguity
-
-        // FOR NOW, JUST TRYNNA GET TWO (ASSUMED) CONTIGUOUS SQUARES TOGETHER
         e.preventDefault()
         if (selected.length < 2)
             return
 
-        // we'll base the deltas off of position (0, 0)
-        let oldDeltas = [...deltas] // going to be newDelta
-        let oldHist = [...boxSelectHist]
-        var furthestLeft = 4000;
-        var furthestUp = 4000;
-        var furthestRight = 0;
-        var furthestDown = 0
-
-        // hardcoded -- only for rectangles 
-        for (var i = 0; i < selected.length; i++) {
-            let newBoi = [oldDeltas[selected[i]][0] + delta.x + selected[i] % 5 * 120, oldDeltas[selected[i]][1] + delta.y + Math.floor(selected[i] / 5) * 120]
-            if (newBoi[0] < furthestLeft) furthestLeft = newBoi[0]
-            if (newBoi[0] + 110 > furthestRight) furthestRight = newBoi[0] + 110
-            if (newBoi[1] < furthestUp) furthestUp = newBoi[1]
-            if (newBoi[1] + 110 > furthestDown) furthestDown = newBoi[1] + 110
-
-            oldDeltas[selected[i]] = [0, 0]
-            // console.log(oldDeltas)
-            oldHist[selected[i]] = 0
+        let positions = []
+        // see if selected electrodes are adjacent to each other
+        for (var j = 0; j < selected.length; j++) {
+            let init = electrodes.initPositions[selected[j]], del = electrodes.deltas[selected[j]]
+            positions.push([init[0] + del[0], init[1] + del[1], combined.length + 2])
         }
+        positions.sort(function (a, b) {
+            if (a[1] === b[1])
+                return a[0] - b[0]
+            return a[1] - b[1]
+        })
 
-        let pts = furthestLeft.toString() + "," + furthestUp.toString()
-        pts += " " + furthestLeft.toString() + "," + furthestDown.toString()
-        pts += " " + furthestRight.toString() + "," + furthestDown.toString()
-        pts += " " + furthestRight.toString() + "," + furthestUp.toString()
+        /* TODO: check that they're adjacent */
 
-        let newDeltas = oldDeltas.concat([[0, 0]])
-        combiUnselect(oldHist)
-        setDeltas(newDeltas)
-        setSelected([])
-        setCombined(combined.concat(pts))
-        // any elems >= index numButtons is a combined elem w/ initial pos (0, 0)
+        setComboLayout(combined.concat(positions))
+        contextDelete()
     }
-    */}
+
+    function isArrayInArray(arr, item) {
+        var item_as_string = JSON.stringify(item);
+
+        var contains = arr.some(function (ele) {
+            return JSON.stringify(ele) === item_as_string;
+        });
+        return contains;
+    }
+
+    const [finalCombines, setFinalCombines] = useState([]) // strings representing combined electrodes
+    useEffect(() => {
+        combined.sort(function (a, b) {
+            if (a[1] === b[1]) return a[0] - b[0]
+            return a[1] - b[1]
+        })
+
+        let combines = new Array(Math.floor(CANVAS_WIDTH * CANVAS_HEIGHT / 2)).fill(null) // just strs representing points
+        for (var i = 0; i < combined.length; i++) {
+            // [x, y, layVal]
+            let layVal = combined[i][2], c = combined[i][0], r = combined[i][1]
+            if (layVal >= 2) {
+                let x1 = c, y1 = r
+                let x2 = x1 + ELEC_SIZE, y2 = y1 + ELEC_SIZE
+                if (y2 === CANVAS_HEIGHT * ELEC_SIZE || !isArrayInArray(combined, [x1, y2, layVal])) y2 -= 5
+                if (x2 === CANVAS_WIDTH * ELEC_SIZE || !isArrayInArray(combined, [x2, y1, layVal])) x2 -= 5
+
+                let square = " " + x1 + "," + y2 + " " + x2 + "," + y2 + " " + x2 + "," + y1 + " " + x1 + "," + y1 + " " + x1 + "," + y2
+
+                if (combines[layVal - 1] === null) combines[layVal - 1] = square.slice(1)
+                else combines[layVal - 1] += square
+            }
+        }
+        console.log(combines.filter(x => x !== null))
+        setFinalCombines(combines.filter(x => x !== null))
+    }, [combined, setComboLayout])
 
     /* ########################### COMBINE STUFF END ########################### */
 
     return (
-        <div>
-            {/* <button onClick={handleCombine}>Combine</button> */}
+        <div style={{ postion: 'absolute', left: 0, top: 0, width: CANVAS_WIDTH * ELEC_SIZE, height: CANVAS_HEIGHT * ELEC_SIZE }} >
             <svg className="greenArea" xmlns="http://www.w3.org/2000/svg"  >
                 {electrodes.initPositions.map((startPos, ind) => {
                     return (
@@ -181,8 +202,16 @@ export function Canvas() {
                     )
                 })
                 }
+                {finalCombines.map((comb, ind) => {
+                    return (
+                        <DraggableItem key={ind + electrodes.deltas.length} id={ind + 2 + electrodes.deltas.length}>
+                            <polygon key={ind} points={comb} fill="black" />
+                        </DraggableItem>
+                    )
+                })
+                }
             </svg>
-            <ContextMenu names={["Cut", "Copy", "Paste", "Delete"]} funcs={[contextCut, contextCopy, contextPaste, contextDelete]} />
+            <ContextMenu names={["Cut", "Copy", "Paste", "Delete", "Combine"]} funcs={[contextCut, contextCopy, contextPaste, contextDelete, handleCombine]} />
         </div>
     );
 }

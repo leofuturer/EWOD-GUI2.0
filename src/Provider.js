@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Context from "./context"
 import Dexie from "dexie"
+import useInterval from "./useInterval"
+import { handleSave } from "./ControlPanel/SaveButton"
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from "./constants"
 
 const Provider = props => {
     const [state, setState] = useState({
@@ -12,10 +15,21 @@ const Provider = props => {
         delta: null,
         mouseDown: false,
         drawing: false,
-        db: new Dexie('ElecDB')
-    });
+        db: new Dexie('ElecDB'),
+    })
 
-    useEffect(
+    // const [layout, setLayout] = useState(new Array(CANVAS_HEIGHT).fill(-1).map(() => new Array(CANVAS_WIDTH).fill(-1)))
+    // const [layout, setLayout] = useState(
+    //     [[-1, -1, -1, -1, -1],
+    //     [-1, 2, 2, -1, -1],
+    //     [-1, -1, -1, -1, 3],
+    //     [-1, -1, -1, 3, 3],
+    //     [-1, -1, -1, -1, -1],
+    //     [-1, -1, -1, -1, -1]])
+
+    const [combined, setCombined] = useState([])
+
+    useEffect( // idb stuff
         () => {
             // create the store
             state.db.version(1).stores({ formData: 'id,value' })
@@ -48,10 +62,17 @@ const Provider = props => {
         [state.db]
     )
 
+    useInterval(() => {
+        handleSave(state.electrodes, state.db)
+    }, 10000);
+
+    // console.log(layout)
     return (
         <Context.Provider
             value={{
                 state,
+                combined,
+                setComboLayout: (newCombs) => { setCombined(newCombs) },
                 setSelected: (newSelected) => { setState((stateBoi) => ({ ...stateBoi, selected: newSelected })) },
                 setElectrodes: (elecs) => { setState((stateBoi) => ({ ...stateBoi, electrodes: elecs })) },
                 setDelta: (del) => { setState((stateBoi) => ({ ...stateBoi, delta: del })) },

@@ -5,22 +5,25 @@ import Context from "../context"
 
 function DraggableItem({ id, children }) {
     const context = useContext(Context)
-    const { setSelected, setElectrodes, setDelta } = context
+    const { setSelected, setElectrodes, setDelta, combined, setComboLayout } = context
     const { selected, delta, electrodes, mouseDown, drawing } = context.state
     let deltas = electrodes.deltas
-
     const [isDragging, setIsDragging] = useState(false);
     const isSelected = selected && selected.indexOf(id) >= 0;
 
-    let transform = null
+    let transform = {}
     let boop;
     if (delta === null) boop = { x: 0, y: 0 }
     else boop = delta
-    if (isSelected)
-        transform = { transform: `translate(${boop.x + deltas[id][0]}px, ${boop.y + deltas[id][1]}px)` }
+    if (id < deltas.length) {
+        if (isSelected)
+            transform = { transform: `translate(${boop.x + deltas[id][0]}px, ${boop.y + deltas[id][1]}px)` }
 
-    if (!isSelected)
-        transform = { transform: `translate(${deltas[id][0]}px, ${deltas[id][1]}px)` }
+        if (!isSelected)
+            transform = { transform: `translate(${deltas[id][0]}px, ${deltas[id][1]}px)` }
+    } else {
+        if (isSelected) transform = { transform: `translate(${boop.x}px, ${boop.y}px)` }
+    }
 
     const dragItem = useRef(null);
 
@@ -49,12 +52,37 @@ function DraggableItem({ id, children }) {
             }}
             onDrag={(e, data) => { setDelta({ x: data.x, y: data.y }, id) }}
             onStop={(e, data) => {
-                let copy = [...deltas]
+                let numElecs = electrodes.deltas.length
+                if (id >= numElecs) { // combined
+                    console.log(combined)
+                    let layVal = id - numElecs
+                    let selectedCombs = new Array(combined.length).fill(null)
+                    let ind = 0
+                    for (var k = 0; k < combined.length; k++)
+                        if (combined[k][2] === layVal) {
+                            console.log(combined[k])
+                            selectedCombs[ind] = combined[k]
+                            ind++
+                        }
+                    console.log(selectedCombs)
+                    selectedCombs.filter(x => x !== null)
 
-                for (var i = 0; i < selected.length; i++)
-                    copy[selected[i]] = [delta.x + deltas[selected[i]][0], delta.y + deltas[selected[i]][1]]
+                    for (var i = 0; i < selectedCombs.length; i++) {
+                        selectedCombs[0] = parseInt(selectedCombs[0]) + delta.x
+                        selectedCombs[1] = parseInt(selectedCombs[1]) + delta.y
+                    }
 
-                setElectrodes({ initPositions: electrodes.initPositions, deltas: copy })
+                    setComboLayout(combined.filter(x => x[2] !== layVal).concat(selectedCombs))
+
+                } else {
+                    let copy = [...deltas]
+
+                    for (var j = 0; j < selected.length; j++)
+                        if (selected[j] < numElecs)
+                            copy[selected[j]] = [delta.x + deltas[selected[j]][0], delta.y + deltas[selected[j]][1]]
+
+                    setElectrodes({ initPositions: electrodes.initPositions, deltas: copy })
+                }
                 setSelected([])
                 setIsDragging(false)
                 setDelta(null)

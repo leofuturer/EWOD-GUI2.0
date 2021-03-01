@@ -49,13 +49,17 @@ const Provider = props => {
                     }
                     setState((stateBoi) => ({...stateBoi, currentStep: step}));
                 },
-                addLoop: (from, to) =>{
+                addLoop: (from, to, repTime) =>{
                     let newList = state.pinActuate;
                     let l = newList.length;
                     let newSeq = new ActuationSequence(newList.length, "loop");
                     for(let i = from; i <= to; i++){
-                        newSeq.pushOneStep(newList.get(i));
+                        let step = newList.get(i);
+                        if(step.type === "simple"){
+                            newSeq.pushOneStep(newList.get(i));
+                        }
                     }
+                    newSeq.repTime = repTime;
                     newList.set(l, newSeq);
                     setState((stateBoi)=> ({...stateBoi, pinActuate: newList}));
                 }

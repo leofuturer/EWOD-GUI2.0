@@ -41,8 +41,9 @@ export default function Scroll(props){
     const handleLoop = ()=>{
         let from_int = parseInt(from);
         let to_int = parseInt(to);
+        let repTime_int = parseInt(repTime);
         if(from_int < to_int){
-            addLoop(from_int, to_int);
+            addLoop(from_int, to_int, repTime_int);
         }
         modelClose();
     }
@@ -55,6 +56,28 @@ export default function Scroll(props){
 
     return (
         <div className={classes.container} onContextMenu={handleClick}>
+            <div className={classes.subcontainer} style={{overflowX: 'visible'}}>
+               {
+                   Array.from(pinActuate.keys()).map(key => {
+                       let value = pinActuate.get(key);
+                       if(value.type==="loop"){
+                            let append_string = "";
+                            value.content.forEach((e)=>{append_string += (e.toString()+", ")});
+                            append_string = append_string.slice(0,-2);
+                            return <Button
+                                className={classes.loop}
+                                style={{width: `calc(15% * ${value.content.length})`, }}
+                                key={key}
+                            >
+                                {`Frame ${append_string} repeat ${value.repTime} times`}
+                            </Button>
+                       }else{
+                           return null;
+                       }
+                   })
+               }
+            </div>
+            <div className={classes.subcontainer}>
             {Array.from(pinActuate.keys()).map(key => {
                 let value = pinActuate.get(key);
                 let append_string = "";
@@ -69,7 +92,10 @@ export default function Scroll(props){
                 }}
                 key={key}
                 >
-                   {`Frame Number: ${key}      Actuated Pins: ${append_string}`}
+                    <div style={{display: 'flex', flexDirection: 'column'}}>
+                        <p>{`Frame Number: ${key}`}</p>     
+                        <p>{`Actuated Pins: ${append_string}`}</p>
+                    </div>
                 </Button>
                 }else{
                     return null;
@@ -80,6 +106,7 @@ export default function Scroll(props){
                 setCurrentStep(pinActuate.size);
             }}>+</Button>
             <div style={{minWidth: "20px", height: "100px", backgroundColor:'transparent'}}></div>
+            </div>
             <Menu
                 keepMounted
                 open={mouseState.mouseY !== null}
@@ -153,7 +180,7 @@ const useStyles = makeStyles({
     container: {
         zIndex: 2,
         display: "flex",
-        flexDirection: "row",
+        flexDirection: "column",
         position: "fixed",
         left: 0,
         bottom: -20,
@@ -162,8 +189,15 @@ const useStyles = makeStyles({
         width: "100vw",
         height: "35vh",
         backgroundColor: "#868891",
-        alignItems: 'center',
         scrollPaddingRight: "10px"
+    },
+    subcontainer: {
+        display: "flex",
+        flexDirection: "row",
+        flexShrink: 0,
+        // overflowX: "scroll",
+        alignItems: 'center',
+        // scrollPaddingRight: "10px"
     },
     button:{
         width: "15%",
@@ -172,7 +206,7 @@ const useStyles = makeStyles({
         borderRadius: 5,
         color: 'white',
         margin: "10px",
-        textTransform: 'none'
+        textTransform: 'none',
     },
     add: {
         width: "6%",
@@ -187,5 +221,13 @@ const useStyles = makeStyles({
         width: 400,
         height: 200,
         backgroundColor: '#778899',
+    },
+    loop:{
+        height: '4vh', 
+        backgroundColor: '#394aa8', 
+        color: 'white',
+        borderRadius: 3,
+        marginLeft: 10,
+        textTransform: 'none'
     }
 });

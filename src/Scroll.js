@@ -42,10 +42,16 @@ export default function Scroll(props){
         let from_int = parseInt(from);
         let to_int = parseInt(to);
         let repTime_int = parseInt(repTime);
-        if(from_int < to_int){
+        if(pinActuate.has(from_int) && pinActuate.get(from_int).type==="simple" &&
+            pinActuate.has(to_int) && pinActuate.get(to_int).type==="simple" && from_int < to_int){
             addLoop(from_int, to_int, repTime_int);
+            setFrom("");
+            setTo("");
+            setRepTime("");
+            modelClose();
+        }else{
+            alert("invalid block number.")
         }
-        modelClose();
     }
 
     const modelOpen = () => {setOpen(true)}
@@ -64,9 +70,17 @@ export default function Scroll(props){
                             let append_string = "";
                             value.content.forEach((e)=>{append_string += (e.toString()+", ")});
                             append_string = append_string.slice(0,-2);
+                            let startBlock = pinActuate.get(value.content[0]);
+                            let padding = startBlock.order;
                             return <Button
                                 className={classes.loop}
-                                style={{width: `calc(15% * ${value.content.length})`, }}
+                                style={{
+                                    position: 'absolute',
+                                    top: 5,
+                                    left: `calc(calc(15% + 10px) * ${padding} )`,
+                                    width: `calc(calc(15% + 10px) * ${value.content.length} - 10px)`, 
+                                    height: 25
+                                }}
                                 key={key}
                             >
                                 {`Frame ${append_string} repeat ${value.repTime} times`}
@@ -205,7 +219,8 @@ const useStyles = makeStyles({
         height: "27vh",
         borderRadius: 5,
         color: 'white',
-        margin: "10px",
+        margin: "5px",
+        marginTop: 30,
         textTransform: 'none',
     },
     add: {
@@ -215,6 +230,7 @@ const useStyles = makeStyles({
         borderRadius: 5,
         color: 'white',
         backgroundColor: '#2a78de',
+        marginTop: 30,
         margin:"10px"
     },
     modal: {

@@ -13,8 +13,9 @@ const Provider = props => {
         mouseDown: false,
         drawing: false,
         startActuate: false,
-        pinActuate: new Map([[0, new ActuationSequence(0, "simple")]]),
+        pinActuate: new Map([[0, new ActuationSequence(0, "simple", 0)]]),
         currentStep: 0,
+        simpleNum: 1,
     });
 
     return (
@@ -38,21 +39,21 @@ const Provider = props => {
                     }
                     if(!state.pinActuate.has(step)){
                         let newList = state.pinActuate;
-                        let newSeq = new ActuationSequence(step, "simple");
+                        let newSeq = new ActuationSequence(step, "simple", state.simpleNum);
                         if(state.pinActuate.has(step-1)&& state.pinActuate.get(step-1).type==='simple'){
                             state.pinActuate.get(step-1).content.forEach(e=>{
                                 newSeq.content.add(e);
                             })
                         }
                         newList.set(step, newSeq);
-                        setState((stateBoi) => ({...stateBoi, pinActuate: newList}));
+                        setState((stateBoi) => ({...stateBoi, pinActuate: newList, simpleNum: state.simpleNum+1}));
                     }
                     setState((stateBoi) => ({...stateBoi, currentStep: step}));
                 },
                 addLoop: (from, to, repTime) =>{
                     let newList = state.pinActuate;
-                    let l = newList.length;
-                    let newSeq = new ActuationSequence(newList.length, "loop");
+                    let l = newList.size;
+                    let newSeq = new ActuationSequence(newList.size, "loop");
                     for(let i = from; i <= to; i++){
                         let step = newList.get(i);
                         if(step.type === "simple"){
@@ -61,6 +62,7 @@ const Provider = props => {
                     }
                     newSeq.repTime = repTime;
                     newList.set(l, newSeq);
+                    console.log(newList);
                     setState((stateBoi)=> ({...stateBoi, pinActuate: newList}));
                 }
             }}

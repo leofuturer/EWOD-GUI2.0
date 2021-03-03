@@ -19,12 +19,13 @@ export default function Scroll(props){
     const context = useContext(Context);
     const classes = useStyles();
     const {pinActuate, currentStep} = context.state;
-    const {setCurrentStep, addLoop} = context;
+    const {setCurrentStep, addLoop, updateLoop} = context;
     const [mouseState, setMouseState] = useState(initState);
     const [open, setOpen] = useState(false);
     const [from, setFrom] = useState("");
     const [to, setTo] = useState("");
     const [repTime, setRepTime] = useState("");
+    const [update, setUpdate] = useState(null);
 
     const handleClick = (event) => {
         event.preventDefault();
@@ -38,17 +39,23 @@ export default function Scroll(props){
         setMouseState(initState);
     }
 
-    const handleLoop = () => {
+    const handleLoop = (id) => {
         let from_int = parseInt(from);
         let to_int = parseInt(to);
         let repTime_int = parseInt(repTime);
         if(pinActuate.has(from_int) && pinActuate.get(from_int).type==="simple" &&
             pinActuate.has(to_int) && pinActuate.get(to_int).type==="simple" && from_int < to_int){
-            addLoop(from_int, to_int, repTime_int);
-            setFrom("");
-            setTo("");
-            setRepTime("");
-            modelClose();
+                if(id!==null){
+                    updateLoop(from_int, to_int, repTime_int, id);
+                    setUpdate(null);
+                }else{
+                    addLoop(from_int, to_int, repTime_int);
+                }
+            
+                setFrom("");
+                setTo("");
+                setRepTime("");
+                modelClose();
         }else{
             alert("invalid block number.")
         }
@@ -80,6 +87,14 @@ export default function Scroll(props){
                                     left: `calc(calc(15% + 10px) * ${padding} )`,
                                     width: `calc(calc(15% + 10px) * ${value.content.length} - 10px)`, 
                                     height: 25
+                                }}
+                                onClick={()=>{
+                                    let loop = pinActuate.get(key);
+                                    setFrom(loop.content[0].toString());
+                                    setTo(loop.content[loop.content.length-1].toString());
+                                    setRepTime(loop.repTime.toString());
+                                    setUpdate(key);
+                                    modelOpen();
                                 }}
                                 key={key}
                             >
@@ -181,7 +196,9 @@ export default function Scroll(props){
                 <Button onClick={modelClose} color="primary">
                     Cancel
                 </Button>
-                <Button onClick={handleLoop} color="primary">
+                <Button onClick={()=>{
+                    handleLoop(update);
+                }} color="primary">
                     Confirm
                 </Button>
                 </DialogActions>

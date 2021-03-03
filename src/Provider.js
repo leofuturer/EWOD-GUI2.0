@@ -64,6 +64,19 @@ const Provider = props => {
                     newList.set(l, newSeq);
                     console.log(newList);
                     setState((stateBoi)=> ({...stateBoi, pinActuate: newList}));
+                },
+                updateLoop: (from, to, repTime, key) => {
+                    let newList = state.pinActuate;
+                    let seq = newList.get(key);
+                    seq.repTime = repTime;
+                    for(let i = 0; i < seq.content.length; i++){
+                        if(seq.content[i]<from || seq.content[i]>to){
+                            newList.get(seq.content[i]).parent = null;
+                            seq.content.splice(i, 1);
+                        }
+                    }
+                    console.log(newList);
+                    setState((stateBoi)=> ({...stateBoi, pinActuate: newList}));
                 }
             }}
         >

@@ -152,8 +152,8 @@ export default function Scroll(props){
                             style={{marginBottom: 10}}
                             value={from}
                             onChange={changeFrom}
-                            helperText={!isNaN(from)&&parseInt(Number(from))==from?"":"need to be a number"}
-                            error={isNaN(from)||parseInt(Number(from))!=from}
+                            helperText={!isNaN(from)&&parseInt(Number(from))===Number(from)?"":"need to be a number"}
+                            error={isNaN(from)||parseInt(Number(from))!==Number(from)}
                         />
                   
                          <TextField
@@ -162,8 +162,8 @@ export default function Scroll(props){
                             style={{marginBottom: 10}}
                             value={to}
                             onChange={changeTo}
-                            helperText={!isNaN(to)&&parseInt(Number(to))==to?"":"need to be a number"}
-                            error={isNaN(to)||parseInt(Number(to))!=to}
+                            helperText={!isNaN(to)&&parseInt(Number(to))===Number(to)?"":"need to be a number"}
+                            error={isNaN(to)||parseInt(Number(to))!==Number(to)}
                         />
                     
                          <TextField
@@ -172,8 +172,8 @@ export default function Scroll(props){
                             style={{marginBottom: 10}}
                             value={repTime}
                             onChange={changeRepTime}
-                            helperText={!isNaN(repTime)&&parseInt(Number(repTime))==repTime?"":"need to be a number"}
-                            error={isNaN(repTime)||parseInt(Number(repTime))!=repTime}
+                            helperText={!isNaN(repTime)&&parseInt(Number(repTime))===Number(repTime)?"":"need to be a number"}
+                            error={isNaN(repTime)||parseInt(Number(repTime))!==Number(repTime)}
                         />
                     
                 </DialogContent>

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react"
 import Context from "../context"
-import {makeStyles, useTheme} from "@material-ui/core/styles";
+import {makeStyles} from "@material-ui/core/styles";
 import clsx from 'clsx';
 import CssBaseline from '@material-ui/core/CssBaseline'
 import Drawer from "@material-ui/core/Drawer"
@@ -90,7 +90,6 @@ export function ControlPanel() {
     const { setDrawing, setSelected, setStartActuate } = context
 
     const classes = useStyles();
-    const theme = useTheme();
     const [open, setOpen] = useState(false);
 
     function toggleDraw(e) {

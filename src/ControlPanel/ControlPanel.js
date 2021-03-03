@@ -87,7 +87,7 @@ const useStyles = makeStyles((theme) => ({
 export function ControlPanel() {
     const context = useContext(Context);
     const { drawing } = context.state
-    const { setDrawing, setSelected, setStartActuate } = context
+    const { setDrawing, setSelected, setStartActuate, undo, redo } = context
 
     const classes = useStyles();
     const [open, setOpen] = useState(false);
@@ -121,10 +121,10 @@ export function ControlPanel() {
                         <ListItem button>
                             <GetApp/>
                         </ListItem>
-                        <ListItem button>
+                        <ListItem button onClick={undo}>
                             <Undo/>
                         </ListItem>
-                        <ListItem button>
+                        <ListItem button onClick={redo}>
                             <Redo/>
                         </ListItem>
                     </List>

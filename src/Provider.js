@@ -9,6 +9,8 @@ const Provider = props => {
             deltas: []
         },
         selected: [],
+        history: [],
+        historyIndex: -1,
         delta: null,
         mouseDown: false,
         drawing: false,
@@ -77,6 +79,46 @@ const Provider = props => {
                     }
                     console.log(newList);
                     setState((stateBoi)=> ({...stateBoi, pinActuate: newList}));
+                },
+                pushHistory: (obj) => {
+                    let newHist = state.history;
+                    newHist.push(obj);
+                    setState((stateBoi)=> ({...stateBoi, history: newHist, historyIndex: state.historyIndex+1}));
+
+                },
+                undo: ()=>{
+                    if(state.historyIndex>-1){
+                        let obj = state.history[state.historyIndex];
+                        let newList = state.pinActuate;
+                        // {type: "actuate", pin: number, id: number, act: true}
+                        if(obj.type === "actuate"){
+                            let seq = newList.get(obj.id)
+                            if(obj.act){
+                                seq.content.delete(obj.pin);
+                            }else{
+                                seq.content.add(obj.pin);
+                            }
+                        }
+                        //to be continue
+                        setState((stateBoi)=> ({...stateBoi, pinActuate: newList, historyIndex: state.historyIndex-1}));
+                    }
+                },
+                redo: ()=>{
+                    if(state.historyIndex<state.history.length-1){
+                        let obj = state.history[state.historyIndex+1];
+                        let newList = state.pinActuate;
+                        // {type: "actuate", pin: number, id: number, act: true}
+                        if(obj.type === "actuate"){
+                            let seq = newList.get(obj.id)
+                            if(!obj.act){
+                                seq.content.delete(obj.pin);
+                            }else{
+                                seq.content.add(obj.pin);
+                            }
+                        }
+                        //to be continue
+                        setState((stateBoi)=> ({...stateBoi, pinActuate: newList, historyIndex: state.historyIndex+1}));
+                    }
                 }
             }}
         >

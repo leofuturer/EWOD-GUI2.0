@@ -10,7 +10,7 @@ const elecSize = 40
 export function Canvas() {
     const context = useContext(Context);
     const { electrodes, drawing, mouseDown, selected, startActuate, currentStep, pinActuate } = context.state
-    const { setMouseDown, setDrawing, setElectrodes, setSelected, actuatePin } = context
+    const { setMouseDown, setDrawing, setElectrodes, setSelected, actuatePin, pushHistory } = context
 
     // sets mousedown status for selecting existing electrodes
     const handleMouseDown = useCallback((event) => {
@@ -124,6 +124,11 @@ export function Canvas() {
 
     function handleClick(ind) {
         if (startActuate) {
+            if(pinActuate.get(currentStep).content.has(ind)){
+                pushHistory({type: "actuate", pin: ind, id: currentStep, act: false});
+            }else{
+                pushHistory({type: "actuate", pin: ind, id: currentStep, act: true});
+            }
             actuatePin(ind);
             console.log(`Actuate ${ind} electrode`)
         }

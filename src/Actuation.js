@@ -1,10 +1,11 @@
 export default class ActuationSequence{
-  constructor(id, type, repTime = 1){
+  constructor(id, type, order=0){
     this.id = id;
     this.type = type;
     this.content = type==="simple"?new Set():[];
-    this.repTime = repTime;
+    this.repTime = 1;
     this.parent = null;
+    this.order = order;
   }    
   actuatePin(pinNum){
     if(this.type==="loop") console.log('loop type cannot be actuated');

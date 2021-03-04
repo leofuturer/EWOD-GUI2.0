@@ -6,10 +6,11 @@ import { ContextMenu } from "./ContextMenu"
 
 const elecSize = 40
 
+
 export function Canvas() {
     const context = useContext(Context);
     const { electrodes, drawing, mouseDown, selected, startActuate, currentStep, pinActuate } = context.state
-    const { setMouseDown, setDrawing, setElectrodes, setSelected, actuatePin } = context
+    const { setMouseDown, setDrawing, setElectrodes, setSelected, actuatePin, pushHistory } = context
 
     // sets mousedown status for selecting existing electrodes
     const handleMouseDown = useCallback((event) => {
@@ -46,8 +47,8 @@ export function Canvas() {
             // wanna see if curr XY = electrodes[idx] + deltas[idx]
             const initPositions = electrodes.initPositions
             const deltas = electrodes.deltas
-            const x = Math.floor(e.pageX / elecSize) * elecSize
-            const y = Math.floor(e.pageY / elecSize) * elecSize
+            const x = Math.floor(e.pageX / elecSize - 4) * elecSize
+            const y = Math.floor(e.pageY / elecSize - 3) * elecSize
             for (var idx = 0; idx < deltas.length; idx++)
                 // if an electrode already exists at this position
                 if (x === initPositions[idx][0] + deltas[idx][0] && y === initPositions[idx][1] + deltas[idx][1]) {
@@ -123,20 +124,25 @@ export function Canvas() {
 
     function handleClick(ind) {
         if (startActuate) {
+            if(pinActuate.get(currentStep).content.has(ind)){
+                pushHistory({type: "actuate", pin: ind, id: currentStep, act: false});
+            }else{
+                pushHistory({type: "actuate", pin: ind, id: currentStep, act: true});
+            }
             actuatePin(ind);
             console.log(`Actuate ${ind} electrode`)
         }
     }
 
     return (
-        <div>
+        <div style={{postion: 'absolute', left: 0, top: 0, width: '120vw', height: '120vh'}}>
             <svg className="greenArea" xmlns="http://www.w3.org/2000/svg"  >
                 {electrodes.initPositions.map((startPos, ind) => {
                     return (
                         <DraggableItem key={ind} id={ind}>
                             <rect x={startPos[0]} y={startPos[1]} width="35" height="35" fill="black" key={ind} className="electrode"
                                 style={{
-                                    fill: (currentStep < pinActuate.length && pinActuate[currentStep].content.has(ind)) ? 'red' : 'black'
+                                    fill: (pinActuate.has(currentStep) && pinActuate.get(currentStep).content.has(ind)) ? 'red' : 'black'
                                 }}
                                 onClick={() => handleClick(ind)} />
                         </DraggableItem>

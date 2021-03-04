@@ -82,6 +82,7 @@ const Provider = props => {
                 },
                 pushHistory: (obj) => {
                     let newHist = state.history;
+                    newHist.length = state.historyIndex+1;
                     newHist.push(obj);
                     setState((stateBoi)=> ({...stateBoi, history: newHist, historyIndex: state.historyIndex+1}));
 

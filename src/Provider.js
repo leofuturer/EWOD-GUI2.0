@@ -72,9 +72,13 @@ const Provider = props => {
                     let seq = newList.get(key);
                     seq.repTime = repTime;
                     for(let i = 0; i < seq.content.length; i++){
-                        if(seq.content[i]<from || seq.content[i]>to){
-                            newList.get(seq.content[i]).parent = null;
-                            seq.content.splice(i, 1);
+                        state.pinActuate.get(seq.content[i]).parent = null;
+                    }
+                    seq.content = [];
+                    for(let i = from; i <= to; i++){
+                        let step = newList.get(i);
+                        if(step.type === "simple"){
+                            seq.pushOneStep(newList.get(i));
                         }
                     }
                     console.log(newList);

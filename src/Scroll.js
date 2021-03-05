@@ -47,6 +47,7 @@ export default function Scroll(props){
             pinActuate.has(to_int) && pinActuate.get(to_int).type==="simple" && from_int < to_int){
                 if(id!==null){
                     updateLoop(from_int, to_int, repTime_int, id);
+                    console.log("update!");
                     setUpdate(null);
                 }else{
                     addLoop(from_int, to_int, repTime_int);

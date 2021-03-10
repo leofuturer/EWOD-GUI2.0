@@ -52,6 +52,18 @@ const Provider = props => {
                     }
                     setState((stateBoi) => ({...stateBoi, currentStep: step}));
                 },
+                deleteCurrentStep: (step) => {
+                    if(state.pinActuate.has(step)){
+                        let newList = state.pinActuate;
+                        if(newList.get(step).parent !== null){
+                            let parent = newList.get(step).parent;
+                            let ind = newList.get(parent).content.indexOf(step);
+                            newList.get(parent).content.splice(ind,1);
+                        }
+                        newList.delete(step);
+                        setState((stateBoi) => ({...stateBoi, pinActuate: newList, currentStep: step-1}));
+                    }
+                },
                 addLoop: (from, to, repTime) =>{
                     let newList = state.pinActuate;
                     let l = newList.size;
@@ -83,6 +95,14 @@ const Provider = props => {
                     }
                     console.log(newList);
                     setState((stateBoi)=> ({...stateBoi, pinActuate: newList}));
+                },
+                deleteLoop: (id) => {
+                    let newList = state.pinActuate;
+                    newList.get(id).content.forEach(e =>{
+                        newList.get(e).parent = null;
+                    });
+                    newList.delete(id);
+                    setState((stateBoi) => ({...stateBoi, pinActuate: newList}));
                 },
                 pushHistory: (obj) => {
                     let newHist = state.history;

@@ -73,6 +73,8 @@ export default function Scroll(props){
     const changeRepTime = (event) => {setRepTime(event.target.value)}
 
     return (
+        <div>
+            <div style={{position: 'fixed', bottom: '33vh', height: '30px', width: '100vw', backgroundColor:'#618dd4', zIndex: 2}}></div>
         <div className={classes.container} onContextMenu={handleClick}>
             <div className={classes.subcontainer} style={{overflowX: 'visible'}}>
                {
@@ -214,6 +216,7 @@ export default function Scroll(props){
                 </DialogActions>
             </Dialog>
         </div>
+        </div>
     )
 }
 
@@ -228,7 +231,7 @@ const useStyles = makeStyles({
         flexShrink: 0,
         overflowX: "scroll",
         width: "100vw",
-        height: "35vh",
+        height: "36vh",
         backgroundColor: "#868891",
         scrollPaddingRight: "10px"
     },

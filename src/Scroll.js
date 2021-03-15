@@ -19,7 +19,7 @@ export default function Scroll(props){
     const context = useContext(Context);
     const classes = useStyles();
     const {pinActuate, currentStep} = context.state;
-    const {setCurrentStep, addLoop, updateLoop} = context;
+    const {setCurrentStep, addLoop, updateLoop, deleteCurrentStep, deleteLoop} = context;
     const [mouseState, setMouseState] = useState(initState);
     const [open, setOpen] = useState(false);
     const [from, setFrom] = useState("");
@@ -43,8 +43,7 @@ export default function Scroll(props){
         let from_int = parseInt(from);
         let to_int = parseInt(to);
         let repTime_int = parseInt(repTime);
-        if(pinActuate.has(from_int) && pinActuate.get(from_int).type==="simple" &&
-            pinActuate.has(to_int) && pinActuate.get(to_int).type==="simple" && from_int < to_int){
+        if(from_int < to_int){
                 if(id!==null){
                     updateLoop(from_int, to_int, repTime_int, id);
                     console.log("update!");
@@ -60,6 +59,11 @@ export default function Scroll(props){
         }else{
             alert("invalid block number.")
         }
+    }
+
+    const handleDelete = () => {
+        deleteCurrentStep(currentStep);
+        modelClose();
     }
 
     const modelOpen = () => {setOpen(true)}
@@ -123,7 +127,7 @@ export default function Scroll(props){
                 key={key}
                 >
                     <div style={{display: 'flex', flexDirection: 'column'}}>
-                        <p>{`Frame Number: ${key}`}</p>     
+                        <p>{`Frame Number: ${value.order}`}</p>     
                         <p>{`Actuated Pins: ${append_string}`}</p>
                     </div>
                 </Button>
@@ -151,7 +155,7 @@ export default function Scroll(props){
                 <MenuItem onClick={handleClose}>Copy</MenuItem>
                 <MenuItem onClick={handleClose}>Paste</MenuItem>
                 <MenuItem onClick={modelOpen}>Loop</MenuItem>
-                <MenuItem onClick={handleClose}>Delete</MenuItem>
+                <MenuItem onClick={handleDelete}>Delete</MenuItem>
             </Menu>
             <Dialog
                 open={open}
@@ -197,6 +201,11 @@ export default function Scroll(props){
                 <Button onClick={modelClose} color="primary">
                     Cancel
                 </Button>
+                {update !== null ? 
+                <Button onClick={()=>{deleteLoop(update); setUpdate(null); modelClose();}} color="primary">
+                    Delete
+                </Button>:null
+                }
                 <Button onClick={()=>{
                     handleLoop(update);
                 }} color="primary">

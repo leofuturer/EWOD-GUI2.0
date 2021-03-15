@@ -61,19 +61,25 @@ const Provider = props => {
                             newList.get(parent).content.splice(ind,1);
                         }
                         newList.delete(step);
-                        setState((stateBoi) => ({...stateBoi, pinActuate: newList, currentStep: step-1}));
+                        let n = 1;
+                        newList.forEach((value, key)=>{
+                            if(value.type === 'simple'){
+                                value.order = n;
+                                n++;
+                            }
+                        })
+                        setState((stateBoi) => ({...stateBoi, pinActuate: newList, currentStep: step-1, simpleNum: state.simpleNum-1}));
                     }
                 },
                 addLoop: (from, to, repTime) =>{
                     let newList = state.pinActuate;
                     let l = newList.size;
                     let newSeq = new ActuationSequence(newList.size, "loop");
-                    for(let i = from; i <= to; i++){
-                        let step = newList.get(i);
-                        if(step.type === "simple"){
-                            newSeq.pushOneStep(newList.get(i));
+                    newList.forEach((value, key)=>{
+                        if(value.type==='simple' && value.order>=from && value.order <= to){
+                            newSeq.pushOneStep(value);
                         }
-                    }
+                    })
                     newSeq.repTime = repTime;
                     newList.set(l, newSeq);
                     console.log(newList);
@@ -87,12 +93,11 @@ const Provider = props => {
                         state.pinActuate.get(seq.content[i]).parent = null;
                     }
                     seq.content = [];
-                    for(let i = from; i <= to; i++){
-                        let step = newList.get(i);
-                        if(step.type === "simple"){
-                            seq.pushOneStep(newList.get(i));
+                    newList.forEach((value, key)=>{
+                        if(value.type==='simple' && value.order>=from && value.order <= to){
+                            seq.pushOneStep(value);
                         }
-                    }
+                    })
                     console.log(newList);
                     setState((stateBoi)=> ({...stateBoi, pinActuate: newList}));
                 },
@@ -108,7 +113,12 @@ const Provider = props => {
                     let newHist = state.history;
                     newHist.length = state.historyIndex+1;
                     newHist.push(obj);
-                    setState((stateBoi)=> ({...stateBoi, history: newHist, historyIndex: state.historyIndex+1}));
+                    let newIndex = state.historyIndex+1;
+                    if(newHist.length > 10) {
+                        newHist.shift();
+                        newIndex--;
+                    }
+                    setState((stateBoi)=> ({...stateBoi, history: newHist, historyIndex: newIndex}));
 
                 },
                 undo: ()=>{

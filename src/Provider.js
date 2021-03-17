@@ -61,7 +61,7 @@ const Provider = props => {
                             newList.get(parent).content.splice(ind,1);
                         }
                         newList.delete(step);
-                        let n = 1;
+                        let n = 0;
                         newList.forEach((value, key)=>{
                             if(value.type === 'simple'){
                                 value.order = n;
@@ -69,6 +69,19 @@ const Provider = props => {
                             }
                         })
                         setState((stateBoi) => ({...stateBoi, pinActuate: newList, currentStep: step-1, simpleNum: state.simpleNum-1}));
+                    }
+                },
+                duplicateCurrentStep: (step) => {
+                    if(state.pinActuate.has(step)){
+                        let newList = state.pinActuate;
+                        let next = Math.max(...[ ...newList.keys() ])+1;
+                        let newSeq = new ActuationSequence(next, "simple", state.simpleNum);
+                        newList.get(step).content.forEach(e => {
+                            newSeq.content.add(e);
+                        })
+                        newSeq.parent = null;
+                        newList.set(next, newSeq);
+                        setState((stateBoi) => ({...stateBoi, pinActuate: newList, simpleNum: state.simpleNum+1}));
                     }
                 },
                 addLoop: (from, to, repTime) =>{

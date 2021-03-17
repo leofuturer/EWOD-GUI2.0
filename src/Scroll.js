@@ -19,7 +19,7 @@ export default function Scroll(props){
     const context = useContext(Context);
     const classes = useStyles();
     const {pinActuate, currentStep} = context.state;
-    const {setCurrentStep, addLoop, updateLoop, deleteCurrentStep, deleteLoop} = context;
+    const {setCurrentStep, addLoop, updateLoop, deleteCurrentStep, deleteLoop, duplicateCurrentStep} = context;
     const [mouseState, setMouseState] = useState(initState);
     const [open, setOpen] = useState(false);
     const [from, setFrom] = useState("");
@@ -154,8 +154,10 @@ export default function Scroll(props){
                     : undefined
                 }
             >
-                <MenuItem onClick={handleClose}>Copy</MenuItem>
-                <MenuItem onClick={handleClose}>Paste</MenuItem>
+                <MenuItem onClick={()=>{
+                    duplicateCurrentStep(currentStep);
+                    handleClose();
+                }}>Duplicate</MenuItem>
                 <MenuItem onClick={modelOpen}>Loop</MenuItem>
                 <MenuItem onClick={handleDelete}>Delete</MenuItem>
             </Menu>

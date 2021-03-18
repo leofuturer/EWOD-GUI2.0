@@ -8,6 +8,8 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import TextField from '@material-ui/core/TextField';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import {PlayArrow, SkipNext, SkipPrevious, Pause, Replay, AddCircleOutline} from '@material-ui/icons';
+import IconButton from '@material-ui/core/IconButton';
 import Context from "./context"
 
 const initState = {
@@ -74,7 +76,23 @@ export default function Scroll(props){
 
     return (
         <div>
-            <div style={{position: 'fixed', bottom: '33vh', height: '30px', width: '100vw', backgroundColor:'#618dd4', zIndex: 2}}></div>
+            <div className={classes.playTab}>
+                <IconButton>
+                    <Pause fontSize='small' style={{color: 'white'}}/>
+                </IconButton>
+                <IconButton>
+                    <SkipPrevious fontSize='small' style={{color: 'white'}}/>
+                </IconButton>
+                <IconButton>
+                    <PlayArrow fontSize='small' style={{color: 'white'}}/>
+                </IconButton>
+                <IconButton>
+                    <SkipNext fontSize='small' style={{color: 'white'}}/>
+                </IconButton>
+                <IconButton>
+                    <Replay fontSize='small' style={{color: 'white'}}/>
+                </IconButton>
+            </div>
         <div className={classes.container} onContextMenu={handleClick}>
             <div className={classes.subcontainer} style={{overflowX: 'visible'}}>
                {
@@ -140,7 +158,9 @@ export default function Scroll(props){
             })}
             <Button className={classes.add} onClick={()=>{
                 setCurrentStep(pinActuate.size);
-            }}>+</Button>
+            }}>
+                <AddCircleOutline/>
+            </Button>
             <div style={{minWidth: "20px", height: "100px", backgroundColor:'transparent'}}></div>
             </div>
             <Menu
@@ -277,5 +297,16 @@ const useStyles = makeStyles({
         borderRadius: 3,
         marginLeft: 10,
         textTransform: 'none'
+    },
+    playTab:{
+        position: 'fixed', 
+        bottom: '33vh', 
+        height: '30px', 
+        width: '100vw', 
+        backgroundColor:'#618dd4', 
+        zIndex: 2,
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'flex-end'
     }
 });

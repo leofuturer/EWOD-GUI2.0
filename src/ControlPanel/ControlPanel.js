@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
     },
     drawerOpen: {
       width: drawerWidth,
-      height: '62vh',
+      height: '63vh',
       transition: theme.transitions.create('width', {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.enteringScreen,
@@ -65,7 +65,7 @@ const useStyles = makeStyles((theme) => ({
       }),
       overflowX: 'hidden',
       width: theme.spacing(5) + 1,
-      height: '62vh',
+      height: '63vh',
       [theme.breakpoints.up('sm')]: {
         width: theme.spacing(6) + 1,
       },

@@ -164,28 +164,48 @@ export function Canvas() {
 
     const [finalCombines, setFinalCombines] = useState([]) // strings representing combined electrodes
     useEffect(() => {
-        combined.sort(function (a, b) {
+        if (combined.length === 0)
+            return
+        combined.sort(function (a, b) { // by row then column
             if (a[1] === b[1]) return a[0] - b[0]
             return a[1] - b[1]
         })
 
-        let combines = new Array(Math.floor(CANVAS_WIDTH * CANVAS_HEIGHT / 2)).fill(null) // just strs representing points
-        for (var i = 0; i < combined.length; i++) {
-            // [x, y, layVal]
-            let layVal = combined[i][2], c = combined[i][0], r = combined[i][1]
-            if (layVal >= 2) {
-                let x1 = c, y1 = r
-                let x2 = x1 + ELEC_SIZE, y2 = y1 + ELEC_SIZE
-                if (y2 === CANVAS_HEIGHT * ELEC_SIZE || !isArrayInArray(combined, [x1, y2, layVal])) y2 -= 5
-                if (x2 === CANVAS_WIDTH * ELEC_SIZE || !isArrayInArray(combined, [x2, y1, layVal])) x2 -= 5
-
-                let square = " " + x1 + "," + y2 + " " + x2 + "," + y2 + " " + x2 + "," + y1 + " " + x1 + "," + y1 + " " + x1 + "," + y2
-
-                if (combines[layVal - 1] === null) combines[layVal - 1] = square.slice(1)
-                else combines[layVal - 1] += square
-            }
+        let byX = {}
+        for (var j = 0; j < combined.length; j++) {
+            let x = combined[j][0], yAndLayVal = [combined[j][1], combined[j][2]]
+            if (byX.hasOwnProperty(x)) byX[x].push(yAndLayVal)
+            else byX[x] = [yAndLayVal]
         }
-        console.log(combines.filter(x => x !== null))
+        let combines = new Array(Math.floor(CANVAS_WIDTH * CANVAS_HEIGHT / 2)).fill(null) // just strs representing points
+
+        // inspiration from old EWOD-GUI
+        for (var i = 0; i < combined.length; i++) {
+            var x = combined[i][0], x2 = x + ELEC_SIZE
+            var y = combined[i][1], y2 = y + ELEC_SIZE
+            let pathstring = '', layVal = combined[i][2]
+
+            // has electrode on right side
+            if (i + 1 < combined.length && combined[i + 1][0] === x2 && combined[i + 1][2] === layVal) {
+                if (isArrayInArray(byX[x], [y2, layVal])) {
+                    if (isArrayInArray(byX[x2], [y2, layVal]))   //has electrode on three sides
+                        pathstring = 'M' + x + ' ' + y + ' L' + x + ' ' + (y2 + 2) + ' L' + (x2 + 2) + ' ' + (y2 + 2) + ' L' + (x2 + 2) + ' ' + y + ' Z ';
+                    else {  //has electrode on right and bottom side only
+                        pathstring = 'M' + x + ' ' + y + ' L' + x + ' ' + (y2 - 5) + ' L' + (x2 + 2) + ' ' + (y2 - 5) + ' L' + (x2 + 2) + ' ' + y + ' Z ';
+                        pathstring += 'M' + x + ' ' + (y2 - 5) + ' L' + x + ' ' + (y2 + 2) + ' L' + (x2 - 5) + ' ' + (y2 + 2) + ' L' + (x2 - 5) + ' ' + (y2 - 5) + ' Z ';
+                    }
+                }
+                else    //has electrode on right only
+                    pathstring = 'M' + x + ' ' + y + ' L' + x + ' ' + (y2 - 5) + ' L' + (x2 + 2) + ' ' + (y2 - 5) + ' L' + (x2 + 2) + ' ' + y + ' Z ';
+            }
+            else if (isArrayInArray(byX[x], [y2, layVal])) //has electrode on down only
+                pathstring = 'M' + x + ' ' + y + ' L' + x + ' ' + (y2 + 2) + ' L' + (x2 - 5) + ' ' + (y2 + 2) + ' L' + (x2 - 5) + ' ' + y + ' Z ';
+            else                                //has no electrode on either down or right
+                pathstring = 'M' + x + ' ' + y + ' L' + x + ' ' + (y2 - 5) + ' L' + (x2 - 5) + ' ' + (y2 - 5) + ' L' + (x2 - 5) + ' ' + y + ' Z ';
+
+            if (combines[layVal - 1] === null) combines[layVal - 1] = pathstring
+            else combines[layVal - 1] += pathstring
+        }
         setFinalCombines(combines.filter(x => x !== null))
     }, [combined, setComboLayout])
 
@@ -205,7 +225,7 @@ export function Canvas() {
                 {finalCombines.map((comb, ind) => {
                     return (
                         <DraggableItem key={ind + electrodes.deltas.length} id={ind + 2 + electrodes.deltas.length}>
-                            <polygon key={ind} points={comb} fill="black" />
+                            <path key={ind} d={comb} fill="black" />
                         </DraggableItem>
                     )
                 })

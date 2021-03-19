@@ -3,12 +3,11 @@ import ReactDraggable from 'react-draggable';
 import "./Canvas.css"
 import Context from "../context"
 
-function DraggableItem({ id, children }) {
+function DraggableComb({ id, children }) {
     const context = useContext(Context)
-    const { setSelected, setElectrodes, setDelta, setDragging } = context
+    const { setDelta, setComboLayout, setCombSelected, setDragging } = context
     const { delta, mouseDown, drawing, isDragging } = context.state
-    const { electrodes, selected } = context.squares
-    let deltas = electrodes.deltas
+    const { allCombined, selected } = context.combined
 
     const isSelected = selected && selected.indexOf(id) >= 0;
 
@@ -17,19 +16,14 @@ function DraggableItem({ id, children }) {
     if (delta === null) boop = { x: 0, y: 0 }
     else boop = delta
 
-    if (isSelected)
-        transform = { transform: `translate(${boop.x + deltas[id][0]}px, ${boop.y + deltas[id][1]}px)` }
-
-    if (!isSelected)
-        transform = { transform: `translate(${deltas[id][0]}px, ${deltas[id][1]}px)` }
+    if (isSelected) transform = { transform: `translate(${boop.x}px, ${boop.y}px)` }
 
     const dragItem = useRef(null);
 
-    // handles selection of existing electrodes
     const handleMouseOver = useCallback(() => {
         if (mouseDown === true && !isSelected && !drawing && delta === null)
-            setSelected([...new Set([...selected, id])])
-    }, [delta, drawing, id, isSelected, mouseDown, selected, setSelected])
+            setCombSelected([...new Set([...selected, id])])
+    }, [delta, drawing, id, isSelected, mouseDown, selected, setCombSelected])
 
     useEffect(() => {
         if (dragItem && dragItem.current) {
@@ -50,15 +44,25 @@ function DraggableItem({ id, children }) {
             }}
             onDrag={(e, data) => { setDelta({ x: data.x, y: data.y }, id) }}
             onStop={() => {
-                let copy = [...deltas]
+                selected.sort(function (a, b) { return a - b })
 
-                for (var j = 0; j < selected.length; j++)
-                    copy[selected[j]] = [delta.x + deltas[selected[j]][0], delta.y + deltas[selected[j]][1]]
+                let combines = []
+                for (var i = 0; i < selected.length; i++) {
+                    let layVal = selected[i]
+                    let selectedCombs = []
+                    for (var k = 0; k < allCombined.length; k++)
+                        if (allCombined[k][2] === layVal) {
+                            allCombined[k][0] = parseInt(allCombined[k][0]) + delta.x
+                            allCombined[k][1] = parseInt(allCombined[k][1]) + delta.y
+                            selectedCombs.push(allCombined[k])
+                        }
+                    combines = allCombined.filter(x => x[2] !== layVal).concat(selectedCombs)
+                }
 
-                setElectrodes({ initPositions: electrodes.initPositions, deltas: copy })
-                setSelected([])
+                setCombSelected([])
                 setDragging(false)
                 setDelta(null)
+                setComboLayout(combines)
             }}
             position={{ x: 0, y: 0 }}
             disabled={!isSelected}
@@ -76,4 +80,4 @@ function DraggableItem({ id, children }) {
     )
 }
 
-export default DraggableItem
+export default DraggableComb

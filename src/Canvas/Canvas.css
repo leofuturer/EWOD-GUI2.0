@@ -29,13 +29,16 @@
   /* border: blue;
   border-width: 2;
   border-style: solid; */
-  /* stroke-width: 5px;
-  stroke: blue; */
+  stroke-width: 2px;
+  stroke: blue;
 
-  outline-color: rgb(0, 0, 255);;
+  fill: blue !important;
+
+  /* outline-color: rgb(0, 0, 255);;
   outline-style: solid;
   outline-width: 5px;
-  outline-offset: -5px;
+  outline-offset: -5px; */
+
   cursor: grab;
 }
 

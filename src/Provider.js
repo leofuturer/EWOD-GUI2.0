@@ -3,31 +3,28 @@ import Context from "./context"
 import Dexie from "dexie"
 import useInterval from "./useInterval"
 import { handleSave } from "./ControlPanel/SaveButton"
-import { CANVAS_HEIGHT, CANVAS_WIDTH } from "./constants"
 
 const Provider = props => {
-    const [state, setState] = useState({
+    const [squares, setSquares] = useState({
         electrodes: {
             initPositions: [],
             deltas: []
         },
         selected: [],
+    })
+
+    const [state, setState] = useState({
         delta: null,
         mouseDown: false,
         drawing: false,
         db: new Dexie('ElecDB'),
+        isDragging: false
     })
 
-    // const [layout, setLayout] = useState(new Array(CANVAS_HEIGHT).fill(-1).map(() => new Array(CANVAS_WIDTH).fill(-1)))
-    // const [layout, setLayout] = useState(
-    //     [[-1, -1, -1, -1, -1],
-    //     [-1, 2, 2, -1, -1],
-    //     [-1, -1, -1, -1, 3],
-    //     [-1, -1, -1, 3, 3],
-    //     [-1, -1, -1, -1, -1],
-    //     [-1, -1, -1, -1, -1]])
-
-    const [combined, setCombined] = useState([])
+    const [combined, setCombined] = useState({
+        selected: [],
+        allCombined: []
+    })
 
     useEffect( // idb stuff
         () => {
@@ -50,7 +47,7 @@ const Provider = props => {
                             dels.push([0, 0])
                         }
                     })
-                    setState((stateBoi) => ({ ...stateBoi, electrodes: { initPositions: initPos, deltas: dels } }))
+                    setSquares((stateBoi) => ({ ...stateBoi, electrodes: { initPositions: initPos, deltas: dels } }))
                 }
             }).catch(e => console.log(e.stack || e))
 
@@ -63,7 +60,7 @@ const Provider = props => {
     )
 
     useInterval(() => {
-        handleSave(state.electrodes, state.db)
+        handleSave(squares.electrodes, state.db)
     }, 10000);
 
     // console.log(layout)
@@ -71,10 +68,13 @@ const Provider = props => {
         <Context.Provider
             value={{
                 state,
+                squares,
                 combined,
-                setComboLayout: (newCombs) => { setCombined(newCombs) },
-                setSelected: (newSelected) => { setState((stateBoi) => ({ ...stateBoi, selected: newSelected })) },
-                setElectrodes: (elecs) => { setState((stateBoi) => ({ ...stateBoi, electrodes: elecs })) },
+                setDragging: (bool) => { setState((stateBoi) => ({ ...stateBoi, isDragging: bool })) },
+                setCombSelected: (newSelected) => { setCombined((stateBoi) => ({ ...stateBoi, selected: newSelected })) },
+                setComboLayout: (newCombs) => { setCombined((stateBoi) => ({ ...stateBoi, allCombined: newCombs })) },
+                setSelected: (newSelected) => { setSquares((stateBoi) => ({ ...stateBoi, selected: newSelected })) },
+                setElectrodes: (elecs) => { setSquares((stateBoi) => ({ ...stateBoi, electrodes: elecs })) },
                 setDelta: (del) => { setState((stateBoi) => ({ ...stateBoi, delta: del })) },
                 setMouseDown: (md) => { setState((stateBoi) => ({ ...stateBoi, mouseDown: md })) },
                 setDrawing: (draw) => { setState((stateBoi) => ({ ...stateBoi, drawing: draw })) }

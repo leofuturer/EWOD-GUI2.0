@@ -63,6 +63,33 @@ export default function Scroll(props){
         }
     }
 
+    function sleep(time){
+        return new Promise(res => setTimeout(res, time));
+    }
+
+    async function handlePlay(){
+        let visited = new Set();
+        for(let value of pinActuate.values()){
+            if(value.type === 'simple' && !visited.has(value.id)){
+                visited.add(value.id);
+                if(value.parent!== null){
+                    let parent = pinActuate.get(value.parent);
+                    for(let i = 0; i < parent.repTime; i++){
+                        for(let e of parent.content){
+                            setCurrentStep(e);
+                            visited.add(e);
+                            await sleep(500);
+                        }
+                    }
+                }else{
+                    setCurrentStep(value.id);
+                    await sleep(500);
+                }
+            }
+        }
+        
+    }
+
     const handleDelete = () => {
         deleteCurrentStep(currentStep);
         modelClose();
@@ -83,7 +110,7 @@ export default function Scroll(props){
                 <IconButton>
                     <SkipPrevious fontSize='small' style={{color: 'white'}}/>
                 </IconButton>
-                <IconButton>
+                <IconButton onClick={handlePlay}>
                     <PlayArrow fontSize='small' style={{color: 'white'}}/>
                 </IconButton>
                 <IconButton>

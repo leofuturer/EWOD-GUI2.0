@@ -25,6 +25,7 @@ const Provider = props => {
         selected: [],
         allCombined: []
     })
+    // console.log(combined.allCombined)
 
     useEffect( // idb stuff
         () => {

@@ -1,13 +1,14 @@
-import React, { useRef, useEffect, useCallback, useContext } from "react"
+import React, { useRef, useEffect, useCallback, useContext, useState } from "react"
 import ReactDraggable from 'react-draggable';
+import useSelected from "./useSelected"
 import "./Canvas.css"
 import Context from "../context"
 
 function DraggableComb({ id, children }) {
     const context = useContext(Context)
-    const { setDelta, setComboLayout, setCombSelected, setDragging } = context
-    const { delta, mouseDown, drawing, isDragging } = context.state
-    const { allCombined, selected } = context.combined
+    const { setDelta, setCombSelected } = context
+    const { delta, mouseDown, drawing } = context.state
+    const { selected } = context.combined
 
     const isSelected = selected && selected.indexOf(id) >= 0;
 
@@ -35,34 +36,21 @@ function DraggableComb({ id, children }) {
         }
     }, [handleMouseOver]);
 
+    const [savingChanges, setSaveChanges] = useState(false)
+
+    useSelected(() => {
+        setSaveChanges(false)
+    }, savingChanges)
+
     return (
         <ReactDraggable
             axis='none'
             onStart={() => {
-                setDragging(true);
                 setDelta({ x: 0, y: 0 })
             }}
             onDrag={(e, data) => { setDelta({ x: data.x, y: data.y }, id) }}
             onStop={() => {
-                selected.sort(function (a, b) { return a - b })
-
-                let combines = []
-                for (var i = 0; i < selected.length; i++) {
-                    let layVal = selected[i]
-                    let selectedCombs = []
-                    for (var k = 0; k < allCombined.length; k++)
-                        if (allCombined[k][2] === layVal) {
-                            allCombined[k][0] = parseInt(allCombined[k][0]) + delta.x
-                            allCombined[k][1] = parseInt(allCombined[k][1]) + delta.y
-                            selectedCombs.push(allCombined[k])
-                        }
-                    combines = allCombined.filter(x => x[2] !== layVal).concat(selectedCombs)
-                }
-
-                setCombSelected([])
-                setDragging(false)
-                setDelta(null)
-                setComboLayout(combines)
+                setSaveChanges(true)
             }}
             position={{ x: 0, y: 0 }}
             disabled={!isSelected}
@@ -71,7 +59,7 @@ function DraggableComb({ id, children }) {
         >
             <g ref={dragItem}>
                 <g style={transform}>
-                    <g className={`${isSelected ? "selected" : ""} ${isDragging ? "dragging" : ""}`}>
+                    <g className={`${isSelected ? "selected" : ""}`}>
                         {children}
                     </g>
                 </g>

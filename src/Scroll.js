@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useRef}  from 'react'
+import React, { useContext, useState, useRef}  from 'react'
 import {makeStyles} from '@material-ui/core/styles'
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -28,9 +28,9 @@ export default function Scroll(props){
     const [to, setTo] = useState("");
     const [repTime, setRepTime] = useState("");
     const [update, setUpdate] = useState(null);
-    const [index, setIndex] = useState(-1);
+    const [index, setIndex] = useState(0);
     const [pause, setPause] = useState(true);
-    const [fullseq, setFullseq] = useState([]);
+    const [fullseq, setFullseq] = useState([0]);
     const [time, setTime] = useState(null);
 
     const handleClick = (event) => {
@@ -61,6 +61,7 @@ export default function Scroll(props){
                 setFrom("");
                 setTo("");
                 setRepTime("");
+                generateSeq();
                 modelClose();
         }else{
             alert("invalid block number.")
@@ -89,17 +90,13 @@ export default function Scroll(props){
         setFullseq(list);
     }
 
-    useEffect(() => {
-        generateSeq();
-    }, [])
-
     let indexRef = useRef();
     indexRef.current = index;
 
     function handlePlay(){
         generateSeq();
-        setIndex(0);
-        setCurrentStep(fullseq[0]);
+        setIndex(index);
+        setCurrentStep(fullseq[index]);
         if(pause){
             setPause(false);
             proceed();
@@ -126,6 +123,7 @@ export default function Scroll(props){
         if(time !== null || time !== undefined){
             clearTimeout(time);
         }
+        setIndex((index)=>index-1);
         setPause(true);
     }
 
@@ -147,7 +145,12 @@ export default function Scroll(props){
                 <IconButton onClick={handlePause}>
                     <Pause fontSize='small' style={{color: 'white'}}/>
                 </IconButton>
-                <IconButton>
+                <IconButton onClick={()=>{
+                    if(index!==0) {
+                        setCurrentStep(fullseq[index-1]);
+                        setIndex(index-1);
+                    }
+                }}>
                     <SkipPrevious fontSize='small' style={{color: 'white'}}/>
                 </IconButton>
                 <IconButton onClick={()=>{
@@ -155,10 +158,18 @@ export default function Scroll(props){
                 }}>
                     <PlayArrow fontSize='small' style={{color: 'white'}}/>
                 </IconButton>
-                <IconButton>
+                <IconButton onClick={()=>{
+                    if(index!==fullseq.length-1) {
+                        setCurrentStep(fullseq[index+1]);
+                        setIndex(index+1);
+                    }
+                }}>
                     <SkipNext fontSize='small' style={{color: 'white'}}/>
                 </IconButton>
-                <IconButton>
+                <IconButton onClick={()=>{
+                    setIndex(0);
+                    setCurrentStep(fullseq[0]);
+                }}>
                     <Replay fontSize='small' style={{color: 'white'}}/>
                 </IconButton>
             </div>
@@ -227,6 +238,7 @@ export default function Scroll(props){
             })}
             <Button className={classes.add} onClick={()=>{
                 setCurrentStep(pinActuate.size);
+                generateSeq();
             }}>
                 <AddCircleOutline/>
             </Button>

@@ -1,4 +1,4 @@
-import React, { useContext, useState }  from 'react'
+import React, { useContext, useState, useEffect, useRef}  from 'react'
 import {makeStyles} from '@material-ui/core/styles'
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -28,6 +28,10 @@ export default function Scroll(props){
     const [to, setTo] = useState("");
     const [repTime, setRepTime] = useState("");
     const [update, setUpdate] = useState(null);
+    const [index, setIndex] = useState(-1);
+    const [pause, setPause] = useState(true);
+    const [fullseq, setFullseq] = useState([]);
+    const [time, setTime] = useState(null);
 
     const handleClick = (event) => {
         event.preventDefault();
@@ -63,31 +67,66 @@ export default function Scroll(props){
         }
     }
 
-    function sleep(time){
-        return new Promise(res => setTimeout(res, time));
-    }
-
-    async function handlePlay(){
+    function generateSeq(){ 
         let visited = new Set();
-        for(let value of pinActuate.values()){
-            if(value.type === 'simple' && !visited.has(value.id)){
-                visited.add(value.id);
-                if(value.parent!== null){
-                    let parent = pinActuate.get(value.parent);
-                    for(let i = 0; i < parent.repTime; i++){
-                        for(let e of parent.content){
-                            setCurrentStep(e);
-                            visited.add(e);
-                            await sleep(500);
+        let list = [];
+            for(let value of pinActuate.values()){
+                if(value.type === 'simple' && !visited.has(value.id)){
+                    visited.add(value.id);
+                    if(value.parent!== null){
+                        let parent = pinActuate.get(value.parent);
+                        for(let i = 0; i < parent.repTime; i++){
+                            for(let e of parent.content){
+                                list.push(e);
+                                visited.add(e);
+                            }
                         }
+                    }else{
+                        list.push(value.id);
                     }
-                }else{
-                    setCurrentStep(value.id);
-                    await sleep(500);
                 }
             }
+        setFullseq(list);
+    }
+
+    useEffect(() => {
+        generateSeq();
+    }, [])
+
+    let indexRef = useRef();
+    indexRef.current = index;
+
+    function handlePlay(){
+        generateSeq();
+        setIndex(0);
+        setCurrentStep(fullseq[0]);
+        if(pause){
+            setPause(false);
+            proceed();
         }
-        
+    }
+    
+    function proceed(){
+        if(fullseq.length === 0) return;
+        console.log(indexRef.current);
+        if(indexRef.current === fullseq.length || indexRef.current === -1){
+            setPause(true);
+            setIndex(0);
+            setCurrentStep(fullseq[0]);
+            clearTimeout(time);
+            return;
+        }else{
+            setCurrentStep(fullseq[indexRef.current]);
+            setIndex((index)=> index+1);
+            setTime(setTimeout(proceed.bind(this), 500));
+        }
+    }
+
+    function handlePause(){
+        if(time !== null || time !== undefined){
+            clearTimeout(time);
+        }
+        setPause(true);
     }
 
     const handleDelete = () => {
@@ -95,6 +134,7 @@ export default function Scroll(props){
         modelClose();
     }
 
+    
     const modelOpen = () => {setOpen(true)}
     const modelClose = () => {setOpen(false); handleClose();}
     const changeFrom = (event) => {setFrom(event.target.value)}
@@ -104,13 +144,15 @@ export default function Scroll(props){
     return (
         <div>
             <div className={classes.playTab}>
-                <IconButton>
+                <IconButton onClick={handlePause}>
                     <Pause fontSize='small' style={{color: 'white'}}/>
                 </IconButton>
                 <IconButton>
                     <SkipPrevious fontSize='small' style={{color: 'white'}}/>
                 </IconButton>
-                <IconButton onClick={handlePlay}>
+                <IconButton onClick={()=>{
+                    handlePlay();
+                }}>
                     <PlayArrow fontSize='small' style={{color: 'white'}}/>
                 </IconButton>
                 <IconButton>

@@ -6,8 +6,8 @@ import Context from "../context"
 
 function DraggableComb({ id, children }) {
     const context = useContext(Context)
-    const { setDelta, setCombSelected } = context
-    const { delta, mouseDown, drawing } = context.state
+    const { setDelta, setCombSelected, setDragging } = context
+    const { delta, mouseDown, drawing, isDragging } = context.state
     const { selected } = context.combined
 
     const isSelected = selected && selected.indexOf(id) >= 0;
@@ -19,22 +19,33 @@ function DraggableComb({ id, children }) {
 
     if (isSelected) transform = { transform: `translate(${boop.x}px, ${boop.y}px)` }
 
-    const dragItem = useRef(null);
+    const dragItem = useRef(null)
+
+    const handleMouseDown = useCallback((e) => {
+        if (e.which === 1) {
+            if (!isSelected && !drawing && !isDragging)
+                setCombSelected([...new Set([...selected, id])])
+            else if (isSelected)
+                setDragging(true)
+        }
+    }, [isDragging, setDragging, setCombSelected, selected, id, drawing, isSelected]);
 
     const handleMouseOver = useCallback(() => {
-        if (mouseDown === true && !isSelected && !drawing && delta === null)
+        if (mouseDown === true && !isSelected && !drawing && !isDragging)
             setCombSelected([...new Set([...selected, id])])
-    }, [delta, drawing, id, isSelected, mouseDown, selected, setCombSelected])
+    }, [isDragging, drawing, id, isSelected, mouseDown, selected, setCombSelected])
 
     useEffect(() => {
         if (dragItem && dragItem.current) {
             let item = dragItem.current
+            item.addEventListener('mousedown', handleMouseDown);
             item.addEventListener('mouseover', handleMouseOver)
             return () => {
+                item.removeEventListener('mousedown', handleMouseDown);
                 item.removeEventListener('mouseover', handleMouseOver)
             }
         }
-    }, [handleMouseOver]);
+    }, [handleMouseDown, handleMouseOver]);
 
     const [savingChanges, setSaveChanges] = useState(false)
 
@@ -48,9 +59,14 @@ function DraggableComb({ id, children }) {
             onStart={() => {
                 setDelta({ x: 0, y: 0 })
             }}
-            onDrag={(e, data) => { setDelta({ x: data.x, y: data.y }, id) }}
+            onDrag={(e, data) => { setDelta({ x: data.x, y: data.y }) }}
             onStop={() => {
-                setSaveChanges(true)
+                if (isDragging) {
+                    if (delta.x !== 0 || delta.y !== 0)
+                        setSaveChanges(true)
+                    else setCombSelected([])
+                    setDragging(false)
+                }
             }}
             position={{ x: 0, y: 0 }}
             disabled={!isSelected}

@@ -19,24 +19,22 @@ export function Canvas() {
             case 1: // left mouse button pressed
                 setMouseDown(true)
                 break;
-            case 3: // right mouse button pressed
-                break;
             default: // you're weird
                 break;
         }
     }, [setMouseDown]);
 
     const handleMouseUp = useCallback(() => {
-        setDrawing(false);
+        setDrawing(false)
         setMouseDown(false)
     }, [setDrawing, setMouseDown])
 
     useEffect(() => {
-        window.addEventListener('mousedown', handleMouseDown);
-        window.addEventListener('mouseup', handleMouseUp)
+        document.querySelector(".greenArea").addEventListener('mousedown', handleMouseDown);
+        document.querySelector(".greenArea").addEventListener('mouseup', handleMouseUp)
         return () => {
-            window.removeEventListener('mousedown', handleMouseDown);
-            window.removeEventListener('mouseup', handleMouseUp)
+            document.querySelector(".greenArea").removeEventListener('mousedown', handleMouseDown);
+            document.querySelector(".greenArea").removeEventListener('mouseup', handleMouseUp)
         };
     }, [handleMouseDown, handleMouseUp]);
 

@@ -63,7 +63,6 @@ const Provider = props => {
         handleSave(squares.electrodes, state.db)
     }, 10000);
 
-    // console.log(layout)
     return (
         <Context.Provider
             value={{

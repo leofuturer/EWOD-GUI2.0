@@ -24,6 +24,9 @@
     linear-gradient(to bottom, grey 1px, transparent 1px);
 }
 
+.electrode {
+  cursor: pointer;
+}
 
 .selected {
   stroke-width: 3px;

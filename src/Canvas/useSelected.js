@@ -28,7 +28,8 @@ export default function useSelected(callback, savingChanges) {
                 for (var j = 0; j < elecSelected.length; j++) {
                     let init = electrodes.initPositions[elecSelected[j]]
                     let newDelX = delta.x + deltas[elecSelected[j]][0], newDelY = delta.y + deltas[elecSelected[j]][1]
-                    if (newDelX < 0 || newDelX + init[0] >= CANVAS_TRUE_WIDTH || newDelY < 0 || newDelY + init[1] >= CANVAS_TRUE_HEIGHT) {
+                    let newX = newDelX + init[0], newY = newDelY + init[1]
+                    if (newX < 0 || newX >= CANVAS_TRUE_WIDTH || newY < 0 || newY >= CANVAS_TRUE_HEIGHT) {
                         setSelected([])
                         setCombSelected([])
                         return

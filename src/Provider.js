@@ -71,19 +71,45 @@ const Provider = props => {
                         setState((stateBoi) => ({...stateBoi, pinActuate: newList, currentStep: step-1, simpleNum: state.simpleNum-1}));
                     }
                 },
-                duplicateCurrentStep: (step) => {
-                    if(state.pinActuate.has(step)){
-                        let newList = state.pinActuate;
-                        let next = Math.max(...[ ...newList.keys() ])+1;
-                        let newSeq = new ActuationSequence(next, "simple", state.simpleNum);
-                        newList.get(step).content.forEach(e => {
-                            newSeq.content.add(e);
-                        })
-                        newSeq.parent = null;
-                        newList.set(next, newSeq);
-                        setState((stateBoi) => ({...stateBoi, pinActuate: newList, simpleNum: state.simpleNum+1}));
+                insertStep: (obj) =>{
+                    let newList = state.pinActuate;
+                    if(newList.get(state.currentStep).parent!== null){
+                        let parent = newList.get(state.currentStep).parent;
+                        newList.get(parent).content.push(obj.id);
+                        obj.parent = parent;
                     }
+                    let arr = Array.from(newList);
+                    let index = 0;
+                    for(let e of arr){
+                        if(e[1].id === state.currentStep){
+                            break;
+                        }
+                        index++;
+                    }
+                    arr.splice(index+1, 0, [obj.id, obj]);
+                    newList = new Map(arr);
+                    let n = 0;
+                    newList.forEach((value, key)=>{
+                        if(value.type === 'simple'){
+                            value.order = n;
+                            n++;
+                        }
+                    })
+                    setState((stateBoi) => ({...stateBoi, pinActuate: newList, simpleNum: state.simpleNum+1}));
                 },
+                // duplicateCurrentStep: (step) => {
+                //     if(state.pinActuate.has(step)){
+                //         let newList = state.pinActuate;
+                //         let next = Math.max(...[ ...newList.keys() ])+1;
+                //         let newSeq = new ActuationSequence(next, "simple", state.simpleNum);
+                //         newList.get(step).content.forEach(e => {
+                //             newSeq.content.add(e);
+                //         })
+                //         newSeq.parent = null;
+                //         newList.set(next, newSeq);
+                //         setState((stateBoi) => ({...stateBoi, pinActuate: newList, simpleNum: state.simpleNum+1}));
+                //     }
+                // },
                 addLoop: (from, to, repTime) =>{
                     let newList = state.pinActuate;
                     let l = newList.size;
@@ -133,6 +159,14 @@ const Provider = props => {
                     }
                     setState((stateBoi)=> ({...stateBoi, history: newHist, historyIndex: newIndex}));
 
+                },
+                clearAll: () => {
+                    setState((stateBoi)=>({
+                        ...stateBoi,
+                        pinActuate: new Map([[0, new ActuationSequence(0, "simple", 0)]]),
+                        currentStep: 0,
+                        simpleNum: 1,
+                    }))
                 },
                 undo: ()=>{
                     if(state.historyIndex>-1){

@@ -8,9 +8,11 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import TextField from '@material-ui/core/TextField';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import {PlayArrow, SkipNext, SkipPrevious, Pause, Replay, AddCircleOutline} from '@material-ui/icons';
+import {PlayArrow, SkipNext, SkipPrevious, Pause, Replay, AddCircleOutline, DeleteForever} from '@material-ui/icons';
 import IconButton from '@material-ui/core/IconButton';
 import Context from "./context"
+import ActuationSequence from './Actuation'
+import { DialogContentText } from '@material-ui/core';
 
 const initState = {
     mouseX : null,
@@ -21,7 +23,7 @@ export default function Scroll(props){
     const context = useContext(Context);
     const classes = useStyles();
     const {pinActuate, currentStep} = context.state;
-    const {setCurrentStep, addLoop, updateLoop, deleteCurrentStep, deleteLoop, duplicateCurrentStep} = context;
+    const {setCurrentStep, addLoop, updateLoop, deleteCurrentStep, deleteLoop, insertStep, clearAll} = context;
     const [mouseState, setMouseState] = useState(initState);
     const [open, setOpen] = useState(false);
     const [from, setFrom] = useState("");
@@ -32,6 +34,8 @@ export default function Scroll(props){
     const [pause, setPause] = useState(true);
     const [fullseq, setFullseq] = useState([0]);
     const [time, setTime] = useState(null);
+    const [clipboard, setClipboard] = useState(null);
+    const [alert, setAlert] = useState(false);
 
     const handleClick = (event) => {
         event.preventDefault();
@@ -145,6 +149,27 @@ export default function Scroll(props){
         modelClose();
     }
 
+    const handleInsert = () => {
+        insertStep(new ActuationSequence(pinActuate.size, 'simple', pinActuate.get(currentStep).order+1));
+        handleClose();
+    }
+
+    const handleCopy = () => {
+        let newSeq = new ActuationSequence(pinActuate.size, 'simple', 0);
+        pinActuate.get(currentStep).content.forEach(e => {
+            newSeq.content.add(e);
+        });
+        setClipboard(newSeq);
+        handleClose();
+    }
+
+    const handlePaste = () => {
+        if(clipboard !== null){
+            insertStep(clipboard);
+        }
+        handleClose();
+    }
+
     
     const modelOpen = () => {setOpen(true)}
     const modelClose = () => {setOpen(false); handleClose();}
@@ -155,6 +180,9 @@ export default function Scroll(props){
     return (
         <div>
             <div className={classes.playTab}>
+                <IconButton onClick={()=>{setAlert(true)}}>
+                    <DeleteForever fontSize='small' style={{color: 'white'}}/>
+                </IconButton>
                 <IconButton onClick={handlePause}>
                     <Pause fontSize='small' style={{color: 'white'}}/>
                 </IconButton>
@@ -186,7 +214,7 @@ export default function Scroll(props){
                     <Replay fontSize='small' style={{color: 'white'}}/>
                 </IconButton>
             </div>
-        <div className={classes.container} onContextMenu={handleClick} ref={scrollRef} onWheel={handleWheel}>
+        <div className={classes.container} ref={scrollRef} onWheel={handleWheel}>
             <div className={classes.subcontainer} style={{overflowX: 'visible'}}>
                {
                    Array.from(pinActuate.keys()).map(key => {
@@ -237,8 +265,9 @@ export default function Scroll(props){
                 onClick={()=>{
                     setCurrentStep(key);
                 }}
-                onContextMenu={()=>{
+                onContextMenu={(event)=>{
                     setCurrentStep(key);
+                    handleClick(event);
                 }}
                 key={key}
                 >
@@ -271,10 +300,9 @@ export default function Scroll(props){
                     : undefined
                 }
             >
-                <MenuItem onClick={()=>{
-                    duplicateCurrentStep(currentStep);
-                    handleClose();
-                }}>Duplicate</MenuItem>
+                <MenuItem onClick={handleInsert}>Insert</MenuItem>
+                <MenuItem onClick={handleCopy}>Copy</MenuItem>
+                <MenuItem onClick={handlePaste}>Paste</MenuItem>
                 <MenuItem onClick={modelOpen}>Loop</MenuItem>
                 <MenuItem onClick={handleDelete}>Delete</MenuItem>
             </Menu>
@@ -330,6 +358,26 @@ export default function Scroll(props){
                 <Button onClick={()=>{
                     handleLoop(update);
                 }} color="primary">
+                    Confirm
+                </Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog
+                open={alert}
+                onClose={()=>{setAlert(false)}}
+                aria-labelledby="alert-dialog-title"
+            >
+                <DialogTitle id="alert-dialog-title">{"Delete Every Actuation Sequence?"}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        After clicking confirm, all work you made will be deleted permanently.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                <Button onClick={()=>{setAlert(false)}} color="primary">
+                    Cancel
+                </Button>
+                <Button onClick={()=>{clearAll();setAlert(false);}} color="primary" autoFocus>
                     Confirm
                 </Button>
                 </DialogActions>

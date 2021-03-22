@@ -135,7 +135,7 @@ export function Canvas() {
     }
 
     return (
-        <div style={{postion: 'absolute', left: 0, top: 0, width: '120vw', height: '120vh'}}>
+        <div style={{postion: 'absolute', left: 0, top: 0, width: '100vw', height: '60vh', overflow: 'scroll'}}>
             <svg className="greenArea" xmlns="http://www.w3.org/2000/svg"  >
                 {electrodes.initPositions.map((startPos, ind) => {
                     return (

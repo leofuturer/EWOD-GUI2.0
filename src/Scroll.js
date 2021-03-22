@@ -41,6 +41,17 @@ export default function Scroll(props){
         });
     };
 
+    const handleWheel = (event) => {
+        //event.preventDefault();
+        const container = scrollRef.current;
+        const containerScrollPosition = scrollRef.current.scrollLeft;
+
+        container.scrollTo({
+            top: 0,
+            left: containerScrollPosition + event.deltaY
+        })
+    }
+
     const handleClose = ()=>{
         setMouseState(initState);
     }
@@ -92,6 +103,8 @@ export default function Scroll(props){
 
     let indexRef = useRef();
     indexRef.current = index;
+    const scrollRef = useRef();
+
 
     function handlePlay(){
         generateSeq();
@@ -173,7 +186,7 @@ export default function Scroll(props){
                     <Replay fontSize='small' style={{color: 'white'}}/>
                 </IconButton>
             </div>
-        <div className={classes.container} onContextMenu={handleClick}>
+        <div className={classes.container} onContextMenu={handleClick} ref={scrollRef} onWheel={handleWheel}>
             <div className={classes.subcontainer} style={{overflowX: 'visible'}}>
                {
                    Array.from(pinActuate.keys()).map(key => {

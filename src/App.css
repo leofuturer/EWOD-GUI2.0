@@ -19,6 +19,8 @@
   width: 80vw;
   height: 60vh;
   margin-left: 10vw;
+  margin-top: 20vh;
+  margin-bottom: 20vh;
   background-size: 40px 40px;
   background-image:
     linear-gradient(to right, grey 1px, transparent 1px),

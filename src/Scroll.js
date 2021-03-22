@@ -224,6 +224,9 @@ export default function Scroll(props){
                 onClick={()=>{
                     setCurrentStep(key);
                 }}
+                onContextMenu={()=>{
+                    setCurrentStep(key);
+                }}
                 key={key}
                 >
                     <div style={{display: 'flex', flexDirection: 'column'}}>

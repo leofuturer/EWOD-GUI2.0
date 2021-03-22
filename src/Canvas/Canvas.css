@@ -26,22 +26,8 @@
 
 
 .selected {
-  /* border: blue;
-  border-width: 2;
-  border-style: solid; */
-  stroke-width: 2px;
+  stroke-width: 3px;
   stroke: blue;
-
-  fill: blue !important;
-
-  /* outline-color: rgb(0, 0, 255);;
-  outline-style: solid;
-  outline-width: 5px;
-  outline-offset: -5px; */
 
   cursor: grab;
 }
-
-/* .electrode:hover {
-  fill-opacity: 1.0;
-} */

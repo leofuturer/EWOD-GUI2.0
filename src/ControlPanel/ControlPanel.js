@@ -7,10 +7,11 @@ import { DownloadButton } from "./DownloadButton"
 export function ControlPanel() {
     const context = useContext(Context);
     const { drawing } = context.state
-    const { setDrawing, setSelected } = context
+    const { setDrawing, setSelected, setCombSelected } = context
 
     function toggleDraw() {
         setSelected([])
+        setCombSelected([])
         setDrawing(!drawing)
     }
 

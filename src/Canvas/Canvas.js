@@ -168,6 +168,8 @@ export function Canvas() {
     }
 
     const [finalCombines, setFinalCombines] = useState([]) // strings representing allCombined electrodes
+
+    // render combines
     useEffect(() => {
         if (allCombined.length === 0)
             return
@@ -193,17 +195,17 @@ export function Canvas() {
             if (i + 1 < allCombined.length && allCombined[i + 1][0] === x2 && allCombined[i + 1][2] === layVal) {
                 if (isArrayInArray(byX[x], [y2, layVal])) {
                     if (isArrayInArray(byX[x2], [y2, layVal]))   //has electrode on three sides
-                        pathstring = 'M' + x + ' ' + y + ' L' + x + ' ' + (y2 + 2) + ' L' + (x2 + 2) + ' ' + (y2 + 2) + ' L' + (x2 + 2) + ' ' + y + ' Z ';
+                        pathstring = 'M' + x + ' ' + y + ' L' + x + ' ' + y2 + ' L' + x2 + ' ' + y2 + ' L' + x2 + ' ' + y + ' Z ';
                     else {  //has electrode on right and bottom side only
-                        pathstring = 'M' + x + ' ' + y + ' L' + x + ' ' + (y2 - 5) + ' L' + (x2 + 2) + ' ' + (y2 - 5) + ' L' + (x2 + 2) + ' ' + y + ' Z ';
-                        pathstring += 'M' + x + ' ' + (y2 - 5) + ' L' + x + ' ' + (y2 + 2) + ' L' + (x2 - 5) + ' ' + (y2 + 2) + ' L' + (x2 - 5) + ' ' + (y2 - 5) + ' Z ';
+                        pathstring = 'M' + x + ' ' + y + ' L' + x + ' ' + (y2 - 5) + ' L' + x2 + ' ' + (y2 - 5) + ' L' + x2 + ' ' + y + ' Z ';
+                        pathstring += 'M' + x + ' ' + (y2 - 5) + ' L' + x + ' ' + y2 + ' L' + (x2 - 5) + ' ' + y2 + ' L' + (x2 - 5) + ' ' + (y2 - 5) + ' Z ';
                     }
                 }
                 else    //has electrode on right only
-                    pathstring = 'M' + x + ' ' + y + ' L' + x + ' ' + (y2 - 5) + ' L' + (x2 + 2) + ' ' + (y2 - 5) + ' L' + (x2 + 2) + ' ' + y + ' Z ';
+                    pathstring = 'M' + x + ' ' + y + ' L' + x + ' ' + (y2 - 5) + ' L' + x2 + ' ' + (y2 - 5) + ' L' + x2 + ' ' + y + ' Z ';
             }
             else if (isArrayInArray(byX[x], [y2, layVal])) //has electrode on down only
-                pathstring = 'M' + x + ' ' + y + ' L' + x + ' ' + (y2 + 2) + ' L' + (x2 - 5) + ' ' + (y2 + 2) + ' L' + (x2 - 5) + ' ' + y + ' Z ';
+                pathstring = 'M' + x + ' ' + y + ' L' + x + ' ' + y2 + ' L' + (x2 - 5) + ' ' + y2 + ' L' + (x2 - 5) + ' ' + y + ' Z ';
             else                                //has no electrode on either down or right
                 pathstring = 'M' + x + ' ' + y + ' L' + x + ' ' + (y2 - 5) + ' L' + (x2 - 5) + ' ' + (y2 - 5) + ' L' + (x2 - 5) + ' ' + y + ' Z ';
 

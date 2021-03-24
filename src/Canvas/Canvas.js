@@ -10,8 +10,9 @@ export function Canvas() {
     const context = useContext(Context);
     const { electrodes, selected } = context.squares
     const { drawing, mouseDown } = context.state
-    const { allCombined } = context.combined
-    const { setMouseDown, setDrawing, setElectrodes, setSelected, setComboLayout } = context
+    const { allCombined, lastFreeInd } = context.combined
+    const combSelected = context.combined.selected
+    const { setMouseDown, setDrawing, setElectrodes, setSelected, setComboLayout, setCombSelected, setLastFreeInd } = context
 
     // sets mousedown status for selecting existing electrodes
     const handleMouseDown = useCallback((event) => {
@@ -46,8 +47,9 @@ export function Canvas() {
             // wanna see if curr XY = electrodes[idx] + deltas[idx]
             const initPositions = electrodes.initPositions
             const deltas = electrodes.deltas
-            const x = Math.floor(e.pageX / ELEC_SIZE) * ELEC_SIZE
-            const y = Math.floor(e.pageY / ELEC_SIZE) * ELEC_SIZE
+            const x = Math.floor(e.offsetX / ELEC_SIZE) * ELEC_SIZE
+            const y = Math.floor(e.offsetY / ELEC_SIZE) * ELEC_SIZE
+
             for (var idx = 0; idx < deltas.length; idx++)
                 // if an electrode already exists at this position
                 if (x === initPositions[idx][0] + deltas[idx][0] && y === initPositions[idx][1] + deltas[idx][1]) {
@@ -81,7 +83,7 @@ export function Canvas() {
 
     /* ########################### CONTEXT MENU START ########################### */
     const [clipboard, setClipboard] = useState([])
-    function contextCopy(e) {
+    function contextCopy() {
         const inits = electrodes.initPositions.filter((_, ind) => selected.includes(ind))
         const dels = electrodes.deltas.filter((_, ind) => selected.includes(ind))
         let abs = clipboard
@@ -92,11 +94,11 @@ export function Canvas() {
         setClipboard(abs)
         setSelected([])
     }
-    function contextPaste(e) {
+    function contextPaste(e, xPos, yPos) {
         if (clipboard.length > 0) {
             let newInits = []
-            let x = Math.floor(e.pageX / ELEC_SIZE) * ELEC_SIZE
-            let y = Math.floor(e.pageY / ELEC_SIZE) * ELEC_SIZE
+            let x = Math.floor(parseFloat(xPos.slice(0, xPos.length - 2)) / ELEC_SIZE) * ELEC_SIZE
+            let y = Math.floor(parseFloat(yPos.slice(0, xPos.length - 2)) / ELEC_SIZE) * ELEC_SIZE
             for (var i = 0; i < clipboard.length; i++)
                 newInits.push([x, y])
 
@@ -112,7 +114,7 @@ export function Canvas() {
             setClipboard([])
         }
     }
-    function contextCut(e) {
+    function contextCut() {
         contextCopy()
         contextDelete()
     }
@@ -140,20 +142,59 @@ export function Canvas() {
         let layVals = new Set([])
         for (var i = 0; i < allCombined.length; i++)
             layVals.add(allCombined[i][2])
-        const numCombines = new Set(layVals).size
+
+        let xMin = Infinity, xMax = -1, yMin = Infinity, yMax = -1
         for (var j = 0; j < selected.length; j++) {
             let init = electrodes.initPositions[selected[j]], del = electrodes.deltas[selected[j]]
-            positions.push([init[0] + del[0], init[1] + del[1], numCombines])
-        }
-        positions.sort(function (a, b) {
-            if (a[1] === b[1])
-                return a[0] - b[0]
-            return a[1] - b[1]
-        })
+            let x = init[0] + del[0], y = init[1] + del[1]
+            if (x < xMin) xMin = x
+            if (x > xMax) xMax = x
 
-        /* TODO: check that they're adjacent */
+            if (y < yMin) yMin = y
+            if (y > yMax) yMax = y
+
+            positions.push([x, y, lastFreeInd])
+        }
+        /* CHECK NODES ARE ADJACENT BEFORE COMBINING */
+        const numRows = (yMax - yMin) / ELEC_SIZE + 1, numCols = (xMax - xMin) / ELEC_SIZE + 1
+        let adj = new Array(numRows).fill(0).map(() => new Array(numCols).fill(0))
+        // want 2D grid from xMin to xMax, yMin to yMax
+        // indexed 0 on both axes
+
+        /*
+            ex: y: 40-120, x: 80-160, startY = 1, startX = 2
+            (y , x)
+            (40, 80) ->  (1 - 1, 2 - 2) want (0, 0)
+            (120, 160) -> (3 - 1, 4 - 2)
+        */
+
+        const startY = yMin / ELEC_SIZE, startX = xMin / ELEC_SIZE
+
+        for (var pos of positions)
+            adj[(pos[1] / ELEC_SIZE) - startY][(pos[0] / ELEC_SIZE) - startX] = 1
+
+        function connect(y, x) {
+            if (y < 0 || y >= numRows || x < 0 || x >= numCols)
+                return
+            if (adj[y][x] === 1) {
+                adj[y][x] = 0
+                connect(y - 1, x)
+                connect(y + 1, x)
+                connect(y, x - 1)
+                connect(y, x + 1)
+            }
+        }
+        connect((positions[0][1] / ELEC_SIZE) - startY, (positions[0][0] / ELEC_SIZE) - startX)
+
+        for (var row of adj) {
+            if (row.includes(1)) {
+                window.alert("Selected electrodes to combine aren't adjacent")
+                return
+            }
+        }
         setComboLayout(allCombined.concat(positions))
         contextDelete()
+        setLastFreeInd(lastFreeInd + 1)
     }
 
     function isArrayInArray(arr, item) {
@@ -221,7 +262,7 @@ export function Canvas() {
                 {electrodes.initPositions.map((startPos, ind) => {
                     return (
                         <DraggableItem key={ind} id={ind}>
-                            <rect x={startPos[0]} y={startPos[1]} width="35" height="35" fill="black" key={ind} className="electrode" />
+                            <rect x={startPos[0]} y={startPos[1]} width={ELEC_SIZE - 5} height={ELEC_SIZE - 5} key={ind} className="electrode" />
                         </DraggableItem>
                     )
                 })

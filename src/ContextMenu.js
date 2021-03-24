@@ -10,8 +10,8 @@ export function ContextMenu({ names, funcs }) {
     const handleContextMenu = useCallback(
         (e) => {
             e.preventDefault();
-            setXPos(`${e.pageX}px`);
-            setYPos(`${e.pageY}px`);
+            setXPos(`${e.offsetX}px`);
+            setYPos(`${e.offsetY}px`);
             setShowMenu(true);
         },
         [setXPos, setYPos]
@@ -61,15 +61,17 @@ export function ContextMenu({ names, funcs }) {
                                 {
                                     names.map((name, idx) => {
                                         return (
-                                            <MenuItem key={idx} onClick={funcs[idx]}>{name}</MenuItem>
+                                            <MenuItem key={idx} onClick={(e) => {
+                                                funcs[idx](e, xPos, yPos)
+                                            }}>{name}</MenuItem>
                                         )
                                     })
                                 }
                             </ul>
                         </div>
                     ) : (
-                            <></>
-                        )}
+                        <></>
+                    )}
                 </>
             )}
         </Motion>

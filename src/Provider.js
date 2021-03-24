@@ -23,7 +23,8 @@ const Provider = props => {
 
     const [combined, setCombined] = useState({
         selected: [],
-        allCombined: []
+        allCombined: [],
+        lastFreeInd: 0
     })
 
     useEffect( // idb stuff
@@ -69,6 +70,7 @@ const Provider = props => {
                 state,
                 squares,
                 combined,
+                setLastFreeInd: (newFreeInd) => { setCombined((stateBoi) => ({ ...stateBoi, lastFreeInd: newFreeInd })) },
                 setDragging: (bool) => { setState((stateBoi) => ({ ...stateBoi, isDragging: bool })) },
                 setCombSelected: (newSelected) => { setCombined((stateBoi) => ({ ...stateBoi, selected: newSelected })) },
                 setComboLayout: (newCombs) => { setCombined((stateBoi) => ({ ...stateBoi, allCombined: newCombs })) },

@@ -3,6 +3,7 @@ import ReactDraggable from 'react-draggable';
 import useSelected from "./useSelected"
 import "./Canvas.css"
 import Context from "../context"
+import { ELEC_SIZE } from "../constants"
 
 function DraggableComb({ id, children }) {
     const context = useContext(Context)
@@ -70,7 +71,7 @@ function DraggableComb({ id, children }) {
             }}
             position={{ x: 0, y: 0 }}
             disabled={!isSelected}
-            grid={[40, 40]}
+            grid={[ELEC_SIZE, ELEC_SIZE]}
             nodeRef={dragItem}
         >
             <g ref={dragItem}>

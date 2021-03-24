@@ -114,6 +114,7 @@ export default function Scroll(props){
         generateSeq();
         setIndex(index);
         setCurrentStep(fullseq[index]);
+        console.log(fullseq);
         if(pause){
             setPause(false);
             proceed();
@@ -150,7 +151,9 @@ export default function Scroll(props){
     }
 
     const handleInsert = () => {
-        insertStep(new ActuationSequence(pinActuate.size, 'simple', pinActuate.get(currentStep).order+1));
+        let ind = pinActuate.size;
+        while(pinActuate.has(ind)) ind++;
+        insertStep(new ActuationSequence(ind, 'simple', pinActuate.get(currentStep).order+1));
         handleClose();
     }
 
@@ -165,6 +168,9 @@ export default function Scroll(props){
 
     const handlePaste = () => {
         if(clipboard !== null){
+            let ind = pinActuate.size;
+            while(pinActuate.has(ind)) ind++;
+            clipboard.id = ind;
             insertStep(clipboard);
         }
         handleClose();
@@ -282,7 +288,9 @@ export default function Scroll(props){
                 
             })}
             <Button className={classes.add} onClick={()=>{
-                setCurrentStep(pinActuate.size);
+                let ind = pinActuate.size;
+                while(pinActuate.has(ind)) ind++;
+                setCurrentStep(ind);
                 generateSeq();
             }}>
                 <AddCircleOutline/>

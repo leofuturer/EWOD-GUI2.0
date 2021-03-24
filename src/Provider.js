@@ -95,6 +95,13 @@ const Provider = props => {
                             n++;
                         }
                     })
+                    if(obj.parent!==null){
+                        newList.get(obj.parent).content.sort(function(a,b){
+                            let ord1 = newList.get(a).order;
+                            let ord2 = newList.get(b).order;
+                            return ord1-ord2;
+                        })
+                    }
                     setState((stateBoi) => ({...stateBoi, pinActuate: newList, simpleNum: state.simpleNum+1}));
                 },
                 // duplicateCurrentStep: (step) => {

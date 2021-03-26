@@ -23,7 +23,8 @@ export default function Scroll(props){
     const context = useContext(Context);
     const classes = useStyles();
     const {pinActuate, currentStep} = context.state;
-    const {setCurrentStep, addLoop, updateLoop, deleteCurrentStep, deleteLoop, insertStep, clearAll} = context;
+    const {setCurrentStep, addLoop, updateLoop, deleteCurrentStep, 
+        deleteLoop, insertStep, clearAll, updateDuration} = context;
     const [mouseState, setMouseState] = useState(initState);
     const [open, setOpen] = useState(false);
     const [from, setFrom] = useState("");
@@ -186,6 +187,7 @@ export default function Scroll(props){
     return (
         <div>
             <div className={classes.playTab}>
+                <p style={{position: 'absolute', left: '48vw', top: -10, fontSize: 14, color: 'white'}}>{`Step ${pinActuate.get(currentStep).order}`}</p>
                 <IconButton onClick={()=>{setAlert(true)}}>
                     <DeleteForever fontSize='small' style={{color: 'white'}}/>
                 </IconButton>
@@ -280,6 +282,20 @@ export default function Scroll(props){
                     <div style={{display: 'flex', flexDirection: 'column'}}>
                         <p>{`Frame Number: ${value.order}`}</p>     
                         <p>{`Actuated Pins: ${append_string}`}</p>
+                        <TextField
+                            variant="outlined"
+                            label="duration"
+                            inputProps={{
+                                className: classes.input
+                            }}
+                            InputLabelProps={{
+                                className: classes.input
+                            }}
+                            value={pinActuate.get(key).duration}
+                            onChange={(event)=>{
+                                updateDuration(key, event.target.value);
+                            }}
+                        />
                     </div>
                 </Button>
                 }else{
@@ -461,5 +477,8 @@ const useStyles = makeStyles({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'flex-end'
+    },
+    input: {
+        color: 'white'
     }
 });

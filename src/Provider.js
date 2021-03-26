@@ -175,6 +175,11 @@ const Provider = props => {
                         simpleNum: 1,
                     }))
                 },
+                updateDuration: (key, time) => {
+                    let newList = state.pinActuate;
+                    newList.get(key).duration = time;
+                    setState((stateBoi) => ({...stateBoi, pinActuate: newList}));
+                },
                 undo: ()=>{
                     if(state.historyIndex>-1){
                         let obj = state.history[state.historyIndex];

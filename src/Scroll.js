@@ -37,6 +37,7 @@ export default function Scroll(props){
     const [time, setTime] = useState(null);
     const [clipboard, setClipboard] = useState(null);
     const [alert, setAlert] = useState(false);
+    const [forever, setForever] = useState(false);
 
     const handleClick = (event) => {
         event.preventDefault();
@@ -125,7 +126,7 @@ export default function Scroll(props){
     function proceed(){
         if(fullseq.length === 0) return;
         console.log(indexRef.current);
-        if(indexRef.current === fullseq.length || indexRef.current === -1){
+        if(indexRef.current === fullseq.length){
             setPause(true);
             setIndex(0);
             setCurrentStep(fullseq[0]);
@@ -133,7 +134,11 @@ export default function Scroll(props){
             return;
         }else{
             setCurrentStep(fullseq[indexRef.current]);
-            setIndex((index)=> index+1);
+            if(forever){
+                setIndex((index)=> (index+1)%fullseq.length);
+            }else{
+                setIndex((index) => index+1);
+            }
             setTime(setTimeout(proceed.bind(this), 500));
         }
     }
@@ -148,6 +153,7 @@ export default function Scroll(props){
 
     const handleDelete = () => {
         deleteCurrentStep(currentStep);
+        generateSeq();
         modelClose();
     }
 
@@ -155,6 +161,7 @@ export default function Scroll(props){
         let ind = pinActuate.size;
         while(pinActuate.has(ind)) ind++;
         insertStep(new ActuationSequence(ind, 'simple', pinActuate.get(currentStep).order+1));
+        generateSeq();
         handleClose();
     }
 
@@ -173,6 +180,7 @@ export default function Scroll(props){
             while(pinActuate.has(ind)) ind++;
             clipboard.id = ind;
             insertStep(clipboard);
+            generateSeq();
         }
         handleClose();
     }
@@ -216,8 +224,7 @@ export default function Scroll(props){
                     <SkipNext fontSize='small' style={{color: 'white'}}/>
                 </IconButton>
                 <IconButton onClick={()=>{
-                    setIndex(0);
-                    setCurrentStep(fullseq[0]);
+                    setForever((forever)=> !forever);
                 }}>
                     <Replay fontSize='small' style={{color: 'white'}}/>
                 </IconButton>

@@ -225,8 +225,10 @@ export default function Scroll(props){
                 </IconButton>
                 <IconButton onClick={()=>{
                     setForever((forever)=> !forever);
-                }}>
-                    <Replay fontSize='small' style={{color: 'white'}}/>
+                }}
+                style={{backgroundColor: forever?'#85daed':'transparent'}}
+                >
+                    <Replay fontSize='small' style={{color: forever?'black':'white'}}/>
                 </IconButton>
             </div>
         <div className={classes.container} ref={scrollRef} onWheel={handleWheel}>

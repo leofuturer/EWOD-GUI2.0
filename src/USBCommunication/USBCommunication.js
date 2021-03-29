@@ -29,8 +29,8 @@ export function isDeviceConnected()
     return false;
 }
 
-//Set a list of pins to a given value (value is either 0 or 1)
-//ex. setPin([9,10], 1) sets pins 9 and 10 to high
+// Set a list of pins to a given value (value is either 0 or 1)
+//   ex. setPin([9,10], 1) sets pins 9 and 10 to high
 export async function setPin(pins, value)
 {
   if(value != 0 && value != 1)
@@ -61,7 +61,7 @@ export async function setPin(pins, value)
   await EWODDevice.sendReport(0x00, EWODDeviceView);
 }
 
-//sets EWOD's voltage
+// Sets EWOD's voltage
 export async function setV(voltage)
 {
   EWODDeviceView[0] = 0xAA;
@@ -71,7 +71,7 @@ export async function setV(voltage)
   setInterval(sendAck, 1000);
 }
 
-/*=Internal============================================================*/
+/*==Internal============================================================*/
 
 async function getDevices(onRecvData)
 {

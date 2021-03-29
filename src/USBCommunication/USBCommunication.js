@@ -1,7 +1,7 @@
 /*==Globals=========================================================*/
 
 var EWODDevice;
-var view = new Uint8Array(64); //Stores pin states
+var EWODDeviceView = new Uint8Array(64); //Stores pin states
 
 const filters = [
   {
@@ -33,7 +33,7 @@ export function isDeviceConnected()
 //ex. setPin([9,10], 1) sets pins 9 and 10 to high
 export async function setPin(pins, value)
 {
-  if(value != 0 || value != 1)
+  if(value != 0 && value != 1)
   {
     console.log("Pin values must be 0 or 1")
     return;
@@ -50,24 +50,24 @@ export async function setPin(pins, value)
     console.log("Pin " + pins[i] + " set to " + value);
 
     if(value)
-      view[5 + Math.floor((pins[i] - 9) / 8)] |= (1 << ((pins[i]-9) % 8));
+      EWODDeviceView[5 + Math.floor((pins[i] - 9) / 8)] |= (1 << ((pins[i]-9) % 8));
     else
-      view[5 + Math.floor((pins[i] - 9) / 8)] &= ~(1 << ((pins[i]-9) % 8));
+      EWODDeviceView[5 + Math.floor((pins[i] - 9) / 8)] &= ~(1 << ((pins[i]-9) % 8));
   }
 
-  view[0] = 0xAA;
+  EWODDeviceView[0] = 0xAA;
 
-  const send = new ArrayBuffer(view);
-  await EWODDevice.sendReport(0x00, view);
+  const send = new ArrayBuffer(EWODDeviceView);
+  await EWODDevice.sendReport(0x00, EWODDeviceView);
 }
 
 //sets EWOD's voltage
 export async function setV(voltage)
 {
-  view[0] = 0xAA;
-  view[40] = voltage;
-  const send = new ArrayBuffer(view);
-  await EWODDevice.sendReport(0x00, view);
+  EWODDeviceView[0] = 0xAA;
+  EWODDeviceView[40] = voltage;
+  const send = new ArrayBuffer(EWODDeviceView);
+  await EWODDevice.sendReport(0x00, EWODDeviceView);
   setInterval(sendAck, 1000);
 }
 
@@ -104,17 +104,17 @@ async function getDevices(onRecvData)
 
 function handleData(data, onRecvData)
 {
-  const view = new Uint32Array(data.buffer);
-  if(view[0] !== 0xBB) return; //0xBB needed to determine validity of data receivecd
-  var voltage = view[1] * 0.1
-  var current = view[2] * 0.1
+  const EWODDeviceView = new Uint32Array(data.buffer);
+  if(EWODDeviceView[0] !== 0xBB) return; //0xBB needed to determine validity of data receivecd
+  var voltage = EWODDeviceView[1] * 0.1
+  var current = EWODDeviceView[2] * 0.1
 
   onRecvData(voltage, current);
 }
 
 async function sendAck()
 {
-  view[0] = 0xAB;
-  const send = new ArrayBuffer(view);
-  await EWODDevice.sendReport(0x00, view);
+  EWODDeviceView[0] = 0xAB;
+  const send = new ArrayBuffer(EWODDeviceView);
+  await EWODDevice.sendReport(0x00, EWODDeviceView);
 }

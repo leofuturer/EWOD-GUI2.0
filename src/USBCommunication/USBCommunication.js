@@ -82,6 +82,23 @@ export async function setV(voltage)
   setInterval(sendAck, 1000);
 }
 
+// Sets EWOD's frequency
+export async function setF(frequency)
+{
+  let msb = frequency >> 8; //The highest bit is always 0 (max freq 10000 Hz)
+  let lsb = frequency & 0xFF;
+
+  EWODDeviceView[0] = 0xAA;
+  EWODDeviceView[36] = lsb;
+  EWODDeviceView[37] = msb;
+
+  await EWODDevice.sendReport(0x00, EWODDeviceView);
+  setInterval(sendAck, 1000);
+}
+
+
+
+
 /*==Internal============================================================*/
 
 async function getDevices(onRecvData)

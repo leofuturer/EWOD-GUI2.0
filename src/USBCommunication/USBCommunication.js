@@ -66,7 +66,6 @@ export async function setV(voltage)
 {
   EWODDeviceView[0] = 0xAA;
   EWODDeviceView[40] = voltage;
-  const send = new ArrayBuffer(EWODDeviceView);
   await EWODDevice.sendReport(0x00, EWODDeviceView);
   setInterval(sendAck, 1000);
 }
@@ -88,14 +87,13 @@ async function getDevices(onRecvData)
   {
     await EWODDevice.open();
   }
-
   catch (e)
   {
     console.log(e);
     return;
   }
 
-  EWODDevice.addEventListener("inputreport", event => {
+  EWODDevice.addEventListener("inputreport", event => ={
     const { data, device, reportId } = event;
     if (device.productId !== filters[0].productId) return;
     handleData(data, onRecvData);
@@ -115,6 +113,5 @@ function handleData(data, onRecvData)
 async function sendAck()
 {
   EWODDeviceView[0] = 0xAB;
-  const send = new ArrayBuffer(EWODDeviceView);
   await EWODDevice.sendReport(0x00, EWODDeviceView);
 }

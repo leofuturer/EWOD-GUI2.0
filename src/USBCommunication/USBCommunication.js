@@ -33,9 +33,15 @@ export function isDeviceConnected()
 //   ex. setPin([9,10], 1) sets pins 9 and 10 to high
 export async function setPin(pins, value)
 {
-  if(value != 0 && value != 1)
+  if(!EWODDevice)
   {
-    console.log("Pin values must be 0 or 1")
+    console.log("Device not connected");
+    return;
+  }
+
+  if(value !== 0 && value !== 1)
+  {
+    console.log("Pin values must be 0 or 1");
     return;
   }
 
@@ -64,6 +70,12 @@ export async function setPin(pins, value)
 // Sets EWOD's voltage
 export async function setV(voltage)
 {
+  if(!EWODDevice)
+  {
+    console.log("Device not connected");
+    return;
+  }
+
   EWODDeviceView[0] = 0xAA;
   EWODDeviceView[40] = voltage;
   await EWODDevice.sendReport(0x00, EWODDeviceView);
@@ -93,7 +105,7 @@ async function getDevices(onRecvData)
     return;
   }
 
-  EWODDevice.addEventListener("inputreport", event => ={
+  EWODDevice.addEventListener("inputreport", event => {
     const { data, device, reportId } = event;
     if (device.productId !== filters[0].productId) return;
     handleData(data, onRecvData);

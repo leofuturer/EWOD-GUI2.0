@@ -10,9 +10,9 @@ export function Canvas() {
     const context = useContext(Context);
     const { electrodes, selected } = context.squares
     const { drawing, mouseDown } = context.state
-    const { allCombined, lastFreeInd } = context.combined
+    const { allCombined/*, lastFreeInd*/ } = context.combined
     const combSelected = context.combined.selected
-    const { setMouseDown, setDrawing, setElectrodes, setSelected, setComboLayout, setCombSelected, setLastFreeInd } = context
+    const { setMouseDown, setDrawing, setElectrodes, setSelected, setComboLayout, setCombSelected/*, setLastFreeInd */ } = context
 
     // sets mousedown status for selecting existing electrodes
     const handleMouseDown = useCallback((event) => {
@@ -84,33 +84,66 @@ export function Canvas() {
     /* ########################### CONTEXT MENU START ########################### */
     const [clipboard, setClipboard] = useState([])
     function contextCopy() {
-        const inits = electrodes.initPositions.filter((_, ind) => selected.includes(ind))
-        const dels = electrodes.deltas.filter((_, ind) => selected.includes(ind))
-        let abs = clipboard
-        for (var i = 0; i < inits.length; i++) {
-            let tmp = [inits[i][0] + dels[i][0], inits[i][1] + dels[i][1]]
-            abs.push(tmp)
+        let squares = [], combined = []
+
+        if (selected.length > 0) {
+            const inits = electrodes.initPositions.filter((_, ind) => selected.includes(ind))
+            const dels = electrodes.deltas.filter((_, ind) => selected.includes(ind))
+            for (var i = 0; i < inits.length; i++) {
+                let tmp = [inits[i][0] + dels[i][0], inits[i][1] + dels[i][1]]
+                squares.push(tmp)
+            }
+            setSelected([])
         }
-        setClipboard(abs)
-        setSelected([])
+        if (combSelected.length > 0) {
+            let minLayval = Infinity, maxLayval = -1
+            for (var comb of allCombined) {
+                if (combSelected.includes(comb[2]) && comb[2] < minLayval)
+                    minLayval = comb[2]
+                if (comb[2] > maxLayval) maxLayval = comb[2]
+            }
+            let gap = maxLayval + 1 - minLayval
+            for (comb of allCombined) {
+                if (combSelected.includes(comb[2]))
+                    combined.push([comb[0], comb[1], comb[2] + gap])
+            }
+            setCombSelected([])
+        }
+        setClipboard({ squares: squares, combined: combined })
     }
     function contextPaste(e, xPos, yPos) {
-        if (clipboard.length > 0) {
-            let newInits = []
+        if (selected.length > 0)
+            setSelected([])
+        if (combSelected.length > 0)
+            setCombSelected([])
+        const numSquaresCopied = clipboard.squares.length
+        const numCombinedCopied = clipboard.combined.length
+        if (numSquaresCopied > 0 || numCombinedCopied > 0) {
             let x = Math.floor(parseFloat(xPos.slice(0, xPos.length - 2)) / ELEC_SIZE) * ELEC_SIZE
             let y = Math.floor(parseFloat(yPos.slice(0, xPos.length - 2)) / ELEC_SIZE) * ELEC_SIZE
-            for (var i = 0; i < clipboard.length; i++)
-                newInits.push([x, y])
+            if (numSquaresCopied > 0) {
+                let newInits = []
+                for (var i = 0; i < numSquaresCopied; i++)
+                    newInits.push([x, y])
 
-            let newDels = []
-            for (var j = 0; j < clipboard.length; j++)
-                newDels.push([clipboard[j][0] - clipboard[0][0], clipboard[j][1] - clipboard[0][1]])
+                let newDels = []
+                const squares = clipboard.squares
+                for (var j = 0; j < numSquaresCopied; j++)
+                    newDels.push([squares[j][0] - squares[0][0], squares[j][1] - squares[0][1]])
 
-            setElectrodes({
-                initPositions: electrodes.initPositions.concat(newInits),
-                deltas: electrodes.deltas.concat(newDels)
-            })
-            setSelected([])
+                setElectrodes({
+                    initPositions: electrodes.initPositions.concat(newInits),
+                    deltas: electrodes.deltas.concat(newDels)
+                })
+            }
+            if (numCombinedCopied > 0) {
+                const combined = clipboard.combined
+                const first = clipboard.squares.length > 0 ? clipboard.squares[0] : combined[0]
+                let newCombs = []
+                for (var k = 0; k < numCombinedCopied; k++)
+                    newCombs.push([x + combined[k][0] - first[0], y + combined[k][1] - first[1], combined[k][2]])
+                setComboLayout(allCombined.concat(newCombs))
+            }
             setClipboard([])
         }
     }
@@ -118,7 +151,8 @@ export function Canvas() {
         contextCopy()
         contextDelete()
     }
-    function contextDelete() {
+
+    function squaresDelete() {
         let newPos = electrodes.initPositions.filter(function (val, ind) {
             return !selected.includes(ind)
         })
@@ -127,6 +161,14 @@ export function Canvas() {
         })
         setSelected([])
         setElectrodes({ initPositions: newPos, deltas: newDel })
+    }
+    function combinedDelete() {
+        setComboLayout(allCombined.filter(combi => !combSelected.includes(combi[2])))
+        setCombSelected([])
+    }
+    function contextDelete() {
+        squaresDelete()
+        combinedDelete()
     }
     /* ########################### CONTEXT MENU END ########################### */
 
@@ -143,6 +185,8 @@ export function Canvas() {
         for (var i = 0; i < allCombined.length; i++)
             layVals.add(allCombined[i][2])
 
+        const newLastFreeInd = getCombinedLastFreeInd()
+
         let xMin = Infinity, xMax = -1, yMin = Infinity, yMax = -1
         for (var j = 0; j < selected.length; j++) {
             let init = electrodes.initPositions[selected[j]], del = electrodes.deltas[selected[j]]
@@ -153,7 +197,7 @@ export function Canvas() {
             if (y < yMin) yMin = y
             if (y > yMax) yMax = y
 
-            positions.push([x, y, lastFreeInd])
+            positions.push([x, y, newLastFreeInd])
         }
         /* CHECK NODES ARE ADJACENT BEFORE COMBINING */
         const numRows = (yMax - yMin) / ELEC_SIZE + 1, numCols = (xMax - xMin) / ELEC_SIZE + 1
@@ -186,24 +230,15 @@ export function Canvas() {
         }
         connect((positions[0][1] / ELEC_SIZE) - startY, (positions[0][0] / ELEC_SIZE) - startX)
 
-        for (var row of adj) {
+        for (var row of adj) { // if selected electrodes aren't adj, alert then return
             if (row.includes(1)) {
                 window.alert("Selected electrodes to combine aren't adjacent")
                 return
             }
         }
+
         setComboLayout(allCombined.concat(positions))
-        contextDelete()
-        setLastFreeInd(lastFreeInd + 1)
-    }
-
-    function isArrayInArray(arr, item) {
-        var item_as_string = JSON.stringify(item);
-
-        var contains = arr.some(function (ele) {
-            return JSON.stringify(ele) === item_as_string;
-        });
-        return contains;
+        squaresDelete()
     }
 
     const [finalCombines, setFinalCombines] = useState([]) // strings representing allCombined electrodes
@@ -255,6 +290,37 @@ export function Canvas() {
     }, [allCombined, setComboLayout])
 
     /* ########################### COMBINE STUFF END ########################### */
+    /* ########################### HELPERS START ########################### */
+    function isArrayInArray(arr, item) {
+        var item_as_string = JSON.stringify(item);
+
+        var contains = arr.some(function (ele) {
+            return JSON.stringify(ele) === item_as_string;
+        });
+        return contains;
+    }
+
+    function getCombinedLastFreeInd() {
+        // can sort selected then go through and return immediately when 
+        // hit selected+1 not in allCombined[i][2]
+        combSelected.sort(function (a, b) { return a - b })
+        let layVals = new Set()
+        for (var comb of allCombined)
+            layVals.add(comb[2])
+
+        // probably don't actually need lowest last free index 
+        // but would be unfortunate if they keep combining and deleting 
+        // on the same design and if it kept picking the latest free index (allCombined.length)
+        let newLastFreeInd = 0
+        for (var layoutVal of layVals) {
+            if (!layVals.has(layoutVal + 1)) {
+                newLastFreeInd = layoutVal + 1
+                break
+            }
+        }
+        return newLastFreeInd
+    }
+    /* ########################### HELPERS END ########################### */
 
     return (
         <div style={{ postion: 'absolute', left: 0, top: 0, width: CANVAS_WIDTH * ELEC_SIZE, height: CANVAS_HEIGHT * ELEC_SIZE }} >

@@ -4,13 +4,13 @@ import DraggableComb from "./DraggableComb"
 
 import Context from "../context"
 import { ContextMenu } from "../ContextMenu"
-import { ELEC_SIZE, CANVAS_HEIGHT, CANVAS_WIDTH } from "../constants"
+import { ELEC_SIZE, CANVAS_HEIGHT, CANVAS_WIDTH, MAX_NUM_COMBINES } from "../constants"
 
 export function Canvas() {
     const context = useContext(Context);
     const { electrodes, selected } = context.squares
     const { drawing, mouseDown } = context.state
-    const { allCombined/*, lastFreeInd*/ } = context.combined
+    const { allCombined } = context.combined
     const combSelected = context.combined.selected
     const { setMouseDown, setDrawing, setElectrodes, setSelected, setComboLayout, setCombSelected/*, setLastFreeInd */ } = context
 
@@ -164,8 +164,10 @@ export function Canvas() {
     }
 
     function combinedDelete() {
-        setCombSelected([])
+        console.log(combSelected)
+        console.log(allCombined.filter(combi => !combSelected.includes(combi[2])))
         setComboLayout(allCombined.filter(combi => !combSelected.includes(combi[2])))
+        setCombSelected([])
     }
     function contextDelete() {
         combinedDelete()
@@ -262,7 +264,7 @@ export function Canvas() {
             if (byX.hasOwnProperty(x)) byX[x].push(yAndLayVal)
             else byX[x] = [yAndLayVal]
         }
-        let combines = new Array(Math.floor(CANVAS_WIDTH * CANVAS_HEIGHT / 2)).fill(null) // just strs representing points
+        let combines = new Array(Math.floor(MAX_NUM_COMBINES)).fill(null) // just strs representing points
 
         // inspiration from old EWOD-GUI
         for (var i = 0; i < allCombined.length; i++) {
@@ -291,7 +293,14 @@ export function Canvas() {
             if (combines[layVal] === null) combines[layVal] = pathstring
             else combines[layVal] += pathstring
         }
-        setFinalCombines(combines.filter(x => x !== null))
+        let paths = []
+        for (var k = 0; k < MAX_NUM_COMBINES; k++) {
+            const path = combines[k]
+            if (path !== null) {
+                paths.push([path, k])
+            }
+        }
+        setFinalCombines(paths)
     }, [allCombined, setComboLayout])
 
     /* ########################### COMBINE STUFF END ########################### */
@@ -340,8 +349,8 @@ export function Canvas() {
                 }
                 {finalCombines.map((comb, ind) => {
                     return (
-                        <DraggableComb key={ind} id={ind}>
-                            <path key={ind} d={comb} />
+                        <DraggableComb key={ind} id={comb[1]}>
+                            <path d={comb[0]} />
                         </DraggableComb>
                     )
                 })

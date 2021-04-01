@@ -2,16 +2,20 @@ import React, { useContext } from "react"
 import Context from "../context"
 import { genFileContents } from "./genFileContents"
 
-export function handleSave(electrodes, db) {
-
-
-    const newContents = genFileContents(electrodes)
-    db.formData.put({ id: "layout", value: newContents })
+export function handleSave(electrodes, allCombined, db) {
+    // console.log(db)
+    const newContents = genFileContents(electrodes, allCombined)
+    db.formData.put({ id: "squares", value: newContents.squares })
+    db.formData.put({ id: "combine", value: newContents.combs })
 }
 
 export default function SaveButton() {
-    const { electrodes, db } = useContext(Context).state
+    const context = useContext(Context)
+    const { electrodes } = context.squares
+    const { db } = context.state
+    const { allCombined } = context.combined
+    // console.log(db)
     return (
-        <button onClick={() => handleSave(electrodes, db)}>Save</button>
+        <button onClick={() => handleSave(electrodes, allCombined, db)}>Save</button>
     )
 }

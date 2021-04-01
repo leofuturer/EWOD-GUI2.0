@@ -26,10 +26,6 @@ const Provider = props => {
         allCombined: [],
     })
 
-    useEffect(() => {
-        console.log(combined.allCombined)
-    }, [combined.allCombined])
-
     useEffect( // idb stuff
         () => {
             // create the store
@@ -38,20 +34,34 @@ const Provider = props => {
             // perform a read/write transatiction on the new store
             state.db.transaction('rw', state.db.formData, async () => {
                 // get elec layout from the data
-                const dbLayout = await state.db.formData.get('layout')
+                const squaresLayout = await state.db.formData.get('squares')
 
                 // if there's no layout in local storage, add an empty one
-                if (!dbLayout) await state.db.formData.add({ id: 'layout', value: [] })
+                if (!squaresLayout) await state.db.formData.add({ id: 'squares', value: [] })
                 else {
                     let initPos = [], dels = []
-                    dbLayout.value.forEach((e) => {
-                        if (e.charAt(0) === 's' && e.charAt(1) === 'q') {
-                            let mapping = e.split(' ')
+                    squaresLayout.value.forEach((e) => {
+                        let mapping = e.split(' ')
+                        if (mapping[0] === 'square') {
                             initPos.push([parseInt(mapping[1]), parseInt(mapping[2])])
                             dels.push([0, 0])
                         }
                     })
                     setSquares((stateBoi) => ({ ...stateBoi, electrodes: { initPositions: initPos, deltas: dels } }))
+                }
+
+                const combsLayout = await state.db.formData.get('combine')
+
+                // if there's no layout in local storage, add an empty one
+                if (!combsLayout) await state.db.formData.add({ id: 'combine', value: [] })
+                else {
+                    let combs = []
+                    combsLayout.value.forEach((e) => {
+                        let mapping = e.split(' ')
+                        if (mapping[0] === 'combine')
+                            combs.push([parseInt(mapping[1]), parseInt(mapping[2]), parseInt(mapping[3])])
+                    })
+                    setCombined((stateBoi) => ({ ...stateBoi, allCombined: combs }))
                 }
             }).catch(e => console.log(e.stack || e))
 
@@ -64,7 +74,7 @@ const Provider = props => {
     )
 
     useInterval(() => {
-        handleSave(squares.electrodes, state.db)
+        handleSave(squares.electrodes, combined.allCombined, state.db)
     }, 10000);
 
     return (

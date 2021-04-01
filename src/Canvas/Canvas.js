@@ -177,8 +177,14 @@ export function Canvas() {
 
     function handleCombine(e) {
         e.preventDefault()
-        if (selected.length < 2)
+        if (selected.length < 2) {
+            window.alert("You need to combine at least 2 square electrodes.")
             return
+        }
+        if (combSelected.length > 0) {
+            window.alert("You can't combine already combined electrodes.")
+            return
+        }
 
         let positions = []
         // see if selected electrodes are adjacent to each other

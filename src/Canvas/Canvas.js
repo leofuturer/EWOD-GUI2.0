@@ -162,13 +162,14 @@ export function Canvas() {
         setSelected([])
         setElectrodes({ initPositions: newPos, deltas: newDel })
     }
+
     function combinedDelete() {
-        setComboLayout(allCombined.filter(combi => !combSelected.includes(combi[2])))
         setCombSelected([])
+        setComboLayout(allCombined.filter(combi => !combSelected.includes(combi[2])))
     }
     function contextDelete() {
-        squaresDelete()
         combinedDelete()
+        squaresDelete()
     }
     /* ########################### CONTEXT MENU END ########################### */
 
@@ -245,8 +246,6 @@ export function Canvas() {
 
     // render combines
     useEffect(() => {
-        if (allCombined.length === 0)
-            return
         allCombined.sort(function (a, b) { // by row then column
             if (a[1] === b[1]) return a[0] - b[0]
             return a[1] - b[1]

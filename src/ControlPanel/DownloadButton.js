@@ -1,9 +1,11 @@
 import React, { useContext } from "react"
-import Context from "../context"
+import { CanvasContext } from "../Contexts/CanvasProvider"
 import { genFileContents } from "./genFileContents"
 
 export function DownloadButton() {
-    const { electrodes } = useContext(Context).state
+    const canvasContext = useContext(CanvasContext)
+    const { electrodes } = canvasContext.squares
+    const { allCombined } = canvasContext.combined
     async function getNewFileHandle() {
         const options = {
             types: [
@@ -30,8 +32,8 @@ export function DownloadButton() {
     }
     async function handleDownload() {
         const handle = await getNewFileHandle()
-        const contents = genFileContents(electrodes)
-        writeFile(handle, contents.join("\n"))
+        const contents = genFileContents(electrodes, allCombined)
+        writeFile(handle, contents.squares.join("\n") + contents.combs.join("\n"))
     }
 
     return (

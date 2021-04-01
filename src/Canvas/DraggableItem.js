@@ -2,11 +2,11 @@ import React, { useRef, useEffect, useCallback, useContext, useState } from "rea
 import ReactDraggable from 'react-draggable';
 import useSelected from "./useSelected"
 import "./Canvas.css"
-import Context from "../context"
+import { CanvasContext } from "../Contexts/CanvasProvider"
 import { ELEC_SIZE } from "../constants"
 
 function DraggableItem({ id, children }) {
-    const context = useContext(Context)
+    const context = useContext(CanvasContext)
     const { setSelected, setDelta, setDragging } = context
     const { delta, mouseDown, drawing, isDragging } = context.state
     const { electrodes } = context.squares

@@ -2,17 +2,22 @@ import React, { useEffect, useState, useCallback, useContext } from "react"
 import DraggableItem from "./DraggableItem"
 import DraggableComb from "./DraggableComb"
 
-import Context from "../context"
+import { CanvasContext } from "../Contexts/CanvasProvider"
+import { ActuationContext } from "../Contexts/ActuationProvider"
 import { ContextMenu } from "../ContextMenu"
 import { ELEC_SIZE, CANVAS_HEIGHT, CANVAS_WIDTH, MAX_NUM_COMBINES } from "../constants"
 
-export function Canvas() {
-    const context = useContext(Context);
-    const { electrodes, selected } = context.squares
-    const { drawing, mouseDown } = context.state
-    const { allCombined } = context.combined
-    const combSelected = context.combined.selected
-    const { setMouseDown, setDrawing, setElectrodes, setSelected, setComboLayout, setCombSelected/*, setLastFreeInd */ } = context
+export default function Canvas() {
+    const canvasContext = useContext(CanvasContext);
+    const { electrodes, selected } = canvasContext.squares
+    const { drawing, mouseDown } = canvasContext.state
+    const { allCombined } = canvasContext.combined
+    const combSelected = canvasContext.combined.selected
+    const { setMouseDown, setDrawing, setElectrodes, setSelected, setComboLayout, setCombSelected } = canvasContext
+
+    const actuationContext = useContext(ActuationContext);
+    const { startActuate, currentStep, pinActuate } = actuationContext.actuation
+    const { actuatePin, pushHistory } = actuationContext
 
     // sets mousedown status for selecting existing electrodes
     const handleMouseDown = useCallback((event) => {
@@ -81,6 +86,19 @@ export function Canvas() {
         }
     }, [handleMouseMove]);
 
+    /* ########################### ACTUATION START ########################### */
+    function handleClick(ind) {
+        if (startActuate) {
+            if (pinActuate.get(currentStep).content.has(ind)) {
+                pushHistory({ type: "actuate", pin: ind, id: currentStep, act: false });
+            } else {
+                pushHistory({ type: "actuate", pin: ind, id: currentStep, act: true });
+            }
+            actuatePin(ind);
+            console.log(`Actuate ${ind} electrode`)
+        }
+    }
+    /* ########################### ACTUATION END ########################### */
     /* ########################### CONTEXT MENU START ########################### */
     const [clipboard, setClipboard] = useState([])
     function contextCopy() {
@@ -111,6 +129,7 @@ export function Canvas() {
         }
         setClipboard({ squares: squares, combined: combined })
     }
+
     function contextPaste(e, xPos, yPos) {
         if (selected.length > 0)
             setSelected([])
@@ -147,6 +166,7 @@ export function Canvas() {
             setClipboard([])
         }
     }
+
     function contextCut() {
         contextCopy()
         contextDelete()
@@ -164,8 +184,6 @@ export function Canvas() {
     }
 
     function combinedDelete() {
-        console.log(combSelected)
-        console.log(allCombined.filter(combi => !combSelected.includes(combi[2])))
         setComboLayout(allCombined.filter(combi => !combSelected.includes(combi[2])))
         setCombSelected([])
     }
@@ -342,7 +360,12 @@ export function Canvas() {
                 {electrodes.initPositions.map((startPos, ind) => {
                     return (
                         <DraggableItem key={ind} id={ind}>
-                            <rect x={startPos[0]} y={startPos[1]} width={ELEC_SIZE - 5} height={ELEC_SIZE - 5} key={ind} className="electrode" />
+                            <rect x={startPos[0]} y={startPos[1]} width={ELEC_SIZE - 5} height={ELEC_SIZE - 5} key={ind} className="electrode"
+                                // style={{
+                                //     fill: (pinActuate.has(currentStep) && pinActuate.get(currentStep).content.has(ind)) ? 'red' : 'black'
+                                // }}
+                                onClick={() => handleClick(ind)}
+                            />
                         </DraggableItem>
                     )
                 })

@@ -1,5 +1,5 @@
 import React, { useContext } from "react"
-import Context from "../context"
+import { CanvasContext } from "../Contexts/CanvasProvider"
 import { genFileContents } from "./genFileContents"
 
 export function handleSave(electrodes, allCombined, db) {
@@ -10,7 +10,7 @@ export function handleSave(electrodes, allCombined, db) {
 }
 
 export default function SaveButton() {
-    const context = useContext(Context)
+    const context = useContext(CanvasContext)
     const { electrodes } = context.squares
     const { db } = context.state
     const { allCombined } = context.combined

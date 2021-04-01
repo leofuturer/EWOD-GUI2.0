@@ -1,5 +1,5 @@
 import React from "react"
-import Context from "../context"
+import { CanvasContext } from "../Contexts/CanvasProvider"
 import { CANVAS_TRUE_HEIGHT, CANVAS_TRUE_WIDTH } from "../constants"
 export default function useSelected(callback, savingChanges) {
     const savedCallback = React.useRef();
@@ -9,7 +9,7 @@ export default function useSelected(callback, savingChanges) {
         savedCallback.current = callback;
     }, [callback]);
 
-    const context = React.useContext(Context)
+    const context = React.useContext(CanvasContext)
     const { setSelected, setElectrodes, setDelta, setComboLayout, setCombSelected } = context
     const { delta } = context.state
     const { electrodes } = context.squares

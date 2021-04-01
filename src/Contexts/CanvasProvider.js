@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import Context from "./context"
 import Dexie from "dexie"
-import useInterval from "./useInterval"
-import { handleSave } from "./ControlPanel/SaveButton"
+import useInterval from "../useInterval"
+import { handleSave } from "../ControlPanel/SaveButton"
 
-const Provider = props => {
+const CanvasContext = React.createContext();
+
+const CanvasProvider = props => {
     const [squares, setSquares] = useState({
         electrodes: {
             initPositions: [],
@@ -78,7 +79,7 @@ const Provider = props => {
     }, 10000);
 
     return (
-        <Context.Provider
+        <CanvasContext.Provider
             value={{
                 state,
                 squares,
@@ -90,12 +91,12 @@ const Provider = props => {
                 setElectrodes: (elecs) => { setSquares((stateBoi) => ({ ...stateBoi, electrodes: elecs })) },
                 setDelta: (del) => { setState((stateBoi) => ({ ...stateBoi, delta: del })) },
                 setMouseDown: (md) => { setState((stateBoi) => ({ ...stateBoi, mouseDown: md })) },
-                setDrawing: (draw) => { setState((stateBoi) => ({ ...stateBoi, drawing: draw })) }
+                setDrawing: (draw) => { setState((stateBoi) => ({ ...stateBoi, drawing: draw })) },
             }}
         >
             {props.children}
-        </Context.Provider>
+        </CanvasContext.Provider>
     );
 };
 
-export default Provider;
+export { CanvasProvider, CanvasContext };

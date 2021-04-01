@@ -1,8 +1,8 @@
 import React, { useContext } from "react"
-import Context from "../context"
+import { CanvasContext } from "../Contexts/CanvasProvider"
 
 export function UploadButton() {
-    const context = useContext(Context);
+    const context = useContext(CanvasContext);
     const { electrodes } = context.state
     const { setDrawing, setElectrodes, setSelected } = context
     async function openFilePicker() {

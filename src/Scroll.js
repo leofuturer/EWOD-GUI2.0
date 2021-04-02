@@ -8,7 +8,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import TextField from '@material-ui/core/TextField';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import {PlayArrow, SkipNext, SkipPrevious, Pause, Replay, AddCircleOutline, DeleteForever} from '@material-ui/icons';
+import {PlayArrow, SkipNext, SkipPrevious, Pause, Replay, AddCircleOutline, DeleteForever, Stop} from '@material-ui/icons';
 import IconButton from '@material-ui/core/IconButton';
 import Context from "./context"
 import ActuationSequence from './Actuation'
@@ -222,6 +222,14 @@ export default function Scroll(props){
                     }
                 }}>
                     <SkipNext fontSize='small' style={{color: 'white'}}/>
+                </IconButton>
+                <IconButton onClick={()=>{
+                    handlePause();
+                    setCurrentStep(fullseq[0]);
+                    setIndex(0);
+                    setForever(false);
+                }}>
+                    <Stop fontSize='small' style={{color: 'white'}}/>
                 </IconButton>
                 <IconButton onClick={()=>{
                     setForever((forever)=> !forever);

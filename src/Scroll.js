@@ -134,12 +134,16 @@ export default function Scroll(props){
             return;
         }else{
             setCurrentStep(fullseq[indexRef.current]);
+            let dur = 100;
+            if(pinActuate.get(fullseq[indexRef.current]) !== undefined){
+                dur = pinActuate.get(fullseq[indexRef.current]).duration;
+            }
+            setTime(setTimeout(proceed.bind(this), dur));
             if(forever){
                 setIndex((index)=> (index+1)%fullseq.length);
             }else{
                 setIndex((index) => index+1);
             }
-            setTime(setTimeout(proceed.bind(this), 500));
         }
     }
 

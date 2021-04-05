@@ -196,7 +196,7 @@ export default function Scroll(props){
         <div>
             <div className={classes.playTab}>
                 <p style={{position: 'absolute', left: '48vw', top: -10, fontSize: 14, color: 'white'}}>{`Step ${pinActuate.get(currentStep).order}`}</p>
-                <IconButton onClick={()=>{setAlert(true)}}>
+                <IconButton onClick={()=>{setAlert(true)}} data-testid="delete-start">
                     <DeleteForever fontSize='small' style={{color: 'white'}}/>
                 </IconButton>
                 <IconButton onClick={handlePause}>
@@ -419,7 +419,7 @@ export default function Scroll(props){
                 <Button onClick={()=>{setAlert(false)}} color="primary">
                     Cancel
                 </Button>
-                <Button onClick={()=>{clearAll();setAlert(false);}} color="primary" autoFocus>
+                <Button onClick={()=>{clearAll();setAlert(false);}} color="primary" autoFocus data-testid="delete-button">
                     Confirm
                 </Button>
                 </DialogActions>

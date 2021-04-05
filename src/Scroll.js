@@ -197,10 +197,10 @@ export default function Scroll(props){
             <div className={classes.playTab}>
                 <p style={{position: 'absolute', left: '48vw', top: -10, fontSize: 14, color: 'white'}}>{`Step ${pinActuate.get(currentStep).order}`}</p>
                 <IconButton onClick={()=>{setAlert(true)}} data-testid="delete-start">
-                    <DeleteForever fontSize='small' style={{color: 'white'}}/>
+                    <DeleteForever fontSize='small' style={{color: '#A06933'}}/>
                 </IconButton>
                 <IconButton onClick={handlePause}>
-                    <Pause fontSize='small' style={{color: 'white'}}/>
+                    <Pause fontSize='small' style={{color: '#A06933'}}/>
                 </IconButton>
                 <IconButton onClick={()=>{
                     if(index!==0) {
@@ -208,12 +208,12 @@ export default function Scroll(props){
                         setIndex(index-1);
                     }
                 }}>
-                    <SkipPrevious fontSize='small' style={{color: 'white'}}/>
+                    <SkipPrevious fontSize='small' style={{color: '#A06933'}}/>
                 </IconButton>
                 <IconButton onClick={()=>{
                     handlePlay();
                 }}>
-                    <PlayArrow fontSize='small' style={{color: 'white'}}/>
+                    <PlayArrow fontSize='small' style={{color: '#A06933'}}/>
                 </IconButton>
                 <IconButton onClick={()=>{
                     if(index!==fullseq.length-1) {
@@ -221,7 +221,7 @@ export default function Scroll(props){
                         setIndex(index+1);
                     }
                 }}>
-                    <SkipNext fontSize='small' style={{color: 'white'}}/>
+                    <SkipNext fontSize='small' style={{color: '#A06933'}}/>
                 </IconButton>
                 <IconButton onClick={()=>{
                     handlePause();
@@ -229,14 +229,14 @@ export default function Scroll(props){
                     setIndex(0);
                     setForever(false);
                 }}>
-                    <Stop fontSize='small' style={{color: 'white'}}/>
+                    <Stop fontSize='small' style={{color: '#A06933'}}/>
                 </IconButton>
                 <IconButton onClick={()=>{
                     setForever((forever)=> !forever);
                 }}
                 style={{backgroundColor: forever?'#85daed':'transparent'}}
                 >
-                    <Replay fontSize='small' style={{color: forever?'black':'white'}}/>
+                    <Replay fontSize='small' style={{color: forever?'black':'#A06933'}}/>
                 </IconButton>
             </div>
         <div className={classes.container} ref={scrollRef} onWheel={handleWheel}>
@@ -286,7 +286,8 @@ export default function Scroll(props){
                 if(value.type === "simple"){
                     return <Button 
                 className={classes.button} 
-                style={{backgroundColor: currentStep===key?'#78b6c2':'#595a5e'}}
+                variant="outlined"
+                style={{backgroundColor: currentStep===key?'#D4A373':'#FEFAE0'}}
                 onClick={()=>{
                     setCurrentStep(key);
                 }}
@@ -326,7 +327,7 @@ export default function Scroll(props){
                 while(pinActuate.has(ind)) ind++;
                 setCurrentStep(ind);
                 generateSeq();
-            }} data-testid="add-button">
+            }} data-testid="add-button" variant="outlined">
                 <AddCircleOutline/>
             </Button>
             <div style={{minWidth: "20px", height: "100px", backgroundColor:'transparent'}}></div>
@@ -440,8 +441,8 @@ const useStyles = makeStyles({
         flexShrink: 0,
         overflowX: "scroll",
         width: "100vw",
-        height: "36vh",
-        backgroundColor: "#868891",
+        height: "35.8vh",
+        backgroundColor: "#fce6bd",
         scrollPaddingRight: "10px"
     },
     subcontainer: {
@@ -457,7 +458,9 @@ const useStyles = makeStyles({
         minWidth: "15%",
         height: "27vh",
         borderRadius: 5,
-        color: 'white',
+        borderWidth: 3,
+        borderColor: '#A06933',
+        color: '#A06933',
         margin: "5px",
         marginTop: 30,
         textTransform: 'none',
@@ -467,8 +470,10 @@ const useStyles = makeStyles({
         minWidth: "6%",
         height: "27vh",
         borderRadius: 5,
-        color: 'white',
-        backgroundColor: '#2a78de',
+        borderWidth: 3,
+        borderColor: '#A06933',
+        color: '#A06933',
+        backgroundColor: '#FEFAE0',
         marginTop: 30,
         margin:"10px"
     },
@@ -479,7 +484,7 @@ const useStyles = makeStyles({
     },
     loop:{
         height: '4vh', 
-        backgroundColor: '#394aa8', 
+        backgroundColor: '#b86944', 
         color: 'white',
         borderRadius: 3,
         marginLeft: 10,
@@ -490,13 +495,15 @@ const useStyles = makeStyles({
         bottom: '33vh', 
         height: '30px', 
         width: '100vw', 
-        backgroundColor:'#618dd4', 
+        backgroundColor:'#FEFAE0', 
         zIndex: 2,
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'flex-end'
+        justifyContent: 'flex-end',
+        borderTop: '3px solid #A06933',
+        borderBottom: '3px solid #A06933'
     },
     input: {
-        color: 'white'
+        color: '#A06933'
     }
 });

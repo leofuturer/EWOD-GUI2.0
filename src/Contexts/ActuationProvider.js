@@ -7,7 +7,6 @@ const ActuationProvider = props => {
     const [actuation, setActuation] = useState({
         history: [],
         historyIndex: -1,
-        startActuate: false,
         pinActuate: new Map([[0, new ActuationSequence(0, "simple", 0)]]),
         currentStep: 0,
         simpleNum: 1,
@@ -17,7 +16,6 @@ const ActuationProvider = props => {
         <ActuationContext.Provider
             value={{
                 actuation,
-                setStartActuate: () => { setActuation((prev) => ({ ...prev, startActuate: !actuation.startActuate })) },
                 actuatePin: (pinNum) => {
                     let newList = actuation.pinActuate;
                     newList.get(actuation.currentStep).actuatePin(pinNum);

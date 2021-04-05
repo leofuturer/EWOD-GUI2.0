@@ -7,13 +7,28 @@ import Scroll from "./Scroll.js"
 import { ControlPanel } from "./ControlPanel/ControlPanel"
 
 export default class App extends Component {
+  constructor() {
+    super()
+
+    this.state = {
+      mode: "CAN"// either "PIN", "SEQ", or "CAN"
+    }
+    this.setMode = this.setMode.bind(this)
+  }
+
+  setMode(type) {
+    this.setState({ mode: type })
+  }
+
   render() {
+    const { mode } = this.state
+    console.log(mode)
     return (
       <div className="App">
         <ActuationProvider>
           <CanvasProvider>
-            <ControlPanel />
-            <Canvas />
+            <ControlPanel mode={mode} setMode={this.setMode} />
+            <Canvas mode={mode} />
             <Scroll />
           </CanvasProvider>
         </ActuationProvider>

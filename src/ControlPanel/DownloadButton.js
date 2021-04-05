@@ -1,6 +1,9 @@
 import React, { useContext } from "react"
 import { CanvasContext } from "../Contexts/CanvasProvider"
 import { genFileContents } from "./genFileContents"
+import ListItem from '@material-ui/core/ListItem'
+import { GetApp } from '@material-ui/icons'
+import Tooltip from '@material-ui/core/Tooltip'
 
 export function DownloadButton() {
     const canvasContext = useContext(CanvasContext)
@@ -33,10 +36,14 @@ export function DownloadButton() {
     async function handleDownload() {
         const handle = await getNewFileHandle()
         const contents = genFileContents(electrodes, allCombined)
-        writeFile(handle, contents.squares.join("\n") + contents.combs.join("\n"))
+        writeFile(handle, contents.squares.join("\n") + "\n" + contents.combs.join("\n"))
     }
 
     return (
-        <button onClick={handleDownload}>Download</button>
+        <Tooltip title="Download">
+            <ListItem button onClick={handleDownload}>
+                <GetApp />
+            </ListItem>
+        </Tooltip>
     )
 }

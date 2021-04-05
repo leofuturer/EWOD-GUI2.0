@@ -29,10 +29,14 @@
 
 .electrode {
   cursor: pointer;
+  /* fill: inherit; */
 }
 
 .selected {
   fill: blue;
-
   cursor: grab;
+}
+
+.toSeq {
+  fill: red;
 }

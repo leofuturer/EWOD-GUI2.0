@@ -7,7 +7,7 @@ import { ActuationContext } from "../Contexts/ActuationProvider"
 import { ContextMenu } from "../ContextMenu"
 import { ELEC_SIZE, CANVAS_HEIGHT, CANVAS_WIDTH, MAX_NUM_COMBINES } from "../constants"
 
-export default function Canvas() {
+export default function Canvas({ mode }) {
     const canvasContext = useContext(CanvasContext);
     const { electrodes, selected } = canvasContext.squares
     const { drawing, mouseDown } = canvasContext.state
@@ -16,7 +16,7 @@ export default function Canvas() {
     const { setMouseDown, setDrawing, setElectrodes, setSelected, setComboLayout, setCombSelected } = canvasContext
 
     const actuationContext = useContext(ActuationContext);
-    const { startActuate, currentStep, pinActuate } = actuationContext.actuation
+    const { currentStep, pinActuate } = actuationContext.actuation
     const { actuatePin, pushHistory } = actuationContext
 
     // sets mousedown status for selecting existing electrodes
@@ -88,7 +88,7 @@ export default function Canvas() {
 
     /* ########################### ACTUATION START ########################### */
     function handleClick(ind) {
-        if (startActuate) {
+        if (mode === "SEQ") {
             if (pinActuate.get(currentStep).content.has(ind)) {
                 pushHistory({ type: "actuate", pin: ind, id: currentStep, act: false });
             } else {
@@ -353,17 +353,14 @@ export default function Canvas() {
         return newLastFreeInd
     }
     /* ########################### HELPERS END ########################### */
-
     return (
         <div style={{ postion: 'absolute', left: 0, top: 0, width: CANVAS_WIDTH * ELEC_SIZE, height: CANVAS_HEIGHT * ELEC_SIZE }} >
             <svg className="greenArea" xmlns="http://www.w3.org/2000/svg"  >
                 {electrodes.initPositions.map((startPos, ind) => {
                     return (
-                        <DraggableItem key={ind} id={ind}>
-                            <rect x={startPos[0]} y={startPos[1]} width={ELEC_SIZE - 5} height={ELEC_SIZE - 5} key={ind} className="electrode"
-                                // style={{
-                                //     fill: (pinActuate.has(currentStep) && pinActuate.get(currentStep).content.has(ind)) ? 'red' : 'black'
-                                // }}
+                        <DraggableItem key={ind} id={ind} mode={mode} >
+                            <rect x={startPos[0]} y={startPos[1]} width={ELEC_SIZE - 5} height={ELEC_SIZE - 5} key={ind}
+                                className={`electrode ${mode === "SEQ" && pinActuate.has(currentStep) && pinActuate.get(currentStep).content.has(ind) ? "toSeq" : ""}`}
                                 onClick={() => handleClick(ind)}
                             />
                         </DraggableItem>
@@ -373,7 +370,7 @@ export default function Canvas() {
                 {finalCombines.map((comb, ind) => {
                     return (
                         <DraggableComb key={ind} id={comb[1]}>
-                            <path d={comb[0]} />
+                            <path d={comb[0]} className="electrode" />
                         </DraggableComb>
                     )
                 })

@@ -5,7 +5,7 @@ import "./Canvas.css"
 import { CanvasContext } from "../Contexts/CanvasProvider"
 import { ELEC_SIZE } from "../constants"
 
-function DraggableItem({ id, children }) {
+function DraggableItem({ id, children, mode }) {
     const context = useContext(CanvasContext)
     const { setSelected, setDelta, setDragging } = context
     const { delta, mouseDown, drawing, isDragging } = context.state
@@ -15,7 +15,6 @@ function DraggableItem({ id, children }) {
     let deltas = electrodes.deltas
 
     const isSelected = elecSelected && elecSelected.indexOf(id) >= 0;
-
     let transform = {}
     let boop;
     if (delta === null) boop = { x: 0, y: 0 }
@@ -91,7 +90,7 @@ function DraggableItem({ id, children }) {
         >
             <g ref={dragItem}>
                 <g style={transform}>
-                    <g className={`${isSelected ? "selected" : ""}`}>
+                    <g className={`${isSelected && mode === "CAN" ? "selected" : ""}`}>
                         {children}
                     </g>
                 </g>

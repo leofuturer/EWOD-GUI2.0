@@ -295,6 +295,7 @@ export default function Scroll(props){
                     handleClick(event);
                 }}
                 key={key}
+                data-testid="seq-button"
                 >
                     <div style={{display: 'flex', flexDirection: 'column'}}>
                         <p>{`Frame Number: ${value.order}`}</p>     
@@ -325,7 +326,7 @@ export default function Scroll(props){
                 while(pinActuate.has(ind)) ind++;
                 setCurrentStep(ind);
                 generateSeq();
-            }}>
+            }} data-testid="add-button">
                 <AddCircleOutline/>
             </Button>
             <div style={{minWidth: "20px", height: "100px", backgroundColor:'transparent'}}></div>

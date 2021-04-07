@@ -16,8 +16,10 @@
 
 .greenArea {
   background-color: #93D08C;
-  width: 80vw;
-  height: 60vh;
+  /* width: 80vw;
+  height: 60vh; */
+  width: 100%;
+  height: 100%;
   margin-left: 10vw;
   background-size: 40px 40px;
   background-image:
@@ -25,21 +27,12 @@
     linear-gradient(to bottom, grey 1px, transparent 1px);
 }
 
-
-.selected {
-  /* border: blue;
-  border-width: 2;
-  border-style: solid; */
-  /* stroke-width: 5px;
-  stroke: blue; */
-
-  outline-color: rgb(0, 0, 255);;
-  outline-style: solid;
-  outline-width: 5px;
-  outline-offset: -5px;
-  cursor: grab;
+.electrode {
+  cursor: pointer;
 }
 
-/* .electrode:hover {
-  fill-opacity: 1.0;
-} */
+.selected {
+  fill: blue;
+
+  cursor: grab;
+}

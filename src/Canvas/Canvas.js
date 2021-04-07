@@ -372,8 +372,8 @@ export default function Canvas() {
                 }
                 {finalCombines.map((comb, ind) => {
                     return (
-                        <DraggableComb key={ind} id={comb[1]}>
-                            <path d={comb[0]} />
+                        <DraggableComb key={ind} id={comb[1]} >
+                            <path d={comb[0]} className="electrode" />
                         </DraggableComb>
                     )
                 })

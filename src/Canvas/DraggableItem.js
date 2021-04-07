@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useCallback, useContext, useState } from "react"
 import ReactDraggable from 'react-draggable';
 import useSelected from "./useSelected"
+import useReset from "./useReset"
 import "./Canvas.css"
 import { CanvasContext } from "../Contexts/CanvasProvider"
 import { ELEC_SIZE } from "../constants"
@@ -30,12 +31,14 @@ function DraggableItem({ id, children }) {
 
     const handleMouseDown = useCallback((e) => {
         if (e.which === 1) {
-            if (!isSelected && !drawing && !isDragging)
+            if (!isSelected && !drawing && !isDragging) {
                 setSelected([...new Set([...elecSelected, id])])
-            else if (isSelected)
-                setDragging(true)
+                // setDragging(true)
+            }
+            // else if (isSelected)
+            //     setDragging(true)
         }
-    }, [isDragging, setDragging, setSelected, elecSelected, id, drawing, isSelected]);
+    }, [isDragging, setSelected, elecSelected, id, drawing, isSelected]);
 
     useEffect(() => {
         if (dragItem && dragItem.current) {
@@ -49,8 +52,10 @@ function DraggableItem({ id, children }) {
 
     // handles selection of existing electrodes
     const handleMouseOver = useCallback(() => {
-        if (mouseDown === true && !isSelected && !drawing && !isDragging)
+        if (mouseDown === true && !isSelected && !drawing && !isDragging) {
             setSelected([...new Set([...elecSelected, id])])
+            // setDragging(true)
+        }
     }, [isDragging, drawing, id, isSelected, mouseDown, elecSelected, setSelected])
 
     useEffect(() => {
@@ -69,18 +74,26 @@ function DraggableItem({ id, children }) {
         setSaveChanges(false)
     }, savingChanges)
 
+    const [resetting, setResetting] = useState(false)
+    useReset(() => {
+        setResetting(false)
+    }, resetting)
+
     return (
         <ReactDraggable
             axis='none'
             onStart={() => {
                 setDelta({ x: 0, y: 0 })
             }}
-            onDrag={(e, data) => { setDelta({ x: data.x, y: data.y }) }}
+            onDrag={(e, data) => {
+                setDelta({ x: data.x, y: data.y })
+                setDragging(true)
+            }}
             onStop={() => {
                 if (isDragging) {
                     if (delta.x !== 0 || delta.y !== 0)
                         setSaveChanges(true)
-                    else setSelected([])
+                    else setResetting(true)
                     setDragging(false)
                 }
             }}

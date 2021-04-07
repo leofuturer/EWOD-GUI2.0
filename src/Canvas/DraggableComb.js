@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useCallback, useContext, useState } from "react"
 import ReactDraggable from 'react-draggable';
 import useSelected from "./useSelected"
+import useReset from "./useReset"
 import "./Canvas.css"
 import { CanvasContext } from "../Contexts/CanvasProvider"
 import { ELEC_SIZE } from "../constants"
@@ -24,16 +25,20 @@ function DraggableComb({ id, children }) {
 
     const handleMouseDown = useCallback((e) => {
         if (e.which === 1) {
-            if (!isSelected && !drawing && !isDragging)
+            if (!isSelected && !drawing && !isDragging) {
                 setCombSelected([...new Set([...selected, id])])
-            else if (isSelected)
-                setDragging(true)
+                // setDragging(true)
+            }
+            // else if (isSelected)
+            //     setDragging(true)
         }
-    }, [isDragging, setDragging, setCombSelected, selected, id, drawing, isSelected]);
+    }, [isDragging, setCombSelected, selected, id, drawing, isSelected]);
 
     const handleMouseOver = useCallback(() => {
-        if (mouseDown === true && !isSelected && !drawing && !isDragging)
+        if (mouseDown === true && !isSelected && !drawing && !isDragging) {
             setCombSelected([...new Set([...selected, id])])
+            // setDragging(true)
+        }
     }, [isDragging, drawing, id, isSelected, mouseDown, selected, setCombSelected])
 
     useEffect(() => {
@@ -54,18 +59,26 @@ function DraggableComb({ id, children }) {
         setSaveChanges(false)
     }, savingChanges)
 
+    const [resetting, setResetting] = useState(false)
+    useReset(() => {
+        setResetting(false)
+    }, resetting)
+
     return (
         <ReactDraggable
             axis='none'
             onStart={() => {
                 setDelta({ x: 0, y: 0 })
             }}
-            onDrag={(e, data) => { setDelta({ x: data.x, y: data.y }) }}
+            onDrag={(e, data) => {
+                setDelta({ x: data.x, y: data.y })
+                setDragging(true)
+            }}
             onStop={() => {
                 if (isDragging) {
                     if (delta.x !== 0 || delta.y !== 0)
                         setSaveChanges(true)
-                    else setCombSelected([])
+                    else setResetting(true)
                     setDragging(false)
                 }
             }}

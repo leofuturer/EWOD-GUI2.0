@@ -156,6 +156,7 @@ export default function Scroll(props) {
     }
 
     const handleDelete = () => {
+        if(currentStep === clipboard) setClipboard(null);
         deleteCurrentStep(currentStep);
         generateSeq();
         modelClose();
@@ -170,11 +171,7 @@ export default function Scroll(props) {
     }
 
     const handleCopy = () => {
-        let newSeq = new ActuationSequence(pinActuate.size, 'simple', 0);
-        pinActuate.get(currentStep).content.forEach(e => {
-            newSeq.content.add(e);
-        });
-        setClipboard(newSeq);
+        setClipboard(currentStep);
         handleClose();
     }
 
@@ -182,8 +179,12 @@ export default function Scroll(props) {
         if(clipboard !== null){
             let ind = pinActuate.size;
             while(pinActuate.has(ind)) ind++;
-            clipboard.id = ind;
-            insertStep(clipboard);
+            let newSeq = new ActuationSequence(ind, 'simple', 0);
+            pinActuate.get(clipboard).content.forEach(e => {
+                newSeq.content.add(e);
+            });
+            newSeq.duration = pinActuate.get(clipboard).duration;
+            insertStep(newSeq);
             generateSeq();
         }
         handleClose();

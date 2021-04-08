@@ -44,10 +44,14 @@ const ActuationProvider = props => {
                     setActuation((stateBoi) => ({...stateBoi, currentStep: step}));
                 },
                 deleteCurrentStep: (step) => {
+                    if(actuation.pinActuate.size === 1) return;
                     if(actuation.pinActuate.has(step)){
                         let newList = actuation.pinActuate;
                         if(newList.get(step).parent !== null){
                             let parent = newList.get(step).parent;
+                            if(newList.get(parent).content.length===1){
+                                return;
+                            }
                             let ind = newList.get(parent).content.indexOf(step);
                             newList.get(parent).content.splice(ind,1);
                         }
@@ -59,7 +63,8 @@ const ActuationProvider = props => {
                                 n++;
                             }
                         })
-                        setActuation((stateBoi) => ({...stateBoi, pinActuate: newList, currentStep: step-1, simpleNum: actuation.simpleNum-1}));
+                        let newStep = actuation.pinActuate.keys().next().value;
+                        setActuation((stateBoi) => ({...stateBoi, pinActuate: newList, currentStep: newStep, simpleNum: actuation.simpleNum-1}));
                     }
                 },
                 insertStep: (obj) =>{

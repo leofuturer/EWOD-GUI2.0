@@ -6,6 +6,7 @@ export default class ActuationSequence{
     this.repTime = 1;
     this.parent = null;
     this.order = order;
+    this.duration = 100;
   }    
   actuatePin(pinNum){
     if(this.type==="loop") console.log('loop type cannot be actuated');

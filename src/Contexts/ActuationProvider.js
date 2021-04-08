@@ -1,14 +1,10 @@
 import React, { useState } from "react";
-import Context from "./context";
-import ActuationSequence from "./Actuation";
+import ActuationSequence from "../Actuation";
 
-const Provider = props => {
-    const [state, setState] = useState({
-        electrodes: {
-            initPositions: [],
-            deltas: []
-        },
-        selected: [],
+const ActuationContext = React.createContext();
+
+const ActuationProvider = props => {
+    const [actuation, setActuation] = useState({
         history: [],
         historyIndex: -1,
         delta: null,
@@ -21,40 +17,35 @@ const Provider = props => {
     });
 
     return (
-        <Context.Provider
+        <ActuationContext.Provider
             value={{
-                state,
-                setSelected: (newSelected) => { setState((stateBoi) => ({ ...stateBoi, selected: newSelected })) },
-                setElectrodes: (elecs) => { setState((stateBoi) => ({ ...stateBoi, electrodes: elecs })) },
-                setDelta: (del) => { setState((stateBoi) => ({ ...stateBoi, delta: del })) },
-                setMouseDown: (md) => { setState((stateBoi) => ({ ...stateBoi, mouseDown: md })) },
-                setDrawing: (draw) => { setState((stateBoi) => ({ ...stateBoi, drawing: draw })) },
-                setStartActuate: () => { setState((stateBoi) => ({...stateBoi, startActuate: !state.startActuate}))},
+                actuation,
+                setStartActuate: () => { setActuation((stateBoi) => ({...stateBoi, startActuate: !actuation.startActuate}))},
                 actuatePin: (pinNum) => {
-                    let newList = state.pinActuate;
-                    newList.get(state.currentStep).actuatePin(pinNum);
-                    setState((stateBoi) => ({...stateBoi, pinActuate: newList}));
+                    let newList = actuation.pinActuate;
+                    newList.get(actuation.currentStep).actuatePin(pinNum);
+                    setActuation((stateBoi) => ({...stateBoi, pinActuate: newList}));
                 },
                 setCurrentStep: (step) => {
-                    if(state.pinActuate.has(step)&&state.pinActuate.get(step).type ==='loop'){
+                    if(actuation.pinActuate.has(step)&&actuation.pinActuate.get(step).type ==='loop'){
                         step++;
                     }
-                    if(!state.pinActuate.has(step)){
-                        let newList = state.pinActuate;
-                        let newSeq = new ActuationSequence(step, "simple", state.simpleNum);
-                        if(state.pinActuate.has(step-1)&& state.pinActuate.get(step-1).type==='simple'){
-                            state.pinActuate.get(step-1).content.forEach(e=>{
+                    if(!actuation.pinActuate.has(step)){
+                        let newList = actuation.pinActuate;
+                        let newSeq = new ActuationSequence(step, "simple", actuation.simpleNum);
+                        if(actuation.pinActuate.has(step-1)&& actuation.pinActuate.get(step-1).type==='simple'){
+                            actuation.pinActuate.get(step-1).content.forEach(e=>{
                                 newSeq.content.add(e);
                             })
                         }
                         newList.set(step, newSeq);
-                        setState((stateBoi) => ({...stateBoi, pinActuate: newList, simpleNum: state.simpleNum+1}));
+                        setActuation((stateBoi) => ({...stateBoi, pinActuate: newList, simpleNum: actuation.simpleNum+1}));
                     }
-                    setState((stateBoi) => ({...stateBoi, currentStep: step}));
+                    setActuation((stateBoi) => ({...stateBoi, currentStep: step}));
                 },
                 deleteCurrentStep: (step) => {
-                    if(state.pinActuate.has(step)){
-                        let newList = state.pinActuate;
+                    if(actuation.pinActuate.has(step)){
+                        let newList = actuation.pinActuate;
                         if(newList.get(step).parent !== null){
                             let parent = newList.get(step).parent;
                             let ind = newList.get(parent).content.indexOf(step);
@@ -68,20 +59,20 @@ const Provider = props => {
                                 n++;
                             }
                         })
-                        setState((stateBoi) => ({...stateBoi, pinActuate: newList, currentStep: step-1, simpleNum: state.simpleNum-1}));
+                        setActuation((stateBoi) => ({...stateBoi, pinActuate: newList, currentStep: step-1, simpleNum: actuation.simpleNum-1}));
                     }
                 },
                 insertStep: (obj) =>{
-                    let newList = state.pinActuate;
-                    if(newList.get(state.currentStep).parent!== null){
-                        let parent = newList.get(state.currentStep).parent;
+                    let newList = actuation.pinActuate;
+                    if(newList.get(actuation.currentStep).parent!== null){
+                        let parent = newList.get(actuation.currentStep).parent;
                         newList.get(parent).content.push(obj.id);
                         obj.parent = parent;
                     }
                     let arr = Array.from(newList);
                     let index = 0;
                     for(let e of arr){
-                        if(e[1].id === state.currentStep){
+                        if(e[1].id === actuation.currentStep){
                             break;
                         }
                         index++;
@@ -102,7 +93,7 @@ const Provider = props => {
                             return ord1-ord2;
                         })
                     }
-                    setState((stateBoi) => ({...stateBoi, pinActuate: newList, simpleNum: state.simpleNum+1}));
+                    setActuation((stateBoi) => ({...stateBoi, pinActuate: newList, simpleNum: actuation.simpleNum+1}));
                 },
                 // duplicateCurrentStep: (step) => {
                 //     if(state.pinActuate.has(step)){
@@ -118,7 +109,7 @@ const Provider = props => {
                 //     }
                 // },
                 addLoop: (from, to, repTime) =>{
-                    let newList = state.pinActuate;
+                    let newList = actuation.pinActuate;
                     let l = newList.size;
                     let newSeq = new ActuationSequence(newList.size, "loop");
                     newList.forEach((value, key)=>{
@@ -129,14 +120,14 @@ const Provider = props => {
                     newSeq.repTime = repTime;
                     newList.set(l, newSeq);
                     console.log(newList);
-                    setState((stateBoi)=> ({...stateBoi, pinActuate: newList}));
+                    setActuation((stateBoi)=> ({...stateBoi, pinActuate: newList}));
                 },
                 updateLoop: (from, to, repTime, key) => {
-                    let newList = state.pinActuate;
+                    let newList = actuation.pinActuate;
                     let seq = newList.get(key);
                     seq.repTime = repTime;
                     for(let i = 0; i < seq.content.length; i++){
-                        state.pinActuate.get(seq.content[i]).parent = null;
+                        actuation.pinActuate.get(seq.content[i]).parent = null;
                     }
                     seq.content = [];
                     newList.forEach((value, key)=>{
@@ -145,30 +136,30 @@ const Provider = props => {
                         }
                     })
                     console.log(newList);
-                    setState((stateBoi)=> ({...stateBoi, pinActuate: newList}));
+                    setActuation((stateBoi)=> ({...stateBoi, pinActuate: newList}));
                 },
                 deleteLoop: (id) => {
-                    let newList = state.pinActuate;
+                    let newList = actuation.pinActuate;
                     newList.get(id).content.forEach(e =>{
                         newList.get(e).parent = null;
                     });
                     newList.delete(id);
-                    setState((stateBoi) => ({...stateBoi, pinActuate: newList}));
+                    setActuation((stateBoi) => ({...stateBoi, pinActuate: newList}));
                 },
                 pushHistory: (obj) => {
-                    let newHist = state.history;
-                    newHist.length = state.historyIndex+1;
+                    let newHist = actuation.history;
+                    newHist.length = actuation.historyIndex+1;
                     newHist.push(obj);
-                    let newIndex = state.historyIndex+1;
+                    let newIndex = actuation.historyIndex+1;
                     if(newHist.length > 10) {
                         newHist.shift();
                         newIndex--;
                     }
-                    setState((stateBoi)=> ({...stateBoi, history: newHist, historyIndex: newIndex}));
+                    setActuation((stateBoi)=> ({...stateBoi, history: newHist, historyIndex: newIndex}));
 
                 },
                 clearAll: () => {
-                    setState((stateBoi)=>({
+                    setActuation((stateBoi)=>({
                         ...stateBoi,
                         pinActuate: new Map([[0, new ActuationSequence(0, "simple", 0)]]),
                         currentStep: 0,
@@ -176,14 +167,14 @@ const Provider = props => {
                     }))
                 },
                 updateDuration: (key, time) => {
-                    let newList = state.pinActuate;
+                    let newList = actuation.pinActuate;
                     newList.get(key).duration = time;
-                    setState((stateBoi) => ({...stateBoi, pinActuate: newList}));
+                    setActuation((stateBoi) => ({...stateBoi, pinActuate: newList}));
                 },
                 undo: ()=>{
-                    if(state.historyIndex>-1){
-                        let obj = state.history[state.historyIndex];
-                        let newList = state.pinActuate;
+                    if(actuation.historyIndex>-1){
+                        let obj = actuation.history[actuation.historyIndex];
+                        let newList = actuation.pinActuate;
                         // {type: "actuate", pin: number, id: number, act: true}
                         if(obj.type === "actuate"){
                             let seq = newList.get(obj.id)
@@ -194,13 +185,13 @@ const Provider = props => {
                             }
                         }
                         //to be continue
-                        setState((stateBoi)=> ({...stateBoi, pinActuate: newList, historyIndex: state.historyIndex-1}));
+                        setActuation((stateBoi)=> ({...stateBoi, pinActuate: newList, historyIndex: actuation.historyIndex-1}));
                     }
                 },
                 redo: ()=>{
-                    if(state.historyIndex<state.history.length-1){
-                        let obj = state.history[state.historyIndex+1];
-                        let newList = state.pinActuate;
+                    if(actuation.historyIndex<actuation.history.length-1){
+                        let obj = actuation.history[actuation.historyIndex+1];
+                        let newList = actuation.pinActuate;
                         // {type: "actuate", pin: number, id: number, act: true}
                         if(obj.type === "actuate"){
                             let seq = newList.get(obj.id)
@@ -211,14 +202,14 @@ const Provider = props => {
                             }
                         }
                         //to be continue
-                        setState((stateBoi)=> ({...stateBoi, pinActuate: newList, historyIndex: state.historyIndex+1}));
+                        setActuation((stateBoi)=> ({...stateBoi, pinActuate: newList, historyIndex: actuation.historyIndex+1}));
                     }
                 }
             }}
         >
             {props.children}
-        </Context.Provider>
+        </ActuationContext.Provider>
     );
 };
 
-export default Provider;
+export { ActuationProvider, ActuationContext };

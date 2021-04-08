@@ -10,19 +10,19 @@ import TextField from '@material-ui/core/TextField';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import {PlayArrow, SkipNext, SkipPrevious, Pause, Replay, AddCircleOutline, DeleteForever, Stop} from '@material-ui/icons';
 import IconButton from '@material-ui/core/IconButton';
-import Context from "./context"
 import ActuationSequence from './Actuation'
 import { DialogContentText } from '@material-ui/core';
+import { ActuationContext } from "./Contexts/ActuationProvider"
 
 const initState = {
-    mouseX : null,
-    mouseY : null,
+    mouseX: null,
+    mouseY: null,
 };
 
-export default function Scroll(props){
-    const context = useContext(Context);
+export default function Scroll(props) {
+    const context = useContext(ActuationContext);
     const classes = useStyles();
-    const {pinActuate, currentStep} = context.state;
+    const {pinActuate, currentStep} = context.actuation;
     const {setCurrentStep, addLoop, updateLoop, deleteCurrentStep, 
         deleteLoop, insertStep, clearAll, updateDuration} = context;
     const [mouseState, setMouseState] = useState(initState);
@@ -250,8 +250,8 @@ export default function Scroll(props){
                        let value = pinActuate.get(key);
                        if(value.type==="loop"){
                             let append_string = "";
-                            value.content.forEach((e)=>{append_string += (e.toString()+", ")});
-                            append_string = append_string.slice(0,-2);
+                            value.content.forEach((e) => { append_string += (e.toString() + ", ") });
+                            append_string = append_string.slice(0, -2);
                             let startBlock = pinActuate.get(value.content[0]);
                             let padding = startBlock.order;
                             return <Button
@@ -260,13 +260,13 @@ export default function Scroll(props){
                                     position: 'absolute',
                                     top: 5,
                                     left: `calc(calc(15% + 10px) * ${padding} )`,
-                                    width: `calc(calc(15% + 10px) * ${value.content.length} - 10px)`, 
+                                    width: `calc(calc(15% + 10px) * ${value.content.length} - 10px)`,
                                     height: 25
                                 }}
-                                onClick={()=>{
+                                onClick={() => {
                                     let loop = pinActuate.get(key);
                                     setFrom(loop.content[0].toString());
-                                    setTo(loop.content[loop.content.length-1].toString());
+                                    setTo(loop.content[loop.content.length - 1].toString());
                                     setRepTime(loop.repTime.toString());
                                     setUpdate(key);
                                     modelOpen();
@@ -275,11 +275,11 @@ export default function Scroll(props){
                             >
                                 {`Frame ${append_string} repeat ${value.repTime} times`}
                             </Button>
-                       }else{
-                           return null;
-                       }
-                   })
-               }
+                        } else {
+                            return null;
+                        }
+                    })
+                }
             </div>
             <div className={classes.subcontainer}>
             {Array.from(pinActuate.keys()).map(key => {
@@ -342,9 +342,9 @@ export default function Scroll(props){
                 onClose={handleClose}
                 anchorReference="anchorPosition"
                 anchorPosition={
-                  mouseState.mouseY !== null && mouseState.mouseX !== null
-                    ? { top: mouseState.mouseY, left: mouseState.mouseX }
-                    : undefined
+                    mouseState.mouseY !== null && mouseState.mouseX !== null
+                        ? { top: mouseState.mouseY, left: mouseState.mouseX }
+                        : undefined
                 }
             >
                 <MenuItem onClick={handleInsert}>Insert</MenuItem>
@@ -359,43 +359,43 @@ export default function Scroll(props){
                 aria-labelledby="form-dialog-title"
             >
                 <DialogTitle id="form-dialog-title">Set Repeat</DialogTitle>
-                <DialogContent style={{display: 'flex', flexDirection: 'column', width: 400}}>
-        
-                         <TextField
-                            autoFocus
-                            variant="outlined"
-                            label="From"
-                            style={{marginBottom: 10}}
-                            value={from}
-                            onChange={changeFrom}
-                            helperText={!isNaN(from)&&parseInt(Number(from))===Number(from)?"":"need to be a number"}
-                            error={isNaN(from)||parseInt(Number(from))!==Number(from)}
-                        />
-                  
-                         <TextField
-                            variant="outlined"
-                            label="To"
-                            style={{marginBottom: 10}}
-                            value={to}
-                            onChange={changeTo}
-                            helperText={!isNaN(to)&&parseInt(Number(to))===Number(to)?"":"need to be a number"}
-                            error={isNaN(to)||parseInt(Number(to))!==Number(to)}
-                        />
-                    
-                         <TextField
-                            variant="outlined"
-                            label="Repeat Time"
-                            style={{marginBottom: 10}}
-                            value={repTime}
-                            onChange={changeRepTime}
-                            helperText={!isNaN(repTime)&&parseInt(Number(repTime))===Number(repTime)?"":"need to be a number"}
-                            error={isNaN(repTime)||parseInt(Number(repTime))!==Number(repTime)}
-                        />
-                    
+                <DialogContent style={{ display: 'flex', flexDirection: 'column', width: 400 }}>
+
+                    <TextField
+                        autoFocus
+                        variant="outlined"
+                        label="From"
+                        style={{ marginBottom: 10 }}
+                        value={from}
+                        onChange={changeFrom}
+                        helperText={!isNaN(from) && parseInt(Number(from)) === Number(from) ? "" : "need to be a number"}
+                        error={isNaN(from) || parseInt(Number(from)) !== Number(from)}
+                    />
+
+                    <TextField
+                        variant="outlined"
+                        label="To"
+                        style={{ marginBottom: 10 }}
+                        value={to}
+                        onChange={changeTo}
+                        helperText={!isNaN(to) && parseInt(Number(to)) === Number(to) ? "" : "need to be a number"}
+                        error={isNaN(to) || parseInt(Number(to)) !== Number(to)}
+                    />
+
+                    <TextField
+                        variant="outlined"
+                        label="Repeat Time"
+                        style={{ marginBottom: 10 }}
+                        value={repTime}
+                        onChange={changeRepTime}
+                        helperText={!isNaN(repTime) && parseInt(Number(repTime)) === Number(repTime) ? "" : "need to be a number"}
+                        error={isNaN(repTime) || parseInt(Number(repTime)) !== Number(repTime)}
+                    />
+
                 </DialogContent>
                 <DialogActions>
-                <Button onClick={modelClose} color="primary">
-                    Cancel
+                    <Button onClick={modelClose} color="primary">
+                        Cancel
                 </Button>
                 {update !== null ? 
                 <Button onClick={()=>{deleteLoop(update); setUpdate(null); modelClose();}} color="primary">
@@ -457,7 +457,7 @@ const useStyles = makeStyles({
         alignItems: 'center',
         // scrollPaddingRight: "10px"
     },
-    button:{
+    button: {
         width: "15%",
         minWidth: "15%",
         height: "27vh",

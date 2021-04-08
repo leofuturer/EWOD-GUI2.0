@@ -28,12 +28,12 @@ export default function useSelected(callback, savingChanges) {
       if (elecSelected.length > 0) {
         copy = [...deltas];
 
-        for (let j = 0; j < elecSelected.length; j++) {
+        for (let j = 0; j < elecSelected.length; j += 1) {
           const init = electrodes.initPositions[elecSelected[j]];
-          const newDelX = delta.x + deltas[elecSelected[j]][0]; const
-            newDelY = delta.y + deltas[elecSelected[j]][1];
-          const newX = newDelX + init[0]; const
-            newY = newDelY + init[1];
+          const newDelX = delta.x + deltas[elecSelected[j]][0];
+          const newDelY = delta.y + deltas[elecSelected[j]][1];
+          const newX = newDelX + init[0];
+          const newY = newDelY + init[1];
           if (newX < 0 || newX >= CANVAS_TRUE_WIDTH || newY < 0 || newY >= CANVAS_TRUE_HEIGHT) {
             setSelected([]);
             setCombSelected([]);
@@ -52,13 +52,13 @@ export default function useSelected(callback, savingChanges) {
       if (combSelected.length > 0) {
         combSelected.sort((a, b) => a - b);
 
-        for (let i = 0; i < combSelected.length; i++) {
+        for (let i = 0; i < combSelected.length; i += 1) {
           const layVal = combSelected[i];
           const selectedCombs = [];
-          for (let k = 0; k < allCombined.length; k++) {
+          for (let k = 0; k < allCombined.length; k += 1) {
             if (allCombined[k][2] === layVal) {
-              const newX = parseInt(allCombined[k][0]) + delta.x; const
-                newY = parseInt(allCombined[k][1]) + delta.y;
+              const newX = parseInt(allCombined[k][0], 10) + delta.x; const
+                newY = parseInt(allCombined[k][1], 10) + delta.y;
               // // TODO: disallow combined electrodes from being dragged over grid
               // if (newX < 0 || newX >= CANVAS_TRUE_WIDTH || newY < 0 || newY >= CANVAS_TRUE_HEIGHT) {
               //     setSelected([])
@@ -76,11 +76,14 @@ export default function useSelected(callback, savingChanges) {
         setComboLayout(combines);
       }
 
-      if (elecSelected.length > 0) setElectrodes({ initPositions: electrodes.initPositions, deltas: copy });
-
+      if (elecSelected.length > 0) {
+        setElectrodes({ initPositions: electrodes.initPositions, deltas: copy });
+      }
       setDelta(null);
 
       savedCallback.current();
     }
-  }, [savingChanges, allCombined, combSelected, delta, deltas, elecSelected, electrodes.initPositions, setCombSelected, setComboLayout, setDelta, setElectrodes, setSelected]);
+  }, [savingChanges, allCombined, combSelected, delta,
+    deltas, elecSelected, electrodes.initPositions, setCombSelected,
+    setComboLayout, setDelta, setElectrodes, setSelected]);
 }

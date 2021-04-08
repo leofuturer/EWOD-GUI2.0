@@ -1,3 +1,4 @@
+/* eslint-disable react/destructuring-assignment */
 import React, {
   useRef, useEffect, useCallback, useContext, useState,
 } from 'react';
@@ -50,6 +51,7 @@ function DraggableItem({ id, children }) {
         item.removeEventListener('mousedown', handleMouseDown);
       };
     }
+    return undefined;
   }, [handleMouseDown]);
 
   // handles selection of existing electrodes
@@ -68,6 +70,7 @@ function DraggableItem({ id, children }) {
         item.removeEventListener('mouseover', handleMouseOver);
       };
     }
+    return undefined;
   }, [handleMouseOver]);
 
   const [savingChanges, setSaveChanges] = useState(false);

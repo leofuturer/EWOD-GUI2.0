@@ -1,3 +1,4 @@
+/* eslint-disable react/destructuring-assignment */
 import React, { useContext } from 'react';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { genFileContents } from './genFileContents';
@@ -16,6 +17,6 @@ export default function SaveButton() {
   const { allCombined } = context.combined;
   // console.log(db)
   return (
-    <button onClick={() => handleSave(electrodes, allCombined, db)}>Save</button>
+    <button type="button" onClick={() => handleSave(electrodes, allCombined, db)}>Save</button>
   );
 }

@@ -1,3 +1,4 @@
+/* eslint-disable react/destructuring-assignment */
 import React, {
   useRef, useEffect, useCallback, useContext, useState,
 } from 'react';
@@ -55,6 +56,7 @@ function DraggableComb({ id, children }) {
         item.removeEventListener('mouseover', handleMouseOver);
       };
     }
+    return undefined;
   }, [handleMouseDown, handleMouseOver]);
 
   const [savingChanges, setSaveChanges] = useState(false);

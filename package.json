@@ -41,7 +41,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "yarn run eslint \"src/**/*.js\"",
+    "lint": "yarn run eslint \"src/**/*.js\" \"src/**/*.jsx\"",
     "serve": "yarn build && serve -s build"
   },
   "eslintConfig": {

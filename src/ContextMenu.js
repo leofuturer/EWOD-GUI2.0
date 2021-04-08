@@ -3,15 +3,25 @@ import { Motion, spring } from "react-motion"
 import MenuItem from '@material-ui/core/MenuItem';
 
 export function ContextMenu({ names, funcs }) {
+
     const [xPos, setXPos] = useState("0px");
     const [yPos, setYPos] = useState("0px");
+
+    const [relativeX, setRelativeX] = useState("0px")
+    const [relativeY, setRelativeY] = useState("0px")
+
     const [showMenu, setShowMenu] = useState(false);
 
     const handleContextMenu = useCallback(
         (e) => {
             e.preventDefault();
-            setXPos(`${e.offsetX}px`);
-            setYPos(`${e.offsetY}px`);
+            var rect = e.currentTarget.getBoundingClientRect()
+
+            setXPos(`${e.offsetX + rect.left}px`);
+            setYPos(`${e.offsetY + rect.top}px`);
+
+            setRelativeX(`${e.offsetX}px`);
+            setRelativeY(`${e.offsetY}px`);
             setShowMenu(true);
         },
         [setXPos, setYPos]
@@ -62,7 +72,7 @@ export function ContextMenu({ names, funcs }) {
                                     names.map((name, idx) => {
                                         return (
                                             <MenuItem key={idx} onClick={(e) => {
-                                                funcs[idx](e, xPos, yPos)
+                                                funcs[idx](e, relativeX, relativeY)
                                             }}>{name}</MenuItem>
                                         )
                                     })

@@ -131,6 +131,11 @@ export default function Canvas() {
     }
 
     function contextPaste(e, xPos, yPos) {
+        // var rect = e.currentTarget.getBoundingClientRect()
+
+        // xPos += rect.left
+        // yPos += rect.top
+        console.log(xPos + ", " + yPos)
         if (selected.length > 0)
             setSelected([])
         if (combSelected.length > 0)
@@ -163,7 +168,7 @@ export default function Canvas() {
                     newCombs.push([x + combined[k][0] - first[0], y + combined[k][1] - first[1], combined[k][2]])
                 setComboLayout(allCombined.concat(newCombs))
             }
-            setClipboard([])
+            setClipboard({ squares: [], combined: [] })
         }
     }
 
@@ -355,8 +360,8 @@ export default function Canvas() {
     /* ########################### HELPERS END ########################### */
 
     return (
-        <div style={{ postion: 'absolute', left: 0, top: 0, width: CANVAS_WIDTH * ELEC_SIZE, height: CANVAS_HEIGHT * ELEC_SIZE, overflow: 'scroll' }} >
-            <svg className="greenArea" xmlns="http://www.w3.org/2000/svg"  >
+        <div className="wrapper" style={{ width: CANVAS_WIDTH * ELEC_SIZE, height: CANVAS_HEIGHT * ELEC_SIZE }} >
+            <svg className="greenArea" xmlns="http://www.w3.org/2000/svg" >
                 {electrodes.initPositions.map((startPos, ind) => {
                     return (
                         <DraggableItem key={ind} id={ind}>

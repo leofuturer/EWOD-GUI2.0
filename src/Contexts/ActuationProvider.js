@@ -117,11 +117,27 @@ const ActuationProvider = props => {
                     let newList = actuation.pinActuate;
                     let l = newList.size;
                     let newSeq = new ActuationSequence(newList.size, "loop");
+                    let content_list = [];
+                    let error = 0;
                     newList.forEach((value, key)=>{
                         if(value.type==='simple' && value.order>=from && value.order <= to){
-                            newSeq.pushOneStep(value);
+                            if(error===1) return;
+                            if(value.parent!==null) {
+                                error = 1;
+                                return;
+                            }
+                            content_list.push(value);
                         }
                     })
+                    if(error === 1) {
+                        alert("Loop Overlap! Please change the range of frame.");
+                        return;
+                    }
+                    if(content_list.length!== to-from+1){
+                        alert("Invalid frame range.");
+                        return;
+                    }
+                    newSeq.pushAllSteps(content_list);
                     newSeq.repTime = repTime;
                     newList.set(l, newSeq);
                     console.log(newList);
@@ -130,16 +146,32 @@ const ActuationProvider = props => {
                 updateLoop: (from, to, repTime, key) => {
                     let newList = actuation.pinActuate;
                     let seq = newList.get(key);
+                    let content_list = [];
+                    let error = 0;
+                    newList.forEach((value, key)=>{
+                        if(value.type==='simple' && value.order>=from && value.order <= to){
+                            if(error === 1) return;
+                            if(value.parent !== null){
+                                error = 1;
+                                return;
+                            }
+                            content_list.push(value);
+                        }
+                    })
+                    if(error === 1) {
+                        alert("Loop Overlap! Please change the range of frame.");
+                        return;
+                    }
+                    if(content_list.length!== to-from+1){
+                        alert("Invalid frame range.");
+                        return;
+                    }
                     seq.repTime = repTime;
                     for(let i = 0; i < seq.content.length; i++){
                         actuation.pinActuate.get(seq.content[i]).parent = null;
                     }
                     seq.content = [];
-                    newList.forEach((value, key)=>{
-                        if(value.type==='simple' && value.order>=from && value.order <= to){
-                            seq.pushOneStep(value);
-                        }
-                    })
+                    seq.pushAllSteps(content_list);
                     console.log(newList);
                     setActuation((stateBoi)=> ({...stateBoi, pinActuate: newList}));
                 },

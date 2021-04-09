@@ -17,7 +17,7 @@ export function ContextMenu({ names, funcs }) {
             e.preventDefault();
             var rect = e.currentTarget.getBoundingClientRect()
 
-            if (e.offsetY > rect.bottom - 190) {
+            if (e.offsetY > rect.bottom - 250) {
                 setXPos(`${e.offsetX + rect.left}px`);
                 setYPos(`${e.offsetY + rect.top - 190}px`);
 
@@ -58,14 +58,13 @@ export function ContextMenu({ names, funcs }) {
                         <div
                             className="menu-container"
                             style={{
-                                top: yPos,
-                                left: xPos,
                                 opacity: interpolatedStyle.opacity,
                             }}
                         >
                             <ul
                                 className="menu"
                                 style={{
+                                    zIndex: 5,
                                     position: "absolute",
                                     top: yPos,
                                     left: xPos,

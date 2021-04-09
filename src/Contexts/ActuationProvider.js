@@ -121,14 +121,22 @@ const ActuationProvider = props => {
                     let error = 0;
                     newList.forEach((value, key)=>{
                         if(value.type==='simple' && value.order>=from && value.order <= to){
+                            if(error===1) return;
                             if(value.parent!==null) {
-                                alert("Loop Overlap! Please change the range of frame.");
                                 error = 1;
+                                return;
                             }
                             content_list.push(value);
                         }
                     })
-                    if(error === 1) return;
+                    if(error === 1) {
+                        alert("Loop Overlap! Please change the range of frame.");
+                        return;
+                    }
+                    if(content_list.length!== to-from+1){
+                        alert("Invalid frame range.");
+                        return;
+                    }
                     newSeq.pushAllSteps(content_list);
                     newSeq.repTime = repTime;
                     newList.set(l, newSeq);
@@ -144,14 +152,20 @@ const ActuationProvider = props => {
                         if(value.type==='simple' && value.order>=from && value.order <= to){
                             if(error === 1) return;
                             if(value.parent !== null){
-                                alert("Loop Overlap! Please change the range of frame.");
                                 error = 1;
                                 return;
                             }
                             content_list.push(value);
                         }
                     })
-                    if(error===1) return;
+                    if(error === 1) {
+                        alert("Loop Overlap! Please change the range of frame.");
+                        return;
+                    }
+                    if(content_list.length!== to-from+1){
+                        alert("Invalid frame range.");
+                        return;
+                    }
                     seq.repTime = repTime;
                     for(let i = 0; i < seq.content.length; i++){
                         actuation.pinActuate.get(seq.content[i]).parent = null;

@@ -17,11 +17,19 @@ export function ContextMenu({ names, funcs }) {
             e.preventDefault();
             var rect = e.currentTarget.getBoundingClientRect()
 
-            setXPos(`${e.offsetX + rect.left}px`);
-            setYPos(`${e.offsetY + rect.top}px`);
+            if (e.offsetY > rect.bottom - 190) {
+                setXPos(`${e.offsetX + rect.left}px`);
+                setYPos(`${e.offsetY + rect.top - 190}px`);
 
-            setRelativeX(`${e.offsetX}px`);
-            setRelativeY(`${e.offsetY}px`);
+                setRelativeX(`${e.offsetX}px`);
+                setRelativeY(`${e.offsetY}px`);
+            } else {
+                setXPos(`${e.offsetX + rect.left}px`);
+                setYPos(`${e.offsetY + rect.top}px`);
+
+                setRelativeX(`${e.offsetX}px`);
+                setRelativeY(`${e.offsetY}px`);
+            }
             setShowMenu(true);
         },
         [setXPos, setYPos]
@@ -61,7 +69,6 @@ export function ContextMenu({ names, funcs }) {
                                     position: "absolute",
                                     top: yPos,
                                     left: xPos,
-
                                     backgroundColor: "white",
                                     padding: "10px 0px",
                                     borderRadius: "5px",
@@ -71,9 +78,12 @@ export function ContextMenu({ names, funcs }) {
                                 {
                                     names.map((name, idx) => {
                                         return (
-                                            <MenuItem key={idx} onClick={(e) => {
-                                                funcs[idx](e, relativeX, relativeY)
-                                            }}>{name}</MenuItem>
+                                            <MenuItem
+                                                key={idx}
+                                                onClick={(e) => { funcs[idx](e, relativeX, relativeY) }}
+                                            >
+                                                {name}
+                                            </MenuItem>
                                         )
                                     })
                                 }

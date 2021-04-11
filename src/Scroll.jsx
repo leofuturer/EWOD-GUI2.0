@@ -16,6 +16,8 @@ import { DialogContentText } from '@material-ui/core';
 import ActuationSequence from './Actuation';
 import { ActuationContext } from './Contexts/ActuationProvider';
 
+import { SCROLL_HEIGHT } from './constants';
+
 const initState = {
   mouseX: null,
   mouseY: null,
@@ -32,7 +34,7 @@ const useStyles = makeStyles({
     flexShrink: 0,
     overflowX: 'scroll',
     width: '100vw',
-    height: '35.8vh',
+    height: `${SCROLL_HEIGHT}vh`,
     backgroundColor: '#fce6bd',
     scrollPaddingRight: '10px',
   },
@@ -339,41 +341,41 @@ export default function Scroll() {
       <div className={classes.container} ref={scrollRef} onWheel={handleWheel}>
         <div className={classes.subcontainer} style={{ overflowX: 'visible' }}>
           {
-                   Array.from(pinActuate.keys()).map((key) => {
-                     const value = pinActuate.get(key);
-                     if (value.type === 'loop') {
-                       let appendString = '';
-                       value.content.forEach((e) => { appendString += (`${e.toString()}, `); });
-                       appendString = appendString.slice(0, -2);
-                       const startBlock = pinActuate.get(value.content[0]);
-                       const padding = startBlock.order;
-                       return (
-                         <Button
-                           className={classes.loop}
-                           style={{
-                             position: 'absolute',
-                             top: 5,
-                             left: `calc(calc(15% + 10px) * ${padding} )`,
-                             width: `calc(calc(15% + 10px) * ${value.content.length} - 10px)`,
-                             height: 25,
-                           }}
-                           onClick={() => {
-                             const loop = pinActuate.get(key);
-                             setFrom(loop.content[0].toString());
-                             setTo(loop.content[loop.content.length - 1].toString());
-                             setRepTime(loop.repTime.toString());
-                             setUpdate(key);
-                             modelOpen();
-                           }}
-                           key={key}
-                         >
-                           {`Frame ${appendString} repeat ${value.repTime} times`}
-                         </Button>
-                       );
-                     }
-                     return null;
-                   })
-                }
+            Array.from(pinActuate.keys()).map((key) => {
+              const value = pinActuate.get(key);
+              if (value.type === 'loop') {
+                let appendString = '';
+                value.content.forEach((e) => { appendString += (`${e.toString()}, `); });
+                appendString = appendString.slice(0, -2);
+                const startBlock = pinActuate.get(value.content[0]);
+                const padding = startBlock.order;
+                return (
+                  <Button
+                    className={classes.loop}
+                    style={{
+                      position: 'absolute',
+                      top: 5,
+                      left: `calc(calc(15% + 10px) * ${padding} )`,
+                      width: `calc(calc(15% + 10px) * ${value.content.length} - 10px)`,
+                      height: 25,
+                    }}
+                    onClick={() => {
+                      const loop = pinActuate.get(key);
+                      setFrom(loop.content[0].toString());
+                      setTo(loop.content[loop.content.length - 1].toString());
+                      setRepTime(loop.repTime.toString());
+                      setUpdate(key);
+                      modelOpen();
+                    }}
+                    key={key}
+                  >
+                    {`Frame ${appendString} repeat ${value.repTime} times`}
+                  </Button>
+                );
+              }
+              return null;
+            })
+          }
         </div>
         <div className={classes.subcontainer}>
           {Array.from(pinActuate.keys()).map((key) => {
@@ -441,10 +443,10 @@ export default function Scroll() {
           onClose={handleClose}
           anchorReference="anchorPosition"
           anchorPosition={
-                    mouseState.mouseY !== null && mouseState.mouseX !== null
-                      ? { top: mouseState.mouseY, left: mouseState.mouseX }
-                      : undefined
-                }
+            mouseState.mouseY !== null && mouseState.mouseX !== null
+              ? { top: mouseState.mouseY, left: mouseState.mouseX }
+              : undefined
+          }
         >
           <MenuItem onClick={handleInsert}>Insert</MenuItem>
           <MenuItem onClick={handleCopy}>Copy</MenuItem>

@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Motion, spring } from 'react-motion';
 import MenuItem from '@material-ui/core/MenuItem';
 
-export function ContextMenu({ names, funcs }) {
+export default function ContextMenu({ names, funcs }) {
   const [xPos, setXPos] = useState('0px');
   const [yPos, setYPos] = useState('0px');
 
@@ -16,11 +16,19 @@ export function ContextMenu({ names, funcs }) {
       e.preventDefault();
       const rect = e.currentTarget.getBoundingClientRect();
 
-      setXPos(`${e.offsetX + rect.left}px`);
-      setYPos(`${e.offsetY + rect.top}px`);
+      if (e.offsetY > rect.bottom - 250) {
+        setXPos(`${e.offsetX + rect.left}px`);
+        setYPos(`${e.offsetY + rect.top - 190}px`);
 
-      setRelativeX(`${e.offsetX}px`);
-      setRelativeY(`${e.offsetY}px`);
+        setRelativeX(`${e.offsetX}px`);
+        setRelativeY(`${e.offsetY}px`);
+      } else {
+        setXPos(`${e.offsetX + rect.left}px`);
+        setYPos(`${e.offsetY + rect.top}px`);
+
+        setRelativeX(`${e.offsetX}px`);
+        setRelativeY(`${e.offsetY}px`);
+      }
       setShowMenu(true);
     },
     [setXPos, setYPos],
@@ -49,18 +57,16 @@ export function ContextMenu({ names, funcs }) {
             <div
               className="menu-container"
               style={{
-                top: yPos,
-                left: xPos,
                 opacity: interpolatedStyle.opacity,
               }}
             >
               <ul
                 className="menu"
                 style={{
+                  zIndex: 5,
                   position: 'absolute',
                   top: yPos,
                   left: xPos,
-
                   backgroundColor: 'white',
                   padding: '10px 0px',
                   borderRadius: '5px',
@@ -71,9 +77,7 @@ export function ContextMenu({ names, funcs }) {
                                     names.map((name, idx) => (
                                       <MenuItem
                                         key={idx}
-                                        onClick={(e) => {
-                                          funcs[idx](e, relativeX, relativeY);
-                                        }}
+                                        onClick={(e) => { funcs[idx](e, relativeX, relativeY); }}
                                       >
                                         {name}
                                       </MenuItem>

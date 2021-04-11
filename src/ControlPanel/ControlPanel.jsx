@@ -12,9 +12,11 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import {
-  Undo, Redo, Highlight, GetApp, FileCopy, Create, Info, ViewWeek, Usb, Image, Menu,
-  FormatListNumberedOutlined, DeleteForeverOutlined,
+  Undo, Redo, Highlight, FileCopy, Create, Info, ViewWeek, Usb, Image, Menu,
+  FormatListNumberedOutlined, DeleteForeverOutlined, GridOn
 } from '@material-ui/icons';
+import Tooltip from '@material-ui/core/Tooltip';
+
 import { ActuationContext } from '../Contexts/ActuationProvider';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 
@@ -91,12 +93,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function ControlPanel() {
+export function ControlPanel({ setMode }) {
   const canvasContext = useContext(CanvasContext);
   const actuationContext = useContext(ActuationContext);
   const { drawing } = canvasContext.state;
   const { setDrawing, setSelected, setCombSelected } = canvasContext;
-  const { setStartActuate, undo, redo } = actuationContext;
+  const { undo, redo } = actuationContext;
 
   const classes = useStyles();
   const [open, setOpen] = useState(false);
@@ -108,9 +110,8 @@ export function ControlPanel() {
   }
 
   return (
-  // <UploadButton />
-  // <SaveButton />
-  // <DownloadButton />
+    // <UploadButton />
+    // <SaveButton />
     <div className={classes.root}>
       <CssBaseline />
       <AppBar
@@ -122,18 +123,36 @@ export function ControlPanel() {
       >
         <Toolbar style={{ marginLeft: 40 }}>
           <List style={{ display: 'flex', flexDirection: 'row' }}>
-            <ListItem button onClick={toggleDraw}>
-              <Create />
-            </ListItem>
-            <ListItem button onClick={setStartActuate}>
-              <Highlight />
-            </ListItem>
+            <Tooltip title="Draw">
+              <ListItem button onClick={toggleDraw}>
+                <Create />
+              </ListItem>
+            </Tooltip>
+
             <ListItem button>
               <FileCopy />
             </ListItem>
-            <ListItem button>
-              <GetApp />
+            <ListItem button >
+              <ViewWeek />
             </ListItem>
+            <DownloadButton />
+
+            <Tooltip title="Map Pins">
+              <ListItem button onClick={() => setMode("PIN")}>
+                <FormatListNumberedOutlined />
+              </ListItem>
+            </Tooltip>
+            <Tooltip title="Sequence Actuation">
+              <ListItem button onClick={() => setMode("SEQ")}>
+                <Highlight />
+              </ListItem>
+            </Tooltip>
+            <Tooltip title="Edit Canvas">
+              <ListItem button onClick={() => setMode("CAN")}>
+                <GridOn />
+              </ListItem>
+            </Tooltip>
+
             <ListItem button onClick={undo}>
               <Undo />
             </ListItem>
@@ -173,14 +192,6 @@ export function ControlPanel() {
           <ListItem button>
             <ListItemIcon><Image /></ListItemIcon>
             <ListItemText primary="Reference Image" />
-          </ListItem>
-          <ListItem button>
-            <ListItemIcon><FormatListNumberedOutlined /></ListItemIcon>
-            <ListItemText primary="Numbering" />
-          </ListItem>
-          <ListItem button>
-            <ListItemIcon><ViewWeek /></ListItemIcon>
-            <ListItemText primary="Actuation Sequence" />
           </ListItem>
         </List>
         <Divider />

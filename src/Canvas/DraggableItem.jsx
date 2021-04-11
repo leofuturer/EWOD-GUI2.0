@@ -9,7 +9,7 @@ import './Canvas.css';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { ELEC_SIZE } from '../constants';
 
-function DraggableItem({ id, children }) {
+function DraggableItem({ id, children, mode }) {
   const context = useContext(CanvasContext);
   const { setSelected, setDelta, setDragging } = context;
   const {
@@ -34,12 +34,9 @@ function DraggableItem({ id, children }) {
 
   const handleMouseDown = useCallback((e) => {
     if (e.which === 1) {
-      if (!isSelected && !drawing && !isDragging) {
+      if (mode === 'CAN' && !isSelected && !drawing && !isDragging) {
         setSelected([...new Set([...elecSelected, id])]);
-        // setDragging(true)
       }
-      // else if (isSelected)
-      //     setDragging(true)
     }
   }, [isDragging, setSelected, elecSelected, id, drawing, isSelected]);
 
@@ -56,9 +53,8 @@ function DraggableItem({ id, children }) {
 
   // handles selection of existing electrodes
   const handleMouseOver = useCallback(() => {
-    if (mouseDown === true && !isSelected && !drawing && !isDragging) {
+    if (mouseDown === true && mode === 'CAN' && !isSelected && !drawing && !isDragging) {
       setSelected([...new Set([...elecSelected, id])]);
-      // setDragging(true)
     }
   }, [isDragging, drawing, id, isSelected, mouseDown, elecSelected, setSelected]);
 
@@ -102,15 +98,13 @@ function DraggableItem({ id, children }) {
         }
       }}
       position={{ x: 0, y: 0 }}
-      disabled={!isSelected}
+      disabled={mode !== "CAN" || !isSelected}
       grid={[ELEC_SIZE, ELEC_SIZE]}
       nodeRef={dragItem}
     >
       <g ref={dragItem}>
         <g style={transform}>
-          <g className={`${isSelected ? 'selected' : ''}`}>
-            {children}
-          </g>
+          {children}
         </g>
       </g>
     </ReactDraggable>

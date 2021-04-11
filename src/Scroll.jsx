@@ -191,17 +191,17 @@ export default function Scroll() {
       if (id !== null) {
         const success = updateLoop(fromInt, toInt, repTimeInt, id);
         if (!success) {
-          childRef.current.getAlert('error', 'Update Loop Fail! Please check the range of frame');
+          childRef.current.getAlert('error', 'Update Loop Fail! Please check the range of frame.');
         } else {
-          childRef.current.getAlert('success', 'Successfully add a loop');
+          childRef.current.getAlert('success', 'Successfully add a loop.');
         }
         setUpdate(null);
       } else {
         const success = addLoop(fromInt, toInt, repTimeInt);
         if (!success) {
-          childRef.current.getAlert('error', 'Add Loop Fail! Please check the range of frame');
+          childRef.current.getAlert('error', 'Add Loop Fail! Please check the range of frame.');
         } else {
-          childRef.current.getAlert('success', 'Successfully update a loop');
+          childRef.current.getAlert('success', 'Successfully update a loop.');
         }
       }
 
@@ -302,7 +302,7 @@ export default function Scroll() {
       <CustomAlert ref={childRef} />
       <div className={classes.playTab}>
         <p style={{
-          position: 'absolute', left: '48vw', top: -10, fontSize: 14, color: 'white',
+          position: 'absolute', left: '48vw', top: -10, fontSize: 14, color: '#A06933',
         }}
         >
           {`Step ${pinActuate.get(currentStep).order}`}

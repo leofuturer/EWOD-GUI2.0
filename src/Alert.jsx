@@ -18,7 +18,7 @@ const useStyles = makeStyles({
 
 const CustomAlert = forwardRef((props, ref) => {
   const [open, setOpen] = useState(false);
-  const [text, setText] = useState('Invalid Input');
+  const [text, setText] = useState('Invalid Input!');
   const [severity, setSevertity] = useState('error');
   useImperativeHandle(
     ref,
@@ -47,8 +47,9 @@ const CustomAlert = forwardRef((props, ref) => {
             <CloseIcon fontSize="inherit" />
           </IconButton>
         )}
+        data-testid="alert-box" // for jest testing
       >
-        {`${text}.`}
+        {`${text}`}
       </Alert>
     </Collapse>
   );

@@ -191,13 +191,17 @@ export default function Scroll() {
       if (id !== null) {
         const success = updateLoop(fromInt, toInt, repTimeInt, id);
         if (!success) {
-          childRef.current.getAlert('Update Loop Fail! Please check the range of frame');
+          childRef.current.getAlert('error', 'Update Loop Fail! Please check the range of frame');
+        } else {
+          childRef.current.getAlert('success', 'Successfully add a loop');
         }
         setUpdate(null);
       } else {
         const success = addLoop(fromInt, toInt, repTimeInt);
         if (!success) {
-          childRef.current.getAlert('Add Loop Fail! Please check the range of frame');
+          childRef.current.getAlert('error', 'Add Loop Fail! Please check the range of frame');
+        } else {
+          childRef.current.getAlert('success', 'Successfully update a loop');
         }
       }
 
@@ -207,7 +211,7 @@ export default function Scroll() {
       generateSeq();
       modelClose();
     } else {
-      alert('invalid block number.');
+      childRef.current.getAlert('error', 'Invalid block number!');
     }
   };
 
@@ -255,7 +259,12 @@ export default function Scroll() {
 
   const handleDelete = () => {
     if (currentStep === clipboard) setClipboard(null);
-    deleteCurrentStep(currentStep);
+    const success = deleteCurrentStep(currentStep);
+    if (!success) {
+      childRef.current.getAlert('error', 'Cannot delete the last block in a loop or the whole sequence!');
+    } else {
+      childRef.current.getAlert('warning', 'Delete one step!');
+    }
     generateSeq();
     modelClose();
   };

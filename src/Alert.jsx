@@ -19,11 +19,13 @@ const useStyles = makeStyles({
 const CustomAlert = forwardRef((props, ref) => {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('Invalid Input');
+  const [severity, setSevertity] = useState('error');
   useImperativeHandle(
     ref,
     () => ({
-      getAlert(alertText) {
+      getAlert(severe, alertText) {
         setText(alertText);
+        setSevertity(severe);
         setOpen(true);
       },
     }),
@@ -32,7 +34,7 @@ const CustomAlert = forwardRef((props, ref) => {
   return (
     <Collapse in={open} className={classes.container}>
       <Alert
-        severity="error"
+        severity={severity}
         action={(
           <IconButton
             aria-label="close"
@@ -46,7 +48,7 @@ const CustomAlert = forwardRef((props, ref) => {
           </IconButton>
         )}
       >
-        {`Error: ${text}.`}
+        {`${text}.`}
       </Alert>
     </Collapse>
   );

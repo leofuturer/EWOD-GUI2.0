@@ -47,13 +47,15 @@ const ActuationProvider = (props) => {
           setActuation((stateBoi) => ({ ...stateBoi, currentStep: step }));
         },
         deleteCurrentStep: (step) => {
-          if (actuation.pinActuate.size === 1) return;
+          if (actuation.pinActuate.size === 1) {
+            return false;
+          }
           if (actuation.pinActuate.has(step)) {
             const newList = actuation.pinActuate;
             if (newList.get(step).parent !== null) {
               const { parent } = newList.get(step);
               if (newList.get(parent).content.length === 1) {
-                return;
+                return false;
               }
               const ind = newList.get(parent).content.indexOf(step);
               newList.get(parent).content.splice(ind, 1);
@@ -71,6 +73,7 @@ const ActuationProvider = (props) => {
               ...stateBoi, pinActuate: newList, currentStep: newStep, simpleNum: actuation.simpleNum - 1,
             }));
           }
+          return true;
         },
         insertStep: (obj) => {
           let newList = actuation.pinActuate;

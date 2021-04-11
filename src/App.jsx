@@ -12,8 +12,8 @@ export default function App() {
       <ActuationProvider>
         <CanvasProvider>
           <ControlPanel />
-          <Canvas />
           <Scroll />
+          <Canvas />
         </CanvasProvider>
       </ActuationProvider>
     </div>

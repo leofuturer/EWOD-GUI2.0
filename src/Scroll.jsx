@@ -15,6 +15,7 @@ import IconButton from '@material-ui/core/IconButton';
 import { DialogContentText } from '@material-ui/core';
 import ActuationSequence from './Actuation';
 import { ActuationContext } from './Contexts/ActuationProvider';
+import CustomAlert from './Alert';
 
 import { SCROLL_HEIGHT } from './constants';
 
@@ -129,6 +130,7 @@ export default function Scroll() {
   const indexRef = useRef();
   indexRef.current = index;
   const scrollRef = useRef();
+  const childRef = useRef();
 
   const handleClick = (event) => {
     event.preventDefault();
@@ -187,11 +189,16 @@ export default function Scroll() {
     const repTimeInt = parseInt(repTime, 10);
     if (fromInt < toInt) {
       if (id !== null) {
-        updateLoop(fromInt, toInt, repTimeInt, id);
-        console.log('update!');
+        const success = updateLoop(fromInt, toInt, repTimeInt, id);
+        if (!success) {
+          childRef.current.getAlert('Update Loop Fail! Please check the range of frame');
+        }
         setUpdate(null);
       } else {
-        addLoop(fromInt, toInt, repTimeInt);
+        const success = addLoop(fromInt, toInt, repTimeInt);
+        if (!success) {
+          childRef.current.getAlert('Add Loop Fail! Please check the range of frame');
+        }
       }
 
       setFrom('');
@@ -283,6 +290,7 @@ export default function Scroll() {
 
   return (
     <div>
+      <CustomAlert ref={childRef} />
       <div className={classes.playTab}>
         <p style={{
           position: 'absolute', left: '48vw', top: -10, fontSize: 14, color: 'white',

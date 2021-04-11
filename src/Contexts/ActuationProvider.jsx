@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import React, { useState } from 'react';
 import ActuationSequence from '../Actuation';
 
@@ -20,6 +21,7 @@ const ActuationProvider = (props) => {
     <ActuationContext.Provider
       value={{
         actuation,
+        // eslint-disable-next-line max-len
         setStartActuate: () => { setActuation((stateBoi) => ({ ...stateBoi, startActuate: !actuation.startActuate })); },
         actuatePin: (pinNum) => {
           const newList = actuation.pinActuate;
@@ -39,6 +41,7 @@ const ActuationProvider = (props) => {
               });
             }
             newList.set(step, newSeq);
+            // eslint-disable-next-line max-len
             setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList, simpleNum: actuation.simpleNum + 1 }));
           }
           setActuation((stateBoi) => ({ ...stateBoi, currentStep: step }));
@@ -132,18 +135,17 @@ const ActuationProvider = (props) => {
             }
           });
           if (error === 1) {
-            alert('Loop Overlap! Please change the range of frame.');
-            return;
+            return false;
           }
           if (content_list.length !== to - from + 1) {
-            alert('Invalid frame range.');
-            return;
+            return false;
           }
           newSeq.pushAllSteps(content_list);
           newSeq.repTime = repTime;
           newList.set(l, newSeq);
           console.log(newList);
           setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
+          return true;
         },
         updateLoop: (from, to, repTime, key) => {
           const newList = actuation.pinActuate;
@@ -161,12 +163,10 @@ const ActuationProvider = (props) => {
             }
           });
           if (error === 1) {
-            alert('Loop Overlap! Please change the range of frame.');
-            return;
+            return false;
           }
           if (content_list.length !== to - from + 1) {
-            alert('Invalid frame range.');
-            return;
+            return false;
           }
           seq.repTime = repTime;
           for (let i = 0; i < seq.content.length; i++) {
@@ -176,6 +176,7 @@ const ActuationProvider = (props) => {
           seq.pushAllSteps(content_list);
           console.log(newList);
           setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
+          return true;
         },
         deleteLoop: (id) => {
           const newList = actuation.pinActuate;

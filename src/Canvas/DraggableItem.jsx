@@ -98,7 +98,7 @@ function DraggableItem({ id, children, mode }) {
         }
       }}
       position={{ x: 0, y: 0 }}
-      disabled={mode !== "CAN" || !isSelected}
+      disabled={mode !== 'CAN' || !isSelected}
       grid={[ELEC_SIZE, ELEC_SIZE]}
       nodeRef={dragItem}
     >

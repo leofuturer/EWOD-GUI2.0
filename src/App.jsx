@@ -7,7 +7,7 @@ import Scroll from './Scroll';
 import { ControlPanel } from './ControlPanel/ControlPanel';
 
 export default function App() {
-  const [mode, setMode] = useState("CAN") // either "PIN", "SEQ", or "CAN"
+  const [mode, setMode] = useState('CAN'); // either "PIN", "SEQ", or "CAN"
 
   return (
     <div className="App">

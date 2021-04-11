@@ -13,7 +13,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import {
   Undo, Redo, Highlight, FileCopy, Create, Info, ViewWeek, Usb, Image, Menu,
-  FormatListNumberedOutlined, DeleteForeverOutlined, GridOn
+  FormatListNumberedOutlined, DeleteForeverOutlined, GridOn,
 } from '@material-ui/icons';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -132,23 +132,23 @@ export function ControlPanel({ setMode }) {
             <ListItem button>
               <FileCopy />
             </ListItem>
-            <ListItem button >
+            <ListItem button>
               <ViewWeek />
             </ListItem>
             <DownloadButton />
 
             <Tooltip title="Map Pins">
-              <ListItem button onClick={() => setMode("PIN")}>
+              <ListItem button onClick={() => setMode('PIN')}>
                 <FormatListNumberedOutlined />
               </ListItem>
             </Tooltip>
             <Tooltip title="Sequence Actuation">
-              <ListItem button onClick={() => setMode("SEQ")}>
+              <ListItem button onClick={() => setMode('SEQ')}>
                 <Highlight />
               </ListItem>
             </Tooltip>
             <Tooltip title="Edit Canvas">
-              <ListItem button onClick={() => setMode("CAN")}>
+              <ListItem button onClick={() => setMode('CAN')}>
                 <GridOn />
               </ListItem>
             </Tooltip>

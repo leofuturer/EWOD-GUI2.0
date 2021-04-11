@@ -98,7 +98,7 @@ export default function Canvas({ mode }) {
 
   /* ########################### ACTUATION START ########################### */
   function handleClick(ind) {
-    if (mode === "SEQ") {
+    if (mode === 'SEQ') {
       if (pinActuate.get(currentStep).content.has(ind)) {
         pushHistory({
           type: 'actuate', pin: ind, id: currentStep, act: false,
@@ -369,8 +369,8 @@ export default function Canvas({ mode }) {
               width={ELEC_SIZE - 5}
               height={ELEC_SIZE - 5}
               className={`electrode 
-                          ${mode === "SEQ" && pinActuate.has(currentStep) && pinActuate.get(currentStep).content.has(ind) ? "toSeq" : ""}
-                          ${mode === "CAN" && selected.includes(ind) ? "selected" : ""}`}
+                          ${mode === 'SEQ' && pinActuate.has(currentStep) && pinActuate.get(currentStep).content.has(ind) ? 'toSeq' : ''}
+                          ${mode === 'CAN' && selected.includes(ind) ? 'selected' : ''}`}
               onClick={() => handleClick(ind)}
             />
           </DraggableItem>

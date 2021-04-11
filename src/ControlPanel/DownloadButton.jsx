@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
-import { CanvasContext } from '../Contexts/CanvasProvider';
-import { genFileContents } from './genFileContents';
 import ListItem from '@material-ui/core/ListItem';
 import { GetApp } from '@material-ui/icons';
 import Tooltip from '@material-ui/core/Tooltip';
+import { genFileContents } from './genFileContents';
+import { CanvasContext } from '../Contexts/CanvasProvider';
 
 export function DownloadButton() {
   const canvasContext = useContext(CanvasContext);

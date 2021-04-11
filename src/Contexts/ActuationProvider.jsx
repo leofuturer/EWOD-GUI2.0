@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import React, { useState } from 'react';
 import ActuationSequence from '../Actuation';
 
@@ -21,8 +20,9 @@ const ActuationProvider = (props) => {
     <ActuationContext.Provider
       value={{
         actuation,
-        // eslint-disable-next-line max-len
-        setStartActuate: () => { setActuation((stateBoi) => ({ ...stateBoi, startActuate: !actuation.startActuate })); },
+        setStartActuate: () => {
+          setActuation((stateBoi) => ({ ...stateBoi, startActuate: !actuation.startActuate }));
+        },
         actuatePin: (pinNum) => {
           const newList = actuation.pinActuate;
           newList.get(actuation.currentStep).actuatePin(pinNum);
@@ -41,8 +41,8 @@ const ActuationProvider = (props) => {
               });
             }
             newList.set(step, newSeq);
-            // eslint-disable-next-line max-len
-            setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList, simpleNum: actuation.simpleNum + 1 }));
+            setActuation((stateBoi) => (
+              { ...stateBoi, pinActuate: newList, simpleNum: actuation.simpleNum + 1 }));
           }
           setActuation((stateBoi) => ({ ...stateBoi, currentStep: step }));
         },
@@ -70,7 +70,10 @@ const ActuationProvider = (props) => {
             });
             const newStep = actuation.pinActuate.keys().next().value;
             setActuation((stateBoi) => ({
-              ...stateBoi, pinActuate: newList, currentStep: newStep, simpleNum: actuation.simpleNum - 1,
+              ...stateBoi,
+              pinActuate: newList,
+              currentStep: newStep,
+              simpleNum: actuation.simpleNum - 1,
             }));
           }
           return true;
@@ -106,21 +109,9 @@ const ActuationProvider = (props) => {
               return ord1 - ord2;
             });
           }
-          setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList, simpleNum: actuation.simpleNum + 1 }));
+          setActuation((stateBoi) => (
+            { ...stateBoi, pinActuate: newList, simpleNum: actuation.simpleNum + 1 }));
         },
-        // duplicateCurrentStep: (step) => {
-        //     if(state.pinActuate.has(step)){
-        //         let newList = state.pinActuate;
-        //         let next = Math.max(...[ ...newList.keys() ])+1;
-        //         let newSeq = new ActuationSequence(next, "simple", state.simpleNum);
-        //         newList.get(step).content.forEach(e => {
-        //             newSeq.content.add(e);
-        //         })
-        //         newSeq.parent = null;
-        //         newList.set(next, newSeq);
-        //         setState((stateBoi) => ({...stateBoi, pinActuate: newList, simpleNum: state.simpleNum+1}));
-        //     }
-        // },
         addLoop: (from, to, repTime) => {
           const newList = actuation.pinActuate;
           const l = newList.size;
@@ -227,7 +218,8 @@ const ActuationProvider = (props) => {
               }
             }
             // to be continue
-            setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList, historyIndex: actuation.historyIndex - 1 }));
+            setActuation((stateBoi) => (
+              { ...stateBoi, pinActuate: newList, historyIndex: actuation.historyIndex - 1 }));
           }
         },
         redo: () => {
@@ -244,7 +236,8 @@ const ActuationProvider = (props) => {
               }
             }
             // to be continue
-            setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList, historyIndex: actuation.historyIndex + 1 }));
+            setActuation((stateBoi) => (
+              { ...stateBoi, pinActuate: newList, historyIndex: actuation.historyIndex + 1 }));
           }
         },
       }}

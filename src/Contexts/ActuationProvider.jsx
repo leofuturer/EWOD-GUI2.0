@@ -41,8 +41,12 @@ const ActuationProvider = (props) => {
               });
             }
             newList.set(step, newSeq);
-            setActuation((stateBoi) => (
-              { ...stateBoi, pinActuate: newList, simpleNum: actuation.simpleNum + 1 }));
+            setActuation((stateBoi) => ({
+              ...stateBoi,
+              pinActuate:
+               newList,
+              simpleNum: actuation.simpleNum + 1,
+            }));
           }
           setActuation((stateBoi) => ({ ...stateBoi, currentStep: step }));
         },
@@ -109,8 +113,11 @@ const ActuationProvider = (props) => {
               return ord1 - ord2;
             });
           }
-          setActuation((stateBoi) => (
-            { ...stateBoi, pinActuate: newList, simpleNum: actuation.simpleNum + 1 }));
+          setActuation((stateBoi) => ({
+            ...stateBoi,
+            pinActuate: newList,
+            simpleNum: actuation.simpleNum + 1,
+          }));
         },
         addLoop: (from, to, repTime) => {
           const newList = actuation.pinActuate;
@@ -240,8 +247,11 @@ const ActuationProvider = (props) => {
               }
             }
             // to be continue
-            setActuation((stateBoi) => (
-              { ...stateBoi, pinActuate: newList, historyIndex: actuation.historyIndex + 1 }));
+            setActuation((stateBoi) => ({
+              ...stateBoi,
+              pinActuate: newList,
+              historyIndex: actuation.historyIndex + 1,
+            }));
           }
         },
       }}

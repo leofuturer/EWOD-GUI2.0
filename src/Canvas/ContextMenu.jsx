@@ -1,14 +1,13 @@
-import React, { useState, useCallback, useEffect } from "react"
-import { Motion, spring } from "react-motion"
+import React, { useState, useCallback, useEffect } from 'react';
+import { Motion, spring } from 'react-motion';
 import MenuItem from '@material-ui/core/MenuItem';
 
-export function ContextMenu({ names, funcs }) {
+export default function ContextMenu({ names, funcs }) {
+    const [xPos, setXPos] = useState('0px');
+    const [yPos, setYPos] = useState('0px');
 
-    const [xPos, setXPos] = useState("0px");
-    const [yPos, setYPos] = useState("0px");
-
-    const [relativeX, setRelativeX] = useState("0px")
-    const [relativeY, setRelativeY] = useState("0px")
+    const [relativeX, setRelativeX] = useState('0px')
+    const [relativeY, setRelativeY] = useState('0px')
 
     const [showMenu, setShowMenu] = useState(false);
 
@@ -40,11 +39,11 @@ export function ContextMenu({ names, funcs }) {
     }, [showMenu]);
 
     useEffect(() => {
-        document.addEventListener("click", handleClick);
-        document.querySelector(".greenArea").addEventListener("contextmenu", handleContextMenu);
+        document.addEventListener('click', handleClick);
+        document.querySelector('.greenArea').addEventListener('contextmenu', handleContextMenu);
         return () => {
-            document.removeEventListener("click", handleClick);
-            document.querySelector(".greenArea").removeEventListener("contextmenu", handleContextMenu);
+            document.removeEventListener('click', handleClick);
+            document.querySelector('.greenArea').removeEventListener('contextmenu', handleContextMenu);
         };
     }, [handleClick, handleContextMenu]);
     return (
@@ -56,22 +55,22 @@ export function ContextMenu({ names, funcs }) {
                 <>
                     {showMenu ? (
                         <div
-                            className="menu-container"
+                            className='menu-container'
                             style={{
                                 opacity: interpolatedStyle.opacity,
                             }}
                         >
                             <ul
-                                className="menu"
+                                className='menu'
                                 style={{
                                     zIndex: 5,
-                                    position: "absolute",
+                                    position: 'absolute',
                                     top: yPos,
                                     left: xPos,
-                                    backgroundColor: "white",
-                                    padding: "10px 0px",
-                                    borderRadius: "5px",
-                                    boxShadow: "2px 2px 30px lightgrey"
+                                    backgroundColor: 'white',
+                                    padding: '10px 0px',
+                                    borderRadius: '5px',
+                                    boxShadow: '2px 2px 30px lightgrey'
                                 }}
                             >
                                 {

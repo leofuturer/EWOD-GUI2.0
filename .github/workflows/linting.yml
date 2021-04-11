@@ -1,0 +1,20 @@
+name: Linting and Code Style
+on:
+  pull_request:
+    branches: stage
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: node setup
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+
+      - name: eslint
+        run: |
+          yarn install
+          yarn run lint

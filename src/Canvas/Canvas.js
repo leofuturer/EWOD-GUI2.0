@@ -5,7 +5,7 @@ import DraggableComb from "./DraggableComb"
 import { CanvasContext } from "../Contexts/CanvasProvider"
 import { ActuationContext } from "../Contexts/ActuationProvider"
 import { ContextMenu } from "./ContextMenu"
-import { ELEC_SIZE, CANVAS_HEIGHT, CANVAS_WIDTH, MAX_NUM_COMBINES } from "../constants"
+import { ELEC_SIZE, CANVAS_HEIGHT, CANVAS_WIDTH, MAX_NUM_COMBINES, CANVAS_REAL_HEIGHT } from "../constants"
 
 export default function Canvas() {
     const canvasContext = useContext(CanvasContext);
@@ -355,7 +355,7 @@ export default function Canvas() {
     /* ########################### HELPERS END ########################### */
 
     return (
-        <div className="wrapper" >
+        <div className="wrapper" style={{ height: CANVAS_REAL_HEIGHT + "vh" }}>
             <svg className="greenArea" xmlns="http://www.w3.org/2000/svg" style={{ width: CANVAS_WIDTH * ELEC_SIZE, height: CANVAS_HEIGHT * ELEC_SIZE }}>
                 {electrodes.initPositions.map((startPos, ind) => {
                     return (

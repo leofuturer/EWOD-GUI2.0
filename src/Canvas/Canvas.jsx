@@ -364,7 +364,7 @@ export default function Canvas() {
   /* ########################### HELPERS END ########################### */
 
   return (
-    <div className="wrapper" style={{ height: CANVAS_REAL_HEIGHT + 'vh' }}>
+    <div className="wrapper" style={{ height: `${CANVAS_REAL_HEIGHT}vh` }}>
       <svg className="greenArea" xmlns="http://www.w3.org/2000/svg" style={{ width: CANVAS_WIDTH * ELEC_SIZE, height: CANVAS_HEIGHT * ELEC_SIZE }}>
         {electrodes.initPositions.map((startPos, ind) => (
           <DraggableItem key={ind} id={ind}>

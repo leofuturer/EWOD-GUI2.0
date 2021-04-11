@@ -34,7 +34,7 @@ const useStyles = makeStyles({
     flexShrink: 0,
     overflowX: 'scroll',
     width: '100vw',
-    height: SCROLL_HEIGHT + 'vh',
+    height: `${SCROLL_HEIGHT}vh`,
     backgroundColor: '#fce6bd',
     scrollPaddingRight: '10px',
   },

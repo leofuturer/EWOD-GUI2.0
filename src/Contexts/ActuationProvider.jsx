@@ -218,8 +218,12 @@ const ActuationProvider = (props) => {
               }
             }
             // to be continue
-            setActuation((stateBoi) => (
-              { ...stateBoi, pinActuate: newList, historyIndex: actuation.historyIndex - 1 }));
+            setActuation((stateBoi) => ({
+              ...stateBoi,
+              pinActuate:
+              newList,
+              historyIndex: actuation.historyIndex - 1,
+            }));
           }
         },
         redo: () => {

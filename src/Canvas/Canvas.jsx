@@ -11,7 +11,7 @@ import {
   ELEC_SIZE, CANVAS_HEIGHT, CANVAS_WIDTH, MAX_NUM_COMBINES, CANVAS_REAL_HEIGHT,
 } from '../constants';
 
-export default function Canvas() {
+export default function Canvas({ mode }) {
   const canvasContext = useContext(CanvasContext);
   const { electrodes, selected } = canvasContext.squares;
   const { drawing, mouseDown } = canvasContext.state;
@@ -22,7 +22,7 @@ export default function Canvas() {
   } = canvasContext;
 
   const actuationContext = useContext(ActuationContext);
-  const { startActuate, currentStep, pinActuate } = actuationContext.actuation;
+  const { currentStep, pinActuate } = actuationContext.actuation;
   const { actuatePin, pushHistory } = actuationContext;
 
   // sets mousedown status for selecting existing electrodes
@@ -98,7 +98,7 @@ export default function Canvas() {
 
   /* ########################### ACTUATION START ########################### */
   function handleClick(ind) {
-    if (startActuate) {
+    if (mode === 'SEQ') {
       if (pinActuate.get(currentStep).content.has(ind)) {
         pushHistory({
           type: 'actuate', pin: ind, id: currentStep, act: false,
@@ -145,11 +145,6 @@ export default function Canvas() {
   }
 
   function contextPaste(e, xPos, yPos) {
-    // var rect = e.currentTarget.getBoundingClientRect()
-
-    // xPos += rect.left
-    // yPos += rect.top
-    console.log(`${xPos}, ${yPos}`);
     if (selected.length > 0) setSelected([]);
     if (combSelected.length > 0) setCombSelected([]);
     const numSquaresCopied = clipboard.squares.length;
@@ -367,17 +362,15 @@ export default function Canvas() {
     <div className="wrapper" style={{ height: `${CANVAS_REAL_HEIGHT}vh` }}>
       <svg className="greenArea" xmlns="http://www.w3.org/2000/svg" style={{ width: CANVAS_WIDTH * ELEC_SIZE, height: CANVAS_HEIGHT * ELEC_SIZE }}>
         {electrodes.initPositions.map((startPos, ind) => (
-          <DraggableItem key={ind} id={ind}>
+          <DraggableItem key={ind} id={ind} mode={mode}>
             <rect
               x={startPos[0]}
               y={startPos[1]}
               width={ELEC_SIZE - 5}
               height={ELEC_SIZE - 5}
-              key={ind}
-              className="electrode"
-              // style={{
-              //     fill: (pinActuate.has(currentStep) && pinActuate.get(currentStep).content.has(ind)) ? 'red' : 'black'
-              // }}
+              className={`electrode 
+                          ${mode === 'SEQ' && pinActuate.has(currentStep) && pinActuate.get(currentStep).content.has(ind) ? 'toSeq' : ''}
+                          ${mode === 'CAN' && selected.includes(ind) ? 'selected' : ''}`}
               onClick={() => handleClick(ind)}
             />
           </DraggableItem>

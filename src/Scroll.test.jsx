@@ -3,12 +3,12 @@ import {
   cleanup, fireEvent, render, screen,
 } from '@testing-library/react';
 import Scroll from './Scroll';
-import Provider from './Provider';
+import { ActuationProvider } from './Contexts/ActuationProvider';
 
 beforeEach(() => render(
-  <Provider>
+  <ActuationProvider>
     <Scroll />
-  </Provider>,
+  </ActuationProvider>,
 ));
 
 afterEach(cleanup);

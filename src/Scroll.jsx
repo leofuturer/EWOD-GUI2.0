@@ -15,6 +15,7 @@ import IconButton from '@material-ui/core/IconButton';
 import { DialogContentText } from '@material-ui/core';
 import ActuationSequence from './Actuation';
 import { ActuationContext } from './Contexts/ActuationProvider';
+import CustomAlert from './Alert';
 
 import { SCROLL_HEIGHT } from './constants';
 
@@ -129,6 +130,7 @@ export default function Scroll() {
   const indexRef = useRef();
   indexRef.current = index;
   const scrollRef = useRef();
+  const childRef = useRef();
 
   const handleClick = (event) => {
     event.preventDefault();
@@ -187,11 +189,20 @@ export default function Scroll() {
     const repTimeInt = parseInt(repTime, 10);
     if (fromInt < toInt) {
       if (id !== null) {
-        updateLoop(fromInt, toInt, repTimeInt, id);
-        console.log('update!');
+        const success = updateLoop(fromInt, toInt, repTimeInt, id);
+        if (!success) {
+          childRef.current.getAlert('error', 'Update Loop Fail! Please check the range of frame.');
+        } else {
+          childRef.current.getAlert('success', 'Successfully add a loop.');
+        }
         setUpdate(null);
       } else {
-        addLoop(fromInt, toInt, repTimeInt);
+        const success = addLoop(fromInt, toInt, repTimeInt);
+        if (!success) {
+          childRef.current.getAlert('error', 'Add Loop Fail! Please check the range of frame.');
+        } else {
+          childRef.current.getAlert('success', 'Successfully update a loop.');
+        }
       }
 
       setFrom('');
@@ -200,7 +211,7 @@ export default function Scroll() {
       generateSeq();
       modelClose();
     } else {
-      alert('invalid block number.');
+      childRef.current.getAlert('error', 'Invalid block number!');
     }
   };
 
@@ -248,7 +259,12 @@ export default function Scroll() {
 
   const handleDelete = () => {
     if (currentStep === clipboard) setClipboard(null);
-    deleteCurrentStep(currentStep);
+    const success = deleteCurrentStep(currentStep);
+    if (!success) {
+      childRef.current.getAlert('error', 'Cannot delete the last block in a loop or the whole sequence!');
+    } else {
+      childRef.current.getAlert('warning', 'Delete one step!');
+    }
     generateSeq();
     modelClose();
   };
@@ -283,9 +299,10 @@ export default function Scroll() {
 
   return (
     <div>
+      <CustomAlert ref={childRef} />
       <div className={classes.playTab}>
         <p style={{
-          position: 'absolute', left: '48vw', top: -10, fontSize: 14, color: 'white',
+          position: 'absolute', left: '48vw', top: -10, fontSize: 14, color: '#A06933',
         }}
         >
           {`Step ${pinActuate.get(currentStep).order}`}

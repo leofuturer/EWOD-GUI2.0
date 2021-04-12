@@ -34,18 +34,25 @@ const ActuationProvider = (props) => {
               });
             }
             newList.set(step, newSeq);
-            setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList, simpleNum: actuation.simpleNum + 1 }));
+            setActuation((stateBoi) => ({
+              ...stateBoi,
+              pinActuate:
+               newList,
+              simpleNum: actuation.simpleNum + 1,
+            }));
           }
           setActuation((stateBoi) => ({ ...stateBoi, currentStep: step }));
         },
         deleteCurrentStep: (step) => {
-          if (actuation.pinActuate.size === 1) return;
+          if (actuation.pinActuate.size === 1) {
+            return false;
+          }
           if (actuation.pinActuate.has(step)) {
             const newList = actuation.pinActuate;
             if (newList.get(step).parent !== null) {
               const { parent } = newList.get(step);
               if (newList.get(parent).content.length === 1) {
-                return;
+                return false;
               }
               const ind = newList.get(parent).content.indexOf(step);
               newList.get(parent).content.splice(ind, 1);
@@ -60,9 +67,13 @@ const ActuationProvider = (props) => {
             });
             const newStep = actuation.pinActuate.keys().next().value;
             setActuation((stateBoi) => ({
-              ...stateBoi, pinActuate: newList, currentStep: newStep, simpleNum: actuation.simpleNum - 1,
+              ...stateBoi,
+              pinActuate: newList,
+              currentStep: newStep,
+              simpleNum: actuation.simpleNum - 1,
             }));
           }
+          return true;
         },
         insertStep: (obj) => {
           let newList = actuation.pinActuate;
@@ -95,21 +106,12 @@ const ActuationProvider = (props) => {
               return ord1 - ord2;
             });
           }
-          setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList, simpleNum: actuation.simpleNum + 1 }));
+          setActuation((stateBoi) => ({
+            ...stateBoi,
+            pinActuate: newList,
+            simpleNum: actuation.simpleNum + 1,
+          }));
         },
-        // duplicateCurrentStep: (step) => {
-        //     if(state.pinActuate.has(step)){
-        //         let newList = state.pinActuate;
-        //         let next = Math.max(...[ ...newList.keys() ])+1;
-        //         let newSeq = new ActuationSequence(next, "simple", state.simpleNum);
-        //         newList.get(step).content.forEach(e => {
-        //             newSeq.content.add(e);
-        //         })
-        //         newSeq.parent = null;
-        //         newList.set(next, newSeq);
-        //         setState((stateBoi) => ({...stateBoi, pinActuate: newList, simpleNum: state.simpleNum+1}));
-        //     }
-        // },
         addLoop: (from, to, repTime) => {
           const newList = actuation.pinActuate;
           const l = newList.size;
@@ -127,18 +129,17 @@ const ActuationProvider = (props) => {
             }
           });
           if (error === 1) {
-            alert('Loop Overlap! Please change the range of frame.');
-            return;
+            return false;
           }
           if (content_list.length !== to - from + 1) {
-            alert('Invalid frame range.');
-            return;
+            return false;
           }
           newSeq.pushAllSteps(content_list);
           newSeq.repTime = repTime;
           newList.set(l, newSeq);
           console.log(newList);
           setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
+          return true;
         },
         updateLoop: (from, to, repTime, key) => {
           const newList = actuation.pinActuate;
@@ -156,12 +157,10 @@ const ActuationProvider = (props) => {
             }
           });
           if (error === 1) {
-            alert('Loop Overlap! Please change the range of frame.');
-            return;
+            return false;
           }
           if (content_list.length !== to - from + 1) {
-            alert('Invalid frame range.');
-            return;
+            return false;
           }
           seq.repTime = repTime;
           for (let i = 0; i < seq.content.length; i++) {
@@ -171,6 +170,7 @@ const ActuationProvider = (props) => {
           seq.pushAllSteps(content_list);
           console.log(newList);
           setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
+          return true;
         },
         deleteLoop: (id) => {
           const newList = actuation.pinActuate;
@@ -218,7 +218,12 @@ const ActuationProvider = (props) => {
               }
             }
             // to be continue
-            setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList, historyIndex: actuation.historyIndex - 1 }));
+            setActuation((stateBoi) => ({
+              ...stateBoi,
+              pinActuate:
+              newList,
+              historyIndex: actuation.historyIndex - 1,
+            }));
           }
         },
         redo: () => {
@@ -235,7 +240,11 @@ const ActuationProvider = (props) => {
               }
             }
             // to be continue
-            setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList, historyIndex: actuation.historyIndex + 1 }));
+            setActuation((stateBoi) => ({
+              ...stateBoi,
+              pinActuate: newList,
+              historyIndex: actuation.historyIndex + 1,
+            }));
           }
         },
       }}

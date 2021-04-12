@@ -1,14 +1,7 @@
 /* eslint-disable react/destructuring-assignment */
 import React, { useContext } from 'react';
 import { CanvasContext } from '../Contexts/CanvasProvider';
-import { genFileContents } from './genFileContents';
-
-export function handleSave(electrodes, allCombined, db) {
-  // console.log(db)
-  const newContents = genFileContents(electrodes, allCombined);
-  db.formData.put({ id: 'squares', value: newContents.squares });
-  db.formData.put({ id: 'combine', value: newContents.combs });
-}
+import handleSave from './handleSave';
 
 export default function SaveButton() {
   const context = useContext(CanvasContext);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Dexie from 'dexie';
 import useInterval from '../useInterval';
-import { handleSave } from '../ControlPanel/SaveButton';
+import handleSave from '../ControlPanel/handleSave';
 
 const CanvasContext = React.createContext();
 

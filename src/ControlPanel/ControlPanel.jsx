@@ -21,7 +21,7 @@ import { ActuationContext } from '../Contexts/ActuationProvider';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 
 import SaveButton from './SaveButton';
-import { UploadButton } from './UploadButton';
+import UploadButton from './UploadButton';
 import { DownloadButton } from './DownloadButton';
 
 const drawerWidth = 240;

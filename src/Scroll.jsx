@@ -196,7 +196,7 @@ export default function Scroll() {
         if (!success) {
           childRef.current.getAlert('error', 'Update Loop Fail! Please check the range of frame.');
         } else {
-          childRef.current.getAlert('success', 'Successfully add a loop.');
+          childRef.current.getAlert('success', 'Successfully update a loop.');
         }
         setUpdate(null);
       } else {
@@ -204,7 +204,7 @@ export default function Scroll() {
         if (!success) {
           childRef.current.getAlert('error', 'Add Loop Fail! Please check the range of frame.');
         } else {
-          childRef.current.getAlert('success', 'Successfully update a loop.');
+          childRef.current.getAlert('success', 'Successfully add a loop.');
         }
       }
 
@@ -261,7 +261,6 @@ export default function Scroll() {
   }
 
   const handleDelete = () => {
-    if (currentStep === clipboard) setClipboard(null);
     const success = deleteCurrentStep(currentStep);
     if (!success) {
       childRef.current.getAlert('error', 'Cannot delete the last block in a loop or the whole sequence!');
@@ -281,7 +280,9 @@ export default function Scroll() {
   };
 
   const handleCopy = () => {
-    setClipboard(currentStep);
+    const cont = [];
+    pinActuate.get(currentStep).content.forEach((e) => cont.push(e));
+    setClipboard({ content: cont, duration: pinActuate.get(currentStep).duration });
     handleClose();
   };
 
@@ -290,10 +291,10 @@ export default function Scroll() {
       let ind = pinActuate.size;
       while (pinActuate.has(ind)) ind += 1;
       const newSeq = new ActuationSequence(ind, 'simple', 0);
-      pinActuate.get(clipboard).content.forEach((e) => {
+      clipboard.content.forEach((e) => {
         newSeq.content.add(e);
       });
-      newSeq.duration = pinActuate.get(clipboard).duration;
+      newSeq.duration = clipboard.duration;
       insertStep(newSeq);
       generateSeq();
     }

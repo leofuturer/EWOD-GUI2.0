@@ -10,6 +10,7 @@ import TextField from '@material-ui/core/TextField';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import {
   PlayArrow, SkipNext, SkipPrevious, Pause, Replay, AddCircleOutline, DeleteForever, Stop,
+  DynamicFeed,
 } from '@material-ui/icons';
 import IconButton from '@material-ui/core/IconButton';
 import { DialogContentText } from '@material-ui/core';
@@ -111,7 +112,7 @@ export default function Scroll() {
   const { pinActuate, currentStep } = context.actuation;
   const {
     setCurrentStep, addLoop, updateLoop, deleteCurrentStep,
-    deleteLoop, insertStep, clearAll, updateDuration,
+    deleteLoop, insertStep, clearAll, updateDuration, updateAllDuration,
   } = context;
   const [mouseState, setMouseState] = useState(initState);
   const [open, setOpen] = useState(false);
@@ -126,6 +127,8 @@ export default function Scroll() {
   const [clipboard, setClipboard] = useState(null);
   const [alert, setAlert] = useState(false);
   const [forever, setForever] = useState(false);
+  const [flush, setFlush] = useState(false);
+  const [duration, setDuration] = useState(100);
 
   const indexRef = useRef();
   indexRef.current = index;
@@ -193,7 +196,7 @@ export default function Scroll() {
         if (!success) {
           childRef.current.getAlert('error', 'Update Loop Fail! Please check the range of frame.');
         } else {
-          childRef.current.getAlert('success', 'Successfully add a loop.');
+          childRef.current.getAlert('success', 'Successfully update a loop.');
         }
         setUpdate(null);
       } else {
@@ -201,7 +204,7 @@ export default function Scroll() {
         if (!success) {
           childRef.current.getAlert('error', 'Add Loop Fail! Please check the range of frame.');
         } else {
-          childRef.current.getAlert('success', 'Successfully update a loop.');
+          childRef.current.getAlert('success', 'Successfully add a loop.');
         }
       }
 
@@ -258,7 +261,6 @@ export default function Scroll() {
   }
 
   const handleDelete = () => {
-    if (currentStep === clipboard) setClipboard(null);
     const success = deleteCurrentStep(currentStep);
     if (!success) {
       childRef.current.getAlert('error', 'Cannot delete the last block in a loop or the whole sequence!');
@@ -278,7 +280,9 @@ export default function Scroll() {
   };
 
   const handleCopy = () => {
-    setClipboard(currentStep);
+    const cont = [];
+    pinActuate.get(currentStep).content.forEach((e) => cont.push(e));
+    setClipboard({ content: cont, duration: pinActuate.get(currentStep).duration });
     handleClose();
   };
 
@@ -287,10 +291,10 @@ export default function Scroll() {
       let ind = pinActuate.size;
       while (pinActuate.has(ind)) ind += 1;
       const newSeq = new ActuationSequence(ind, 'simple', 0);
-      pinActuate.get(clipboard).content.forEach((e) => {
+      clipboard.content.forEach((e) => {
         newSeq.content.add(e);
       });
-      newSeq.duration = pinActuate.get(clipboard).duration;
+      newSeq.duration = clipboard.duration;
       insertStep(newSeq);
       generateSeq();
     }
@@ -307,6 +311,9 @@ export default function Scroll() {
         >
           {`Step ${pinActuate.get(currentStep).order}`}
         </p>
+        <IconButton onClick={() => { setFlush(true); }}>
+          <DynamicFeed fontSize="small" style={{ color: '#A06933' }} />
+        </IconButton>
         <IconButton onClick={() => { setAlert(true); }} data-testid="delete-start">
           <DeleteForever fontSize="small" style={{ color: '#A06933' }} />
         </IconButton>
@@ -547,6 +554,41 @@ export default function Scroll() {
               Cancel
             </Button>
             <Button onClick={() => { clearAll(); setAlert(false); }} color="primary" autoFocus data-testid="delete-button">
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={flush}
+          onClose={() => { setFlush(false); }}
+          aria-labelledby="alert-dialog-title"
+        >
+          <DialogTitle id="alert-dialog-title">How long for each actuation sequence?</DialogTitle>
+          <DialogContent>
+            <TextField
+              variant="outlined"
+              value={duration}
+              onChange={(event) => { setDuration(event.target.value); }}
+              style={{ marginBottom: 10 }}
+              helperText={!Number.isNaN(duration) && parseInt(Number(duration), 10) === Number(duration) ? '' : 'need to be a number'}
+              error={Number.isNaN(duration) || parseInt(Number(duration), 10) !== Number(duration)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => { setFlush(false); }} color="primary">
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (!Number.isNaN(duration)) {
+                  updateAllDuration(parseInt(Number(duration), 10));
+                }
+                setFlush(false);
+              }}
+              color="primary"
+              autoFocus
+              data-testid="delete-button"
+            >
               Confirm
             </Button>
           </DialogActions>

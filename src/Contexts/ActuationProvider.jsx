@@ -204,6 +204,13 @@ const ActuationProvider = (props) => {
           newList.get(key).duration = time;
           setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
         },
+        updateAllDuration: (time) => {
+          const newList = actuation.pinActuate;
+          newList.forEach((value, key) => {
+            value.duration = time;
+          });
+          setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
+        },
         undo: () => {
           if (actuation.historyIndex > -1) {
             const obj = actuation.history[actuation.historyIndex];

@@ -11,7 +11,7 @@ import { ELEC_SIZE } from '../constants';
 
 function DraggableItem({ id, children, mode }) {
   const context = useContext(CanvasContext);
-  const { setSelected, setDelta, setDragging } = context;
+  const { setSelected, setDelta, setDragging, setSelecting } = context;
   const {
     delta, mouseDown, drawing, isDragging,
   } = context.state;
@@ -95,6 +95,7 @@ function DraggableItem({ id, children, mode }) {
           if (delta.x !== 0 || delta.y !== 0) setSaveChanges(true);
           else setResetting(true);
           setDragging(false);
+          setSelecting(true);
         }
       }}
       position={{ x: 0, y: 0 }}
@@ -102,11 +103,13 @@ function DraggableItem({ id, children, mode }) {
       grid={[ELEC_SIZE, ELEC_SIZE]}
       nodeRef={dragItem}
     >
-      <g ref={dragItem}>
+
+      <svg ref={dragItem}>
         <g style={transform}>
           {children}
         </g>
-      </g>
+      </svg>
+
     </ReactDraggable>
   );
 }

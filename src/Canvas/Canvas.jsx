@@ -1,9 +1,9 @@
 import React, {
   useEffect, useState, useCallback, useContext,
 } from 'react';
+import { SelectableGroup, createSelectable } from 'react-selectable';
 import DraggableItem from './DraggableItem';
 import DraggableComb from './DraggableComb';
-
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { ActuationContext } from '../Contexts/ActuationProvider';
 import ContextMenu from './ContextMenu';
@@ -11,19 +11,22 @@ import {
   ELEC_SIZE, CANVAS_HEIGHT, CANVAS_WIDTH, MAX_NUM_COMBINES, CANVAS_REAL_HEIGHT,
 } from '../constants';
 
+const SelectableComponent = createSelectable(DraggableItem);
+
 export default function Canvas({ mode }) {
   const canvasContext = useContext(CanvasContext);
   const { electrodes, selected } = canvasContext.squares;
-  const { drawing, mouseDown } = canvasContext.state;
+  const { drawing, mouseDown, selecting } = canvasContext.state;
   const { allCombined } = canvasContext.combined;
   const combSelected = canvasContext.combined.selected;
   const {
-    setMouseDown, setDrawing, setElectrodes, setSelected, setComboLayout, setCombSelected,
+    setMouseDown, setDrawing, setElectrodes, setSelected, setComboLayout, setCombSelected, setSelecting
   } = canvasContext;
 
   const actuationContext = useContext(ActuationContext);
   const { currentStep, pinActuate } = actuationContext.actuation;
   const { actuatePin, pushHistory } = actuationContext;
+  const [selectedKeys, setSelectedKeys] = useState([]);
 
   // sets mousedown status for selecting existing electrodes
   const handleMouseDown = useCallback((event) => {
@@ -361,26 +364,37 @@ export default function Canvas({ mode }) {
   return (
     <div className="wrapper" style={{ height: `${CANVAS_REAL_HEIGHT}vh` }}>
       <svg className="greenArea" xmlns="http://www.w3.org/2000/svg" style={{ width: CANVAS_WIDTH * ELEC_SIZE, height: CANVAS_HEIGHT * ELEC_SIZE }}>
-        {electrodes.initPositions.map((startPos, ind) => (
-          <DraggableItem key={ind} id={ind} mode={mode}>
-            <rect
-              x={startPos[0]}
-              y={startPos[1]}
-              width={ELEC_SIZE - 5}
-              height={ELEC_SIZE - 5}
-              className={`electrode 
-                          ${mode === 'SEQ' && pinActuate.has(currentStep) && pinActuate.get(currentStep).content.has(ind) ? 'toSeq' : ''}
-                          ${mode === 'CAN' && selected.includes(ind) ? 'selected' : ''}`}
-              onClick={() => handleClick(ind)}
-            />
-          </DraggableItem>
-        ))}
         {finalCombines.map((comb, ind) => (
           <DraggableComb key={ind} id={comb[1]}>
             <path d={comb[0]} className="electrode" />
           </DraggableComb>
         ))}
       </svg>
+      <SelectableGroup onSelection={(keys) => { setSelectedKeys(keys); setSelected(keys); }} onEndSelection={()=>{ setSelecting(false); }} enabled={selecting}>
+        {electrodes.initPositions.map((startPos, ind) => {
+          const select = selectedKeys.indexOf(ind) > -1;
+          return (
+            <SelectableComponent
+              key={ind}
+              id={ind}
+              mode={mode}
+              selectableKey={ind}
+              selected={select}
+            >
+              <rect
+                x={startPos[0]}
+                y={startPos[1]}
+                width={ELEC_SIZE - 5}
+                height={ELEC_SIZE - 5}
+                className={`electrode 
+                          ${mode === 'SEQ' && pinActuate.has(currentStep) && pinActuate.get(currentStep).content.has(ind) ? 'toSeq' : ''}
+                          ${mode === 'CAN' && selected.includes(ind) ? 'selected' : ''}`}
+                onClick={() => handleClick(ind)}
+              />
+            </SelectableComponent>
+          );
+        })}
+      </SelectableGroup>
       <ContextMenu names={['Cut', 'Copy', 'Paste', 'Delete', 'Combine']} funcs={[contextCut, contextCopy, contextPaste, contextDelete, handleCombine]} />
     </div>
   );

@@ -20,6 +20,7 @@ const CanvasProvider = (props) => {
     drawing: false,
     db: new Dexie('ElecDB'),
     isDragging: false,
+    selecting: true,
   });
 
   const [combined, setCombined] = useState({
@@ -92,6 +93,7 @@ const CanvasProvider = (props) => {
         setDelta: (del) => { setState((stateBoi) => ({ ...stateBoi, delta: del })); },
         setMouseDown: (md) => { setState((stateBoi) => ({ ...stateBoi, mouseDown: md })); },
         setDrawing: (draw) => { setState((stateBoi) => ({ ...stateBoi, drawing: draw })); },
+        setSelecting: (bool) => { setState((stateBoi) => ({ ...stateBoi, selecting: bool })); },
       }}
     >
       {props.children}

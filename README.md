@@ -18,7 +18,7 @@ Please read this section and follow the instructions before creating a *Pull Req
 
 1. If you have any branches based on `main` branch that you want to create a PR, rebase off the `stage` branch and resolve all conflicts.
 2. When making a new PR, be sure to choose the target branch as `stage`, otherwise github workflow will yell at you.
-3. Keep the change as small as possible. You only need to implement a minimum feature, not a whole functionality. The purpose is to reduce merge conflicts in the future.
+3. Keep your change granularly. That means, don't put a hodgepodge of functionalities in one PR. If you think it is possible, keep the code size small for the convenience of code reviewers.
 4. After creating a PR, link it to an existing issue if there is, and request review to your peer working on a related feature.
 5. Make sure your change pass all Eslint rules.
 6. (Optional) Write Jest test for each functionality you made. This would help increasing test coverage.

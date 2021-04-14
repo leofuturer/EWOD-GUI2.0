@@ -35,7 +35,7 @@ export default function ContextMenu({ names, funcs }) {
   );
 
   const handleClick = useCallback(() => {
-    showMenu && setShowMenu(false);
+    if (showMenu) setShowMenu(false);
   }, [showMenu]);
 
   useEffect(() => {

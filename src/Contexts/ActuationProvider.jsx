@@ -3,7 +3,7 @@ import ActuationSequence from '../Actuation';
 
 const ActuationContext = React.createContext();
 
-const ActuationProvider = (props) => {
+const ActuationProvider = ({ children }) => {
   const [actuation, setActuation] = useState({
     history: [],
     historyIndex: -1,
@@ -23,7 +23,7 @@ const ActuationProvider = (props) => {
         },
         setCurrentStep: (step) => {
           if (actuation.pinActuate.has(step) && actuation.pinActuate.get(step).type === 'loop') {
-            step++;
+            step += 1;
           }
           if (!actuation.pinActuate.has(step)) {
             const newList = actuation.pinActuate;
@@ -59,10 +59,10 @@ const ActuationProvider = (props) => {
             }
             newList.delete(step);
             let n = 0;
-            newList.forEach((value, key) => {
+            newList.forEach((value) => {
               if (value.type === 'simple') {
                 value.order = n;
-                n++;
+                n += 1;
               }
             });
             const newStep = actuation.pinActuate.keys().next().value;
@@ -93,10 +93,10 @@ const ActuationProvider = (props) => {
           arr.splice(index + 1, 0, [obj.id, obj]);
           newList = new Map(arr);
           let n = 0;
-          newList.forEach((value, key) => {
+          newList.forEach((value) => {
             if (value.type === 'simple') {
               value.order = n;
-              n++;
+              n += 1;
             }
           });
           if (obj.parent !== null) {
@@ -116,25 +116,25 @@ const ActuationProvider = (props) => {
           const newList = actuation.pinActuate;
           const l = newList.size;
           const newSeq = new ActuationSequence(newList.size, 'loop');
-          const content_list = [];
+          const contentList = [];
           let error = 0;
-          newList.forEach((value, key) => {
+          newList.forEach((value) => {
             if (value.type === 'simple' && value.order >= from && value.order <= to) {
               if (error === 1) return;
               if (value.parent !== null) {
                 error = 1;
                 return;
               }
-              content_list.push(value);
+              contentList.push(value);
             }
           });
           if (error === 1) {
             return false;
           }
-          if (content_list.length !== to - from + 1) {
+          if (contentList.length !== to - from + 1) {
             return false;
           }
-          newSeq.pushAllSteps(content_list);
+          newSeq.pushAllSteps(contentList);
           newSeq.repTime = repTime;
           newList.set(l, newSeq);
           console.log(newList);
@@ -144,30 +144,30 @@ const ActuationProvider = (props) => {
         updateLoop: (from, to, repTime, loopKey) => {
           const newList = actuation.pinActuate;
           const seq = newList.get(loopKey);
-          const content_list = [];
+          const contentList = [];
           let error = 0;
-          newList.forEach((value, key) => {
+          newList.forEach((value) => {
             if (value.type === 'simple' && value.order >= from && value.order <= to) {
               if (error === 1) return;
               if (value.parent !== null && value.parent !== loopKey) {
                 error = 1;
                 return;
               }
-              content_list.push(value);
+              contentList.push(value);
             }
           });
           if (error === 1) {
             return false;
           }
-          if (content_list.length !== to - from + 1) {
+          if (contentList.length !== to - from + 1) {
             return false;
           }
           seq.repTime = repTime;
-          for (let i = 0; i < seq.content.length; i++) {
+          for (let i = 0; i < seq.content.length; i += 1) {
             actuation.pinActuate.get(seq.content[i]).parent = null;
           }
           seq.content = [];
-          seq.pushAllSteps(content_list);
+          seq.pushAllSteps(contentList);
           console.log(newList);
           setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
           return true;
@@ -187,7 +187,7 @@ const ActuationProvider = (props) => {
           let newIndex = actuation.historyIndex + 1;
           if (newHist.length > 10) {
             newHist.shift();
-            newIndex--;
+            newIndex -= 1;
           }
           setActuation((stateBoi) => ({ ...stateBoi, history: newHist, historyIndex: newIndex }));
         },
@@ -206,7 +206,7 @@ const ActuationProvider = (props) => {
         },
         updateAllDuration: (time) => {
           const newList = actuation.pinActuate;
-          newList.forEach((value, key) => {
+          newList.forEach((value) => {
             value.duration = time;
           });
           setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
@@ -256,7 +256,7 @@ const ActuationProvider = (props) => {
         },
       }}
     >
-      {props.children}
+      {children}
     </ActuationContext.Provider>
   );
 };

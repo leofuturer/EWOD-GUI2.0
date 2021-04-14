@@ -20,6 +20,6 @@ Please read this section and follow the instructions before creating a *Pull Req
 2. When making a new PR, be sure to choose the target branch as `stage`, otherwise github workflow will yell at you.
 3. Make your changes at a granular level. That means, try to have each PR concerned with only one feature/bug fix. Always try to keep the git diff small for the convenience of code reviewers, and refrain from committing unrelated changes (i.e. yarn.lock commit when no packages are added/removed/updated).
 4. Make sure your change passes all Eslint rules.
-5. After creating a PR, link it to an existing issue if there is, and request review to your peer working on a related feature.
+5. After creating a PR, link it to an existing issue if there is one, and request reviews from other contributors who are working on a related feature.
 6. (Optional) Write Jest test for each functionality you made. This would help increasing test coverage.
-7. (For code owner) For each week, please pull the stage branch and check whether all linked issues are resolved. If yes, review it and merge to the main branch.
+7. (For code owner) Each week, please pull the `stage` branch and check whether all linked issues are resolved. If yes, review it and merge the `stage` into the `main` branch.

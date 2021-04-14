@@ -21,7 +21,8 @@ const ActuationProvider = ({ children }) => {
           newList.get(actuation.currentStep).actuatePin(pinNum);
           setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
         },
-        setCurrentStep: (step) => {
+        setCurrentStep: (initstep) => {
+          let step = initstep;
           if (actuation.pinActuate.has(step) && actuation.pinActuate.get(step).type === 'loop') {
             step += 1;
           }
@@ -59,7 +60,8 @@ const ActuationProvider = ({ children }) => {
             }
             newList.delete(step);
             let n = 0;
-            newList.forEach((value) => {
+            newList.forEach((initvalue) => {
+              const value = initvalue;
               if (value.type === 'simple') {
                 value.order = n;
                 n += 1;
@@ -75,7 +77,8 @@ const ActuationProvider = ({ children }) => {
           }
           return true;
         },
-        insertStep: (obj) => {
+        insertStep: (initobj) => {
+          const obj = initobj;
           let newList = actuation.pinActuate;
           if (newList.get(actuation.currentStep).parent !== null) {
             const { parent } = newList.get(actuation.currentStep);
@@ -93,7 +96,8 @@ const ActuationProvider = ({ children }) => {
           arr.splice(index + 1, 0, [obj.id, obj]);
           newList = new Map(arr);
           let n = 0;
-          newList.forEach((value) => {
+          newList.forEach((initvalue) => {
+            const value = initvalue;
             if (value.type === 'simple') {
               value.order = n;
               n += 1;
@@ -206,7 +210,8 @@ const ActuationProvider = ({ children }) => {
         },
         updateAllDuration: (time) => {
           const newList = actuation.pinActuate;
-          newList.forEach((value) => {
+          newList.forEach((initvalue) => {
+            const value = initvalue;
             value.duration = time;
           });
           setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));

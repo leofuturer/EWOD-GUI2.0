@@ -20,8 +20,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { ActuationContext } from '../Contexts/ActuationProvider';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 
-import SaveButton from './SaveButton';
-import UploadButton from './UploadButton';
+// import SaveButton from './SaveButton';
+// import UploadButton from './UploadButton';
 import { DownloadButton } from './DownloadButton';
 
 const drawerWidth = 240;
@@ -93,7 +93,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function ControlPanel({ setMode }) {
+export default function ControlPanel({ setMode }) {
   const canvasContext = useContext(CanvasContext);
   const actuationContext = useContext(ActuationContext);
   const { drawing } = canvasContext.state;
@@ -103,7 +103,7 @@ export function ControlPanel({ setMode }) {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
 
-  function toggleDraw(e) {
+  function toggleDraw() {
     setSelected([]);
     setCombSelected([]);
     setDrawing(!drawing);

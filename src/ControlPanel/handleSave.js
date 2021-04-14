@@ -1,4 +1,4 @@
-import { genFileContents } from './genFileContents';
+import genFileContents from './genFileContents';
 
 export default function handleSave(electrodes, allCombined, db) {
   // console.log(db)

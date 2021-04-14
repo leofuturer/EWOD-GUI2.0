@@ -553,7 +553,18 @@ export default function Scroll() {
             <Button onClick={() => { setAlert(false); }} color="primary">
               Cancel
             </Button>
-            <Button onClick={() => { clearAll(); setAlert(false); }} color="primary" autoFocus data-testid="delete-button">
+            <Button
+              onClick={() => {
+                handlePause();
+                setCurrentStep(fullseq[0]);
+                setIndex(0);
+                clearAll();
+                setAlert(false);
+              }}
+              color="primary"
+              autoFocus
+              data-testid="delete-button"
+            >
               Confirm
             </Button>
           </DialogActions>

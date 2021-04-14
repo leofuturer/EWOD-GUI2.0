@@ -110,7 +110,7 @@ export default function Scroll() {
   const context = useContext(ActuationContext);
   const classes = useStyles();
   const { actuation } = context;
-  const { pinActuate, currentStep } = actuation;
+  const { pinActuate, currentStep, childRef } = actuation;
   const {
     setCurrentStep, addLoop, updateLoop, deleteCurrentStep,
     deleteLoop, insertStep, clearAll, updateDuration, updateAllDuration,
@@ -134,7 +134,7 @@ export default function Scroll() {
   const indexRef = useRef();
   indexRef.current = index;
   const scrollRef = useRef();
-  const childRef = useRef();
+  // const childRef = useRef();
 
   const handleClick = (event) => {
     event.preventDefault();

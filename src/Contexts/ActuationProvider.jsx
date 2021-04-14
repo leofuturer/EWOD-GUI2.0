@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import ActuationSequence from '../Actuation';
 
 const ActuationContext = React.createContext();
@@ -10,6 +10,7 @@ const ActuationProvider = ({ children }) => {
     pinActuate: new Map([[0, new ActuationSequence(0, 'simple', 0)]]),
     currentStep: 0,
     simpleNum: 1,
+    childRef: useRef(),
   });
 
   return (

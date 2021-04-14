@@ -22,7 +22,7 @@ import { CanvasContext } from '../Contexts/CanvasProvider';
 
 // import SaveButton from './SaveButton';
 // import UploadButton from './UploadButton';
-import { DownloadButton } from './DownloadButton';
+import DownloadButton from './DownloadButton';
 
 const drawerWidth = 240;
 

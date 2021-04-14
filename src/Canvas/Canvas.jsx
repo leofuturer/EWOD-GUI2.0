@@ -132,7 +132,9 @@ export default function Canvas({ mode }) {
       let minLayval = Infinity;
       let maxLayval = -1;
       allCombined.forEach((comb) => {
+        // eslint-disable-next-line prefer-destructuring
         if (combSelected.includes(comb[2]) && comb[2] < minLayval) minLayval = comb[2];
+        // eslint-disable-next-line prefer-destructuring
         if (comb[2] > maxLayval) maxLayval = comb[2];
       });
       const gap = maxLayval + 1 - minLayval;

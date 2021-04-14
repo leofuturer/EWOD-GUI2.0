@@ -324,7 +324,7 @@ export default function Canvas({ mode }) {
     for (let j = 0; j < allCombined.length; j += 1) {
       const x = allCombined[j][0];
       const yAndLayVal = [allCombined[j][1], allCombined[j][2]];
-      if (byX.hasOwnProperty(x)) byX[x].push(yAndLayVal);
+      if (Object.prototype.hasOwnProperty.call(byX, x)) byX[x].push(yAndLayVal);
       else byX[x] = [yAndLayVal];
     }
     // just strs representing points

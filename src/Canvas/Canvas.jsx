@@ -131,14 +131,14 @@ export default function Canvas({ mode }) {
     if (combSelected.length > 0) {
       let minLayval = Infinity; let
         maxLayval = -1;
-      for (const comb of allCombined) {
+      allCombined.forEach((comb) => {
         if (combSelected.includes(comb[2]) && comb[2] < minLayval) minLayval = comb[2];
         if (comb[2] > maxLayval) maxLayval = comb[2];
-      }
+      });
       const gap = maxLayval + 1 - minLayval;
-      for (const comb of allCombined) {
+      allCombined.forEach((comb) => {
         if (combSelected.includes(comb[2])) combined.push([comb[0], comb[1], comb[2] + gap]);
-      }
+      });
       setCombSelected([]);
     }
     setClipboard({ squares, combined });
@@ -219,18 +219,13 @@ export default function Canvas({ mode }) {
     // hit selected+1 not in allCombined[i][2]
     combSelected.sort((a, b) => a - b);
     const layVals = new Set();
-    for (const comb of allCombined) layVals.add(comb[2]);
+    allCombined.forEach((comb) => layVals.add(comb[2]));
 
     // probably don't actually need lowest last free index
     // but would be unfortunate if they keep combining and deleting
     // on the same design and if it kept picking the latest free index (allCombined.length)
     let newLastFreeInd = 0;
-    for (const layoutVal of layVals) {
-      if (!layVals.has(layoutVal + 1)) {
-        newLastFreeInd = layoutVal + 1;
-        break;
-      }
-    }
+    newLastFreeInd = 1 + layVals.find((layoutVal) => !layVals.has(layoutVal + 1));
     return newLastFreeInd;
   }
   /* ########################### HELPERS END ########################### */
@@ -286,9 +281,9 @@ export default function Canvas({ mode }) {
     const startY = yMin / ELEC_SIZE; const
       startX = xMin / ELEC_SIZE;
 
-    for (const pos of positions) {
+    positions.forEach((pos) => {
       adj[(pos[1] / ELEC_SIZE) - startY][(pos[0] / ELEC_SIZE) - startX] = 1;
-    }
+    });
 
     function connect(y, x) {
       if (y < 0 || y >= numRows || x < 0 || x >= numCols) return;
@@ -302,11 +297,10 @@ export default function Canvas({ mode }) {
     }
     connect((positions[0][1] / ELEC_SIZE) - startY, (positions[0][0] / ELEC_SIZE) - startX);
 
-    for (const row of adj) { // if selected electrodes aren't adj, alert then return
-      if (row.includes(1)) {
-        window.alert("Selected electrodes to combine aren't adjacent");
-        return;
-      }
+    // if selected electrodes aren't adj, alert then return
+    if (adj.some((row) => row.includes(1))) {
+      window.alert("Selected electrodes to combine aren't adjacent");
+      return;
     }
 
     setComboLayout(allCombined.concat(positions));

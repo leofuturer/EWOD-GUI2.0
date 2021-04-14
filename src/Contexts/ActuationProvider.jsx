@@ -86,13 +86,7 @@ const ActuationProvider = ({ children }) => {
             obj.parent = parent;
           }
           const arr = Array.from(newList);
-          let index = 0;
-          for (const e of arr) {
-            if (e[1].id === actuation.currentStep) {
-              break;
-            }
-            index++;
-          }
+          const index = arr.findIndex((e) => e[1].id === actuation.currentStep);
           arr.splice(index + 1, 0, [obj.id, obj]);
           newList = new Map(arr);
           let n = 0;

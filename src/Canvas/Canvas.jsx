@@ -116,8 +116,8 @@ export default function Canvas({ mode }) {
   /* ########################### CONTEXT MENU START ########################### */
   const [clipboard, setClipboard] = useState([]);
   function contextCopy() {
-    const squares = []; const
-      combined = [];
+    const squares = [];
+    const combined = [];
 
     if (selected.length > 0) {
       const inits = electrodes.initPositions.filter((_, ind) => selected.includes(ind));
@@ -129,8 +129,8 @@ export default function Canvas({ mode }) {
       setSelected([]);
     }
     if (combSelected.length > 0) {
-      let minLayval = Infinity; let
-        maxLayval = -1;
+      let minLayval = Infinity;
+      let maxLayval = -1;
       allCombined.forEach((comb) => {
         if (combSelected.includes(comb[2]) && comb[2] < minLayval) minLayval = comb[2];
         if (comb[2] > maxLayval) maxLayval = comb[2];
@@ -249,13 +249,15 @@ export default function Canvas({ mode }) {
 
     const newLastFreeInd = getCombinedLastFreeInd();
 
-    let xMin = Infinity; let xMax = -1; let yMin = Infinity; let
-      yMax = -1;
+    let xMin = Infinity;
+    let xMax = -1;
+    let yMin = Infinity;
+    let yMax = -1;
     for (let j = 0; j < selected.length; j += 1) {
-      const init = electrodes.initPositions[selected[j]]; const
-        del = electrodes.deltas[selected[j]];
-      const x = init[0] + del[0]; const
-        y = init[1] + del[1];
+      const init = electrodes.initPositions[selected[j]];
+      const del = electrodes.deltas[selected[j]];
+      const x = init[0] + del[0];
+      const y = init[1] + del[1];
       if (x < xMin) xMin = x;
       if (x > xMax) xMax = x;
 
@@ -265,8 +267,8 @@ export default function Canvas({ mode }) {
       positions.push([x, y, newLastFreeInd]);
     }
     /* CHECK NODES ARE ADJACENT BEFORE COMBINING */
-    const numRows = (yMax - yMin) / ELEC_SIZE + 1; const
-      numCols = (xMax - xMin) / ELEC_SIZE + 1;
+    const numRows = (yMax - yMin) / ELEC_SIZE + 1;
+    const numCols = (xMax - xMin) / ELEC_SIZE + 1;
     const adj = new Array(numRows).fill(0).map(() => new Array(numCols).fill(0));
     // want 2D grid from xMin to xMax, yMin to yMax
     // indexed 0 on both axes
@@ -278,8 +280,8 @@ export default function Canvas({ mode }) {
             (120, 160) -> (3 - 1, 4 - 2)
         */
 
-    const startY = yMin / ELEC_SIZE; const
-      startX = xMin / ELEC_SIZE;
+    const startY = yMin / ELEC_SIZE;
+    const startX = xMin / ELEC_SIZE;
 
     positions.forEach((pos) => {
       adj[(pos[1] / ELEC_SIZE) - startY][(pos[0] / ELEC_SIZE) - startX] = 1;
@@ -318,8 +320,8 @@ export default function Canvas({ mode }) {
     });
     const byX = {};
     for (let j = 0; j < allCombined.length; j += 1) {
-      const x = allCombined[j][0]; const
-        yAndLayVal = [allCombined[j][1], allCombined[j][2]];
+      const x = allCombined[j][0];
+      const yAndLayVal = [allCombined[j][1], allCombined[j][2]];
       if (byX.hasOwnProperty(x)) byX[x].push(yAndLayVal);
       else byX[x] = [yAndLayVal];
     }
@@ -328,12 +330,12 @@ export default function Canvas({ mode }) {
 
     // inspiration from old EWOD-GUI
     for (let i = 0; i < allCombined.length; i += 1) {
-      const x = allCombined[i][0]; const
-        x2 = x + ELEC_SIZE;
-      const y = allCombined[i][1]; const
-        y2 = y + ELEC_SIZE;
-      let pathstring = ''; const
-        layVal = allCombined[i][2];
+      const x = allCombined[i][0];
+      const x2 = x + ELEC_SIZE;
+      const y = allCombined[i][1];
+      const y2 = y + ELEC_SIZE;
+      let pathstring = '';
+      const layVal = allCombined[i][2];
 
       // has electrode on right side
       if (i + 1 < allCombined.length

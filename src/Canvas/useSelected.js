@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { CANVAS_TRUE_HEIGHT, CANVAS_TRUE_WIDTH } from '../constants';
 
 export default function useSelected(callback, savingChanges) {
-  const savedCallback = React.useRef();
+  const savedCallback = useRef();
 
   // Remember the latest callback.
-  React.useEffect(() => {
+  useEffect(() => {
     savedCallback.current = callback;
   }, [callback]);
 
@@ -21,8 +21,84 @@ export default function useSelected(callback, savingChanges) {
   const combSelected = context.combined.selected;
   const { deltas } = electrodes;
 
-  React.useEffect(() => {
+  function reset() {
+    setDelta({ x: 0, y: 0 });
+    setSelected([]);
+    setCombSelected([]);
+  }
+
+  useEffect(() => {
     if (savingChanges) {
+      // check no overlaps
+      // want first pass through all existing positions + their ids and types
+      // so if just drag to original position, won't consider them "overlaps"
+      const positions = {};
+      for (let sInd = 0; sInd < electrodes.initPositions.length; sInd++) {
+        const init = electrodes.initPositions[sInd];
+        const newDelX = deltas[sInd][0]; const
+          newDelY = deltas[sInd][1];
+        const newX = newDelX + init[0]; const newY = newDelY + init[1]; const
+          typeId = `s${sInd}`;
+        if (positions.hasOwnProperty(newX)) positions[newX].push([newY, typeId]);
+        else positions[newX] = [[newY, typeId]];
+      }
+
+      for (const cPos of allCombined) {
+        const typeId = `c${cPos[2]}`;
+        if (positions.hasOwnProperty(cPos[0])) positions[cPos[0]].push([cPos[1], typeId]);
+        else positions[cPos[0]] = [[cPos[1], typeId]];
+      }
+
+      // go through selected and see if overlap with anything in positions
+      for (const selSqInd of elecSelected) {
+        const init = electrodes.initPositions[selSqInd];
+        const newDelX = delta.x + deltas[selSqInd][0]; const
+          newDelY = delta.y + deltas[selSqInd][1];
+        const newX = newDelX + init[0]; const
+          newY = newDelY + init[1];
+
+        if (positions.hasOwnProperty(newX)) {
+          for (const yAndType of positions[newX]) {
+            if (yAndType[0] === newY) {
+              // check type to see if what we're overlapping on is selected
+              if (yAndType[1][0] === 'c' && !combSelected.includes(parseInt(yAndType[1].substring(1)))) {
+                // childRef.current.getAlert('error', 'Overlapping on combined electrode!');
+                reset();
+                return;
+              } if (yAndType[1][0] === 's' && !elecSelected.includes(parseInt(yAndType[1].substring(1)))) {
+                // childRef.current.getAlert('error', 'Overlapping on square electrode!');
+                reset();
+                return;
+              }
+            }
+          }
+        }
+      }
+
+      for (const cInd of combSelected) {
+        const selCs = allCombined.filter((x) => x[2] === cInd);
+        for (const selC of selCs) {
+          const newX = selC[0] + delta.x; const
+            newY = selC[1] + delta.y;
+          if (positions.hasOwnProperty(newX)) {
+            for (const yAndType of positions[newX]) { // all the electrodes on column x
+              if (yAndType[0] === newY) { // same y and not overlapping where you used to be
+                const matchNum = parseInt(yAndType[1].substring(1));
+                if (yAndType[1][0] === 'c' && !combSelected.includes(matchNum)) {
+                  // childRef.current.getAlert('error', 'Overlapping on combined electrode!');
+                  reset();
+                  return;
+                } if (yAndType[1][0] === 's' && !elecSelected.includes(matchNum)) {
+                  // childRef.current.getAlert('error', 'Overlapping on square electrode!');
+                  reset();
+                  return;
+                }
+              }
+            }
+          }
+        }
+      }
+
       // handle dragged singles
       let copy;
       if (elecSelected.length > 0) {
@@ -35,8 +111,8 @@ export default function useSelected(callback, savingChanges) {
           const newX = newDelX + init[0];
           const newY = newDelY + init[1];
           if (newX < 0 || newX >= CANVAS_TRUE_WIDTH || newY < 0 || newY >= CANVAS_TRUE_HEIGHT) {
-            setSelected([]);
-            setCombSelected([]);
+            // childRef.current.getAlert('error', 'Square electrode going off canvas!');
+            reset();
             return;
           }
           copy[elecSelected[j]] = [newDelX, newDelY];
@@ -59,12 +135,12 @@ export default function useSelected(callback, savingChanges) {
             if (allCombined[k][2] === layVal) {
               const newX = parseInt(allCombined[k][0], 10) + delta.x; const
                 newY = parseInt(allCombined[k][1], 10) + delta.y;
-              // // TODO: disallow combined electrodes from being dragged over grid
-              // if (newX < 0 || newX >= CANVAS_TRUE_WIDTH || newY < 0 || newY >= CANVAS_TRUE_HEIGHT) {
-              //     setSelected([])
-              //     setCombSelected([])
-              //     return
-              // }
+
+              if (newX < 0 || newX >= CANVAS_TRUE_WIDTH || newY < 0 || newY >= CANVAS_TRUE_HEIGHT) {
+                // childRef.current.getAlert('error', 'Combined electrode going off canvas!');
+                reset();
+                return;
+              }
               allCombined[k][0] = newX;
               allCombined[k][1] = newY;
               selectedCombs.push(allCombined[k]);

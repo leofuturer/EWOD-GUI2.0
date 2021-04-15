@@ -162,7 +162,7 @@ export default function Scroll() {
   function generateSeq() {
     const visited = new Set();
     const list = [];
-    pinActuate.values().forEach((value) => {
+    pinActuate.forEach((value) => {
       if (value.type === 'simple' && !visited.has(value.id)) {
         visited.add(value.id);
         if (value.parent !== null) {

@@ -28,10 +28,10 @@ export default class ActuationSequence {
     }
   }
 
-  pushOneStep(step) {
+  pushOneStep(initstep) {
+    const step = initstep;
     if (this.type === 'simple') console.log('simple type cannot contain sequence');
     else {
-      // eslint-disable-next-line no-param-reassign
       step.parent = this.id;
       this.content.push(step.id);
     }

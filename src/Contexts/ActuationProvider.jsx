@@ -141,15 +141,15 @@ const ActuationProvider = (props) => {
           setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
           return true;
         },
-        updateLoop: (from, to, repTime, key) => {
+        updateLoop: (from, to, repTime, loopKey) => {
           const newList = actuation.pinActuate;
-          const seq = newList.get(key);
+          const seq = newList.get(loopKey);
           const content_list = [];
           let error = 0;
           newList.forEach((value, key) => {
             if (value.type === 'simple' && value.order >= from && value.order <= to) {
               if (error === 1) return;
-              if (value.parent !== null) {
+              if (value.parent !== null && value.parent !== loopKey) {
                 error = 1;
                 return;
               }

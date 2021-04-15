@@ -109,7 +109,8 @@ const useStyles = makeStyles({
 export default function Scroll() {
   const context = useContext(ActuationContext);
   const classes = useStyles();
-  const { pinActuate, currentStep } = context.actuation;
+  const { actuation } = context;
+  const { pinActuate, currentStep } = actuation;
   const {
     setCurrentStep, addLoop, updateLoop, deleteCurrentStep,
     deleteLoop, insertStep, clearAll, updateDuration, updateAllDuration,

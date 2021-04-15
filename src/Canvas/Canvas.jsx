@@ -226,8 +226,10 @@ export default function Canvas({ mode }) {
     // probably don't actually need lowest last free index
     // but would be unfortunate if they keep combining and deleting
     // on the same design and if it kept picking the latest free index (allCombined.length)
+    const layValsArray = Array.from(layVals);
     let newLastFreeInd = 0;
-    newLastFreeInd = 1 + layVals.find((layoutVal) => !layVals.has(layoutVal + 1));
+    const tempInd = layValsArray.find((layoutVal) => !layVals.has(layoutVal + 1));
+    if (tempInd) newLastFreeInd = 1 + tempInd;
     return newLastFreeInd;
   }
   /* ########################### HELPERS END ########################### */

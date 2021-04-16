@@ -32,17 +32,13 @@ function DraggableComb({ id, children }) {
     if (e.which === 1) {
       if (!isSelected && !drawing && !isDragging) {
         setCombSelected([...new Set([...selected, id])]);
-        // setDragging(true)
       }
-      // else if (isSelected)
-      //     setDragging(true)
     }
   }, [isDragging, setCombSelected, selected, id, drawing, isSelected]);
 
   const handleMouseOver = useCallback(() => {
     if (mouseDown === true && !isSelected && !drawing && !isDragging) {
       setCombSelected([...new Set([...selected, id])]);
-      // setDragging(true)
     }
   }, [isDragging, drawing, id, isSelected, mouseDown, selected, setCombSelected]);
 

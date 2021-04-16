@@ -6,12 +6,14 @@ import DraggableComb from './DraggableComb';
 
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { ActuationContext } from '../Contexts/ActuationProvider';
+import { GeneralContext } from '../Contexts/GeneralProvider';
+
 import ContextMenu from './ContextMenu';
 import {
   ELEC_SIZE, CANVAS_HEIGHT, CANVAS_WIDTH, MAX_NUM_COMBINES, CANVAS_REAL_HEIGHT,
 } from '../constants';
 
-export default function Canvas({ mode }) {
+export default function Canvas() {
   const canvasContext = useContext(CanvasContext);
   const { electrodes, selected } = canvasContext.squares;
   const { drawing, mouseDown } = canvasContext.state;
@@ -24,6 +26,8 @@ export default function Canvas({ mode }) {
   const actuationContext = useContext(ActuationContext);
   const { currentStep, pinActuate } = actuationContext.actuation;
   const { actuatePin, pushHistory } = actuationContext;
+
+  const { mode } = useContext(GeneralContext);
 
   // sets mousedown status for selecting existing electrodes
   const handleMouseDown = useCallback((event) => {
@@ -380,7 +384,7 @@ export default function Canvas({ mode }) {
     <div className="wrapper" style={{ height: `${CANVAS_REAL_HEIGHT}vh` }}>
       <svg className="greenArea" xmlns="http://www.w3.org/2000/svg" style={{ width: CANVAS_WIDTH * ELEC_SIZE, height: CANVAS_HEIGHT * ELEC_SIZE }}>
         {electrodes.initPositions.map((startPos, ind) => (
-          <DraggableItem key={ind.id} id={ind} mode={mode}>
+          <DraggableItem key={ind.id} id={ind}>
             <rect
               x={startPos[0]}
               y={startPos[1]}

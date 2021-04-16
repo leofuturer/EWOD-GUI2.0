@@ -7,9 +7,12 @@ import useSelected from './useSelected';
 import useReset from './useReset';
 import './Canvas.css';
 import { CanvasContext } from '../Contexts/CanvasProvider';
+import { GeneralContext } from '../Contexts/GeneralProvider';
 import { ELEC_SIZE } from '../constants';
 
-function DraggableItem({ id, children, mode }) {
+function DraggableItem({ id, children }) {
+  const { mode } = useContext(GeneralContext);
+
   const context = useContext(CanvasContext);
   const { setSelected, setDelta, setDragging } = context;
   const {

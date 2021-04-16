@@ -38,7 +38,7 @@ const ActuationProvider = ({ children }) => {
             setActuation((stateBoi) => ({
               ...stateBoi,
               pinActuate:
-               newList,
+                newList,
               simpleNum: actuation.simpleNum + 1,
             }));
           }
@@ -227,7 +227,7 @@ const ActuationProvider = ({ children }) => {
             setActuation((stateBoi) => ({
               ...stateBoi,
               pinActuate:
-              newList,
+                newList,
               historyIndex: actuation.historyIndex - 1,
             }));
           }

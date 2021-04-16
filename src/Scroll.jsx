@@ -16,7 +16,7 @@ import IconButton from '@material-ui/core/IconButton';
 import { DialogContentText } from '@material-ui/core';
 import ActuationSequence from './Actuation';
 import { ActuationContext } from './Contexts/ActuationProvider';
-import CustomAlert from './Alert';
+import { GeneralContext } from './Contexts/GeneralProvider';
 
 import { SCROLL_HEIGHT } from './constants';
 
@@ -110,7 +110,7 @@ export default function Scroll() {
   const context = useContext(ActuationContext);
   const classes = useStyles();
   const { actuation } = context;
-  const { pinActuate, currentStep, childRef } = actuation;
+  const { pinActuate, currentStep } = actuation;
   const {
     setCurrentStep, addLoop, updateLoop, deleteCurrentStep,
     deleteLoop, insertStep, clearAll, updateDuration, updateAllDuration,
@@ -134,7 +134,8 @@ export default function Scroll() {
   const indexRef = useRef();
   indexRef.current = index;
   const scrollRef = useRef();
-  // const childRef = useRef();
+
+  const { bannerRef } = useContext(GeneralContext);
 
   const handleClick = (event) => {
     event.preventDefault();
@@ -195,17 +196,17 @@ export default function Scroll() {
       if (id !== null) {
         const success = updateLoop(fromInt, toInt, repTimeInt, id);
         if (!success) {
-          childRef.current.getAlert('error', 'Update Loop Fail! Please check the range of frame.');
+          bannerRef.current.getAlert('error', 'Update Loop Fail! Please check the range of frame.');
         } else {
-          childRef.current.getAlert('success', 'Successfully update a loop.');
+          bannerRef.current.getAlert('success', 'Successfully update a loop.');
         }
         setUpdate(null);
       } else {
         const success = addLoop(fromInt, toInt, repTimeInt);
         if (!success) {
-          childRef.current.getAlert('error', 'Add Loop Fail! Please check the range of frame.');
+          bannerRef.current.getAlert('error', 'Add Loop Fail! Please check the range of frame.');
         } else {
-          childRef.current.getAlert('success', 'Successfully add a loop.');
+          bannerRef.current.getAlert('success', 'Successfully add a loop.');
         }
       }
 
@@ -215,7 +216,7 @@ export default function Scroll() {
       generateSeq();
       modelClose();
     } else {
-      childRef.current.getAlert('error', 'Invalid block number!');
+      bannerRef.current.getAlert('error', 'Invalid block number!');
     }
   };
 
@@ -264,9 +265,9 @@ export default function Scroll() {
   const handleDelete = () => {
     const success = deleteCurrentStep(currentStep);
     if (!success) {
-      childRef.current.getAlert('error', 'Cannot delete the last block in a loop or the whole sequence!');
+      bannerRef.current.getAlert('error', 'Cannot delete the last block in a loop or the whole sequence!');
     } else {
-      childRef.current.getAlert('warning', 'Delete one step!');
+      bannerRef.current.getAlert('warning', 'Delete one step!');
     }
     generateSeq();
     modelClose();
@@ -304,7 +305,6 @@ export default function Scroll() {
 
   return (
     <div>
-      <CustomAlert ref={childRef} />
       <div className={classes.playTab}>
         <p style={{
           position: 'absolute', left: '48vw', top: -10, fontSize: 14, color: '#A06933',

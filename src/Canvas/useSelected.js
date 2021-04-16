@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { CanvasContext } from '../Contexts/CanvasProvider';
-import { ActuationContext } from '../Contexts/ActuationProvider';
+import { GeneralContext } from '../Contexts/GeneralProvider';
 import { CANVAS_TRUE_HEIGHT, CANVAS_TRUE_WIDTH } from '../constants';
 
 export default function useSelected(callback, savingChanges) {
@@ -12,7 +12,7 @@ export default function useSelected(callback, savingChanges) {
   }, [callback]);
 
   const context = React.useContext(CanvasContext);
-  const actuation = React.useContext(ActuationContext);
+  const { bannerRef } = React.useContext(GeneralContext);
   const {
     setSelected, setElectrodes, setDelta, setComboLayout, setCombSelected,
   } = context;
@@ -22,7 +22,6 @@ export default function useSelected(callback, savingChanges) {
   const { allCombined } = context.combined;
   const combSelected = context.combined.selected;
   const { deltas } = electrodes;
-  const { childRef } = actuation.actuation;
 
   function reset() {
     setDelta({ x: 0, y: 0 });
@@ -72,11 +71,11 @@ export default function useSelected(callback, savingChanges) {
             if (yAndType[0] === newY) {
               // check type to see if what we're overlapping on is selected
               if (yAndType[1][0] === 'c' && !combSelected.includes(parseInt(yAndType[1].substring(1), 10))) {
-                childRef.current.getAlert('error', 'Overlapping on combined electrode!');
+                bannerRef.current.getAlert('error', 'Overlapping on combined electrode!');
                 return true;
               }
               if (yAndType[1][0] === 's' && !elecSelected.includes(parseInt(yAndType[1].substring(1), 10))) {
-                childRef.current.getAlert('error', 'Overlapping on square electrode!');
+                bannerRef.current.getAlert('error', 'Overlapping on square electrode!');
                 return true;
               }
             }
@@ -101,10 +100,10 @@ export default function useSelected(callback, savingChanges) {
               if (yAndType[0] === newY) { // same y and not overlapping where you used to be
                 const matchNum = parseInt(yAndType[1].substring(1), 10);
                 if (yAndType[1][0] === 'c' && !combSelected.includes(matchNum)) {
-                  childRef.current.getAlert('error', 'Overlapping on combined electrode!');
+                  bannerRef.current.getAlert('error', 'Overlapping on combined electrode!');
                   return true;
                 } if (yAndType[1][0] === 's' && !elecSelected.includes(matchNum)) {
-                  childRef.current.getAlert('error', 'Overlapping on square electrode!');
+                  bannerRef.current.getAlert('error', 'Overlapping on square electrode!');
                   return true;
                 }
               }
@@ -132,7 +131,7 @@ export default function useSelected(callback, savingChanges) {
           const newX = newDelX + init[0];
           const newY = newDelY + init[1];
           if (newX < 0 || newX >= CANVAS_TRUE_WIDTH || newY < 0 || newY >= CANVAS_TRUE_HEIGHT) {
-            childRef.current.getAlert('error', 'Square electrode going off canvas!');
+            bannerRef.current.getAlert('error', 'Square electrode going off canvas!');
             reset();
             return;
           }
@@ -158,7 +157,7 @@ export default function useSelected(callback, savingChanges) {
                 newY = parseInt(allCombined[k][1], 10) + delta.y;
 
               if (newX < 0 || newX >= CANVAS_TRUE_WIDTH || newY < 0 || newY >= CANVAS_TRUE_HEIGHT) {
-                childRef.current.getAlert('error', 'Combined electrode going off canvas!');
+                bannerRef.current.getAlert('error', 'Combined electrode going off canvas!');
                 reset();
                 return;
               }

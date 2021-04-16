@@ -5,9 +5,13 @@ import App from './App';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
 
+import { GeneralProvider } from './Contexts/GeneralProvider';
+
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <GeneralProvider>
+      <App />
+    </GeneralProvider>
   </React.StrictMode>,
   document.getElementById('root'),
 );

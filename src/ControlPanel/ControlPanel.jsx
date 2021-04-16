@@ -19,6 +19,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 import { ActuationContext } from '../Contexts/ActuationProvider';
 import { CanvasContext } from '../Contexts/CanvasProvider';
+import { GeneralContext } from '../Contexts/GeneralProvider';
 
 // import SaveButton from './SaveButton';
 // import UploadButton from './UploadButton';
@@ -93,9 +94,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ControlPanel({ setMode }) {
+export default function ControlPanel() {
   const canvasContext = useContext(CanvasContext);
   const actuationContext = useContext(ActuationContext);
+  const { setMode } = useContext(GeneralContext);
   const { drawing } = canvasContext.state;
   const { setDrawing, setSelected, setCombSelected } = canvasContext;
   const { undo, redo } = actuationContext;

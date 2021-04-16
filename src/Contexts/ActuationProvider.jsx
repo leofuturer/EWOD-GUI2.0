@@ -10,7 +10,6 @@ const ActuationProvider = ({ children }) => {
     pinActuate: new Map([[0, new ActuationSequence(0, 'simple', 0)]]),
     currentStep: 0,
     simpleNum: 1,
-    childRef: useRef(),
   });
 
   return (
@@ -39,7 +38,7 @@ const ActuationProvider = ({ children }) => {
             setActuation((stateBoi) => ({
               ...stateBoi,
               pinActuate:
-               newList,
+                newList,
               simpleNum: actuation.simpleNum + 1,
             }));
           }
@@ -228,7 +227,7 @@ const ActuationProvider = ({ children }) => {
             setActuation((stateBoi) => ({
               ...stateBoi,
               pinActuate:
-              newList,
+                newList,
               historyIndex: actuation.historyIndex - 1,
             }));
           }

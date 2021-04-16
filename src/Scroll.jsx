@@ -109,7 +109,8 @@ const useStyles = makeStyles({
 export default function Scroll() {
   const context = useContext(ActuationContext);
   const classes = useStyles();
-  const { pinActuate, currentStep } = context.actuation;
+  const { actuation } = context;
+  const { pinActuate, currentStep } = actuation;
   const {
     setCurrentStep, addLoop, updateLoop, deleteCurrentStep,
     deleteLoop, insertStep, clearAll, updateDuration, updateAllDuration,
@@ -161,22 +162,22 @@ export default function Scroll() {
   function generateSeq() {
     const visited = new Set();
     const list = [];
-    for (const value of pinActuate.values()) {
+    pinActuate.forEach((value) => {
       if (value.type === 'simple' && !visited.has(value.id)) {
         visited.add(value.id);
         if (value.parent !== null) {
           const parent = pinActuate.get(value.parent);
           for (let i = 0; i < parent.repTime; i += 1) {
-            for (const e of parent.content) {
+            parent.content.forEach((e) => {
               list.push(e);
               visited.add(e);
-            }
+            });
           }
         } else {
           list.push(value.id);
         }
       }
-    }
+    });
     setFullseq(list);
   }
 

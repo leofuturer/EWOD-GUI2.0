@@ -35,7 +35,7 @@ export default function ContextMenu({ names, funcs }) {
   );
 
   const handleClick = useCallback(() => {
-    showMenu && setShowMenu(false);
+    if (showMenu) setShowMenu(false);
   }, [showMenu]);
 
   useEffect(() => {
@@ -76,7 +76,7 @@ export default function ContextMenu({ names, funcs }) {
                 {
                                     names.map((name, idx) => (
                                       <MenuItem
-                                        key={idx}
+                                        key={idx.id}
                                         onClick={(e) => { funcs[idx](e, relativeX, relativeY); }}
                                       >
                                         {name}

@@ -25,7 +25,7 @@ it('Add sequence when click the button', () => {
 it('Delete all', () => {
   expect(screen.getAllByTestId('seq-button')).toHaveLength(1);
   const add = screen.getByTestId('add-button');
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 5; i += 1) {
     fireEvent.click(add);
   }
   expect(screen.getAllByTestId('seq-button')).toHaveLength(6);

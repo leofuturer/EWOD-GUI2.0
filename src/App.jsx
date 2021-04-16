@@ -4,7 +4,7 @@ import { ActuationProvider } from './Contexts/ActuationProvider';
 
 import Canvas from './Canvas/Canvas';
 import Scroll from './Scroll';
-import { ControlPanel } from './ControlPanel/ControlPanel';
+import ControlPanel from './ControlPanel/ControlPanel';
 
 export default function App() {
   const [mode, setMode] = useState('CAN'); // either "PIN", "SEQ", or "CAN"

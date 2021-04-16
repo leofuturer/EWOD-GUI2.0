@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Dexie from 'dexie';
 import useInterval from '../useInterval';
-import { handleSave } from '../ControlPanel/SaveButton';
+import handleSave from '../ControlPanel/handleSave';
 
 const CanvasContext = React.createContext();
 
-const CanvasProvider = (props) => {
+const CanvasProvider = ({ children }) => {
   const [squares, setSquares] = useState({
     electrodes: {
       initPositions: [],
@@ -45,11 +45,17 @@ const CanvasProvider = (props) => {
           squaresLayout.value.forEach((e) => {
             const mapping = e.split(' ');
             if (mapping[0] === 'square') {
-              initPos.push([parseInt(mapping[1]), parseInt(mapping[2])]);
+              initPos.push([parseInt(mapping[1], 10), parseInt(mapping[2], 10)]);
               dels.push([0, 0]);
             }
           });
-          setSquares((stateBoi) => ({ ...stateBoi, electrodes: { initPositions: initPos, deltas: dels } }));
+          setSquares((stateBoi) => ({
+            ...stateBoi,
+            electrodes: {
+              initPositions: initPos,
+              deltas: dels,
+            },
+          }));
         }
 
         const combsLayout = await state.db.formData.get('combine');
@@ -60,7 +66,7 @@ const CanvasProvider = (props) => {
           const combs = [];
           combsLayout.value.forEach((e) => {
             const mapping = e.split(' ');
-            if (mapping[0] === 'combine') combs.push([parseInt(mapping[1]), parseInt(mapping[2]), parseInt(mapping[3])]);
+            if (mapping[0] === 'combine') combs.push([parseInt(mapping[1], 10), parseInt(mapping[2], 10), parseInt(mapping[3], 10)]);
           });
           setCombined((stateBoi) => ({ ...stateBoi, allCombined: combs }));
         }
@@ -85,16 +91,30 @@ const CanvasProvider = (props) => {
         squares,
         combined,
         setDragging: (bool) => { setState((stateBoi) => ({ ...stateBoi, isDragging: bool })); },
-        setCombSelected: (newSelected) => { setCombined((stateBoi) => ({ ...stateBoi, selected: newSelected })); },
-        setComboLayout: (newCombs) => { setCombined((stateBoi) => ({ ...stateBoi, allCombined: newCombs })); },
-        setSelected: (newSelected) => { setSquares((stateBoi) => ({ ...stateBoi, selected: newSelected })); },
-        setElectrodes: (elecs) => { setSquares((stateBoi) => ({ ...stateBoi, electrodes: elecs })); },
-        setDelta: (del) => { setState((stateBoi) => ({ ...stateBoi, delta: del })); },
-        setMouseDown: (md) => { setState((stateBoi) => ({ ...stateBoi, mouseDown: md })); },
-        setDrawing: (draw) => { setState((stateBoi) => ({ ...stateBoi, drawing: draw })); },
+        setCombSelected: (newSelected) => {
+          setCombined((stateBoi) => ({ ...stateBoi, selected: newSelected }));
+        },
+        setComboLayout: (newCombs) => {
+          setCombined((stateBoi) => ({ ...stateBoi, allCombined: newCombs }));
+        },
+        setSelected: (newSelected) => {
+          setSquares((stateBoi) => ({ ...stateBoi, selected: newSelected }));
+        },
+        setElectrodes: (elecs) => {
+          setSquares((stateBoi) => ({ ...stateBoi, electrodes: elecs }));
+        },
+        setDelta: (del) => {
+          setState((stateBoi) => ({ ...stateBoi, delta: del }));
+        },
+        setMouseDown: (md) => {
+          setState((stateBoi) => ({ ...stateBoi, mouseDown: md }));
+        },
+        setDrawing: (draw) => {
+          setState((stateBoi) => ({ ...stateBoi, drawing: draw }));
+        },
       }}
     >
-      {props.children}
+      {children}
     </CanvasContext.Provider>
   );
 };

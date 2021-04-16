@@ -33,70 +33,88 @@ export default function useSelected(callback, savingChanges) {
       // want first pass through all existing positions + their ids and types
       // so if just drag to original position, won't consider them "overlaps"
       const positions = {};
-      for (let sInd = 0; sInd < electrodes.initPositions.length; sInd++) {
+      for (let sInd = 0; sInd < electrodes.initPositions.length; sInd += 1) {
         const init = electrodes.initPositions[sInd];
-        const newDelX = deltas[sInd][0]; const
-          newDelY = deltas[sInd][1];
-        const newX = newDelX + init[0]; const newY = newDelY + init[1]; const
-          typeId = `s${sInd}`;
-        if (positions.hasOwnProperty(newX)) positions[newX].push([newY, typeId]);
-        else positions[newX] = [[newY, typeId]];
+        const newDelX = deltas[sInd][0];
+        const newDelY = deltas[sInd][1];
+        const newX = newDelX + init[0];
+        const newY = newDelY + init[1];
+        const typeId = `s${sInd}`;
+        if (Object.prototype.hasOwnProperty.call(positions, newX)) {
+          positions[newX].push([newY, typeId]);
+        } else {
+          positions[newX] = [[newY, typeId]];
+        }
       }
 
-      for (const cPos of allCombined) {
+      allCombined.forEach((cPos) => {
         const typeId = `c${cPos[2]}`;
-        if (positions.hasOwnProperty(cPos[0])) positions[cPos[0]].push([cPos[1], typeId]);
-        else positions[cPos[0]] = [[cPos[1], typeId]];
-      }
+        if (Object.prototype.hasOwnProperty.call(positions, cPos[0])) {
+          positions[cPos[0]].push([cPos[1], typeId]);
+        } else {
+          positions[cPos[0]] = [[cPos[1], typeId]];
+        }
+      });
 
       // go through selected and see if overlap with anything in positions
-      for (const selSqInd of elecSelected) {
+      const flag = elecSelected.some((selSqInd) => {
         const init = electrodes.initPositions[selSqInd];
-        const newDelX = delta.x + deltas[selSqInd][0]; const
-          newDelY = delta.y + deltas[selSqInd][1];
-        const newX = newDelX + init[0]; const
-          newY = newDelY + init[1];
+        const newDelX = delta.x + deltas[selSqInd][0];
+        const newDelY = delta.y + deltas[selSqInd][1];
+        const newX = newDelX + init[0];
+        const newY = newDelY + init[1];
 
-        if (positions.hasOwnProperty(newX)) {
-          for (const yAndType of positions[newX]) {
+        if (Object.prototype.hasOwnProperty.call(positions, newX)) {
+          return positions[newX].some((yAndType) => {
             if (yAndType[0] === newY) {
               // check type to see if what we're overlapping on is selected
-              if (yAndType[1][0] === 'c' && !combSelected.includes(parseInt(yAndType[1].substring(1)))) {
+              if (yAndType[1][0] === 'c' && !combSelected.includes(parseInt(yAndType[1].substring(1), 10))) {
                 // childRef.current.getAlert('error', 'Overlapping on combined electrode!');
-                reset();
-                return;
-              } if (yAndType[1][0] === 's' && !elecSelected.includes(parseInt(yAndType[1].substring(1)))) {
+                return true;
+              }
+              if (yAndType[1][0] === 's' && !elecSelected.includes(parseInt(yAndType[1].substring(1), 10))) {
                 // childRef.current.getAlert('error', 'Overlapping on square electrode!');
-                reset();
-                return;
+                return true;
               }
             }
-          }
+            return false;
+          });
         }
+        return false;
+      });
+
+      if (flag) {
+        reset();
+        return;
       }
 
-      for (const cInd of combSelected) {
+      const eflag = combSelected.some((cInd) => {
         const selCs = allCombined.filter((x) => x[2] === cInd);
-        for (const selC of selCs) {
-          const newX = selC[0] + delta.x; const
-            newY = selC[1] + delta.y;
-          if (positions.hasOwnProperty(newX)) {
-            for (const yAndType of positions[newX]) { // all the electrodes on column x
+        return selCs.some((selC) => {
+          const newX = selC[0] + delta.x;
+          const newY = selC[1] + delta.y;
+          if (Object.prototype.hasOwnProperty.call(positions, newX)) {
+            return positions[newX].some((yAndType) => { // all the electrodes on column x
               if (yAndType[0] === newY) { // same y and not overlapping where you used to be
-                const matchNum = parseInt(yAndType[1].substring(1));
+                const matchNum = parseInt(yAndType[1].substring(1), 10);
                 if (yAndType[1][0] === 'c' && !combSelected.includes(matchNum)) {
                   // childRef.current.getAlert('error', 'Overlapping on combined electrode!');
-                  reset();
-                  return;
+                  return true;
                 } if (yAndType[1][0] === 's' && !elecSelected.includes(matchNum)) {
                   // childRef.current.getAlert('error', 'Overlapping on square electrode!');
-                  reset();
-                  return;
+                  return true;
                 }
               }
-            }
+              return false;
+            });
           }
-        }
+          return false;
+        });
+      });
+
+      if (eflag) {
+        reset();
+        return;
       }
 
       // handle dragged singles

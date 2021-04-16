@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import ActuationSequence from '../Actuation';
 
 const ActuationContext = React.createContext();

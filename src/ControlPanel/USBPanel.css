@@ -14,12 +14,12 @@ input[type=number] {
   padding: 10px;
 }
 
-#setVPP {
+.rButton {
   position: relative;
   margin-bottom: 30px;
 }
 
-#setVPP button {
+.rButton button {
   position: absolute;
   right: 10px;
 }

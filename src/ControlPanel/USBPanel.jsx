@@ -54,10 +54,13 @@ export default function USBPanel() {
         </ButtonGroup>
         <div style={{ float: 'left', paddingTop: '15px' }} className="unit"> HZ </div>
       </div>
-      <div style={{ paddingTop: '140px' }}>
+      <div style={{ paddingLeft: '10px', paddingTop: '140px' }}>
         <Button variant="contained">Set Voltage to 0</Button>
       </div>
-      <div id="setVPP" style={{ padding: '10px' }}>
+      <div style={{ padding: '10px' }}>
+        <Button variant="contained">Test</Button>
+      </div>
+      <div className="rButton" style={{ padding: '15px' }}>
         <Button variant="contained">Set Vpp</Button>
       </div>
     </div>

@@ -78,7 +78,7 @@ export default function USBPanel(props) {
       </div>
 
       <div style={{ padding: '10px' }}>
-        <Button variant="contained" onClick={handleConnect}> Connect </Button>
+        <Button variant="contained" onClick={handleConnect} size="small"> Connect </Button>
       </div>
 
       <div>
@@ -86,7 +86,7 @@ export default function USBPanel(props) {
           <Button onClick={() => setAndCheckFreq(freq - 5)}>-</Button>
           <TextField
             id="tf-frequency"
-            onChange={(e) => { setFreq(e.target.value); }}
+            onChange={(e) => { setFreq(parseInt(e.target.value, 10)); }}
             type="number"
             value={freq}
             onBlur={() => { if (freq > 10000 || freq < 0) { setFreq(0); } }}
@@ -101,7 +101,7 @@ export default function USBPanel(props) {
           <Button onClick={() => setAndCheckVolt(volt - 5)}>-</Button>
           <TextField
             id="tf-voltage"
-            onChange={(e) => { setVolt(e.target.value); }}
+            onChange={(e) => { setVolt(parseInt(e.target.value, 10)); }}
             type="number"
             value={volt}
             onBlur={() => { if (volt > 180 || volt < 0) { setVolt(0); } }}
@@ -114,15 +114,15 @@ export default function USBPanel(props) {
       <div />
 
       <div style={{ paddingLeft: '10px', paddingTop: '140px' }}>
-        <Button onClick={setZero} variant="contained">Set Voltage to 0</Button>
+        <Button size="small" onClick={setZero} variant="contained">Set Voltage to 0 V</Button>
       </div>
 
       <div style={{ padding: '10px' }}>
-        <Button variant="contained" onClick={test}>Test</Button>
+        <Button size="small" variant="contained" onClick={test}>Test</Button>
       </div>
 
       <div className="rButton" style={{ padding: '15px' }}>
-        <Button onClick={setVpp} variant="contained">Set Vpp</Button>
+        <Button size="small" onClick={setVpp} variant="contained">Set Vpp</Button>
       </div>
 
     </div>

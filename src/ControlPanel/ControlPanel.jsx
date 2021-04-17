@@ -105,7 +105,7 @@ export default function ControlPanel() {
   const { undo, redo } = actuationContext;
 
   const classes = useStyles();
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [usbPanelOpen, setUsbPanelOpen] = useState(false);
   const [usbConnected, setUsbConnected] = useState(false);
 

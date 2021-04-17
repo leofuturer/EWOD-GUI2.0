@@ -182,8 +182,8 @@ export default function ControlPanel() {
       >
         <div className={classes.toolbar}>
           <IconButton onClick={() => {
-            setOpen(!open);
             setUsbPanelOpen(false);
+            setOpen(!open);
           }}
           >
             <Menu />
@@ -193,7 +193,7 @@ export default function ControlPanel() {
         <List>
           <ListItem button onClick={() => { if (open) setUsbPanelOpen(!usbPanelOpen); }}>
             <ListItemIcon><Usb /></ListItemIcon>
-            <ListItemText primary="Reference Image" />
+            <ListItemText primary="USB Connection" />
           </ListItem>
 
           <Collapse in={usbPanelOpen} timeout="auto" unmountOnExit>

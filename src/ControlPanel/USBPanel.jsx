@@ -1,3 +1,9 @@
+/**
+ * USBPanel - One required prop setUSBConnected
+ *   setUSBConnected should be a function from USBPanel that sets
+ *   the icon to green or black (on or off)
+ */
+
 import React, { useState } from 'react';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
@@ -74,7 +80,7 @@ export default function USBPanel(props) {
     <div style={{ display: 'block', paddingLeft: '20px' }}>
       <div>
         USB Connected
-        { usbConnected ? <CheckCircleIcon className="icon" style={{ color: '#21b214' }} /> : <CancelIcon className="icon" color="secondary" /> }
+        {usbConnected ? <CheckCircleIcon className="icon" style={{ color: '#21b214' }} /> : <CancelIcon className="icon" color="secondary" />}
       </div>
 
       <div style={{ padding: '10px' }}>

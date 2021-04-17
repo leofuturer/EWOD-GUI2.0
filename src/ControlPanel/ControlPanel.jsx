@@ -194,7 +194,7 @@ export default function ControlPanel() {
         <List>
           <ListItem button onClick={() => { if (open) setUsbPanelOpen(!usbPanelOpen); }}>
             <ListItemIcon>
-              { usbConnected ? <Usb style={{ color: '#21b214' }} /> : <Usb /> }
+              {usbConnected ? <Usb style={{ color: '#21b214' }} /> : <Usb />}
             </ListItemIcon>
             <ListItemText primary="USB Connection" />
           </ListItem>

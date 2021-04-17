@@ -21,12 +21,12 @@ export default function USBPanel() {
   }
 
   return (
-    <div style={{ display: 'block', padding: '10px' }}>
+    <div style={{ display: 'block', paddingLeft: '20px' }}>
       <div>
         USB Connected?
       </div>
       <div>
-        <ButtonGroup size="small" style={{ width: '190px', float: 'left' }} className="inputCounters">
+        <ButtonGroup size="small" style={{ width: '170px', float: 'left' }} className="inputCounters">
           <Button onClick={() => setAndCheckVolt(volt + 5)}>+</Button>
           <TextField
             id="tf-voltage"
@@ -41,7 +41,7 @@ export default function USBPanel() {
       </div>
       <div />
       <div>
-        <ButtonGroup size="small" style={{ width: '190px', float: 'left' }} className="inputCounters">
+        <ButtonGroup size="small" style={{ width: '170px', float: 'left' }} className="inputCounters">
           <Button onClick={() => setAndCheckFreq(freq + 5)}>+</Button>
           <TextField
             id="tf-frequency"

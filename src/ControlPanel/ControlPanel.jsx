@@ -11,6 +11,7 @@ import IconButton from '@material-ui/core/IconButton';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import Collapse from '@material-ui/core/Collapse';
 import {
   Undo, Redo, Highlight, FileCopy, Create, Info, ViewWeek, Usb, Image, Menu,
   FormatListNumberedOutlined, DeleteForeverOutlined, GridOn,
@@ -24,6 +25,7 @@ import { GeneralContext } from '../Contexts/GeneralProvider';
 // import SaveButton from './SaveButton';
 // import UploadButton from './UploadButton';
 import DownloadButton from './DownloadButton';
+import USBPanel from './USBPanel';
 
 const drawerWidth = 240;
 
@@ -103,7 +105,8 @@ export default function ControlPanel() {
   const { undo, redo } = actuationContext;
 
   const classes = useStyles();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
+  const [usbPanelOpen, setUsbPanelOpen] = useState(false);
 
   function toggleDraw() {
     setSelected([]);
@@ -180,6 +183,7 @@ export default function ControlPanel() {
         <div className={classes.toolbar}>
           <IconButton onClick={() => {
             setOpen(!open);
+            setUsbPanelOpen(false);
           }}
           >
             <Menu />
@@ -187,10 +191,15 @@ export default function ControlPanel() {
         </div>
         <Divider />
         <List>
-          <ListItem button>
+          <ListItem button onClick={() => { if (open) setUsbPanelOpen(!usbPanelOpen); }}>
             <ListItemIcon><Usb /></ListItemIcon>
-            <ListItemText primary="USB Connection" />
+            <ListItemText primary="Reference Image" />
           </ListItem>
+
+          <Collapse in={usbPanelOpen} timeout="auto" unmountOnExit>
+            <USBPanel />
+          </Collapse>
+
           <ListItem button>
             <ListItemIcon><Image /></ListItemIcon>
             <ListItemText primary="Reference Image" />

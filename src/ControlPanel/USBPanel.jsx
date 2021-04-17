@@ -8,20 +8,16 @@ export default function USBPanel() {
   const [volt, setVolt] = useState(0);
   const [freq, setFreq] = useState(0);
 
-  function incVolt() {
-    setVolt(volt + 5);
+  function setAndCheckVolt(v) {
+    if (v <= 180 && v >= 0) {
+      setVolt(v);
+    }
   }
 
-  function decVolt() {
-    setVolt(volt - 5);
-  }
-
-  function incFreq() {
-    setFreq(freq + 5);
-  }
-
-  function decFreq() {
-    setFreq(freq - 5);
+  function setAndCheckFreq(f) {
+    if (f <= 10000 && f >= 0) {
+      setFreq(f);
+    }
   }
 
   return (
@@ -29,30 +25,36 @@ export default function USBPanel() {
       <div>
         USB Connected?
       </div>
-      <ButtonGroup className="inputCounters">
-        <Button onClick={incVolt}>+</Button>
-        <TextField
-          id="tf-voltage"
-          onChange={(e) => { setVolt(e.target.value); }}
-          type="number"
-          value={volt}
-          label="Voltage"
-        />
-        <Button onClick={decVolt}>-</Button>
-      </ButtonGroup>
+      <div>
+        <ButtonGroup size="small" style={{ width: '190px', float: 'left' }} className="inputCounters">
+          <Button onClick={() => setAndCheckVolt(volt + 5)}>+</Button>
+          <TextField
+            id="tf-voltage"
+            onChange={(e) => { setVolt(e.target.value); }}
+            type="number"
+            value={volt}
+            onBlur={() => { if (volt > 180 || volt < 0) { setVolt(0); } }}
+          />
+          <Button onClick={() => setAndCheckVolt(volt - 5)}>-</Button>
+        </ButtonGroup>
+        <div style={{ float: 'left', paddingTop: '15px' }} className="unit"> V </div>
+      </div>
       <div />
-      <ButtonGroup className="inputCounters">
-        <Button onClick={incFreq}>+</Button>
-        <TextField
-          id="tf-frequency"
-          onChange={(e) => { setFreq(e.target.value); }}
-          type="number"
-          label="Frequency"
-          value={freq}
-        />
-        <Button onClick={decFreq}>-</Button>
-      </ButtonGroup>
-      <div style={{ padding: '10px' }}>
+      <div>
+        <ButtonGroup size="small" style={{ width: '190px', float: 'left' }} className="inputCounters">
+          <Button onClick={() => setAndCheckFreq(freq + 5)}>+</Button>
+          <TextField
+            id="tf-frequency"
+            onChange={(e) => { setFreq(e.target.value); }}
+            type="number"
+            value={freq}
+            onBlur={() => { if (freq > 10000 || freq < 0) { setFreq(0); } }}
+          />
+          <Button onClick={() => setAndCheckFreq(freq - 5)}>-</Button>
+        </ButtonGroup>
+        <div style={{ float: 'left', paddingTop: '15px' }} className="unit"> HZ </div>
+      </div>
+      <div style={{ paddingTop: '140px' }}>
         <Button variant="contained">Set Voltage to 0</Button>
       </div>
       <div id="setVPP" style={{ padding: '10px' }}>

@@ -23,3 +23,12 @@ input[type=number] {
   position: absolute;
   right: 10px;
 }
+
+.unit {
+  font-size: 15px;
+  margin-left: 170;
+}
+
+.inputGroup {
+  float: left;
+}

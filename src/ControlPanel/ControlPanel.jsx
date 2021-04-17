@@ -107,6 +107,7 @@ export default function ControlPanel() {
   const classes = useStyles();
   const [open, setOpen] = useState(true);
   const [usbPanelOpen, setUsbPanelOpen] = useState(false);
+  const [usbConnected, setUsbConnected] = useState(false);
 
   function toggleDraw() {
     setSelected([]);
@@ -192,12 +193,14 @@ export default function ControlPanel() {
         <Divider />
         <List>
           <ListItem button onClick={() => { if (open) setUsbPanelOpen(!usbPanelOpen); }}>
-            <ListItemIcon><Usb /></ListItemIcon>
+            <ListItemIcon>
+              { usbConnected ? <Usb style={{ color: '#21b214' }} /> : <Usb /> }
+            </ListItemIcon>
             <ListItemText primary="USB Connection" />
           </ListItem>
 
-          <Collapse in={usbPanelOpen} timeout="auto" unmountOnExit>
-            <USBPanel />
+          <Collapse in={usbPanelOpen} timeout="auto">
+            <USBPanel setUsbConnected={setUsbConnected} />
           </Collapse>
 
           <ListItem button>

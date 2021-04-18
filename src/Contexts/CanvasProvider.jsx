@@ -70,6 +70,9 @@ const CanvasProvider = ({ children }) => {
           });
           setCombined((stateBoi) => ({ ...stateBoi, allCombined: combs }));
         }
+
+        const actuation = await state.db.formData.get('actuation');
+        if (!actuation) await state.db.formData.add({ id: 'actuation', value: [] });
       }).catch((e) => console.log(e.stack || e));
 
       // close the database connection if form is unmounted or the
@@ -81,7 +84,7 @@ const CanvasProvider = ({ children }) => {
   );
 
   useInterval(() => {
-    handleSave(squares.electrodes, combined.allCombined, state.db);
+    handleSave(squares.electrodes, combined.allCombined, null, state.db);
   }, 10000);
 
   return (

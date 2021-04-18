@@ -1,6 +1,7 @@
-export default function genFileContents(electrodes, allCombined) {
+export default function genFileContents(electrodes, allCombined, pinActuate) {
   const newContents = {}; const squares = []; const
     combs = [];
+  const seq = [];
 
   for (let i = 0; i < allCombined.length; i += 1) {
     const comb = allCombined[i];
@@ -14,7 +15,25 @@ export default function genFileContents(electrodes, allCombined) {
     const boop = `square ${x} ${y}`;
     squares.push(boop);
   }
+  if (pinActuate !== null && pinActuate !== undefined) {
+    pinActuate.forEach((value) => {
+      if (value.type === 'simple') {
+        let block = '';
+        value.content.forEach((e) => {
+          block = `${block + e.toString()},`;
+        });
+        block = block.slice(0, -1);
+        block = `${block};${value.duration.toString()}`;
+        if (value.parent !== null) {
+          block = `${block};${pinActuate.get(value.parent).repTime.toString()}`;
+        }
+        seq.push(block);
+      }
+    });
+  }
+
   newContents.squares = squares;
   newContents.combs = combs;
+  newContents.actuation = seq;
   return newContents;
 }

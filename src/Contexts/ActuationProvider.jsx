@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ActuationSequence from '../Actuation';
+import db from './DBStorage';
+import useInterval from '../useInterval';
+import handleSave from '../ControlPanel/handleSave';
 
 const ActuationContext = React.createContext();
 
@@ -11,6 +14,46 @@ const ActuationProvider = ({ children }) => {
     currentStep: 0,
     simpleNum: 1,
   });
+
+  useEffect(
+    () => {
+      db.transaction('rw', db.formData, async () => {
+        const act = await db.formData.get('actuation');
+        if (!act) await db.formData.add({ id: 'actuation', value: [] });
+        else {
+          const newList = new Map();
+          const oldMap = new Map(JSON.parse(act.value[0]));
+          oldMap.forEach((value) => {
+            const newSeq = new ActuationSequence(value.id, value.type, value.order);
+            newSeq.duration = value.duration;
+            newSeq.parent = value.parent;
+            newSeq.repTime = value.repTime;
+            if (value.content.constructor !== Object) {
+              value.content.forEach((e) => {
+                if (newSeq.type === 'simple') {
+                  newSeq.content.add(e);
+                } else {
+                  newSeq.content.push(e);
+                }
+              });
+            }
+            newList.set(value.id, newSeq);
+          });
+          console.log(newList);
+          setActuation((stateBoi) => ({
+            ...stateBoi,
+            pinActuate: newList,
+            simpleNum: newList.size,
+          }));
+        }
+      }).catch((e) => console.log(e.stack || e));
+    },
+    [db],
+  );
+
+  useInterval(() => {
+    handleSave(null, null, actuation.pinActuate, db);
+  }, 10000);
 
   return (
     <ActuationContext.Provider

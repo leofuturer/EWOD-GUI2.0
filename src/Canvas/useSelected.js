@@ -140,7 +140,6 @@ export default function useSelected(callback, savingChanges) {
         // don't want to setElectrodes here because
         // might have combined being dragged out of bounds in next for loop
         // in which case we wouldn't want to change our electrodes' current positions
-        setSelected([]);
       }
 
       // handle dragged combined
@@ -168,12 +167,13 @@ export default function useSelected(callback, savingChanges) {
           }
           combines = allCombined.filter((x) => x[2] !== layVal).concat(selectedCombs);
         }
-        setCombSelected([]);
         setComboLayout(combines);
+        setCombSelected([]);
       }
 
       if (elecSelected.length > 0) {
         setElectrodes({ initPositions: electrodes.initPositions, deltas: copy });
+        setSelected([]);
       }
       setDelta(null);
 

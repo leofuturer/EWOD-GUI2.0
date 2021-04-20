@@ -46,10 +46,10 @@ export default function Canvas() {
 
   useEffect(() => {
     document.querySelector('.greenArea').addEventListener('mousedown', handleMouseDown);
-    document.querySelector('.greenArea').addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mouseup', handleMouseUp);
     return () => {
       document.querySelector('.greenArea').removeEventListener('mousedown', handleMouseDown);
-      document.querySelector('.greenArea').removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [handleMouseDown, handleMouseUp]);
 
@@ -375,7 +375,7 @@ export default function Canvas() {
       }
     }
     setFinalCombines(paths);
-  }, [allCombined, setComboLayout]);
+  }, [allCombined]);
 
   /* ########################### COMBINE STUFF END ########################### */
 

@@ -19,25 +19,26 @@ const ActuationProvider = ({ children }) => {
     () => {
       db.transaction('rw', db.formData, async () => {
         const act = await db.formData.get('actuation');
-        if (!act) await db.formData.add({ id: 'actuation', value: [] });
-        else {
+        if (!act) {
+          await db.formData.add({ id: 'actuation', value: [] });
+          await db.formData.add({ id: 'contents', value: [] });
+        } else {
+          const contents = await db.formData.get('contents');
           const newList = new Map();
           const oldMap = new Map(JSON.parse(act.value[0]));
+          let i = 0;
           oldMap.forEach((value) => {
             const newSeq = new ActuationSequence(value.id, value.type, value.order);
             newSeq.duration = value.duration;
             newSeq.parent = value.parent;
             newSeq.repTime = value.repTime;
-            if (value.content.constructor !== Object) {
-              value.content.forEach((e) => {
-                if (newSeq.type === 'simple') {
-                  newSeq.content.add(e);
-                } else {
-                  newSeq.content.push(e);
-                }
-              });
+            if (value.type === 'simple') {
+              contents.value[i].forEach((e) => newSeq.content.add(e));
+            } else {
+              contents.value[i].forEach((e) => newSeq.content.push(e));
             }
             newList.set(value.id, newSeq);
+            i += 1;
           });
           console.log(newList);
           setActuation((stateBoi) => ({

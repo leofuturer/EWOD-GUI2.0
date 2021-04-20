@@ -3,7 +3,7 @@ import React from 'react';
 const GeneralContext = React.createContext();
 
 const GeneralProvider = ({ children }) => {
-  const [mode, setMode] = React.useState('CAN'); // either "PIN", "SEQ", or "CAN"
+  const [mode, setMode] = React.useState('DRAW'); // either "PIN", "SEQ", "CAN", or "DRAW"
   const bannerRef = React.useRef();
 
   return (

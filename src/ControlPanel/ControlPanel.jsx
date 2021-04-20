@@ -102,8 +102,7 @@ export default function ControlPanel() {
   const canvasContext = useContext(CanvasContext);
   const actuationContext = useContext(ActuationContext);
   const { setMode } = useContext(GeneralContext);
-  const { drawing } = canvasContext.state;
-  const { setDrawing, setSelected, setCombSelected } = canvasContext;
+  const { setSelected, setCombSelected } = canvasContext;
   const { undo, redo } = actuationContext;
 
   const classes = useStyles();
@@ -112,9 +111,9 @@ export default function ControlPanel() {
   const [usbConnected, setUsbConnected] = useState(false);
 
   function toggleDraw() {
+    setMode('DRAW');
     setSelected([]);
     setCombSelected([]);
-    setDrawing(!drawing);
   }
 
   return (
@@ -155,7 +154,7 @@ export default function ControlPanel() {
                 <Highlight />
               </ListItem>
             </Tooltip>
-            <Tooltip title="Edit Canvas">
+            <Tooltip title="Select and Move Electrodes">
               <ListItem button onClick={() => setMode('CAN')}>
                 <GridOn />
               </ListItem>

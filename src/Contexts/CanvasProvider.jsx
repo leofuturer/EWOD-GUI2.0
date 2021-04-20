@@ -107,9 +107,6 @@ const CanvasProvider = ({ children }) => {
         setMouseDown: (md) => {
           setState((stateBoi) => ({ ...stateBoi, mouseDown: md }));
         },
-        setDrawing: (draw) => {
-          setState((stateBoi) => ({ ...stateBoi, drawing: draw }));
-        },
       }}
     >
       {children}

@@ -1,0 +1,263 @@
+import React, { useState } from 'react';
+import ActuationSequence from '../Actuation';
+
+const ActuationContext = React.createContext();
+
+const ActuationProvider = ({ children }) => {
+  const [actuation, setActuation] = useState({
+    history: [],
+    historyIndex: -1,
+    pinActuate: new Map([[0, new ActuationSequence(0, 'simple', 0)]]),
+    currentStep: 0,
+    simpleNum: 1,
+  });
+
+  return (
+    <ActuationContext.Provider
+      value={{
+        actuation,
+        actuatePin: (pinNum) => {
+          const newList = actuation.pinActuate;
+          newList.get(actuation.currentStep).actuatePin(pinNum);
+          setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
+        },
+        setCurrentStep: (initstep) => {
+          let step = initstep;
+          if (actuation.pinActuate.has(step) && actuation.pinActuate.get(step).type === 'loop') {
+            step += 1;
+          }
+          if (!actuation.pinActuate.has(step)) {
+            const newList = actuation.pinActuate;
+            const newSeq = new ActuationSequence(step, 'simple', actuation.simpleNum);
+            if (actuation.pinActuate.has(step - 1) && actuation.pinActuate.get(step - 1).type === 'simple') {
+              actuation.pinActuate.get(step - 1).content.forEach((e) => {
+                newSeq.content.add(e);
+              });
+            }
+            newList.set(step, newSeq);
+            setActuation((stateBoi) => ({
+              ...stateBoi,
+              pinActuate:
+                newList,
+              simpleNum: actuation.simpleNum + 1,
+            }));
+          }
+          setActuation((stateBoi) => ({ ...stateBoi, currentStep: step }));
+        },
+        deleteCurrentStep: (step) => {
+          if (actuation.pinActuate.size === 1) {
+            return false;
+          }
+          if (actuation.pinActuate.has(step)) {
+            const newList = actuation.pinActuate;
+            if (newList.get(step).parent !== null) {
+              const { parent } = newList.get(step);
+              if (newList.get(parent).content.length === 1) {
+                return false;
+              }
+              const ind = newList.get(parent).content.indexOf(step);
+              newList.get(parent).content.splice(ind, 1);
+            }
+            newList.delete(step);
+            let n = 0;
+            newList.forEach((initvalue) => {
+              const value = initvalue;
+              if (value.type === 'simple') {
+                value.order = n;
+                n += 1;
+              }
+            });
+            const newStep = actuation.pinActuate.keys().next().value;
+            setActuation((stateBoi) => ({
+              ...stateBoi,
+              pinActuate: newList,
+              currentStep: newStep,
+              simpleNum: actuation.simpleNum - 1,
+            }));
+          }
+          return true;
+        },
+        insertStep: (initobj) => {
+          const obj = initobj;
+          let newList = actuation.pinActuate;
+          if (newList.get(actuation.currentStep).parent !== null) {
+            const { parent } = newList.get(actuation.currentStep);
+            newList.get(parent).content.push(obj.id);
+            obj.parent = parent;
+          }
+          const arr = Array.from(newList);
+          const index = arr.findIndex((e) => e[1].id === actuation.currentStep);
+          arr.splice(index + 1, 0, [obj.id, obj]);
+          newList = new Map(arr);
+          let n = 0;
+          newList.forEach((initvalue) => {
+            const value = initvalue;
+            if (value.type === 'simple') {
+              value.order = n;
+              n += 1;
+            }
+          });
+          if (obj.parent !== null) {
+            newList.get(obj.parent).content.sort((a, b) => {
+              const ord1 = newList.get(a).order;
+              const ord2 = newList.get(b).order;
+              return ord1 - ord2;
+            });
+          }
+          setActuation((stateBoi) => ({
+            ...stateBoi,
+            pinActuate: newList,
+            simpleNum: actuation.simpleNum + 1,
+          }));
+        },
+        addLoop: (from, to, repTime) => {
+          const newList = actuation.pinActuate;
+          const l = newList.size;
+          const newSeq = new ActuationSequence(newList.size, 'loop');
+          const contentList = [];
+          let error = 0;
+          newList.forEach((value) => {
+            if (value.type === 'simple' && value.order >= from && value.order <= to) {
+              if (error === 1) return;
+              if (value.parent !== null) {
+                error = 1;
+                return;
+              }
+              contentList.push(value);
+            }
+          });
+          if (error === 1) {
+            return false;
+          }
+          if (contentList.length !== to - from + 1) {
+            return false;
+          }
+          newSeq.pushAllSteps(contentList);
+          newSeq.repTime = repTime;
+          newList.set(l, newSeq);
+          console.log(newList);
+          setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
+          return true;
+        },
+        updateLoop: (from, to, repTime, loopKey) => {
+          const newList = actuation.pinActuate;
+          const seq = newList.get(loopKey);
+          const contentList = [];
+          let error = 0;
+          newList.forEach((value) => {
+            if (value.type === 'simple' && value.order >= from && value.order <= to) {
+              if (error === 1) return;
+              if (value.parent !== null && value.parent !== loopKey) {
+                error = 1;
+                return;
+              }
+              contentList.push(value);
+            }
+          });
+          if (error === 1) {
+            return false;
+          }
+          if (contentList.length !== to - from + 1) {
+            return false;
+          }
+          seq.repTime = repTime;
+          for (let i = 0; i < seq.content.length; i += 1) {
+            actuation.pinActuate.get(seq.content[i]).parent = null;
+          }
+          seq.content = [];
+          seq.pushAllSteps(contentList);
+          console.log(newList);
+          setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
+          return true;
+        },
+        deleteLoop: (id) => {
+          const newList = actuation.pinActuate;
+          newList.get(id).content.forEach((e) => {
+            newList.get(e).parent = null;
+          });
+          newList.delete(id);
+          setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
+        },
+        pushHistory: (obj) => {
+          const newHist = actuation.history;
+          newHist.length = actuation.historyIndex + 1;
+          newHist.push(obj);
+          let newIndex = actuation.historyIndex + 1;
+          if (newHist.length > 10) {
+            newHist.shift();
+            newIndex -= 1;
+          }
+          setActuation((stateBoi) => ({ ...stateBoi, history: newHist, historyIndex: newIndex }));
+        },
+        clearAll: () => {
+          setActuation((stateBoi) => ({
+            ...stateBoi,
+            pinActuate: new Map([[0, new ActuationSequence(0, 'simple', 0)]]),
+            currentStep: 0,
+            simpleNum: 1,
+          }));
+        },
+        updateDuration: (key, time) => {
+          const newList = actuation.pinActuate;
+          newList.get(key).duration = time;
+          setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
+        },
+        updateAllDuration: (time) => {
+          const newList = actuation.pinActuate;
+          newList.forEach((initvalue) => {
+            const value = initvalue;
+            value.duration = time;
+          });
+          setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
+        },
+        undo: () => {
+          if (actuation.historyIndex > -1) {
+            const obj = actuation.history[actuation.historyIndex];
+            const newList = actuation.pinActuate;
+            // {type: "actuate", pin: number, id: number, act: true}
+            if (obj.type === 'actuate') {
+              const seq = newList.get(obj.id);
+              if (obj.act) {
+                seq.content.delete(obj.pin);
+              } else {
+                seq.content.add(obj.pin);
+              }
+            }
+            // to be continue
+            setActuation((stateBoi) => ({
+              ...stateBoi,
+              pinActuate:
+                newList,
+              historyIndex: actuation.historyIndex - 1,
+            }));
+          }
+        },
+        redo: () => {
+          if (actuation.historyIndex < actuation.history.length - 1) {
+            const obj = actuation.history[actuation.historyIndex + 1];
+            const newList = actuation.pinActuate;
+            // {type: "actuate", pin: number, id: number, act: true}
+            if (obj.type === 'actuate') {
+              const seq = newList.get(obj.id);
+              if (!obj.act) {
+                seq.content.delete(obj.pin);
+              } else {
+                seq.content.add(obj.pin);
+              }
+            }
+            // to be continue
+            setActuation((stateBoi) => ({
+              ...stateBoi,
+              pinActuate: newList,
+              historyIndex: actuation.historyIndex + 1,
+            }));
+          }
+        },
+      }}
+    >
+      {children}
+    </ActuationContext.Provider>
+  );
+};
+
+export { ActuationProvider, ActuationContext };

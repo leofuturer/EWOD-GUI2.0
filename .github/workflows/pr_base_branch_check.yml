@@ -1,0 +1,19 @@
+name: PR Base Branch Check
+on: 
+  pull_request:
+    types: [opened, edited, reopened]
+    branches: main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: PR Base Branch Check
+      run: |
+        curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
+          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          --header 'content-type: application/json' \
+          --header 'Accept: application/vnd.github.v3+json' \
+          -d '{"body" : "I see you opened or edited a PR to merge into `main`. Please make sure that you are merging into the `stage` branch unless you really intend to merge into `main`. Thanks!"}' \
+          --fail

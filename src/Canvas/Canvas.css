@@ -1,0 +1,37 @@
+.item {
+  color: #fff;
+  border-radius: 5px;
+  padding: 20px;
+  font-size: 150%;
+}
+
+.wrapper {
+  overflow: scroll;
+  margin-left: 20vw;
+  /* margin-left: 20vw;
+  margin-top: 15vh;
+  margin-bottom: 20vh; */
+}
+
+.greenArea {
+  background-color: #93D08C;
+  width: 100%;
+  height: 100%;
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, grey 1px, transparent 1px),
+    linear-gradient(to bottom, grey 1px, transparent 1px);
+}
+
+.electrode {
+  cursor: pointer;
+}
+
+.selected {
+  fill: blue;
+  cursor: grab;
+}
+
+.toSeq {
+  fill: red;
+}

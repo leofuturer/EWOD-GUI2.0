@@ -393,6 +393,7 @@ export default function Scroll() {
                       modelOpen();
                     }}
                     key={key}
+                    data-testid="loop-button"
                   >
                     {`Frame ${appendString} repeat ${value.repTime} times`}
                   </Button>
@@ -496,6 +497,7 @@ export default function Scroll() {
               onChange={changeFrom}
               helperText={!Number.isNaN(from) && parseInt(Number(from), 10) === Number(from) ? '' : 'need to be a number'}
               error={Number.isNaN(from) || parseInt(Number(from), 10) !== Number(from)}
+              data-testid="input-from"
             />
 
             <TextField
@@ -506,6 +508,7 @@ export default function Scroll() {
               onChange={changeTo}
               helperText={!Number.isNaN(to) && parseInt(Number(to), 10) === Number(to) ? '' : 'need to be a number'}
               error={Number.isNaN(to) || parseInt(Number(to), 10) !== Number(to)}
+              data-testid="input-to"
             />
 
             <TextField
@@ -516,6 +519,7 @@ export default function Scroll() {
               onChange={changeRepTime}
               helperText={!Number.isNaN(repTime) && parseInt(Number(repTime), 10) === Number(repTime) ? '' : 'need to be a number'}
               error={Number.isNaN(repTime) || parseInt(Number(repTime), 10) !== Number(repTime)}
+              data-testid="input-rept"
             />
 
           </DialogContent>

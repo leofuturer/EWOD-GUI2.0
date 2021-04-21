@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ActuationSequence from '../Actuation';
+import ActuationSequence from '../Actuation/Actuation';
 import db from './DBStorage';
 import useInterval from '../useInterval';
 import handleSave from '../ControlPanel/handleSave';

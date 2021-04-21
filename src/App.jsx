@@ -4,7 +4,7 @@ import { ActuationProvider } from './Contexts/ActuationProvider';
 import { GeneralContext } from './Contexts/GeneralProvider';
 
 import Canvas from './Canvas/Canvas';
-import Scroll from './Scroll';
+import Scroll from './Actuation/Scroll';
 import ControlPanel from './ControlPanel/ControlPanel';
 
 import CustomAlert from './Alert';

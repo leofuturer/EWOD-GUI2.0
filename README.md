@@ -36,3 +36,5 @@ Please read this section and follow the instructions before creating a *Pull Req
 9. Play/Stop/Pause/Repeat function of actuation sequence
 10. Check whether errors occur when deleting while playing.
 11. Click the trash bin button to delete all actuation sequences and loops.
+
+*Note*: This is a basic guideline of testing the actuation sequence. Feel free to add additional test cases as more features are introduced. These procedures will be automatized by Cypress.io.

@@ -370,7 +370,7 @@ export default function Scroll() {
               const value = pinActuate.get(key);
               if (value.type === 'loop') {
                 let appendString = '';
-                value.content.forEach((e) => { appendString += (`${e.toString()}, `); });
+                value.content.forEach((e) => { appendString += (`${pinActuate.get(e).order.toString()}, `); });
                 appendString = appendString.slice(0, -2);
                 const startBlock = pinActuate.get(value.content[0]);
                 const padding = startBlock.order;
@@ -386,8 +386,8 @@ export default function Scroll() {
                     }}
                     onClick={() => {
                       const loop = pinActuate.get(key);
-                      setFrom(loop.content[0].toString());
-                      setTo(loop.content[loop.content.length - 1].toString());
+                      setFrom(pinActuate.get(loop.content[0]).order.toString());
+                      setTo(pinActuate.get(loop.content[loop.content.length - 1]).order.toString());
                       setRepTime(loop.repTime.toString());
                       setUpdate(key);
                       modelOpen();

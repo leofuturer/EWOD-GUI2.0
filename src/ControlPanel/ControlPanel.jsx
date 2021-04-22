@@ -14,7 +14,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Collapse from '@material-ui/core/Collapse';
 import {
   Undo, Redo, Highlight, FileCopy, Create, Info, ViewWeek, Usb, Image, Menu,
-  FormatListNumberedOutlined, DeleteForeverOutlined, GridOn,
+  FormatListNumberedOutlined, GridOn,
 } from '@material-ui/icons';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -25,7 +25,9 @@ import { GeneralContext } from '../Contexts/GeneralProvider';
 // import SaveButton from './SaveButton';
 // import UploadButton from './UploadButton';
 import DownloadButton from './DownloadButton';
+
 import USBPanel from './USBPanel';
+import DeleteButton from './DeleteButton';
 
 const drawerWidth = 240;
 
@@ -210,10 +212,7 @@ export default function ControlPanel() {
         </List>
         <Divider />
         <List>
-          <ListItem button>
-            <ListItemIcon><DeleteForeverOutlined /></ListItemIcon>
-            <ListItemText primary="Delete" />
-          </ListItem>
+          <DeleteButton />
           <ListItem button>
             <ListItemIcon><Info /></ListItemIcon>
             <ListItemText primary="Info" />

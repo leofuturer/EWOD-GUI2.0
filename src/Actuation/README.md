@@ -1,4 +1,5 @@
 # What you can test for actuation sequence
+
 1. Add blocks by clicking the add button
 2. Create a loop by right click and type frame range in the pop-up dialog
 3. Check whether you can create multiple loops

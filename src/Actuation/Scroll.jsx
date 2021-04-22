@@ -15,10 +15,10 @@ import {
 import IconButton from '@material-ui/core/IconButton';
 import { DialogContentText } from '@material-ui/core';
 import ActuationSequence from './Actuation';
-import { ActuationContext } from './Contexts/ActuationProvider';
-import { GeneralContext } from './Contexts/GeneralProvider';
+import { ActuationContext } from '../Contexts/ActuationProvider';
+import { GeneralContext } from '../Contexts/GeneralProvider';
 
-import { SCROLL_HEIGHT } from './constants';
+import { SCROLL_HEIGHT } from '../constants';
 
 const initState = {
   mouseX: null,

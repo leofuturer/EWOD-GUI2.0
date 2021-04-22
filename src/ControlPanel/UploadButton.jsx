@@ -4,7 +4,7 @@ import { CanvasContext } from '../Contexts/CanvasProvider';
 export default function UploadButton() {
   const context = useContext(CanvasContext);
   const { electrodes } = context.state;
-  const { setDrawing, setElectrodes, setSelected } = context;
+  const { setElectrodes, setSelected } = context;
   async function openFilePicker() {
     try {
       const filehandle = await window.showOpenFilePicker();
@@ -37,7 +37,6 @@ export default function UploadButton() {
 
         setSelected([]);
         setElectrodes({ initPositions: newInitPositions, deltas: newDeltas });
-        setDrawing(false);
       }
     } catch (e) {
       console.log(e);

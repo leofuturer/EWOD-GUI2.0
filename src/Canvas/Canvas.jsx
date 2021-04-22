@@ -16,11 +16,11 @@ import {
 export default function Canvas() {
   const canvasContext = useContext(CanvasContext);
   const { electrodes, selected } = canvasContext.squares;
-  const { drawing, mouseDown } = canvasContext.state;
+  const { mouseDown } = canvasContext.state;
   const { allCombined } = canvasContext.combined;
   const combSelected = canvasContext.combined.selected;
   const {
-    setMouseDown, setDrawing, setElectrodes, setSelected, setComboLayout, setCombSelected,
+    setMouseDown, setElectrodes, setSelected, setComboLayout, setCombSelected,
   } = canvasContext;
 
   const actuationContext = useContext(ActuationContext);
@@ -41,9 +41,8 @@ export default function Canvas() {
   }, [setMouseDown]);
 
   const handleMouseUp = useCallback(() => {
-    setDrawing(false);
     setMouseDown(false);
-  }, [setDrawing, setMouseDown]);
+  }, [setMouseDown]);
 
   useEffect(() => {
     document.querySelector('.greenArea').addEventListener('mousedown', handleMouseDown);
@@ -55,7 +54,7 @@ export default function Canvas() {
   }, [handleMouseDown, handleMouseUp]);
 
   const handleMouseMove = useCallback((e) => { // creating new electrode
-    if (drawing && mouseDown) {
+    if (mode === 'DRAW' && mouseDown) {
       let elecAtXY = false;
 
       // electrode curr pos = init + deltas[idx]
@@ -66,7 +65,7 @@ export default function Canvas() {
       const y = Math.floor(e.offsetY / ELEC_SIZE) * ELEC_SIZE;
 
       for (let idx = 0; idx < deltas.length; idx += 1) {
-      // if an electrode already exists at this position
+        // if an electrode already exists at this position
         if (x === initPositions[idx][0] + deltas[idx][0]
           && y === initPositions[idx][1] + deltas[idx][1]) {
           elecAtXY = true;
@@ -89,7 +88,7 @@ export default function Canvas() {
         });
       }
     }
-  }, [drawing, electrodes, mouseDown, setElectrodes, allCombined]);
+  }, [mode, electrodes, mouseDown, setElectrodes, allCombined]);
 
   useEffect(() => { // mouseover eventlistener over whole canvas
     // when dragging over a space that doesn't have an existing electrode, create new one

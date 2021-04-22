@@ -16,7 +16,7 @@ function DraggableItem({ id, children }) {
   const context = useContext(CanvasContext);
   const { setSelected, setDelta, setDragging } = context;
   const {
-    delta, mouseDown, drawing, isDragging,
+    delta, mouseDown, isDragging,
   } = context.state;
   const { electrodes } = context.squares;
   const elecSelected = context.squares.selected;
@@ -37,11 +37,11 @@ function DraggableItem({ id, children }) {
 
   const handleMouseDown = useCallback((e) => {
     if (e.which === 1) {
-      if (mode === 'CAN' && !isSelected && !drawing && !isDragging) {
+      if (mode === 'CAN' && !isSelected && mode !== 'DRAW' && !isDragging) {
         setSelected([...new Set([...elecSelected, id])]);
       }
     }
-  }, [isDragging, setSelected, elecSelected, id, drawing, isSelected]);
+  }, [isDragging, setSelected, elecSelected, id, mode, isSelected]);
 
   useEffect(() => {
     if (dragItem && dragItem.current) {
@@ -56,10 +56,10 @@ function DraggableItem({ id, children }) {
 
   // handles selection of existing electrodes
   const handleMouseOver = useCallback(() => {
-    if (mouseDown === true && mode === 'CAN' && !isSelected && !drawing && !isDragging) {
+    if (mouseDown === true && mode === 'CAN' && !isSelected && mode !== 'DRAW' && !isDragging) {
       setSelected([...new Set([...elecSelected, id])]);
     }
-  }, [isDragging, drawing, id, isSelected, mouseDown, elecSelected, setSelected]);
+  }, [isDragging, mode, id, isSelected, mouseDown, elecSelected, setSelected]);
 
   useEffect(() => {
     if (dragItem && dragItem.current) {

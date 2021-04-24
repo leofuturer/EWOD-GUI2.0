@@ -236,6 +236,8 @@ const ActuationProvider = ({ children }) => {
         clearAll: () => {
           setActuation((stateBoi) => ({
             ...stateBoi,
+            history: [],
+            historyIndex: -1,
             pinActuate: new Map([[0, new ActuationSequence(0, 'simple', 0)]]),
             currentStep: 0,
             simpleNum: 1,

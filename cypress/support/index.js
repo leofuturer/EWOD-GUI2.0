@@ -21,4 +21,8 @@ import './commands'
 
 Cypress.on('uncaught:exception', (err, runnable) => {
     return false;
-})
+});
+
+Cypress.on('window:before:load', win => {
+    win.indexedDB.deleteDatabase('AppDB');
+});

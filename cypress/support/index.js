@@ -14,15 +14,13 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-import './commands'
+import './commands';
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
-Cypress.on('uncaught:exception', (err, runnable) => {
-    return false;
-});
+Cypress.on('uncaught:exception', (err, runnable) => false);
 
-Cypress.on('window:before:load', win => {
-    win.indexedDB.deleteDatabase('AppDB');
+Cypress.on('window:before:load', (win) => {
+  win.indexedDB.deleteDatabase('AppDB');
 });

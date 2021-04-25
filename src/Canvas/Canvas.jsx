@@ -27,10 +27,7 @@ export default function Canvas() {
   const { currentStep, pinActuate } = actuationContext.actuation;
   const { actuatePin, pushHistory } = actuationContext;
 
-  const {
-    mode,
-    coordToPin, indToPin, setIndMap, pinToInd, setPinMap2,
-  } = useContext(GeneralContext);
+  const { mode } = useContext(GeneralContext);
 
   // sets mousedown status for selecting existing electrodes
   const handleMouseDown = useCallback((event) => {
@@ -105,28 +102,6 @@ export default function Canvas() {
   /* ########################### ACTUATION START ########################### */
   function handleClick(ind) {
     if (mode === 'SEQ') {
-      const coords = electrodes.initPositions[ind];
-      const x = coords[0] / ELEC_SIZE;
-      const y = coords[1] / ELEC_SIZE;
-
-      if (coordToPin.has(`${x},${y}`)) {
-        const pinId = coordToPin.get(`${x},${y}`);
-        console.log(`${x},${y} is mapped to pin ${pinId}`);
-
-        if (indToPin.has(ind) && pinActuate.get(currentStep).content.has(ind)) {
-          indToPin.delete(ind);
-          pinToInd.delete(pinId);
-        } else {
-          // e.g. electrode id 3 <-> pin number 98
-          if (pinToInd.has(pinId)) indToPin.delete(pinToInd.get(pinId));
-
-          setIndMap(indToPin.set(ind, pinId));
-          setPinMap2(pinToInd.set(pinId, ind));
-        }
-      } else {
-        console.log(`${x},${y} has no pin mappping`);
-      }
-
       if (pinActuate.get(currentStep).content.has(ind)) {
         pushHistory({
           type: 'actuate', pin: ind, id: currentStep, act: false,

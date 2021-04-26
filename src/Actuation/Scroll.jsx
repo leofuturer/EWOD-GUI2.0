@@ -312,7 +312,7 @@ export default function Scroll() {
         >
           {`Step ${pinActuate.get(currentStep).order}`}
         </p>
-        <IconButton onClick={() => { setFlush(true); }}>
+        <IconButton onClick={() => { setFlush(true); }} data-testid="set-all-duration">
           <DynamicFeed fontSize="small" style={{ color: '#A06933' }} />
         </IconButton>
         <IconButton onClick={() => { setAlert(true); }} data-testid="delete-start">
@@ -330,9 +330,11 @@ export default function Scroll() {
         >
           <SkipPrevious fontSize="small" style={{ color: '#A06933' }} />
         </IconButton>
-        <IconButton onClick={() => {
-          handlePlay();
-        }}
+        <IconButton
+          onClick={() => {
+            handlePlay();
+          }}
+          data-testid="play-button"
         >
           <PlayArrow fontSize="small" style={{ color: '#A06933' }} />
         </IconButton>
@@ -588,6 +590,7 @@ export default function Scroll() {
               style={{ marginBottom: 10 }}
               helperText={!Number.isNaN(duration) && parseInt(Number(duration), 10) === Number(duration) ? '' : 'need to be a number'}
               error={Number.isNaN(duration) || parseInt(Number(duration), 10) !== Number(duration)}
+              data-testid="duration-all"
             />
           </DialogContent>
           <DialogActions>

@@ -1,0 +1,18 @@
+name: Cypress e2e tests
+on:
+  pull_request:
+    branches: stage
+
+jobs:
+  cypress:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: cypress
+        uses: cypress-io/github-action@v2
+        with:
+          start: yarn start
+          wait-on: 'http://localhost:3000'
+          config-file: cypress.json

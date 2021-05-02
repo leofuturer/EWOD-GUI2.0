@@ -43,7 +43,11 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "yarn run eslint \"src/**/*.js\" \"src/**/*.jsx\"",
-    "serve": "yarn build && serve -s build"
+    "serve": "yarn build && serve -s build",
+    "cy:run": "yarn run cypress run -C cypress.json",
+    "cy:open": "yarn run cypress open",
+    "e2e": "concurrently \"env BROWSER=none yarn start\" \"wait-on http-get://localhost:3000 && yarn cy:run\" --kill-others --success first",
+    "e2e-gui": "concurrently \"env BROWSER=none yarn start\" \"wait-on http-get://localhost:3000 && yarn cy:open\" --kill-others --success first"
   },
   "eslintConfig": {
     "extends": [
@@ -64,13 +68,17 @@
     ]
   },
   "devDependencies": {
+    "concurrently": "^6.0.2",
+    "cypress": "^7.1.0",
     "eslint": "^7.23.0",
     "eslint-config-airbnb": "^18.2.1",
+    "eslint-plugin-cypress": "^2.11.2",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jest": "^24.3.5",
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-react": "^7.23.1",
     "eslint-plugin-react-hooks": "^4.2.0",
-    "react-test-renderer": "^17.0.2"
+    "react-test-renderer": "^17.0.2",
+    "wait-on": "^5.3.0"
   }
 }

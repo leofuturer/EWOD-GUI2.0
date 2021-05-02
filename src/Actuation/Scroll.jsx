@@ -312,7 +312,7 @@ export default function Scroll() {
         >
           {`Step ${pinActuate.get(currentStep).order}`}
         </p>
-        <IconButton onClick={() => { setFlush(true); }}>
+        <IconButton onClick={() => { setFlush(true); }} data-testid="set-all-duration">
           <DynamicFeed fontSize="small" style={{ color: '#A06933' }} />
         </IconButton>
         <IconButton onClick={() => { setAlert(true); }} data-testid="delete-start">
@@ -330,9 +330,11 @@ export default function Scroll() {
         >
           <SkipPrevious fontSize="small" style={{ color: '#A06933' }} />
         </IconButton>
-        <IconButton onClick={() => {
-          handlePlay();
-        }}
+        <IconButton
+          onClick={() => {
+            handlePlay();
+          }}
+          data-testid="play-button"
         >
           <PlayArrow fontSize="small" style={{ color: '#A06933' }} />
         </IconButton>
@@ -393,6 +395,7 @@ export default function Scroll() {
                       modelOpen();
                     }}
                     key={key}
+                    data-testid="loop-button"
                   >
                     {`Frame ${appendString} repeat ${value.repTime} times`}
                   </Button>
@@ -496,6 +499,7 @@ export default function Scroll() {
               onChange={changeFrom}
               helperText={!Number.isNaN(from) && parseInt(Number(from), 10) === Number(from) ? '' : 'need to be a number'}
               error={Number.isNaN(from) || parseInt(Number(from), 10) !== Number(from)}
+              data-testid="input-from"
             />
 
             <TextField
@@ -506,6 +510,7 @@ export default function Scroll() {
               onChange={changeTo}
               helperText={!Number.isNaN(to) && parseInt(Number(to), 10) === Number(to) ? '' : 'need to be a number'}
               error={Number.isNaN(to) || parseInt(Number(to), 10) !== Number(to)}
+              data-testid="input-to"
             />
 
             <TextField
@@ -516,6 +521,7 @@ export default function Scroll() {
               onChange={changeRepTime}
               helperText={!Number.isNaN(repTime) && parseInt(Number(repTime), 10) === Number(repTime) ? '' : 'need to be a number'}
               error={Number.isNaN(repTime) || parseInt(Number(repTime), 10) !== Number(repTime)}
+              data-testid="input-rept"
             />
 
           </DialogContent>
@@ -584,6 +590,7 @@ export default function Scroll() {
               style={{ marginBottom: 10 }}
               helperText={!Number.isNaN(duration) && parseInt(Number(duration), 10) === Number(duration) ? '' : 'need to be a number'}
               error={Number.isNaN(duration) || parseInt(Number(duration), 10) !== Number(duration)}
+              data-testid="duration-all"
             />
           </DialogContent>
           <DialogActions>

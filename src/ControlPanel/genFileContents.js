@@ -1,3 +1,14 @@
+function encoding(arr) {
+  const res = new Array(8).fill(0);
+  arr.forEach((e) => {
+    const index = Math.floor((e + 1) / 32);
+    const offset = (e + 1) % 32;
+    // eslint-disable-next-line no-bitwise
+    res[index] |= (1 << (32 - offset));
+  });
+  return res.join();
+}
+
 export default function genFileContents(electrodes, allCombined, pinActuate) {
   const newContents = {}; const squares = []; const
     combs = [];
@@ -23,11 +34,7 @@ export default function genFileContents(electrodes, allCombined, pinActuate) {
   if (pinActuate !== null && pinActuate !== undefined) {
     pinActuate.forEach((value) => {
       if (value.type === 'simple') {
-        let block = '';
-        value.content.forEach((e) => {
-          block = `${block + e.toString()},`;
-        });
-        block = block.slice(0, -1);
+        let block = encoding(value.content);
         block = `${block};${value.duration.toString()}`;
         if (value.parent !== null) {
           block = `${block};${pinActuate.get(value.parent).repTime.toString()}`;

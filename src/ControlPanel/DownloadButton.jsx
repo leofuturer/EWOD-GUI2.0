@@ -4,11 +4,14 @@ import { GetApp } from '@material-ui/icons';
 import Tooltip from '@material-ui/core/Tooltip';
 import genFileContents from './genFileContents';
 import { CanvasContext } from '../Contexts/CanvasProvider';
+import { ActuationContext } from '../Contexts/ActuationProvider';
 
 export default function DownloadButton() {
   const canvasContext = useContext(CanvasContext);
+  const actuationContext = useContext(ActuationContext);
   const { electrodes } = canvasContext.squares;
   const { allCombined } = canvasContext.combined;
+  const { pinActuate } = actuationContext.actuation;
   async function getNewFileHandle() {
     const options = {
       types: [
@@ -35,8 +38,10 @@ export default function DownloadButton() {
   }
   async function handleDownload() {
     const handle = await getNewFileHandle();
-    const contents = genFileContents(electrodes, allCombined);
-    writeFile(handle, contents.squares.join('\n') + contents.combs.join('\n'));
+    const contents = genFileContents(electrodes, allCombined, pinActuate);
+    const fileText = `${contents.squares.join('\n')}\n${contents.combs.join('\n')
+    }\n#ENDOFELECTRODE#\n${contents.actuation.join('\n')}\n#ENDOFSEQUENCE#\n`;
+    writeFile(handle, fileText);
   }
 
   return (

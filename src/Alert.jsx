@@ -47,7 +47,7 @@ const CustomAlert = forwardRef((props, ref) => {
             <CloseIcon fontSize="inherit" />
           </IconButton>
         )}
-        data-testid="alert-box" // for jest testing
+        data-testid={`alert-box-${severity}`} // for jest testing
       >
         {`${text}`}
       </Alert>

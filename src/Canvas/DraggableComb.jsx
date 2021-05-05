@@ -7,14 +7,18 @@ import useSelected from './useSelected';
 import useReset from './useReset';
 import './Canvas.css';
 import { CanvasContext } from '../Contexts/CanvasProvider';
+import { GeneralContext } from '../Contexts/GeneralProvider';
 import { ELEC_SIZE } from '../constants';
 
 function DraggableComb({ id, children }) {
+  const { mode } = useContext(GeneralContext);
+
   const context = useContext(CanvasContext);
   const { setDelta, setCombSelected, setDragging } = context;
   const {
-    delta, mouseDown, drawing, isDragging,
+    delta, mouseDown, isDragging,
   } = context.state;
+
   const { selected } = context.combined;
 
   const isSelected = selected && selected.indexOf(id) >= 0;
@@ -30,17 +34,17 @@ function DraggableComb({ id, children }) {
 
   const handleMouseDown = useCallback((e) => {
     if (e.which === 1) {
-      if (!isSelected && !drawing && !isDragging) {
+      if (!isSelected && mode !== 'DRAW' && !isDragging) {
         setCombSelected([...new Set([...selected, id])]);
       }
     }
-  }, [isDragging, setCombSelected, selected, id, drawing, isSelected]);
+  }, [isDragging, setCombSelected, selected, id, mode, isSelected]);
 
   const handleMouseOver = useCallback(() => {
-    if (mouseDown === true && !isSelected && !drawing && !isDragging) {
+    if (mouseDown === true && !isSelected && mode !== 'DRAW' && !isDragging) {
       setCombSelected([...new Set([...selected, id])]);
     }
-  }, [isDragging, drawing, id, isSelected, mouseDown, selected, setCombSelected]);
+  }, [isDragging, mode, id, isSelected, mouseDown, selected, setCombSelected]);
 
   useEffect(() => {
     if (dragItem && dragItem.current) {

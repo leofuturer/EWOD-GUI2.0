@@ -11,9 +11,10 @@ import IconButton from '@material-ui/core/IconButton';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import Collapse from '@material-ui/core/Collapse';
 import {
   Undo, Redo, Highlight, FileCopy, Create, Info, ViewWeek, Usb, Image, Menu,
-  FormatListNumberedOutlined, DeleteForeverOutlined, GridOn,
+  FormatListNumberedOutlined, GridOn,
 } from '@material-ui/icons';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -24,6 +25,9 @@ import { GeneralContext } from '../Contexts/GeneralProvider';
 // import SaveButton from './SaveButton';
 // import UploadButton from './UploadButton';
 import DownloadButton from './DownloadButton';
+
+import USBPanel from './USBPanel';
+import DeleteButton from './DeleteButton';
 
 const drawerWidth = 240;
 
@@ -98,17 +102,18 @@ export default function ControlPanel() {
   const canvasContext = useContext(CanvasContext);
   const actuationContext = useContext(ActuationContext);
   const { setMode } = useContext(GeneralContext);
-  const { drawing } = canvasContext.state;
-  const { setDrawing, setSelected, setCombSelected } = canvasContext;
+  const { setSelected, setCombSelected } = canvasContext;
   const { undo, redo } = actuationContext;
 
   const classes = useStyles();
   const [open, setOpen] = useState(false);
+  const [usbPanelOpen, setUsbPanelOpen] = useState(false);
+  const [usbConnected, setUsbConnected] = useState(false);
 
   function toggleDraw() {
+    setMode('DRAW');
     setSelected([]);
     setCombSelected([]);
-    setDrawing(!drawing);
   }
 
   return (
@@ -149,7 +154,7 @@ export default function ControlPanel() {
                 <Highlight />
               </ListItem>
             </Tooltip>
-            <Tooltip title="Edit Canvas">
+            <Tooltip title="Select and Move Electrodes">
               <ListItem button onClick={() => setMode('CAN')}>
                 <GridOn />
               </ListItem>
@@ -179,6 +184,7 @@ export default function ControlPanel() {
       >
         <div className={classes.toolbar}>
           <IconButton onClick={() => {
+            setUsbPanelOpen(false);
             setOpen(!open);
           }}
           >
@@ -187,10 +193,17 @@ export default function ControlPanel() {
         </div>
         <Divider />
         <List>
-          <ListItem button>
-            <ListItemIcon><Usb /></ListItemIcon>
+          <ListItem button onClick={() => { if (open) setUsbPanelOpen(!usbPanelOpen); }}>
+            <ListItemIcon>
+              {usbConnected ? <Usb style={{ color: '#21b214' }} /> : <Usb />}
+            </ListItemIcon>
             <ListItemText primary="USB Connection" />
           </ListItem>
+
+          <Collapse in={usbPanelOpen} timeout="auto">
+            <USBPanel setUsbConnected={setUsbConnected} />
+          </Collapse>
+
           <ListItem button>
             <ListItemIcon><Image /></ListItemIcon>
             <ListItemText primary="Reference Image" />
@@ -198,10 +211,7 @@ export default function ControlPanel() {
         </List>
         <Divider />
         <List>
-          <ListItem button>
-            <ListItemIcon><DeleteForeverOutlined /></ListItemIcon>
-            <ListItemText primary="Delete" />
-          </ListItem>
+          <DeleteButton />
           <ListItem button>
             <ListItemIcon><Info /></ListItemIcon>
             <ListItemText primary="Info" />

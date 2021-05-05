@@ -11,6 +11,7 @@ To run on your local machine:
 5. Type in ```yarn``` (to install the needed 3rd-party libraries)
 6. Run with ```yarn start```
 7. If it doesn't automatically pop up for you, point your favorite browser to localhost:3000 to see the app.
+8. For running end-to-end test, type ```yarn e2e```. If you want to use cypress test runner to debug your code, type ```yarn e2e-gui```.
 
 ## Instructions for submitting code changes
 

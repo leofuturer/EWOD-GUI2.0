@@ -3,13 +3,19 @@ import {
   cleanup, fireEvent, render, screen,
 } from '@testing-library/react';
 import Scroll from './Scroll';
-import { ActuationProvider } from './Contexts/ActuationProvider';
+import { ActuationProvider } from '../Contexts/ActuationProvider';
+import CustomAlert from '../Alert';
 
-beforeEach(() => render(
-  <ActuationProvider>
-    <Scroll />
-  </ActuationProvider>,
-));
+beforeEach(() => {
+  render(
+    <div>
+      <CustomAlert ref={null} />
+      <ActuationProvider>
+        <Scroll />
+      </ActuationProvider>
+    </div>,
+  );
+});
 
 afterEach(cleanup);
 

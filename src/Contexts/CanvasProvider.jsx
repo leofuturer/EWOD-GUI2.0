@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Dexie from 'dexie';
+import db from './DBStorage';
 import useInterval from '../useInterval';
 import handleSave from '../ControlPanel/handleSave';
 
@@ -18,7 +18,6 @@ const CanvasProvider = ({ children }) => {
     delta: null,
     mouseDown: false,
     drawing: false,
-    db: new Dexie('ElecDB'),
     isDragging: false,
   });
 
@@ -30,15 +29,14 @@ const CanvasProvider = ({ children }) => {
   useEffect( // idb stuff
     () => {
       // create the store
-      state.db.version(1).stores({ formData: 'id,value' });
 
       // perform a read/write transatiction on the new store
-      state.db.transaction('rw', state.db.formData, async () => {
+      db.transaction('rw', db.formData, async () => {
         // get elec layout from the data
-        const squaresLayout = await state.db.formData.get('squares');
+        const squaresLayout = await db.formData.get('squares');
 
         // if there's no layout in local storage, add an empty one
-        if (!squaresLayout) await state.db.formData.add({ id: 'squares', value: [] });
+        if (!squaresLayout) await db.formData.add({ id: 'squares', value: [] });
         else {
           const initPos = []; const
             dels = [];
@@ -58,10 +56,10 @@ const CanvasProvider = ({ children }) => {
           }));
         }
 
-        const combsLayout = await state.db.formData.get('combine');
+        const combsLayout = await db.formData.get('combine');
 
         // if there's no layout in local storage, add an empty one
-        if (!combsLayout) await state.db.formData.add({ id: 'combine', value: [] });
+        if (!combsLayout) await db.formData.add({ id: 'combine', value: [] });
         else {
           const combs = [];
           combsLayout.value.forEach((e) => {
@@ -74,14 +72,14 @@ const CanvasProvider = ({ children }) => {
 
       // close the database connection if form is unmounted or the
       // database connection changes
-      return () => state.db.close();
+      // return () => db.close();
     },
     // run effect whenever the database connection changes
-    [state.db],
+    [db],
   );
 
   useInterval(() => {
-    handleSave(squares.electrodes, combined.allCombined, state.db);
+    handleSave(squares.electrodes, combined.allCombined, null, db);
   }, 10000);
 
   return (
@@ -108,9 +106,6 @@ const CanvasProvider = ({ children }) => {
         },
         setMouseDown: (md) => {
           setState((stateBoi) => ({ ...stateBoi, mouseDown: md }));
-        },
-        setDrawing: (draw) => {
-          setState((stateBoi) => ({ ...stateBoi, drawing: draw }));
         },
       }}
     >

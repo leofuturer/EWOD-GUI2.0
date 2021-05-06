@@ -6,7 +6,8 @@ import { GeneralContext } from './Contexts/GeneralProvider';
 import Canvas from './Canvas/Canvas';
 import Scroll from './Actuation/Scroll';
 import ControlPanel from './ControlPanel/ControlPanel';
-import Pins from './Pins/Pins';
+import PinsTop from './Pins/PinsTop';
+import PinsBottom from './Pins/PinsBottom';
 import CustomAlert from './Alert';
 
 export default function App() {
@@ -18,8 +19,9 @@ export default function App() {
       <ActuationProvider>
         <CanvasProvider>
           <ControlPanel />
-          <Pins />
+          <PinsTop />
           <Canvas />
+          <PinsBottom />
           <Scroll />
         </CanvasProvider>
       </ActuationProvider>

@@ -11,7 +11,7 @@ import { GeneralContext } from '../Contexts/GeneralProvider';
 import { ELEC_SIZE } from '../constants';
 
 function DraggableItem({ id, children }) {
-  const { mode } = useContext(GeneralContext);
+  const { mode, setPinToElec, currPin } = useContext(GeneralContext);
 
   const context = useContext(CanvasContext);
   const { setSelected, setDelta, setDragging } = context;
@@ -37,7 +37,13 @@ function DraggableItem({ id, children }) {
 
   const handleMouseDown = useCallback((e) => {
     if (e.which === 1) {
-      if (mode === 'CAN' && !isSelected && mode !== 'DRAW' && !isDragging) {
+      if (mode === 'PIN') {
+        setPinToElec((currMap) => {
+          const newBoi = { ...currMap };
+          newBoi[currPin] = `S${id}`;
+          return newBoi;
+        });
+      } else if (mode === 'CAN' && !isSelected && mode !== 'DRAW' && !isDragging) {
         setSelected([...new Set([...elecSelected, id])]);
       }
     }

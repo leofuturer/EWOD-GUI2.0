@@ -11,7 +11,7 @@ import { GeneralContext } from '../Contexts/GeneralProvider';
 import { ELEC_SIZE } from '../constants';
 
 function DraggableComb({ id, children }) {
-  const { mode } = useContext(GeneralContext);
+  const { mode, currPin, setPinToElec } = useContext(GeneralContext);
 
   const context = useContext(CanvasContext);
   const { setDelta, setCombSelected, setDragging } = context;
@@ -34,7 +34,13 @@ function DraggableComb({ id, children }) {
 
   const handleMouseDown = useCallback((e) => {
     if (e.which === 1) {
-      if (!isSelected && mode !== 'DRAW' && !isDragging) {
+      if (mode === 'PIN') {
+        setPinToElec((currMap) => {
+          const newBoi = { ...currMap };
+          newBoi[currPin] = `C${id}`;
+          return newBoi;
+        });
+      } else if (!isSelected && mode !== 'DRAW' && !isDragging) {
         setCombSelected([...new Set([...selected, id])]);
       }
     }

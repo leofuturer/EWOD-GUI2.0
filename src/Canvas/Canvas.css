@@ -35,3 +35,7 @@
 .toSeq {
   fill: red;
 }
+
+.toPin {
+  fill: green;
+}

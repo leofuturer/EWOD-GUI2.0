@@ -1,13 +1,10 @@
 import genFileContents from './genFileContents';
 
 export default function handleSave(electrodes, allCombined, pinActuate, db) {
-  // console.log(db)
-  const newContents = genFileContents(electrodes, allCombined, pinActuate);
-  if (newContents.squares.length !== 0) {
-    db.formData.put({ id: 'squares', value: newContents.squares });
-  }
+  if (electrodes !== null && allCombined !== null) {
+    const newContents = genFileContents(electrodes, allCombined, pinActuate);
 
-  if (newContents.combs.length !== 0) {
+    db.formData.put({ id: 'squares', value: newContents.squares });
     db.formData.put({ id: 'combine', value: newContents.combs });
   }
 

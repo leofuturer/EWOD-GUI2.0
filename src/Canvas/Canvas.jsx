@@ -27,7 +27,7 @@ export default function Canvas() {
   const { currentStep, pinActuate } = actuationContext.actuation;
   const { actuatePin, pushHistory } = actuationContext;
 
-  const { mode } = useContext(GeneralContext);
+  const { mode, currPin, pinToElec } = useContext(GeneralContext);
 
   // sets mousedown status for selecting existing electrodes
   const handleMouseDown = useCallback((event) => {
@@ -392,14 +392,20 @@ export default function Canvas() {
               height={ELEC_SIZE - 5}
               className={`electrode 
                           ${mode === 'SEQ' && pinActuate.has(currentStep) && pinActuate.get(currentStep).content.has(ind) ? 'toSeq' : ''}
-                          ${mode === 'CAN' && selected.includes(ind) ? 'selected' : ''}`}
+                          ${mode === 'CAN' && selected.includes(ind) ? 'selected' : ''}
+                          ${mode === 'PIN' && pinToElec[currPin] === `S${ind}` ? 'toPin' : ''}`}
               onClick={() => handleClick(ind)}
             />
           </DraggableItem>
         ))}
         {finalCombines.map((comb, ind) => (
           <DraggableComb key={ind.id} id={comb[1]}>
-            <path d={comb[0]} className="electrode" data-testid="combined" />
+            <path
+              d={comb[0]}
+              className={`electrode
+                          ${mode === 'PIN' && pinToElec[currPin] === `C${ind}` ? 'toPin' : ''}`}
+              data-testid="combined"
+            />
           </DraggableComb>
         ))}
       </svg>

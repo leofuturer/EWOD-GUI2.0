@@ -11,7 +11,9 @@ import { GeneralContext } from '../Contexts/GeneralProvider';
 import { ELEC_SIZE } from '../constants';
 
 function DraggableComb({ id, children }) {
-  const { mode } = useContext(GeneralContext);
+  const {
+    mode, currPin, pinToElec, setPinToElec, elecToPin, setElecToPin,
+  } = useContext(GeneralContext);
 
   const context = useContext(CanvasContext);
   const { setDelta, setCombSelected, setDragging } = context;
@@ -36,7 +38,25 @@ function DraggableComb({ id, children }) {
 
   const handleMouseDown = useCallback((e) => {
     if (e.which === 1) {
-      if (mode !== 'DRAW' && !isDragging) {
+      if (mode === 'PIN' && currPin !== null) {
+        const elec = `C${id}`;
+        if (Object.prototype.hasOwnProperty.call(pinToElec, currPin)) {
+          delete elecToPin[pinToElec[currPin]];
+        }
+        if (Object.prototype.hasOwnProperty.call(elecToPin, elec)) {
+          delete pinToElec[elecToPin[elec]];
+        }
+        setPinToElec((curr) => {
+          const newObj = { ...curr };
+          newObj[currPin] = elec;
+          return newObj;
+        });
+        setElecToPin((curr) => {
+          const newObj = { ...curr };
+          newObj[elec] = currPin;
+          return newObj;
+        });
+      } else if (mode !== 'DRAW' && !isDragging) {
         if (mode === 'SEQ') {
           console.log(`Clicked on C${id}`);
         } else if (isSelected) {

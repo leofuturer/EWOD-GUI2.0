@@ -385,6 +385,7 @@ export default function Canvas() {
         {electrodes.initPositions.map((startPos, ind) => (
           <DraggableItem key={ind.id} id={ind}>
             <rect
+              data-testid="square"
               x={startPos[0]}
               y={startPos[1]}
               width={ELEC_SIZE - 5}
@@ -398,7 +399,7 @@ export default function Canvas() {
         ))}
         {finalCombines.map((comb, ind) => (
           <DraggableComb key={ind.id} id={comb[1]}>
-            <path d={comb[0]} className="electrode" />
+            <path d={comb[0]} className="electrode" data-testid="combined" />
           </DraggableComb>
         ))}
       </svg>

@@ -19,7 +19,8 @@ import './commands';
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
-Cypress.on('uncaught:exception', (err, runnable) => false);
+// Cypress.on('uncaught:exception', (err, runnable) => false);
+Cypress.on('uncaught:exception', () => false);
 
 Cypress.on('window:before:load', (win) => {
   win.indexedDB.deleteDatabase('AppDB');

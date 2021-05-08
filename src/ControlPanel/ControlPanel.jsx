@@ -131,7 +131,7 @@ export default function ControlPanel() {
         <Toolbar style={{ marginLeft: 40 }}>
           <List style={{ display: 'flex', flexDirection: 'row' }}>
             <Tooltip title="Draw">
-              <ListItem button onClick={toggleDraw}>
+              <ListItem button onClick={toggleDraw} data-testid="draw-button">
                 <Create />
               </ListItem>
             </Tooltip>
@@ -154,7 +154,7 @@ export default function ControlPanel() {
                 <Highlight />
               </ListItem>
             </Tooltip>
-            <Tooltip title="Select and Move Electrodes">
+            <Tooltip title="Select and Move Electrodes" data-testid="CAN">
               <ListItem button onClick={() => setMode('CAN')}>
                 <GridOn />
               </ListItem>

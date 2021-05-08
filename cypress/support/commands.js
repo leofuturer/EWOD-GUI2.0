@@ -23,3 +23,36 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+Cypress.Commands.add('createSquare', (CELL) => {
+  cy.get('.greenArea')
+    .trigger('mousedown', { which: 1, offsetX: CELL.x, offsetY: CELL.y })
+    .trigger('mousemove', { offsetX: CELL.x, offsetY: CELL.y })
+    .trigger('mouseup', { force: true });
+});
+
+Cypress.Commands.add('moveElec', (subject, from, to) => {
+  cy.get('[data-testid="CAN"]').click();
+
+  cy.wrap(subject).first().click()
+    .trigger('mousedown', {
+      button: 0,
+      clientX: from.x,
+      clientY: from.y,
+      force: true,
+    })
+    .trigger('mousemove', {
+      button: 0,
+      clientX: from.x,
+      clientY: from.y,
+      force: true,
+    });
+  cy.get('body')
+    .trigger('mousemove', {
+      button: 0,
+      clientX: to.x,
+      clientY: to.y,
+      force: true,
+    })
+    .trigger('mouseup');
+});

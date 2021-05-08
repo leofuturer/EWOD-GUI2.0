@@ -35,7 +35,7 @@ export default function DeleteButton() {
   return (
     <div>
       <Tooltip title="Delete">
-        <ListItem button onClick={() => { setOpen(true); }}>
+        <ListItem button onClick={() => { setOpen(true); }} data-testid="clear">
           <DeleteForeverOutlined />
         </ListItem>
       </Tooltip>

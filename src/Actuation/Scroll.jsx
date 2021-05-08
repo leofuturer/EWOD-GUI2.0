@@ -19,6 +19,7 @@ import { DialogContentText } from '@material-ui/core';
 import ActuationSequence from './Actuation';
 import { ActuationContext } from '../Contexts/ActuationProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
+import { setPin } from '../USBCommunication/USBCommunication';
 
 import { SCROLL_HEIGHT } from '../constants';
 
@@ -310,6 +311,10 @@ export default function Scroll() {
     }
     handleClose();
   };
+
+  useEffect(() => {
+    setPin(Array.from(pinActuate.get(currentStep).content), 1, true);
+  }, [currentStep]);
 
   return (
     <div>

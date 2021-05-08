@@ -42,7 +42,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "yarn run eslint \"src/**/*.js\" \"src/**/*.jsx\"",
+    "lint": "yarn run eslint \"src/**/*.js\" \"src/**/*.jsx\" \"cypress/**/*.js\"",
     "serve": "yarn build && serve -s build",
     "cy:run": "yarn run cypress run -C cypress.json",
     "cy:open": "yarn run cypress open",

@@ -151,6 +151,7 @@ const ActuationProvider = ({ children }) => {
           setActuation((stateBoi) => ({
             ...stateBoi,
             pinActuate: newList,
+            currentStep: obj.id,
             simpleNum: actuation.simpleNum + 1,
           }));
         },

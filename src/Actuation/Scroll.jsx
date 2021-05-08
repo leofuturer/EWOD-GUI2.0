@@ -379,6 +379,7 @@ export default function Scroll() {
             if (!pause) handlePause();
           }}
           style={{ backgroundColor: forever ? '#85daed' : 'transparent' }}
+          data-testid="play-forever"
         >
           <Replay fontSize="small" style={{ color: forever ? 'black' : '#A06933' }} />
         </IconButton>
@@ -504,6 +505,7 @@ export default function Scroll() {
               ? { top: mouseState.mouseY, left: mouseState.mouseX }
               : undefined
           }
+          data-testid="act-context-menu"
         >
           <MenuItem onClick={handleInsert}>Insert</MenuItem>
           <MenuItem onClick={handleCopy}>Copy</MenuItem>

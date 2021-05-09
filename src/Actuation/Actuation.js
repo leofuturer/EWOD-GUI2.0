@@ -1,3 +1,5 @@
+import { setPin } from '../USBCommunication/USBCommunication';
+
 export default class ActuationSequence {
   constructor(id, type, order = 0) {
     this.id = id;
@@ -13,8 +15,10 @@ export default class ActuationSequence {
     if (this.type === 'loop') console.log('loop type cannot be actuated');
     else if (this.content.has(pinNum)) {
       this.content.delete(pinNum);
+      setPin([pinNum], 0);
     } else {
       this.content.add(pinNum);
+      setPin([pinNum], 1);
     }
   }
 

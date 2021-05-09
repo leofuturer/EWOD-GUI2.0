@@ -76,7 +76,7 @@ export function isDeviceConnected() {
 
 // Set a list of pins to a given value (value is either 0 or 1)
 //   ex. setPin([9,10], 1) sets pins 9 and 10 to high
-export async function setPin(pins, value) {
+export async function setPin(pins, value, reset = false) {
   if (!EWODDevice) {
     console.log('Device not connected');
     return;
@@ -91,6 +91,12 @@ export async function setPin(pins, value) {
   if (flag) {
     console.log('Pin out of range');
     return;
+  }
+
+  if (reset) {
+    for (let i = 4; i < 36; i += 1) {
+      EWODDeviceView[i] = 0;
+    }
   }
 
   pins.forEach((pin) => {

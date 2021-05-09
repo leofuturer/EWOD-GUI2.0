@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 import ListItem from '@material-ui/core/ListItem';
-import { GetApp } from '@material-ui/icons';
 import Tooltip from '@material-ui/core/Tooltip';
 import genFileContents from './genFileContents';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { ActuationContext } from '../Contexts/ActuationProvider';
+import icons from '../Icons/icons';
 
 export default function DownloadButton() {
   const canvasContext = useContext(CanvasContext);
@@ -66,7 +66,7 @@ export default function DownloadButton() {
   return (
     <Tooltip title="Download">
       <ListItem button onClick={handleDownload}>
-        <GetApp />
+        <img src={icons.downloadfile.icon} alt="Download File" />
       </ListItem>
     </Tooltip>
   );

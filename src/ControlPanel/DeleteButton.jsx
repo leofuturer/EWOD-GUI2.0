@@ -1,5 +1,4 @@
 import React, { useContext, useState } from 'react';
-import { DeleteForeverOutlined } from '@material-ui/icons';
 import Tooltip from '@material-ui/core/Tooltip';
 import ListItem from '@material-ui/core/ListItem';
 import Dialog from '@material-ui/core/Dialog';
@@ -11,6 +10,7 @@ import { DialogContentText } from '@material-ui/core';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { ActuationContext } from '../Contexts/ActuationProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
+import icons from '../Icons/icons';
 
 export default function DeleteButton() {
   const context = useContext(CanvasContext);
@@ -43,7 +43,7 @@ export default function DeleteButton() {
     <div>
       <Tooltip title="Delete">
         <ListItem button onClick={() => { setOpen(true); }} data-testid="clear">
-          <DeleteForeverOutlined />
+          <img src={icons.delete.icon} alt="Delete" />
         </ListItem>
       </Tooltip>
       <Dialog

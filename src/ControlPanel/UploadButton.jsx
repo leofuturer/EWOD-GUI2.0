@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 import ListItem from '@material-ui/core/ListItem';
 import Tooltip from '@material-ui/core/Tooltip';
-import { FileCopy } from '@material-ui/icons';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { ActuationContext } from '../Contexts/ActuationProvider';
 import ActuationSequence from '../Actuation/Actuation';
+import icons from '../Icons/icons';
 
 export default function UploadButton() {
   const context = useContext(CanvasContext);
@@ -126,7 +126,7 @@ export default function UploadButton() {
   return (
     <Tooltip title="Upload">
       <ListItem button onClick={handleImport}>
-        <FileCopy />
+        <img src={icons.import.icon} alt="Import File" />
       </ListItem>
     </Tooltip>
   );

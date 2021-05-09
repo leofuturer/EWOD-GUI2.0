@@ -22,18 +22,14 @@ function handleData(data, onRecvData) {
   onRecvData(voltage, current);
 }
 
-// connect new device give chrome permission to access device
-async function connectNewDevice() {
-  await navigator.hid.requestDevice({ filters });
-}
-
 // get device checks if there are any currently connected devices
 // and if not, will open pop up for new devices.
 async function getDevices(onRecvData) {
   let devices = await navigator.hid.getDevices();
 
   if (devices.length === 0) {
-    await connectNewDevice();
+    // requestDevice will open a pop up for the user to give permission for
+    await navigator.hid.requestDevice({ filters });
     devices = await navigator.hid.getDevices();
   }
 

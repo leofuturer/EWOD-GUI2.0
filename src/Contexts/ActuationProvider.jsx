@@ -157,8 +157,8 @@ const ActuationProvider = ({ children }) => {
         },
         addLoop: (from, to, repTime) => {
           const newList = actuation.pinActuate;
-          const l = newList.size;
-          const newSeq = new ActuationSequence(newList.size, 'loop');
+          const key = Math.max(...newList.keys());
+          const newSeq = new ActuationSequence(key + 1, 'loop');
           const contentList = [];
           let error = 0;
           newList.forEach((value) => {
@@ -179,7 +179,7 @@ const ActuationProvider = ({ children }) => {
           }
           newSeq.pushAllSteps(contentList);
           newSeq.repTime = repTime;
-          newList.set(l, newSeq);
+          newList.set(key + 1, newSeq);
           console.log(newList);
           setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
           return true;

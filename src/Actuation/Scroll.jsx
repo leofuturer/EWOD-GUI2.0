@@ -1,4 +1,6 @@
-import React, { useContext, useState, useRef } from 'react';
+import React, {
+  useContext, useState, useRef, useEffect,
+} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -182,6 +184,10 @@ export default function Scroll() {
     setFullseq(list);
   }
 
+  useEffect(() => {
+    generateSeq();
+  }, [pinActuate]);
+
   const modelOpen = () => { setOpen(true); };
   const modelClose = () => { setOpen(false); handleClose(); };
   const changeFrom = (event) => { setFrom(event.target.value); };
@@ -189,6 +195,10 @@ export default function Scroll() {
   const changeRepTime = (event) => { setRepTime(event.target.value); };
 
   const handleLoop = (id) => {
+    if (from === '' || to === '' || repTime === '') {
+      bannerRef.current.getAlert('error', 'Invalid block number!');
+      return;
+    }
     const fromInt = parseInt(from, 10);
     const toInt = parseInt(to, 10);
     const repTimeInt = parseInt(repTime, 10);
@@ -245,9 +255,7 @@ export default function Scroll() {
 
   function handlePlay() {
     generateSeq();
-    setIndex(index);
     setCurrentStep(fullseq[index]);
-    console.log(fullseq);
     if (pause) {
       setPause(false);
       proceed();
@@ -312,7 +320,16 @@ export default function Scroll() {
         >
           {`Step ${pinActuate.get(currentStep).order}`}
         </p>
-        <IconButton onClick={() => { setFlush(true); }} data-testid="set-all-duration">
+        <IconButton
+          onClick={() => {
+            if (pause) {
+              setFlush(true);
+            } else {
+              bannerRef.current.getAlert('error', 'Pleast stop playing before editing!');
+            }
+          }}
+          data-testid="set-all-duration"
+        >
           <DynamicFeed fontSize="small" style={{ color: '#A06933' }} />
         </IconButton>
         <IconButton onClick={() => { setAlert(true); }} data-testid="delete-start">
@@ -359,8 +376,10 @@ export default function Scroll() {
         <IconButton
           onClick={() => {
             setForever((tempforever) => !tempforever);
+            if (!pause) handlePause();
           }}
           style={{ backgroundColor: forever ? '#85daed' : 'transparent' }}
+          data-testid="play-forever"
         >
           <Replay fontSize="small" style={{ color: forever ? 'black' : '#A06933' }} />
         </IconButton>
@@ -387,12 +406,17 @@ export default function Scroll() {
                       height: 25,
                     }}
                     onClick={() => {
-                      const loop = pinActuate.get(key);
-                      setFrom(pinActuate.get(loop.content[0]).order.toString());
-                      setTo(pinActuate.get(loop.content[loop.content.length - 1]).order.toString());
-                      setRepTime(loop.repTime.toString());
-                      setUpdate(key);
-                      modelOpen();
+                      if (pause) {
+                        const loop = pinActuate.get(key);
+                        setFrom(pinActuate.get(loop.content[0]).order.toString());
+                        setTo(pinActuate.get(loop.content[loop.content.length - 1])
+                          .order.toString());
+                        setRepTime(loop.repTime.toString());
+                        setUpdate(key);
+                        modelOpen();
+                      } else {
+                        bannerRef.current.getAlert('error', 'Please stop playing before editing!');
+                      }
                     }}
                     key={key}
                     data-testid="loop-button"
@@ -421,8 +445,10 @@ export default function Scroll() {
                     setCurrentStep(key);
                   }}
                   onContextMenu={(event) => {
-                    setCurrentStep(key);
-                    handleClick(event);
+                    if (pause) {
+                      setCurrentStep(key);
+                      handleClick(event);
+                    }
                   }}
                   key={key}
                   data-testid="seq-button"
@@ -453,10 +479,14 @@ export default function Scroll() {
           <Button
             className={classes.add}
             onClick={() => {
-              let ind = pinActuate.size;
-              while (pinActuate.has(ind)) ind += 1;
-              setCurrentStep(ind);
-              generateSeq();
+              if (pause) {
+                let ind = pinActuate.size;
+                while (pinActuate.has(ind)) ind += 1;
+                setCurrentStep(ind);
+                generateSeq();
+              } else {
+                bannerRef.current.getAlert('error', 'Please stop playing before editing!');
+              }
             }}
             data-testid="add-button"
             variant="outlined"
@@ -475,6 +505,7 @@ export default function Scroll() {
               ? { top: mouseState.mouseY, left: mouseState.mouseX }
               : undefined
           }
+          data-testid="act-context-menu"
         >
           <MenuItem onClick={handleInsert}>Insert</MenuItem>
           <MenuItem onClick={handleCopy}>Copy</MenuItem>
@@ -526,18 +557,39 @@ export default function Scroll() {
 
           </DialogContent>
           <DialogActions>
-            <Button onClick={modelClose} color="primary">
+            <Button
+              onClick={() => {
+                setUpdate(null);
+                setFrom('');
+                setTo('');
+                setRepTime('');
+                modelClose();
+              }}
+              color="primary"
+            >
               Cancel
             </Button>
             {update !== null
               ? (
-                <Button onClick={() => { deleteLoop(update); setUpdate(null); modelClose(); }} color="primary">
+                <Button
+                  onClick={() => {
+                    deleteLoop(update);
+                    setUpdate(null);
+                    modelClose();
+                    setFrom('');
+                    setTo('');
+                    setRepTime('');
+                    generateSeq();
+                  }}
+                  color="primary"
+                >
                   Delete
                 </Button>
               ) : null}
             <Button
               onClick={() => {
                 handleLoop(update);
+                setUpdate(null);
               }}
               color="primary"
             >

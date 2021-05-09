@@ -579,6 +579,7 @@ export default function Scroll() {
                     setFrom('');
                     setTo('');
                     setRepTime('');
+                    generateSeq();
                   }}
                   color="primary"
                 >

@@ -110,8 +110,8 @@ export default function ControlPanel() {
   const [usbPanelOpen, setUsbPanelOpen] = useState(false);
   const [usbConnected, setUsbConnected] = useState(false);
 
-  function toggleDraw() {
-    setMode('DRAW');
+  function setNewMode(newMode) {
+    setMode(newMode);
     setSelected([]);
     setCombSelected([]);
   }
@@ -131,7 +131,7 @@ export default function ControlPanel() {
         <Toolbar style={{ marginLeft: 40 }}>
           <List style={{ display: 'flex', flexDirection: 'row' }}>
             <Tooltip title="Draw">
-              <ListItem button onClick={toggleDraw} data-testid="draw-button">
+              <ListItem button onClick={() => setNewMode('DRAW')} data-testid="draw-button">
                 <Create />
               </ListItem>
             </Tooltip>
@@ -145,17 +145,17 @@ export default function ControlPanel() {
             <DownloadButton />
 
             <Tooltip title="Map Pins">
-              <ListItem button onClick={() => setMode('PIN')}>
+              <ListItem button onClick={() => setNewMode('PIN')}>
                 <FormatListNumberedOutlined />
               </ListItem>
             </Tooltip>
             <Tooltip title="Sequence Actuation">
-              <ListItem button onClick={() => setMode('SEQ')}>
+              <ListItem button onClick={() => setNewMode('SEQ')}>
                 <Highlight />
               </ListItem>
             </Tooltip>
             <Tooltip title="Select and Move Electrodes" data-testid="CAN">
-              <ListItem button onClick={() => setMode('CAN')}>
+              <ListItem button onClick={() => setNewMode('CAN')}>
                 <GridOn />
               </ListItem>
             </Tooltip>

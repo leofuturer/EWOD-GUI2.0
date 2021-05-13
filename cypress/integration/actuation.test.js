@@ -1,5 +1,8 @@
 /// <reference types="cypress" />
-beforeEach(() => { cy.visit('localhost:3000'); });
+beforeEach(() => {
+  cy.visit('localhost:3000');
+  cy.get('[data-testid="act-seq-start"]').click();
+});
 describe('Actuation', () => {
   it('Add a sequence to the timeline', () => {
     cy.get('[data-testid="seq-button"]').should('have.length', 1);

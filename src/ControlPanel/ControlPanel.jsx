@@ -150,7 +150,7 @@ export default function ControlPanel() {
               </ListItem>
             </Tooltip>
             <Tooltip title="Sequence Actuation">
-              <ListItem button onClick={() => setNewMode('SEQ')}>
+              <ListItem button onClick={() => setNewMode('SEQ')} data-testid="act-seq-start">
                 <Highlight />
               </ListItem>
             </Tooltip>

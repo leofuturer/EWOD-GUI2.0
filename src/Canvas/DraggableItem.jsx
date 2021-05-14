@@ -41,7 +41,7 @@ function DraggableItem({ id, children }) {
 
   const handleMouseDown = useCallback((e) => {
     if (e.which === 1) {
-      if (mode === 'PIN' && currPin !== null) {
+      if (mode === 'PIN' && currPin) {
         const elec = `S${id}`;
         if (Object.prototype.hasOwnProperty.call(pinToElec, currPin)) {
           delete elecToPin[pinToElec[currPin]];

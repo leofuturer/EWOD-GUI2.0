@@ -372,7 +372,7 @@ export default function Canvas() {
     const paths = [];
     for (let k = 0; k < MAX_NUM_COMBINES; k += 1) {
       const path = combines[k];
-      if (path !== null) {
+      if (path) {
         paths.push([path, k]);
       }
     }

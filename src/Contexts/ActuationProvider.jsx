@@ -94,7 +94,7 @@ const ActuationProvider = ({ children }) => {
           }
           if (actuation.pinActuate.has(step)) {
             const newList = actuation.pinActuate;
-            if (newList.get(step).parent !== null) {
+            if (newList.get(step).parent) {
               const { parent } = newList.get(step);
               if (newList.get(parent).content.length === 1) {
                 return false;
@@ -124,7 +124,7 @@ const ActuationProvider = ({ children }) => {
         insertStep: (initobj) => {
           const obj = initobj;
           let newList = actuation.pinActuate;
-          if (newList.get(actuation.currentStep).parent !== null) {
+          if (newList.get(actuation.currentStep).parent) {
             const { parent } = newList.get(actuation.currentStep);
             newList.get(parent).content.push(obj.id);
             obj.parent = parent;
@@ -141,7 +141,7 @@ const ActuationProvider = ({ children }) => {
               n += 1;
             }
           });
-          if (obj.parent !== null) {
+          if (obj.parent) {
             newList.get(obj.parent).content.sort((a, b) => {
               const ord1 = newList.get(a).order;
               const ord2 = newList.get(b).order;
@@ -164,7 +164,7 @@ const ActuationProvider = ({ children }) => {
           newList.forEach((value) => {
             if (value.type === 'simple' && value.order >= from && value.order <= to) {
               if (error === 1) return;
-              if (value.parent !== null) {
+              if (value.parent) {
                 error = 1;
                 return;
               }
@@ -192,7 +192,7 @@ const ActuationProvider = ({ children }) => {
           newList.forEach((value) => {
             if (value.type === 'simple' && value.order >= from && value.order <= to) {
               if (error === 1) return;
-              if (value.parent !== null && value.parent !== loopKey) {
+              if (value.parent && value.parent !== loopKey) {
                 error = 1;
                 return;
               }

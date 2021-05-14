@@ -27,7 +27,9 @@ export default function Canvas() {
   const { currentStep, pinActuate } = actuationContext.actuation;
   const { actuatePin, pushHistory } = actuationContext;
 
-  const { mode, currPin, pinToElec } = useContext(GeneralContext);
+  const {
+    mode, currPin, pinToElec, elecToPin,
+  } = useContext(GeneralContext);
 
   // sets mousedown status for selecting existing electrodes
   const handleMouseDown = useCallback((event) => {
@@ -391,10 +393,21 @@ export default function Canvas() {
               width={ELEC_SIZE - 5}
               height={ELEC_SIZE - 5}
               className={`electrode 
-                          ${mode === 'SEQ' && pinActuate.has(currentStep) && pinActuate.get(currentStep).content.has(ind) ? 'toSeq' : ''}
+                          ${mode === 'SEQ' && pinActuate.has(currentStep)
+                          && Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`) && pinActuate.get(currentStep).content.has(elecToPin[`S${ind}`]) ? 'toSeq' : ''}
                           ${mode === 'CAN' && selected.includes(ind) ? 'selected' : ''}
                           ${mode === 'PIN' && pinToElec[currPin] === `S${ind}` ? 'toPin' : ''}`}
-              onClick={() => handleClick(ind)}
+              onClick={() => {
+                if (mode === 'SEQ') {
+                  if (Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`)) {
+                    handleClick(elecToPin[`S${ind}`]);
+                  } else {
+                    window.alert('no pin number for this electrode');
+                  }
+                } else {
+                  handleClick(ind);
+                }
+              }}
             />
           </DraggableItem>
         ))}
@@ -403,8 +416,21 @@ export default function Canvas() {
             <path
               d={comb[0]}
               className={`electrode
+                          ${mode === 'SEQ' && pinActuate.has(currentStep)
+                          && Object.prototype.hasOwnProperty.call(elecToPin, `C${ind}`) && pinActuate.get(currentStep).content.has(elecToPin[`C${ind}`]) ? 'toSeq' : ''}
                           ${mode === 'PIN' && pinToElec[currPin] === `C${ind}` ? 'toPin' : ''}`}
               data-testid="combined"
+              onClick={() => {
+                if (mode === 'SEQ') {
+                  if (Object.prototype.hasOwnProperty.call(elecToPin, `C${ind}`)) {
+                    handleClick(elecToPin[`C${ind}`]);
+                  } else {
+                    window.alert('no pin number for this electrode');
+                  }
+                } else {
+                  handleClick(ind);
+                }
+              }}
             />
           </DraggableComb>
         ))}

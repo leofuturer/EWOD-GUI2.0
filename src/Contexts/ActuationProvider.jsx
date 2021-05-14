@@ -53,7 +53,7 @@ const ActuationProvider = ({ children }) => {
   );
 
   useInterval(() => {
-    handleSave(null, null, actuation.pinActuate, db);
+    handleSave(null, null, actuation.pinActuate, null, null, db);
   }, 10000);
 
   return (

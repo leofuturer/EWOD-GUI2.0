@@ -272,7 +272,7 @@ export default function Scroll() {
   }
 
   function handlePause() {
-    if (time || time !== undefined) {
+    if (time) {
       clearTimeout(time);
     }
     setIndex((ind) => ind - 1);

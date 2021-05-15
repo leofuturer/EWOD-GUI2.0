@@ -20,7 +20,7 @@ export default function genFileContents(electrodes, allCombined, pinActuate) {
     }
   }
 
-  if (pinActuate ) {
+  if (pinActuate) {
     pinActuate.forEach((value) => {
       if (value.type === 'simple') {
         let block = '';

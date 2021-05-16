@@ -177,7 +177,7 @@ export default function Scroll() {
     pinActuate.forEach((value) => {
       if (value.type === 'simple' && !visited.has(value.id)) {
         visited.add(value.id);
-        if (value.parent !== null) {
+        if (value.parent) {
           const parent = pinActuate.get(value.parent);
           for (let i = 0; i < parent.repTime; i += 1) {
             parent.content.forEach((e) => {
@@ -212,7 +212,7 @@ export default function Scroll() {
     const toInt = parseInt(to, 10);
     const repTimeInt = parseInt(repTime, 10);
     if (fromInt < toInt) {
-      if (id !== null) {
+      if (id) {
         const success = updateLoop(fromInt, toInt, repTimeInt, id);
         if (!success) {
           bannerRef.current.getAlert('error', 'Update Loop Fail! Please check the range of frame.');
@@ -272,7 +272,7 @@ export default function Scroll() {
   }
 
   function handlePause() {
-    if (time !== null || time !== undefined) {
+    if (time) {
       clearTimeout(time);
     }
     setIndex((ind) => ind - 1);
@@ -306,7 +306,7 @@ export default function Scroll() {
   };
 
   const handlePaste = () => {
-    if (clipboard !== null) {
+    if (clipboard) {
       let ind = pinActuate.size;
       while (pinActuate.has(ind)) ind += 1;
       const newSeq = new ActuationSequence(ind, 'simple', 0);
@@ -518,11 +518,11 @@ export default function Scroll() {
           </div>
           <Menu
             keepMounted
-            open={mouseState.mouseY !== null}
+            open={mouseState.mouseY}
             onClose={handleClose}
             anchorReference="anchorPosition"
             anchorPosition={
-            mouseState.mouseY !== null && mouseState.mouseX !== null
+            mouseState.mouseY && mouseState.mouseX
               ? { top: mouseState.mouseY, left: mouseState.mouseX }
               : undefined
           }
@@ -590,7 +590,7 @@ export default function Scroll() {
               >
                 Cancel
               </Button>
-              {update !== null
+              {update
                 ? (
                   <Button
                     onClick={() => {

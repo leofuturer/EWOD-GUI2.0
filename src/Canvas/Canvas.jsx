@@ -12,6 +12,7 @@ import ContextMenu from './ContextMenu';
 import {
   ELEC_SIZE, CANVAS_HEIGHT, CANVAS_WIDTH, MAX_NUM_COMBINES, CANVAS_REAL_HEIGHT,
 } from '../constants';
+import range from '../Pins/range';
 
 export default function Canvas() {
   const canvasContext = useContext(CanvasContext);
@@ -222,19 +223,15 @@ export default function Canvas() {
   }
 
   function getCombinedLastFreeInd() {
-    // can sort selected then go through and return immediately when
-    // hit selected+1 not in allCombined[i][2]
-    combSelected.sort((a, b) => a - b);
+    if (!allCombined.length) return 0;
     const layVals = new Set();
     allCombined.forEach((comb) => layVals.add(comb[2]));
 
     // probably don't actually need lowest last free index
     // but would be unfortunate if they keep combining and deleting
     // on the same design and if it kept picking the latest free index (allCombined.length)
-    const layValsArray = Array.from(layVals);
-    let newLastFreeInd = 0;
-    const tempInd = layValsArray.find((layoutVal) => !layVals.has(layoutVal + 1));
-    if (tempInd) newLastFreeInd = 1 + tempInd;
+    const availIDs = range(0, Math.max(...layVals) + 1);
+    const newLastFreeInd = availIDs.find((layoutVal) => !layVals.has(layoutVal));
     return newLastFreeInd;
   }
   /* ########################### HELPERS END ########################### */
@@ -417,13 +414,13 @@ export default function Canvas() {
               d={comb[0]}
               className={`electrode
                           ${mode === 'SEQ' && pinActuate.has(currentStep)
-                          && Object.prototype.hasOwnProperty.call(elecToPin, `C${ind}`) && pinActuate.get(currentStep).content.has(elecToPin[`C${ind}`]) ? 'toSeq' : ''}
-                          ${mode === 'PIN' && pinToElec[currPin] === `C${ind}` ? 'toPin' : ''}`}
+                          && Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[1]}`) && pinActuate.get(currentStep).content.has(elecToPin[`C${comb[1]}`]) ? 'toSeq' : ''}
+                          ${mode === 'PIN' && pinToElec[currPin] === `C${comb[1]}` ? 'toPin' : ''}`}
               data-testid="combined"
               onClick={() => {
                 if (mode === 'SEQ') {
-                  if (Object.prototype.hasOwnProperty.call(elecToPin, `C${ind}`)) {
-                    handleClick(elecToPin[`C${ind}`]);
+                  if (Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[1]}`)) {
+                    handleClick(elecToPin[`C${comb[1]}`]);
                   } else {
                     window.alert('no pin number for this electrode');
                   }

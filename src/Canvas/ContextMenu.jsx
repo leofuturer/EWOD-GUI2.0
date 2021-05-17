@@ -62,8 +62,10 @@ export default function ContextMenu() {
     const numSquaresCopied = clipboard.squares.length;
     const numCombinedCopied = clipboard.combined.length;
     if (numSquaresCopied > 0 || numCombinedCopied > 0) {
-      const x = Math.floor(parseFloat(xPos.slice(0, xPos.length - 2)) / ELEC_SIZE) * ELEC_SIZE;
-      const y = Math.floor(parseFloat(yPos.slice(0, xPos.length - 2)) / ELEC_SIZE) * ELEC_SIZE;
+      const xInt = parseInt(relativeX, 10);
+      const yInt = parseInt(relativeY, 10);
+      const x = xInt - (xInt % ELEC_SIZE);
+      const y = yInt - (yInt % ELEC_SIZE);
       if (numSquaresCopied > 0) {
         const newInits = [];
         for (let i = 0; i < numSquaresCopied; i += 1) newInits.push([x, y]);

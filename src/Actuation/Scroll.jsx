@@ -359,7 +359,7 @@ export default function Scroll() {
             <Pause fontSize="small" style={{ color: '#A06933' }} />
           </IconButton>
           <IconButton onClick={() => {
-            if (index !== 0) {
+            if (pause && index !== 0) {
               setCurrentStep(fullseq[index - 1]);
               setIndex(index - 1);
             }
@@ -376,7 +376,7 @@ export default function Scroll() {
             <PlayArrow fontSize="small" style={{ color: '#A06933' }} />
           </IconButton>
           <IconButton onClick={() => {
-            if (index !== fullseq.length - 1) {
+            if (pause && index !== fullseq.length - 1) {
               setCurrentStep(fullseq[index + 1]);
               setIndex(index + 1);
             }
@@ -463,12 +463,16 @@ export default function Scroll() {
                     variant="outlined"
                     style={{ backgroundColor: currentStep === key ? '#D4A373' : '#FEFAE0' }}
                     onClick={() => {
-                      setCurrentStep(key);
+                      if (pause) {
+                        setCurrentStep(key);
+                      }
                     }}
                     onContextMenu={(event) => {
                       if (pause) {
                         setCurrentStep(key);
                         handleClick(event);
+                      } else {
+                        bannerRef.current.getAlert('error', 'Please stop playing before editing!');
                       }
                     }}
                     key={key}

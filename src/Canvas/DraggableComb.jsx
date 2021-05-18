@@ -141,7 +141,7 @@ function DraggableComb({ id, children }) {
     >
       <g ref={dragItem}>
         <g style={transform}>
-          <g className={`${isSelected ? 'selected' : ''}`}>
+          <g className={`${mode === 'CAN' && isSelected ? 'selected' : ''}`}>
             {children}
           </g>
         </g>

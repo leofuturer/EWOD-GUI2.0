@@ -10,7 +10,7 @@ import { GeneralContext } from '../Contexts/GeneralProvider';
 
 import ContextMenu from './ContextMenu';
 import {
-  ELEC_SIZE, CANVAS_HEIGHT, CANVAS_WIDTH, MAX_NUM_COMBINES, CANVAS_REAL_HEIGHT,
+  ELEC_SIZE, CANVAS_HEIGHT, CANVAS_WIDTH, CANVAS_REAL_HEIGHT,
 } from '../constants';
 import range from '../Pins/range';
 
@@ -332,7 +332,7 @@ export default function Canvas() {
       else byX[x] = [yAndLayVal];
     }
     // just strs representing points
-    const combines = new Array(Math.floor(MAX_NUM_COMBINES)).fill(null);
+    const combines = {};
 
     // inspiration from old EWOD-GUI
     for (let i = 0; i < allCombined.length; i += 1) {
@@ -363,17 +363,17 @@ export default function Canvas() {
         pathstring = `M${x} ${y} L${x} ${y2 - 5} L${x2 - 5} ${y2 - 5} L${x2 - 5} ${y} Z `;
       }
 
-      if (combines[layVal] === null) combines[layVal] = pathstring;
-      else combines[layVal] += pathstring;
-    }
-    const paths = [];
-    for (let k = 0; k < MAX_NUM_COMBINES; k += 1) {
-      const path = combines[k];
-      if (path) {
-        paths.push([path, k]);
+      if (!Object.prototype.hasOwnProperty.call(combines, layVal)) {
+        combines[layVal] = [pathstring, x, y];
+      } else {
+        combines[layVal][0] += pathstring;
+        if (x > combines[layVal][1] || y < combines[layVal][2]) {
+          combines[layVal][1] = x;
+          combines[layVal][2] = y;
+        }
       }
     }
-    setFinalCombines(paths);
+    setFinalCombines(combines);
   }, [allCombined]);
 
   /* ########################### COMBINE STUFF END ########################### */
@@ -390,10 +390,10 @@ export default function Canvas() {
               width={ELEC_SIZE - 5}
               height={ELEC_SIZE - 5}
               className={`electrode 
-                          ${mode === 'SEQ' && pinActuate.has(currentStep)
-                          && Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`) && pinActuate.get(currentStep).content.has(elecToPin[`S${ind}`]) ? 'toSeq' : ''}
-                          ${mode === 'CAN' && selected.includes(ind) ? 'selected' : ''}
-                          ${mode === 'PIN' && pinToElec[currPin] === `S${ind}` ? 'toPin' : ''}`}
+                            ${mode === 'SEQ' && pinActuate.has(currentStep)
+                            && Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`) && pinActuate.get(currentStep).content.has(elecToPin[`S${ind}`]) ? 'toSeq' : ''}
+                            ${mode === 'CAN' && selected.includes(ind) ? 'selected' : ''}
+                            ${mode === 'PIN' && pinToElec[currPin] === `S${ind}` ? 'toPin' : ''}`}
               onClick={() => {
                 if (mode === 'SEQ') {
                   if (Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`)) {
@@ -406,21 +406,33 @@ export default function Canvas() {
                 }
               }}
             />
+            {mode === 'PIN' && Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`)
+              && (
+                <text
+                  x={`${startPos[0] + 5}`}
+                  y={`${startPos[1] + ELEC_SIZE / 2}`}
+                  width={ELEC_SIZE - 5}
+                  height={ELEC_SIZE - 5}
+                  fill="white"
+                >
+                  {elecToPin[`S${ind}`]}
+                </text>
+              )}
           </DraggableItem>
         ))}
-        {finalCombines.map((comb, ind) => (
-          <DraggableComb key={ind.id} id={comb[1]}>
+        {Object.entries(finalCombines).map((comb, ind) => (
+          <DraggableComb key={ind.id} id={parseInt(comb[0], 10)}>
             <path
-              d={comb[0]}
+              d={comb[1][0]}
               className={`electrode
-                          ${mode === 'SEQ' && pinActuate.has(currentStep)
-                          && Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[1]}`) && pinActuate.get(currentStep).content.has(elecToPin[`C${comb[1]}`]) ? 'toSeq' : ''}
-                          ${mode === 'PIN' && pinToElec[currPin] === `C${comb[1]}` ? 'toPin' : ''}`}
+                            ${mode === 'SEQ' && pinActuate.has(currentStep)
+                            && Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`) && pinActuate.get(currentStep).content.has(elecToPin[`C${comb[0]}`]) ? 'toSeq' : ''}
+                            ${mode === 'PIN' && pinToElec[currPin] === `C${comb[0]}` ? 'toPin' : ''}`}
               data-testid="combined"
               onClick={() => {
                 if (mode === 'SEQ') {
-                  if (Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[1]}`)) {
-                    handleClick(elecToPin[`C${comb[1]}`]);
+                  if (Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)) {
+                    handleClick(elecToPin[`C${comb[0]}`]);
                   } else {
                     window.alert('no pin number for this electrode');
                   }
@@ -429,6 +441,18 @@ export default function Canvas() {
                 }
               }}
             />
+            {mode === 'PIN' && Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
+              && (
+                <text
+                  x={`${comb[1][1] + 5}`}
+                  y={`${comb[1][2] + ELEC_SIZE / 2}`}
+                  width={ELEC_SIZE - 5}
+                  height={ELEC_SIZE - 5}
+                  fill="white"
+                >
+                  {elecToPin[`C${comb[0]}`]}
+                </text>
+              )}
           </DraggableComb>
         ))}
       </svg>

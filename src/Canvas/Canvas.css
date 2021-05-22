@@ -6,8 +6,13 @@
 }
 
 .wrapper {
-  overflow: scroll;
+  overflow: visible;
   margin-left: 49px;
+}
+
+#zoom_div{
+  transform-origin: 0 0;
+  -webkit-transform-origin: 0 0;
 }
 
 .greenArea {

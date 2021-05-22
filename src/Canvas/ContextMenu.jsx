@@ -15,7 +15,7 @@ export default function ContextMenu() {
   const {
     setElectrodes, setSelected, setComboLayout, setCombSelected,
   } = canvasContext;
-  const names = ['Cut', 'Copy', 'Paste', 'Delete', 'Combine'];
+  const names = ['Cut', 'Copy', 'Paste', 'Delete', 'Combine', 'Separate'];
   const [xPos, setXPos] = useState('0px');
   const [yPos, setYPos] = useState('0px');
 
@@ -211,6 +211,25 @@ export default function ContextMenu() {
     squaresDelete();
   }
 
+  function separate() {
+    if (!combSelected.length || selected.length) {
+      window.alert('Can only separate combined electrodes');
+      return;
+    }
+    const selectedCombs = allCombined.filter((x) => combSelected.includes(x[2]));
+    const selectedCombCoords = [];
+    selectedCombs.forEach((coord) => {
+      selectedCombCoords.push([coord[0], coord[1]]);
+    });
+    setElectrodes({
+      initPositions: electrodes.initPositions.concat(selectedCombCoords),
+      deltas: electrodes.deltas
+        .concat(new Array(allCombined.length).fill(null).map(() => new Array(2).fill(0))),
+    });
+    setComboLayout(allCombined.filter((combi) => !combSelected.includes(combi[2])));
+    setCombSelected([]);
+  }
+
   const handleContextMenu = useCallback(
     (e) => {
       e.preventDefault();
@@ -238,7 +257,7 @@ export default function ContextMenu() {
     };
   }, [handleClick, handleContextMenu]);
 
-  const funcs = [contextCut, contextCopy, contextPaste, contextDelete, handleCombine];
+  const funcs = [contextCut, contextCopy, contextPaste, contextDelete, handleCombine, separate];
   return (
     <Motion
       defaultStyle={{ opacity: 0 }}

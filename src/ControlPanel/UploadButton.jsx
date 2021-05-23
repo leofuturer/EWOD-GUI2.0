@@ -1,19 +1,55 @@
 import React, { useContext } from 'react';
+import ListItem from '@material-ui/core/ListItem';
+import Tooltip from '@material-ui/core/Tooltip';
+import { FileCopy } from '@material-ui/icons';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 
 export default function UploadButton() {
   const context = useContext(CanvasContext);
-  const { electrodes } = context.state;
-  const { setElectrodes, setSelected } = context;
+  const { squares, setElectrodes, setSelected } = context;
+  const { electrodes } = squares;
+  const filePicker = document.getElementById('filePicker');
+  async function getFileLegacy() {
+    return new Promise((resolve, reject) => {
+      filePicker.onchange = () => {
+        const file = filePicker.files[0];
+        if (file) {
+          resolve(file);
+          return;
+        }
+        reject(new Error('AbortError'));
+      };
+      filePicker.click();
+    });
+  }
+
+  async function readFile(file) {
+    if (file.text) {
+      return file.text();
+    }
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.addEventListener('loadend', (e) => {
+        const text = e.srcElement.result;
+        resolve(text);
+      });
+      reader.readAsText(file);
+    });
+  }
+
   async function openFilePicker() {
     try {
-      const filehandle = await window.showOpenFilePicker();
-      if (filehandle === undefined) return;
-      const file = await filehandle.getFile();
-      if (file.name.slice(-4) !== '.ewd') window.alert('You can only upload .ewd files');
+      let file;
+      if ('showOpenFilePicker' in window) {
+        const filehandle = await window.showOpenFilePicker();
+        if (!filehandle) return;
+        file = await filehandle[0].getFile();
+      } else {
+        file = await getFileLegacy();
+      }
+      if (file.name.slice(-4) !== 'ewds') window.alert('You can only upload .ewds files');
       else {
-        const content = await file.text();
-
+        const content = await readFile(file);
         const newInitPositions = [];
         const newDeltas = [];
         const stringList = content.split('\n');
@@ -25,9 +61,9 @@ export default function UploadButton() {
               newInitPositions.push([parseInt(words[1], 10), parseInt(words[2], 10)]);
               newDeltas.push([0, 0]);
             } else if (e.charAt(0) === '#') {
-              // line starts with #
+            // line starts with #
             } else if (!Number.isNaN(e.charAt(0))) {
-              // line starts with number
+            // line starts with number
             } else {
               window.alert("Your file's contents are a bit funny");
               return;
@@ -37,6 +73,7 @@ export default function UploadButton() {
 
         setSelected([]);
         setElectrodes({ initPositions: newInitPositions, deltas: newDeltas });
+        // TODO: Parse Actuation Sequence Info as well.
       }
     } catch (e) {
       console.log(e);
@@ -51,6 +88,10 @@ export default function UploadButton() {
   }
 
   return (
-    <button onClick={handleImport} type="button">Upload</button>
+    <Tooltip title="Upload">
+      <ListItem button onClick={handleImport}>
+        <FileCopy />
+      </ListItem>
+    </Tooltip>
   );
 }

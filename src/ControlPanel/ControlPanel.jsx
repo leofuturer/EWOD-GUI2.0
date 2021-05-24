@@ -13,7 +13,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Collapse from '@material-ui/core/Collapse';
 import {
-  Undo, Redo, Highlight, FileCopy, Create, Info, ViewWeek, Usb, Image, Menu,
+  Undo, Redo, Highlight, Create, Info, ViewWeek, Usb, Image, Menu,
   FormatListNumberedOutlined, GridOn,
 } from '@material-ui/icons';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -23,7 +23,7 @@ import { CanvasContext } from '../Contexts/CanvasProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 
 // import SaveButton from './SaveButton';
-// import UploadButton from './UploadButton';
+import UploadButton from './UploadButton';
 import DownloadButton from './DownloadButton';
 
 import USBPanel from './USBPanel';
@@ -136,9 +136,7 @@ export default function ControlPanel() {
               </ListItem>
             </Tooltip>
 
-            <ListItem button>
-              <FileCopy />
-            </ListItem>
+            <UploadButton />
             <ListItem button>
               <ViewWeek />
             </ListItem>

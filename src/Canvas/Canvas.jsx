@@ -27,7 +27,7 @@ export default function Canvas() {
   const { actuatePin, pushHistory } = actuationContext;
 
   const {
-    mode, currPin, pinToElec, elecToPin,
+    mode, currElec, elecToPin,
   } = useContext(GeneralContext);
 
   // sets mousedown status for selecting existing electrodes
@@ -204,7 +204,7 @@ export default function Canvas() {
                             ${mode === 'SEQ' && pinActuate.has(currentStep)
                             && Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`) && pinActuate.get(currentStep).content.has(elecToPin[`S${ind}`]) ? 'toSeq' : ''}
                             ${mode === 'CAN' && selected.includes(ind) ? 'selected' : ''}
-                            ${mode === 'PIN' && pinToElec[currPin] === `S${ind}` ? 'toPin' : ''}`}
+                            ${mode === 'PIN' && currElec === `S${ind}` ? 'toPin' : ''}`}
               onClick={() => {
                 if (mode === 'SEQ') {
                   if (Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`)) {
@@ -238,7 +238,7 @@ export default function Canvas() {
               className={`electrode
                             ${mode === 'SEQ' && pinActuate.has(currentStep)
                             && Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`) && pinActuate.get(currentStep).content.has(elecToPin[`C${comb[0]}`]) ? 'toSeq' : ''}
-                            ${mode === 'PIN' && pinToElec[currPin] === `C${comb[0]}` ? 'toPin' : ''}`}
+                            ${mode === 'PIN' && currElec === `C${comb[0]}` ? 'toPin' : ''}`}
               data-testid="combined"
               onClick={() => {
                 if (mode === 'SEQ') {

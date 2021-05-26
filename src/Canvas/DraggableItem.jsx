@@ -12,7 +12,7 @@ import { ELEC_SIZE } from '../constants';
 
 function DraggableItem({ id, children }) {
   const {
-    mode, pinToElec, setPinToElec, elecToPin, setElecToPin, currPin,
+    mode, setCurrElec,
   } = useContext(GeneralContext);
 
   const context = useContext(CanvasContext);
@@ -41,24 +41,8 @@ function DraggableItem({ id, children }) {
 
   const handleMouseDown = useCallback((e) => {
     if (e.which === 1) {
-      if (mode === 'PIN' && currPin) {
-        const elec = `S${id}`;
-        if (Object.prototype.hasOwnProperty.call(pinToElec, currPin)) {
-          delete elecToPin[pinToElec[currPin]];
-        }
-        if (Object.prototype.hasOwnProperty.call(elecToPin, elec)) {
-          delete pinToElec[elecToPin[elec]];
-        }
-        setPinToElec((curr) => {
-          const newObj = { ...curr };
-          newObj[currPin] = elec;
-          return newObj;
-        });
-        setElecToPin((curr) => {
-          const newObj = { ...curr };
-          newObj[elec] = currPin;
-          return newObj;
-        });
+      if (mode === 'PIN') {
+        setCurrElec(`S${id}`);
       } else if (mode !== 'DRAW' && !isDragging) {
         if (isSelected) {
           setLocalMD(true);

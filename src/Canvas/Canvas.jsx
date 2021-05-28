@@ -113,6 +113,7 @@ export default function Canvas() {
         });
       }
       actuatePin(ind);
+      console.log(pinActuate);
       console.log(`Actuate ${ind} electrode`);
     }
   }

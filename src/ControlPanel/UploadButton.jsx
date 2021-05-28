@@ -3,11 +3,17 @@ import ListItem from '@material-ui/core/ListItem';
 import Tooltip from '@material-ui/core/Tooltip';
 import { FileCopy } from '@material-ui/icons';
 import { CanvasContext } from '../Contexts/CanvasProvider';
+import { ActuationContext } from '../Contexts/ActuationProvider';
+import ActuationSequence from '../Actuation/Actuation';
 
 export default function UploadButton() {
   const context = useContext(CanvasContext);
-  const { squares, setElectrodes, setSelected } = context;
+  const actuation = useContext(ActuationContext);
+  const {
+    squares, setElectrodes, setSelected, setComboLayout,
+  } = context;
   const { electrodes } = squares;
+  const { setPinActuation, setSimpleNum } = actuation;
   const filePicker = document.getElementById('filePicker');
   async function getFileLegacy() {
     return new Promise((resolve, reject) => {
@@ -52,6 +58,9 @@ export default function UploadButton() {
         const content = await readFile(file);
         const newInitPositions = [];
         const newDeltas = [];
+        const newAllCombined = [];
+        const newPinActuate = new Map();
+        let newSimpleNum = 1;
         const stringList = content.split('\n');
         for (let i = 0; i < stringList.length; i += 1) {
           const e = stringList[i];
@@ -60,10 +69,35 @@ export default function UploadButton() {
             if (words.length >= 3 && words[0] === 'square' && !Number.isNaN(words[1]) && !Number.isNaN(words[2])) {
               newInitPositions.push([parseInt(words[1], 10), parseInt(words[2], 10)]);
               newDeltas.push([0, 0]);
+            } else if (words.length >= 4 && words[0] === 'combine' && !Number.isNaN(words[1]) && !Number.isNaN(words[2]) && !Number.isNaN(words[1])) {
+              newAllCombined.push([parseInt(words[1], 10),
+                parseInt(words[2], 10), parseInt(words[3], 10)]);
             } else if (e.charAt(0) === '#') {
             // line starts with #
             } else if (!Number.isNaN(e.charAt(0))) {
-            // line starts with number
+              const sect = e.split(';');
+              if (sect.length > 2) {
+                window.alert("Your file's contents are a bit funny");
+              }
+              const id = parseInt(sect[0].split(':')[0], 10);
+              const dur = parseInt(sect[0].split(':')[2], 10);
+              const ord = parseInt(sect[0].split(':')[3], 10);
+              newSimpleNum = Math.max(ord, newSimpleNum);
+              const newSeq = new ActuationSequence(id, 'simple', ord);
+              newSeq.duration = dur;
+              const set = new Set(sect[0].split(':')[1].split(','));
+              newSeq.content = set;
+              newPinActuate.set(id, newSeq);
+              if (sect.length === 2) {
+                if (!newPinActuate.has(+sect[1].split(':')[0])) {
+                  const newLoop = new ActuationSequence(+sect[1].split(':')[0], 'loop');
+                  newLoop.repTime = +sect[1].split(':')[1];
+                  newPinActuate.set(+sect[1].split(':')[0], newLoop);
+                }
+                newPinActuate.get(+sect[1].split(':')[0]).content.push(id);
+                newPinActuate.get(id).parent = +sect[1].split(':')[0];
+              }
+              console.log(newPinActuate);
             } else {
               window.alert("Your file's contents are a bit funny");
               return;
@@ -73,7 +107,9 @@ export default function UploadButton() {
 
         setSelected([]);
         setElectrodes({ initPositions: newInitPositions, deltas: newDeltas });
-        // TODO: Parse Actuation Sequence Info as well.
+        setComboLayout(newAllCombined);
+        setPinActuation(newPinActuate);
+        setSimpleNum(newSimpleNum + 1);
       }
     } catch (e) {
       console.log(e);

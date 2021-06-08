@@ -8,7 +8,7 @@ import { GeneralContext } from '../Contexts/GeneralProvider';
 import { ELEC_SIZE } from '../constants';
 import range from '../Pins/range';
 
-export default function ContextMenu() {
+export default function ContextMenu({ setMoving }) {
   const canvasContext = useContext(CanvasContext);
   const { electrodes, selected } = canvasContext.squares;
   const { allCombined } = canvasContext.combined;
@@ -30,6 +30,11 @@ export default function ContextMenu() {
   const [showMenu, setShowMenu] = useState(false);
 
   const [clipboard, setClipboard] = useState([]);
+
+  function contextMove() {
+    setMoving(true);
+  }
+
   function contextCopy() {
     const squares = [];
     const combined = [];
@@ -259,16 +264,38 @@ export default function ContextMenu() {
     combinedDelete();
   }
 
+  const canModeNames = ['Move', 'Cut', 'Copy', 'Paste', 'Delete', 'Combine', 'Separate'];
+  const canModeFuncs = [
+    contextMove, contextCut, contextCopy, contextPaste, contextDelete, handleCombine, separate,
+  ];
+
   const handleContextMenu = useCallback(
     (e) => {
       e.preventDefault();
-      const rect = e.currentTarget.getBoundingClientRect();
-      const styleSplit = e.currentTarget.parentNode.style.transform.split(/[(,)]/);
-      const scaleFactor = parseFloat(styleSplit[5]);
-      setXPos(`${e.offsetX * scaleFactor + rect.left}px`);
+      // const styleSplit = e.currentTarget.parentNode.style.transform.split(/[(,)]/);
+      // console.log(e.currentTarget.parentNode.style);
+      // if user opens context menu far right or far down the canvas,
+      // have context menu's bottom left corner start at mouse
+      // rather than having the context menu's top left corner start at mouse
+      let x = 0;
+      if (mode !== 'PIN') x += e.offsetX + 49; // left bar width
+      else {
+        const xOffset = 50;
+        x += e.offsetX + 165 + xOffset;
+      }
+      setXPos(`${x}px`);
+
       setRelativeX(`${e.offsetX}px`);
       setRelativeY(`${e.offsetY}px`);
-      setYPos(`${e.offsetY * scaleFactor + rect.top}px`);
+
+      let y = 0;
+      if (mode !== 'PIN') y += e.offsetY + 75; // top bar height + menu padding
+      else {
+        const yOffset = 380;
+        y += e.offsetY + yOffset;
+      }
+
+      setYPos(`${y}px`);
       setShowMenu(true);
     },
     [setXPos, setYPos],
@@ -279,18 +306,18 @@ export default function ContextMenu() {
   }, [showMenu]);
 
   useEffect(() => {
-    document.addEventListener('click', handleClick);
-    document.querySelector('.greenArea').addEventListener('contextmenu', handleContextMenu);
+    document.querySelector('.greenArea').addEventListener('mouseup', handleContextMenu);
     return () => {
-      document.removeEventListener('click', handleClick);
-      document.querySelector('.greenArea').removeEventListener('contextmenu', handleContextMenu);
+      document.querySelector('.greenArea').removeEventListener('mouseup', handleContextMenu);
     };
-  }, [handleClick, handleContextMenu]);
+  }, []);
 
-  const canModeNames = ['Cut', 'Copy', 'Paste', 'Delete', 'Combine', 'Separate'];
-  const canModeFuncs = [
-    contextCut, contextCopy, contextPaste, contextDelete, handleCombine, separate,
-  ];
+  useEffect(() => {
+    if (showMenu) document.querySelector('.menu-container').addEventListener('click', handleClick);
+    return () => {
+      if (showMenu) document.removeEventListener('click', handleClick);
+    };
+  }, [showMenu]);
 
   return (
     <Motion
@@ -323,7 +350,10 @@ export default function ContextMenu() {
                   mode === 'CAN' && canModeNames.map((name, idx) => (
                     <MenuItem
                       key={idx.id}
-                      onClick={(e) => { canModeFuncs[idx](e, relativeX, relativeY); }}
+                      onClick={(e) => {
+                        canModeFuncs[idx](e, relativeX, relativeY);
+                        setShowMenu(false);
+                      }}
                     >
                       {name}
                     </MenuItem>

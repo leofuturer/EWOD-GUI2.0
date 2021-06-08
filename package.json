@@ -23,6 +23,7 @@
     "react-redux": "^7.2.2",
     "react-scripts": "4.0.3",
     "react-zoom-pan-pinch": "^2.1.1",
+    "react-svg-drag-and-select": "^1.1.0",
     "redux": "^4.0.5",
     "web-vitals": "^0.2.4",
     "workbox-background-sync": "^5.1.3",

@@ -44,7 +44,7 @@ describe('Canvas', () => {
     cy.get('[data-testid="CAN"]').click();
     cy.get('[data-testid="square"]').click();
 
-    cy.get('.greenArea').rightclick();
+    cy.get('.greenArea').rightclick({ force: true });
     cy.get('ul.menu > li:nth-child(4)').click({ force: true });
     cy.get('[data-testid="square"]').should('have.length', 0);
   });
@@ -55,7 +55,7 @@ describe('Canvas', () => {
 
     cy.get('[data-testid="CAN"]').click();
     cy.get('[data-testid="square"]').click({ multiple: true });
-    cy.get('.greenArea').rightclick();
+    cy.get('.greenArea').rightclick({ force: true });
     cy.get('ul.menu > li:nth-child(5)').click({ force: true });
     cy.get('[data-testid="square"]').should('have.length', 0);
     cy.get('[data-testid="combined"]').should('have.length', 1);
@@ -69,7 +69,7 @@ describe('Canvas', () => {
 
     cy.get('[data-testid="square"]').eq(0).click();
     cy.get('[data-testid="square"]').eq(1).click();
-    cy.get('.greenArea').rightclick();
+    cy.get('.greenArea').rightclick({ force: true });
     cy.get('ul.menu > li:nth-child(5)').click({ force: true });
 
     cy.get('[data-testid="square"]')
@@ -88,7 +88,7 @@ describe('Canvas', () => {
     cy.get('[data-testid="CAN"]').click();
 
     cy.get('[data-testid="square"]').click({ multiple: true });
-    cy.get('.greenArea').rightclick();
+    cy.get('.greenArea').rightclick({ force: true });
     cy.get('ul.menu > li:nth-child(5)').click({ force: true });
 
     cy.get('[data-testid="combined"]')
@@ -105,7 +105,7 @@ describe('Canvas', () => {
     cy.get('[data-testid="CAN"]').click();
     cy.get('[data-testid="square"]').eq(2).click();
     cy.get('[data-testid="square"]').eq(3).click();
-    cy.get('.greenArea').rightclick();
+    cy.get('.greenArea').rightclick({ force: true });
     cy.get('ul.menu > li:nth-child(5)').click({ force: true });
 
     cy.get('[data-testid="clear"]').click();

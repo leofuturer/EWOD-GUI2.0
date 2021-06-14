@@ -26,8 +26,10 @@
 
 Cypress.Commands.add('createSquare', (CELL) => {
   cy.get('.greenArea')
-    .trigger('mousedown', { which: 1, offsetX: CELL.x, offsetY: CELL.y })
-    .trigger('mousemove', { offsetX: CELL.x, offsetY: CELL.y })
+    .trigger('mousedown', {
+      which: 1, offsetX: CELL.x, offsetY: CELL.y, force: true,
+    })
+    .trigger('mousemove', { offsetX: CELL.x, offsetY: CELL.y, force: true })
     .trigger('mouseup', { force: true });
 });
 

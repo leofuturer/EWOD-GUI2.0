@@ -65,6 +65,12 @@ const ActuationProvider = ({ children }) => {
           newList.get(actuation.currentStep).actuatePin(pinNum);
           setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
         },
+        setPinActuation: (map) => {
+          setActuation((stateBoi) => ({ ...stateBoi, pinActuate: map }));
+        },
+        setSimpleNum: (num) => {
+          setActuation((stateBoi) => ({ ...stateBoi, simpleNum: num }));
+        },
         setCurrentStep: (initstep) => {
           let step = initstep;
           if (actuation.pinActuate.has(step) && actuation.pinActuate.get(step).type === 'loop') {

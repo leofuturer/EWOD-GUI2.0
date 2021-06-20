@@ -28,9 +28,9 @@ export default function genFileContents(electrodes, allCombined, pinActuate) {
           block = `${block + e.toString()},`;
         });
         block = block.slice(0, -1);
-        block = `${block};${value.duration.toString()}`;
+        block = `${value.id}:${block}:${value.duration.toString()}:${value.order}`;
         if (value.parent) {
-          block = `${block};${pinActuate.get(value.parent).repTime.toString()}`;
+          block = `${block};${value.parent}:${pinActuate.get(value.parent).repTime.toString()}`;
         }
         seq.push(block);
       }

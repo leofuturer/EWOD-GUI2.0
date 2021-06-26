@@ -17,7 +17,9 @@ export default function ContextMenu() {
     setElectrodes, setSelected, setComboLayout, setCombSelected,
   } = canvasContext;
 
-  const { mode } = useContext(GeneralContext);
+  const {
+    setPinToElec, setElecToPin, pinToElec, elecToPin, mode,
+  } = useContext(GeneralContext);
 
   const [xPos, setXPos] = useState('0px');
   const [yPos, setYPos] = useState('0px');
@@ -102,6 +104,19 @@ export default function ContextMenu() {
   }
 
   function squaresDelete() {
+    // go through selected squares to erase any of their pin mappings
+    selected.forEach((index) => {
+      const square = `S${index}`;
+      const mappedPin = elecToPin[square];
+      if (mappedPin) { // mapping exists for this electrode so delete mapping
+        delete pinToElec[mappedPin];
+        delete elecToPin[square];
+      }
+    });
+
+    setPinToElec({ ...pinToElec });
+    setElecToPin({ ...elecToPin });
+
     const newPos = electrodes.initPositions.filter((val, ind) => !selected.includes(ind));
     const newDel = electrodes.deltas.filter((val, ind) => !selected.includes(ind));
     setSelected([]);
@@ -109,6 +124,18 @@ export default function ContextMenu() {
   }
 
   function combinedDelete() {
+    // go through selected combined elecs to erase any of their pin mappings
+    combSelected.forEach((index) => {
+      const combined = `C${index}`;
+      const mappedPin = elecToPin[combined];
+      if (mappedPin) { // mapping exists for this electrode so delete mapping
+        delete pinToElec[mappedPin];
+        delete elecToPin[combined];
+      }
+    });
+
+    setPinToElec({ ...pinToElec });
+    setElecToPin({ ...elecToPin });
     setComboLayout(allCombined.filter((combi) => !combSelected.includes(combi[2])));
     setCombSelected([]);
   }
@@ -229,8 +256,7 @@ export default function ContextMenu() {
       deltas: electrodes.deltas
         .concat(new Array(allCombined.length).fill(null).map(() => new Array(2).fill(0))),
     });
-    setComboLayout(allCombined.filter((combi) => !combSelected.includes(combi[2])));
-    setCombSelected([]);
+    combinedDelete();
   }
 
   const handleContextMenu = useCallback(

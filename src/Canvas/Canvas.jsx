@@ -10,8 +10,10 @@ import { GeneralContext } from '../Contexts/GeneralProvider';
 
 import ContextMenu from './ContextMenu';
 import {
-  ELEC_SIZE, CANVAS_HEIGHT, CANVAS_WIDTH, CANVAS_REAL_HEIGHT,
+  ELEC_SIZE, CANVAS_HEIGHT, CANVAS_WIDTH, CANVAS_REAL_HEIGHT, CANVAS_REAL_WIDTH,
 } from '../constants';
+
+// const chassis = require('./chassis-with-background.svg');
 
 export default function Canvas() {
   const canvasContext = useContext(CanvasContext);
@@ -191,7 +193,7 @@ export default function Canvas() {
   /* ########################### COMBINE STUFF END ########################### */
 
   return (
-    <div className="wrapper" style={{ height: `${CANVAS_REAL_HEIGHT}vh` }}>
+    <div className="wrapper" style={{ height: CANVAS_REAL_HEIGHT, width: CANVAS_REAL_WIDTH }}>
       <svg className="greenArea" xmlns="http://www.w3.org/2000/svg" style={{ width: CANVAS_WIDTH * ELEC_SIZE, height: CANVAS_HEIGHT * ELEC_SIZE }}>
         {electrodes.initPositions.map((startPos, ind) => (
           <DraggableItem key={ind.id} id={ind}>

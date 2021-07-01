@@ -4,6 +4,7 @@ import React, {
 import { Motion, spring } from 'react-motion';
 import MenuItem from '@material-ui/core/MenuItem';
 import { CanvasContext } from '../Contexts/CanvasProvider';
+import { GeneralContext } from '../Contexts/GeneralProvider';
 import { ELEC_SIZE } from '../constants';
 import range from '../Pins/range';
 
@@ -15,7 +16,9 @@ export default function ContextMenu() {
   const {
     setElectrodes, setSelected, setComboLayout, setCombSelected,
   } = canvasContext;
-  const names = ['Cut', 'Copy', 'Paste', 'Delete', 'Combine', 'Separate'];
+
+  const { mode } = useContext(GeneralContext);
+
   const [xPos, setXPos] = useState('0px');
   const [yPos, setYPos] = useState('0px');
 
@@ -258,7 +261,11 @@ export default function ContextMenu() {
     };
   }, [handleClick, handleContextMenu]);
 
-  const funcs = [contextCut, contextCopy, contextPaste, contextDelete, handleCombine, separate];
+  const canModeNames = ['Cut', 'Copy', 'Paste', 'Delete', 'Combine', 'Separate'];
+  const canModeFuncs = [
+    contextCut, contextCopy, contextPaste, contextDelete, handleCombine, separate,
+  ];
+
   return (
     <Motion
       defaultStyle={{ opacity: 0 }}
@@ -287,10 +294,10 @@ export default function ContextMenu() {
                 }}
               >
                 {
-                  names.map((name, idx) => (
+                  mode === 'CAN' && canModeNames.map((name, idx) => (
                     <MenuItem
                       key={idx.id}
-                      onClick={(e) => { funcs[idx](e, relativeX, relativeY); }}
+                      onClick={(e) => { canModeFuncs[idx](e, relativeX, relativeY); }}
                     >
                       {name}
                     </MenuItem>

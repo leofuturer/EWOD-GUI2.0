@@ -43,7 +43,7 @@ function DraggableItem({ id, children }) {
     if (e.which === 1) {
       if (mode === 'PIN') {
         setCurrElec(`S${id}`);
-      } else if (mode !== 'DRAW' && !isDragging) {
+      } else if (mode !== 'DRAW' && mode !== 'PAN' && !isDragging) {
         if (isSelected) {
           setLocalMD(true);
         } else {
@@ -54,14 +54,14 @@ function DraggableItem({ id, children }) {
   }, [isDragging, setSelected, elecSelected, id, mode, isSelected]);
 
   const handleMouseUp = useCallback(() => {
-    if (mode !== 'DRAW' && isSelected && !isDragging && localMD) {
+    if (mode !== 'DRAW' && mode !== 'PAN' && isSelected && !isDragging && localMD) {
       setSelected(elecSelected.filter((x) => x !== id));
       setLocalMD(false);
     }
   }, [isDragging, setSelected, elecSelected, id, mode, isSelected]);
 
   const handleMouseOver = useCallback(() => {
-    if (mouseDown === true && mode !== 'DRAW' && !isDragging) {
+    if (mouseDown === true && mode !== 'DRAW' && mode !== 'PAN' && !isDragging) {
       if (isSelected) {
         setSelected(elecSelected.filter((x) => x !== id));
       } else {

@@ -40,7 +40,7 @@ function DraggableComb({ id, children }) {
     if (e.which === 1) {
       if (mode === 'PIN') {
         setCurrElec(`C${id}`);
-      } else if (mode !== 'DRAW' && !isDragging) {
+      } else if (mode !== 'DRAW' && mode !== 'PAN' && !isDragging) {
         if (mode === 'SEQ') {
           console.log(`Clicked on C${id}`);
         } else if (isSelected) {
@@ -53,7 +53,7 @@ function DraggableComb({ id, children }) {
   }, [isDragging, setCombSelected, selected, id, mode, isSelected]);
 
   const handleMouseUp = useCallback(() => {
-    if (mode !== 'DRAW' && isSelected && !isDragging && localMD) {
+    if (mode !== 'DRAW' && mode !== 'PAN' && isSelected && !isDragging && localMD) {
       if (mode === 'SEQ') {
         console.log(`Clicked on C${id}`);
       } else {
@@ -64,7 +64,7 @@ function DraggableComb({ id, children }) {
   }, [isDragging, setCombSelected, selected, id, mode, isSelected]);
 
   const handleMouseOver = useCallback(() => {
-    if (mouseDown === true && mode !== 'DRAW' && !isDragging) {
+    if (mouseDown === true && mode !== 'DRAW' && mode !== 'PAN' && !isDragging) {
       if (mode === 'SEQ') {
         console.log(`Clicked on C${id}`);
       } else if (isSelected) {

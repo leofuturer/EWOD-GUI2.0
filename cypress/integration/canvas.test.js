@@ -20,7 +20,7 @@ describe('Canvas', () => {
       .should('have.attr', 'y', Math.floor(CELL1.y / ELEC_SIZE) * ELEC_SIZE);
 
     cy.get('[data-testid="CAN"]').click();
-    cy.get('[data-testid="square"]').click();
+    cy.get('[data-testid="square"]').click({ force: true });
     cy.get('[data-testid="square"]').should('have.class', 'selected');
   });
 
@@ -29,7 +29,7 @@ describe('Canvas', () => {
     cy.createSquare(CELL1);
 
     cy.get('[data-testid="CAN"]').click();
-    cy.get('[data-testid="square"]').click();
+    cy.get('[data-testid="square"]').click({ force: true });
 
     cy.get('[data-testid="square"]')
       .then(($square) => cy.moveElec($square, CELL1, POSITION));
@@ -42,7 +42,7 @@ describe('Canvas', () => {
   it('Delete square', () => {
     cy.createSquare(CELL1);
     cy.get('[data-testid="CAN"]').click();
-    cy.get('[data-testid="square"]').click();
+    cy.get('[data-testid="square"]').click({ force: true });
 
     cy.get('.greenArea').rightclick({ force: true });
     cy.get('ul.menu > li:nth-child(4)').click({ force: true });
@@ -54,7 +54,7 @@ describe('Canvas', () => {
     cy.createSquare(CELL3);
 
     cy.get('[data-testid="CAN"]').click();
-    cy.get('[data-testid="square"]').click({ multiple: true });
+    cy.get('[data-testid="square"]').click({ multiple: true, force: true });
     cy.get('.greenArea').rightclick({ force: true });
     cy.get('ul.menu > li:nth-child(5)').click({ force: true });
     cy.get('[data-testid="square"]').should('have.length', 0);
@@ -67,8 +67,8 @@ describe('Canvas', () => {
     cy.createSquare(CELL4);
     cy.get('[data-testid="CAN"]').click();
 
-    cy.get('[data-testid="square"]').eq(0).click();
-    cy.get('[data-testid="square"]').eq(1).click();
+    cy.get('[data-testid="square"]').eq(0).click({ force: true });
+    cy.get('[data-testid="square"]').eq(1).click({ force: true });
     cy.get('.greenArea').rightclick({ force: true });
     cy.get('ul.menu > li:nth-child(5)').click({ force: true });
 
@@ -87,7 +87,7 @@ describe('Canvas', () => {
 
     cy.get('[data-testid="CAN"]').click();
 
-    cy.get('[data-testid="square"]').click({ multiple: true });
+    cy.get('[data-testid="square"]').click({ multiple: true, force: true });
     cy.get('.greenArea').rightclick({ force: true });
     cy.get('ul.menu > li:nth-child(5)').click({ force: true });
 
@@ -103,8 +103,8 @@ describe('Canvas', () => {
     cy.createSquare(CELL4);
 
     cy.get('[data-testid="CAN"]').click();
-    cy.get('[data-testid="square"]').eq(2).click();
-    cy.get('[data-testid="square"]').eq(3).click();
+    cy.get('[data-testid="square"]').eq(2).click({ force: true });
+    cy.get('[data-testid="square"]').eq(3).click({ force: true });
     cy.get('.greenArea').rightclick({ force: true });
     cy.get('ul.menu > li:nth-child(5)').click({ force: true });
 

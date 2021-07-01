@@ -14,7 +14,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Collapse from '@material-ui/core/Collapse';
 import {
   Undo, Redo, Highlight, Create, Info, ViewWeek, Usb, Image, Menu,
-  FormatListNumberedOutlined, GridOn,
+  FormatListNumberedOutlined, GridOn, OpenWith,
 } from '@material-ui/icons';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -155,6 +155,11 @@ export default function ControlPanel() {
             <Tooltip title="Select and Move Electrodes" data-testid="CAN">
               <ListItem button onClick={() => setNewMode('CAN')}>
                 <GridOn />
+              </ListItem>
+            </Tooltip>
+            <Tooltip title="Pan Canvas" data-testid="PAN">
+              <ListItem button onClick={() => setNewMode('PAN')}>
+                <OpenWith />
               </ListItem>
             </Tooltip>
 

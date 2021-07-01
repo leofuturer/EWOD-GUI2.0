@@ -34,9 +34,9 @@ Cypress.Commands.add('createSquare', (CELL) => {
 });
 
 Cypress.Commands.add('moveElec', (subject, from, to) => {
-  cy.get('[data-testid="CAN"]').click();
+  cy.get('[data-testid="CAN"]').click({ force: true });
 
-  cy.wrap(subject).first().click()
+  cy.wrap(subject).first().click({ force: true })
     .trigger('mousedown', {
       button: 0,
       clientX: from.x,

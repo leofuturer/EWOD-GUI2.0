@@ -234,11 +234,12 @@ export default function ContextMenu() {
     (e) => {
       e.preventDefault();
       const rect = e.currentTarget.getBoundingClientRect();
-      setXPos(`${e.offsetX + rect.left}px`);
+      const styleSplit = e.currentTarget.parentNode.style.transform.split(/[(,)]/);
+      const scaleFactor = parseFloat(styleSplit[5]);
+      setXPos(`${e.offsetX * scaleFactor + rect.left}px`);
       setRelativeX(`${e.offsetX}px`);
       setRelativeY(`${e.offsetY}px`);
-      if (e.offsetY > rect.bottom - 250) setYPos(`${e.offsetY + rect.top - 190}px`);
-      else setYPos(`${e.offsetY + rect.top}px`);
+      setYPos(`${e.offsetY * scaleFactor + rect.top}px`);
       setShowMenu(true);
     },
     [setXPos, setYPos],

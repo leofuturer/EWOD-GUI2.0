@@ -199,7 +199,7 @@ export default function Canvas() {
     <div className="wrapper" style={{ height: CANVAS_REAL_HEIGHT, width: CANVAS_REAL_WIDTH }}>
       <TransformWrapper
         limitToBounds={false}
-        panning={{ disabled: mode !== 'PAN' }}
+        panning={{ disabled: mode !== 'PAN' && mode !== 'PIN' }}
         onPanningStop={(ref) => {
           let newX = ref.state.positionX;
           let newY = ref.state.positionY;
@@ -226,7 +226,7 @@ export default function Canvas() {
                   y={startPos[1]}
                   width={ELEC_SIZE - 5}
                   height={ELEC_SIZE - 5}
-                  className={`electrode 
+                  className={`electrode
                                 ${mode === 'SEQ' && pinActuate.has(currentStep)
                                 && Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`) && pinActuate.get(currentStep).content.has(elecToPin[`S${ind}`]) ? 'toSeq' : ''}
                                 ${mode === 'CAN' && selected.includes(ind) ? 'selected' : ''}

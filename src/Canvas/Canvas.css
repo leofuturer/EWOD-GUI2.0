@@ -6,13 +6,18 @@
 }
 
 .wrapper {
-  overflow: visible;
-  margin-left: 49px;
+  position: absolute;
+  left: 50px;
+  top: 305px;
+  left: 190px;
+  overflow: hidden;
 }
 
 #zoom_div{
   transform-origin: 0 0;
   -webkit-transform-origin: 0 0;
+  position: absolute;
+  top: 306px;
 }
 
 .greenArea {

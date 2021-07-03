@@ -5,7 +5,7 @@ import { Motion, spring } from 'react-motion';
 import MenuItem from '@material-ui/core/MenuItem';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
-import { ELEC_SIZE } from '../constants';
+import { ELEC_SIZE, CANVAS_REAL_HEIGHT, CANVAS_REAL_WIDTH } from '../constants';
 import range from '../Pins/range';
 
 export default function ContextMenu() {
@@ -233,16 +233,32 @@ export default function ContextMenu() {
     setCombSelected([]);
   }
 
+  const canModeNames = ['Cut', 'Copy', 'Paste', 'Delete', 'Combine', 'Separate'];
+  const canModeFuncs = [
+    contextCut, contextCopy, contextPaste, contextDelete, handleCombine, separate,
+  ];
+
   const handleContextMenu = useCallback(
     (e) => {
       e.preventDefault();
-      const rect = e.currentTarget.getBoundingClientRect();
       const styleSplit = e.currentTarget.parentNode.style.transform.split(/[(,)]/);
-      const scaleFactor = parseFloat(styleSplit[5]);
-      setXPos(`${e.offsetX * scaleFactor + rect.left}px`);
+      let numFuncs = 0;
+      if (mode === 'CAN') numFuncs = canModeFuncs.length;
+
+      // if user opens context menu far right or far down the canvas,
+      // have context menu's bottom left corner start at mouse
+      // rather than having the context menu's top left corner start at mouse
+      let x = e.offsetX * styleSplit[5] + parseFloat(styleSplit[1]);
+      if (x > CANVAS_REAL_WIDTH - 98) x -= 98; // the width of the context menu
+      setXPos(`${x}px`);
+
       setRelativeX(`${e.offsetX}px`);
       setRelativeY(`${e.offsetY}px`);
-      setYPos(`${e.offsetY * scaleFactor + rect.top}px`);
+
+      let y = e.offsetY * styleSplit[5] + parseFloat(styleSplit[2]);
+      if (y > CANVAS_REAL_HEIGHT - (numFuncs * 36)) y -= numFuncs * 36;
+      // the height of the context menu
+      setYPos(`${y}px`);
       setShowMenu(true);
     },
     [setXPos, setYPos],
@@ -260,11 +276,6 @@ export default function ContextMenu() {
       document.querySelector('.greenArea').removeEventListener('contextmenu', handleContextMenu);
     };
   }, [handleClick, handleContextMenu]);
-
-  const canModeNames = ['Cut', 'Copy', 'Paste', 'Delete', 'Combine', 'Separate'];
-  const canModeFuncs = [
-    contextCut, contextCopy, contextPaste, contextDelete, handleCombine, separate,
-  ];
 
   return (
     <Motion
@@ -288,7 +299,7 @@ export default function ContextMenu() {
                   top: yPos,
                   left: xPos,
                   backgroundColor: 'white',
-                  padding: '10px 0px',
+                  padding: 0,
                   borderRadius: '5px',
                   boxShadow: '2px 2px 30px lightgrey',
                 }}

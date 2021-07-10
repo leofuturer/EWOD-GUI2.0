@@ -101,7 +101,7 @@ const useStyles = makeStyles((theme) => ({
 export default function ControlPanel() {
   const canvasContext = useContext(CanvasContext);
   const actuationContext = useContext(ActuationContext);
-  const { setMode } = useContext(GeneralContext);
+  const { setMode, setCurrElec } = useContext(GeneralContext);
   const { setSelected, setCombSelected } = canvasContext;
   const { undo, redo } = actuationContext;
 
@@ -114,6 +114,7 @@ export default function ControlPanel() {
     setMode(newMode);
     setSelected([]);
     setCombSelected([]);
+    setCurrElec(null);
   }
 
   return (

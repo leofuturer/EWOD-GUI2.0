@@ -11,7 +11,9 @@ import { GeneralContext } from '../Contexts/GeneralProvider';
 import { ELEC_SIZE } from '../constants';
 
 function DraggableComb({ id, children }) {
-  const { mode } = useContext(GeneralContext);
+  const {
+    mode, setCurrElec,
+  } = useContext(GeneralContext);
 
   const context = useContext(CanvasContext);
   const { setDelta, setCombSelected, setDragging } = context;
@@ -32,17 +34,44 @@ function DraggableComb({ id, children }) {
 
   const dragItem = useRef(null);
 
+  const [localMD, setLocalMD] = useState(false);
+
   const handleMouseDown = useCallback((e) => {
     if (e.which === 1) {
-      if (!isSelected && mode !== 'DRAW' && !isDragging) {
-        setCombSelected([...new Set([...selected, id])]);
+      if (mode === 'PIN') {
+        setCurrElec(`C${id}`);
+      } else if (mode !== 'DRAW' && mode !== 'PAN' && !isDragging) {
+        if (mode === 'SEQ') {
+          console.log(`Clicked on C${id}`);
+        } else if (isSelected) {
+          setLocalMD(true);
+        } else {
+          setCombSelected([...new Set([...selected, id])]);
+        }
+      }
+    }
+  }, [isDragging, setCombSelected, selected, id, mode, isSelected]);
+
+  const handleMouseUp = useCallback(() => {
+    if (mode !== 'DRAW' && mode !== 'PAN' && isSelected && !isDragging && localMD) {
+      if (mode === 'SEQ') {
+        console.log(`Clicked on C${id}`);
+      } else {
+        setCombSelected(selected.filter((x) => x !== id));
+        setLocalMD(false);
       }
     }
   }, [isDragging, setCombSelected, selected, id, mode, isSelected]);
 
   const handleMouseOver = useCallback(() => {
-    if (mouseDown === true && !isSelected && mode !== 'DRAW' && !isDragging) {
-      setCombSelected([...new Set([...selected, id])]);
+    if (mouseDown === true && mode !== 'DRAW' && mode !== 'PAN' && !isDragging) {
+      if (mode === 'SEQ') {
+        console.log(`Clicked on C${id}`);
+      } else if (isSelected) {
+        setCombSelected(selected.filter((x) => x !== id));
+      } else {
+        setCombSelected([...new Set([...selected, id])]);
+      }
     }
   }, [isDragging, mode, id, isSelected, mouseDown, selected, setCombSelected]);
 
@@ -51,13 +80,15 @@ function DraggableComb({ id, children }) {
       const item = dragItem.current;
       item.addEventListener('mousedown', handleMouseDown);
       item.addEventListener('mouseover', handleMouseOver);
+      item.addEventListener('mouseup', handleMouseUp);
       return () => {
         item.removeEventListener('mousedown', handleMouseDown);
         item.removeEventListener('mouseover', handleMouseOver);
+        item.removeEventListener('mouseup', handleMouseUp);
       };
     }
     return undefined;
-  }, [handleMouseDown, handleMouseOver]);
+  }, [handleMouseDown, handleMouseOver, handleMouseUp]);
 
   const [savingChanges, setSaveChanges] = useState(false);
 
@@ -94,7 +125,7 @@ function DraggableComb({ id, children }) {
     >
       <g ref={dragItem}>
         <g style={transform}>
-          <g className={`${isSelected ? 'selected' : ''}`}>
+          <g className={`${mode === 'CAN' && isSelected ? 'selected' : ''}`}>
             {children}
           </g>
         </g>

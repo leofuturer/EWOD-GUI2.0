@@ -12,13 +12,14 @@ export default function DownloadButton() {
   const { electrodes } = canvasContext.squares;
   const { allCombined } = canvasContext.combined;
   const { pinActuate } = actuationContext.actuation;
+  const aDownloadFile = document.getElementById('aDownloadFile');
   async function getNewFileHandle() {
     const options = {
       types: [
         {
-          description: 'Ewd Files',
+          description: 'Ewds Files',
           accept: {
-            '*/plain': ['.ewd'],
+            '*/plain': ['.ewds'],
           },
         },
       ],
@@ -37,11 +38,29 @@ export default function DownloadButton() {
     await writable.close();
   }
   async function handleDownload() {
-    const handle = await getNewFileHandle();
     const contents = genFileContents(electrodes, allCombined, pinActuate);
     const fileText = `${contents.squares.join('\n')}\n${contents.combs.join('\n')
     }\n#ENDOFELECTRODE#\n${contents.actuation.join('\n')}\n#ENDOFSEQUENCE#\n`;
-    writeFile(handle, fileText);
+    if ('showSaveFilePicker' in window) {
+      const handle = await getNewFileHandle();
+      writeFile(handle, fileText);
+    } else {
+      const fileName = 'untitled.ewds';
+      const opt = {
+        types: [
+          {
+            description: 'Ewds Files',
+            accept: {
+              '*/plain': ['.ewds'],
+            },
+          },
+        ],
+      };
+      const file = new File([fileText], '', opt);
+      aDownloadFile.href = window.URL.createObjectURL(file);
+      aDownloadFile.setAttribute('download', fileName);
+      aDownloadFile.click();
+    }
   }
 
   return (

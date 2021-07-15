@@ -1,5 +1,8 @@
-import React, { useContext, useState, useRef } from 'react';
+import React, {
+  useContext, useState, useRef, useEffect,
+} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import Drawer from '@material-ui/core/Drawer';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
@@ -17,6 +20,7 @@ import { DialogContentText } from '@material-ui/core';
 import ActuationSequence from './Actuation';
 import { ActuationContext } from '../Contexts/ActuationProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
+import { setPin } from '../USBCommunication/USBCommunication';
 
 import { SCROLL_HEIGHT } from '../constants';
 
@@ -104,6 +108,13 @@ const useStyles = makeStyles({
   input: {
     color: '#A06933',
   },
+  drawer: {
+    height: `${SCROLL_HEIGHT}vh`,
+    flexShrink: 0,
+  },
+  drawerPaper: {
+    height: `${SCROLL_HEIGHT}vh`,
+  },
 });
 
 export default function Scroll() {
@@ -135,7 +146,7 @@ export default function Scroll() {
   indexRef.current = index;
   const scrollRef = useRef();
 
-  const { bannerRef } = useContext(GeneralContext);
+  const { mode, bannerRef } = useContext(GeneralContext);
 
   const handleClick = (event) => {
     event.preventDefault();
@@ -166,7 +177,7 @@ export default function Scroll() {
     pinActuate.forEach((value) => {
       if (value.type === 'simple' && !visited.has(value.id)) {
         visited.add(value.id);
-        if (value.parent !== null) {
+        if (value.parent) {
           const parent = pinActuate.get(value.parent);
           for (let i = 0; i < parent.repTime; i += 1) {
             parent.content.forEach((e) => {
@@ -182,6 +193,10 @@ export default function Scroll() {
     setFullseq(list);
   }
 
+  useEffect(() => {
+    generateSeq();
+  }, [pinActuate]);
+
   const modelOpen = () => { setOpen(true); };
   const modelClose = () => { setOpen(false); handleClose(); };
   const changeFrom = (event) => { setFrom(event.target.value); };
@@ -189,11 +204,15 @@ export default function Scroll() {
   const changeRepTime = (event) => { setRepTime(event.target.value); };
 
   const handleLoop = (id) => {
+    if (from === '' || to === '' || repTime === '') {
+      bannerRef.current.getAlert('error', 'Invalid block number!');
+      return;
+    }
     const fromInt = parseInt(from, 10);
     const toInt = parseInt(to, 10);
     const repTimeInt = parseInt(repTime, 10);
     if (fromInt < toInt) {
-      if (id !== null) {
+      if (id) {
         const success = updateLoop(fromInt, toInt, repTimeInt, id);
         if (!success) {
           bannerRef.current.getAlert('error', 'Update Loop Fail! Please check the range of frame.');
@@ -245,9 +264,7 @@ export default function Scroll() {
 
   function handlePlay() {
     generateSeq();
-    setIndex(index);
     setCurrentStep(fullseq[index]);
-    console.log(fullseq);
     if (pause) {
       setPause(false);
       proceed();
@@ -255,7 +272,7 @@ export default function Scroll() {
   }
 
   function handlePause() {
-    if (time !== null || time !== undefined) {
+    if (time) {
       clearTimeout(time);
     }
     setIndex((ind) => ind - 1);
@@ -289,7 +306,7 @@ export default function Scroll() {
   };
 
   const handlePaste = () => {
-    if (clipboard !== null) {
+    if (clipboard) {
       let ind = pinActuate.size;
       while (pinActuate.has(ind)) ind += 1;
       const newSeq = new ActuationSequence(ind, 'simple', 0);
@@ -303,71 +320,94 @@ export default function Scroll() {
     handleClose();
   };
 
+  useEffect(() => {
+    setPin(Array.from(pinActuate.get(currentStep).content), 1, true);
+  }, [currentStep]);
+
   return (
-    <div>
-      <div className={classes.playTab}>
-        <p style={{
-          position: 'absolute', left: '48vw', top: -10, fontSize: 14, color: '#A06933',
-        }}
-        >
-          {`Step ${pinActuate.get(currentStep).order}`}
-        </p>
-        <IconButton onClick={() => { setFlush(true); }} data-testid="set-all-duration">
-          <DynamicFeed fontSize="small" style={{ color: '#A06933' }} />
-        </IconButton>
-        <IconButton onClick={() => { setAlert(true); }} data-testid="delete-start">
-          <DeleteForever fontSize="small" style={{ color: '#A06933' }} />
-        </IconButton>
-        <IconButton onClick={handlePause}>
-          <Pause fontSize="small" style={{ color: '#A06933' }} />
-        </IconButton>
-        <IconButton onClick={() => {
-          if (index !== 0) {
-            setCurrentStep(fullseq[index - 1]);
-            setIndex(index - 1);
-          }
-        }}
-        >
-          <SkipPrevious fontSize="small" style={{ color: '#A06933' }} />
-        </IconButton>
-        <IconButton
-          onClick={() => {
-            handlePlay();
+    <Drawer
+      anchor="bottom"
+      open={mode === 'SEQ'}
+      variant="persistent"
+      className={classes.drawer}
+      classes={{ paper: classes.drawerPaper }}
+    >
+      <div>
+        <div className={classes.playTab}>
+          <p style={{
+            position: 'absolute', left: '48vw', top: -10, fontSize: 14, color: '#A06933',
           }}
-          data-testid="play-button"
-        >
-          <PlayArrow fontSize="small" style={{ color: '#A06933' }} />
-        </IconButton>
-        <IconButton onClick={() => {
-          if (index !== fullseq.length - 1) {
-            setCurrentStep(fullseq[index + 1]);
-            setIndex(index + 1);
-          }
-        }}
-        >
-          <SkipNext fontSize="small" style={{ color: '#A06933' }} />
-        </IconButton>
-        <IconButton onClick={() => {
-          handlePause();
-          setCurrentStep(fullseq[0]);
-          setIndex(0);
-          setForever(false);
-        }}
-        >
-          <Stop fontSize="small" style={{ color: '#A06933' }} />
-        </IconButton>
-        <IconButton
-          onClick={() => {
-            setForever((tempforever) => !tempforever);
+          >
+            {`Step ${pinActuate.get(currentStep).order}`}
+          </p>
+          <IconButton
+            onClick={() => {
+              if (pause) {
+                setFlush(true);
+              } else {
+                bannerRef.current.getAlert('error', 'Pleast stop playing before editing!');
+              }
+            }}
+            data-testid="set-all-duration"
+          >
+            <DynamicFeed fontSize="small" style={{ color: '#A06933' }} />
+          </IconButton>
+          <IconButton onClick={() => { setAlert(true); }} data-testid="delete-start">
+            <DeleteForever fontSize="small" style={{ color: '#A06933' }} />
+          </IconButton>
+          <IconButton onClick={handlePause}>
+            <Pause fontSize="small" style={{ color: '#A06933' }} />
+          </IconButton>
+          <IconButton onClick={() => {
+            if (pause && index !== 0) {
+              setCurrentStep(fullseq[index - 1]);
+              setIndex(index - 1);
+            }
           }}
-          style={{ backgroundColor: forever ? '#85daed' : 'transparent' }}
-        >
-          <Replay fontSize="small" style={{ color: forever ? 'black' : '#A06933' }} />
-        </IconButton>
-      </div>
-      <div className={classes.container} ref={scrollRef} onWheel={handleWheel}>
-        <div className={classes.subcontainer} style={{ overflowX: 'visible' }}>
-          {
+          >
+            <SkipPrevious fontSize="small" style={{ color: '#A06933' }} />
+          </IconButton>
+          <IconButton
+            onClick={() => {
+              handlePlay();
+            }}
+            data-testid="play-button"
+          >
+            <PlayArrow fontSize="small" style={{ color: '#A06933' }} />
+          </IconButton>
+          <IconButton onClick={() => {
+            if (pause && index !== fullseq.length - 1) {
+              setCurrentStep(fullseq[index + 1]);
+              setIndex(index + 1);
+            }
+          }}
+          >
+            <SkipNext fontSize="small" style={{ color: '#A06933' }} />
+          </IconButton>
+          <IconButton onClick={() => {
+            handlePause();
+            setCurrentStep(fullseq[0]);
+            setIndex(0);
+            setForever(false);
+          }}
+          >
+            <Stop fontSize="small" style={{ color: '#A06933' }} />
+          </IconButton>
+          <IconButton
+            onClick={() => {
+              setForever((tempforever) => !tempforever);
+              if (!pause) handlePause();
+            }}
+            style={{ backgroundColor: forever ? '#85daed' : 'transparent' }}
+            data-testid="play-forever"
+          >
+            <Replay fontSize="small" style={{ color: forever ? 'black' : '#A06933' }} />
+          </IconButton>
+        </div>
+
+        <div className={classes.container} ref={scrollRef} onWheel={handleWheel}>
+          <div className={classes.subcontainer} style={{ overflowX: 'visible' }}>
+            {
             Array.from(pinActuate.keys()).map((key) => {
               const value = pinActuate.get(key);
               if (value.type === 'loop') {
@@ -387,12 +427,17 @@ export default function Scroll() {
                       height: 25,
                     }}
                     onClick={() => {
-                      const loop = pinActuate.get(key);
-                      setFrom(pinActuate.get(loop.content[0]).order.toString());
-                      setTo(pinActuate.get(loop.content[loop.content.length - 1]).order.toString());
-                      setRepTime(loop.repTime.toString());
-                      setUpdate(key);
-                      modelOpen();
+                      if (pause) {
+                        const loop = pinActuate.get(key);
+                        setFrom(pinActuate.get(loop.content[0]).order.toString());
+                        setTo(pinActuate.get(loop.content[loop.content.length - 1])
+                          .order.toString());
+                        setRepTime(loop.repTime.toString());
+                        setUpdate(key);
+                        modelOpen();
+                      } else {
+                        bannerRef.current.getAlert('error', 'Please stop playing before editing!');
+                      }
                     }}
                     key={key}
                     data-testid="loop-button"
@@ -404,215 +449,249 @@ export default function Scroll() {
               return null;
             })
           }
-        </div>
-        <div className={classes.subcontainer}>
-          {Array.from(pinActuate.keys()).map((key) => {
-            const value = pinActuate.get(key);
-            let appendString = '';
-            value.content.forEach((e) => { appendString += (`${e.toString()}, `); });
-            appendString = appendString.slice(0, -2);
-            if (value.type === 'simple') {
-              return (
-                <Button
-                  className={classes.button}
-                  variant="outlined"
-                  style={{ backgroundColor: currentStep === key ? '#D4A373' : '#FEFAE0' }}
-                  onClick={() => {
-                    setCurrentStep(key);
-                  }}
-                  onContextMenu={(event) => {
-                    setCurrentStep(key);
-                    handleClick(event);
-                  }}
-                  key={key}
-                  data-testid="seq-button"
-                >
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <p>{`Frame Number: ${value.order}`}</p>
-                    <p>{`Actuated Pins: ${appendString}`}</p>
-                    <TextField
-                      variant="outlined"
-                      label="duration"
-                      inputProps={{
-                        className: classes.input,
-                      }}
-                      InputLabelProps={{
-                        className: classes.input,
-                      }}
-                      value={pinActuate.get(key).duration}
-                      onChange={(event) => {
-                        updateDuration(key, event.target.value);
-                      }}
-                    />
-                  </div>
-                </Button>
-              );
-            }
-            return null;
-          })}
-          <Button
-            className={classes.add}
-            onClick={() => {
-              let ind = pinActuate.size;
-              while (pinActuate.has(ind)) ind += 1;
-              setCurrentStep(ind);
-              generateSeq();
-            }}
-            data-testid="add-button"
-            variant="outlined"
-          >
-            <AddCircleOutline />
-          </Button>
-          <div style={{ minWidth: '20px', height: '100px', backgroundColor: 'transparent' }} />
-        </div>
-        <Menu
-          keepMounted
-          open={mouseState.mouseY !== null}
-          onClose={handleClose}
-          anchorReference="anchorPosition"
-          anchorPosition={
-            mouseState.mouseY !== null && mouseState.mouseX !== null
+          </div>
+          <div className={classes.subcontainer}>
+            {Array.from(pinActuate.keys()).map((key) => {
+              const value = pinActuate.get(key);
+              let appendString = '';
+              value.content.forEach((e) => { appendString += (`${e.toString()}, `); });
+              appendString = appendString.slice(0, -2);
+              if (value.type === 'simple') {
+                return (
+                  <Button
+                    className={classes.button}
+                    variant="outlined"
+                    style={{ backgroundColor: currentStep === key ? '#D4A373' : '#FEFAE0' }}
+                    onClick={() => {
+                      if (pause) {
+                        setCurrentStep(key);
+                      }
+                    }}
+                    onContextMenu={(event) => {
+                      if (pause) {
+                        setCurrentStep(key);
+                        handleClick(event);
+                      } else {
+                        bannerRef.current.getAlert('error', 'Please stop playing before editing!');
+                      }
+                    }}
+                    key={key}
+                    data-testid="seq-button"
+                  >
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <p>{`Frame Number: ${value.order}`}</p>
+                      <p>{`Actuated Pins: ${appendString}`}</p>
+                      <TextField
+                        variant="outlined"
+                        label="duration"
+                        inputProps={{
+                          className: classes.input,
+                        }}
+                        InputLabelProps={{
+                          className: classes.input,
+                        }}
+                        value={pinActuate.get(key).duration}
+                        onChange={(event) => {
+                          updateDuration(key, event.target.value);
+                        }}
+                      />
+                    </div>
+                  </Button>
+                );
+              }
+              return null;
+            })}
+            <Button
+              className={classes.add}
+              onClick={() => {
+                if (pause) {
+                  let ind = pinActuate.size;
+                  while (pinActuate.has(ind)) ind += 1;
+                  setCurrentStep(ind);
+                  generateSeq();
+                } else {
+                  bannerRef.current.getAlert('error', 'Please stop playing before editing!');
+                }
+              }}
+              data-testid="add-button"
+              variant="outlined"
+            >
+              <AddCircleOutline />
+            </Button>
+            <div style={{ minWidth: '20px', height: '100px', backgroundColor: 'transparent' }} />
+          </div>
+          <Menu
+            keepMounted
+            open={mouseState.mouseY}
+            onClose={handleClose}
+            anchorReference="anchorPosition"
+            anchorPosition={
+            mouseState.mouseY && mouseState.mouseX
               ? { top: mouseState.mouseY, left: mouseState.mouseX }
               : undefined
           }
-        >
-          <MenuItem onClick={handleInsert}>Insert</MenuItem>
-          <MenuItem onClick={handleCopy}>Copy</MenuItem>
-          <MenuItem onClick={handlePaste}>Paste</MenuItem>
-          <MenuItem onClick={modelOpen}>Loop</MenuItem>
-          <MenuItem onClick={handleDelete}>Delete</MenuItem>
-        </Menu>
-        <Dialog
-          open={open}
-          onClose={modelClose}
-          aria-labelledby="form-dialog-title"
-        >
-          <DialogTitle id="form-dialog-title">Set Repeat</DialogTitle>
-          <DialogContent style={{ display: 'flex', flexDirection: 'column', width: 400 }}>
+            data-testid="act-context-menu"
+          >
+            <MenuItem onClick={handleInsert}>Insert</MenuItem>
+            <MenuItem onClick={handleCopy}>Copy</MenuItem>
+            <MenuItem onClick={handlePaste}>Paste</MenuItem>
+            <MenuItem onClick={modelOpen}>Loop</MenuItem>
+            <MenuItem onClick={handleDelete}>Delete</MenuItem>
+          </Menu>
+          <Dialog
+            open={open}
+            onClose={modelClose}
+            aria-labelledby="form-dialog-title"
+          >
+            <DialogTitle id="form-dialog-title">Set Repeat</DialogTitle>
+            <DialogContent style={{ display: 'flex', flexDirection: 'column', width: 400 }}>
 
-            <TextField
-              autoFocus
-              variant="outlined"
-              label="From"
-              style={{ marginBottom: 10 }}
-              value={from}
-              onChange={changeFrom}
-              helperText={!Number.isNaN(from) && parseInt(Number(from), 10) === Number(from) ? '' : 'need to be a number'}
-              error={Number.isNaN(from) || parseInt(Number(from), 10) !== Number(from)}
-              data-testid="input-from"
-            />
+              <TextField
+                autoFocus
+                variant="outlined"
+                label="From"
+                style={{ marginBottom: 10 }}
+                value={from}
+                onChange={changeFrom}
+                helperText={!Number.isNaN(from) && parseInt(Number(from), 10) === Number(from) ? '' : 'need to be a number'}
+                error={Number.isNaN(from) || parseInt(Number(from), 10) !== Number(from)}
+                data-testid="input-from"
+              />
 
-            <TextField
-              variant="outlined"
-              label="To"
-              style={{ marginBottom: 10 }}
-              value={to}
-              onChange={changeTo}
-              helperText={!Number.isNaN(to) && parseInt(Number(to), 10) === Number(to) ? '' : 'need to be a number'}
-              error={Number.isNaN(to) || parseInt(Number(to), 10) !== Number(to)}
-              data-testid="input-to"
-            />
+              <TextField
+                variant="outlined"
+                label="To"
+                style={{ marginBottom: 10 }}
+                value={to}
+                onChange={changeTo}
+                helperText={!Number.isNaN(to) && parseInt(Number(to), 10) === Number(to) ? '' : 'need to be a number'}
+                error={Number.isNaN(to) || parseInt(Number(to), 10) !== Number(to)}
+                data-testid="input-to"
+              />
 
-            <TextField
-              variant="outlined"
-              label="Repeat Time"
-              style={{ marginBottom: 10 }}
-              value={repTime}
-              onChange={changeRepTime}
-              helperText={!Number.isNaN(repTime) && parseInt(Number(repTime), 10) === Number(repTime) ? '' : 'need to be a number'}
-              error={Number.isNaN(repTime) || parseInt(Number(repTime), 10) !== Number(repTime)}
-              data-testid="input-rept"
-            />
+              <TextField
+                variant="outlined"
+                label="Repeat Time"
+                style={{ marginBottom: 10 }}
+                value={repTime}
+                onChange={changeRepTime}
+                helperText={!Number.isNaN(repTime) && parseInt(Number(repTime), 10) === Number(repTime) ? '' : 'need to be a number'}
+                error={Number.isNaN(repTime) || parseInt(Number(repTime), 10) !== Number(repTime)}
+                data-testid="input-rept"
+              />
 
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={modelClose} color="primary">
-              Cancel
-            </Button>
-            {update !== null
-              ? (
-                <Button onClick={() => { deleteLoop(update); setUpdate(null); modelClose(); }} color="primary">
-                  Delete
-                </Button>
-              ) : null}
-            <Button
-              onClick={() => {
-                handleLoop(update);
-              }}
-              color="primary"
-            >
-              Confirm
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <Dialog
-          open={alert}
-          onClose={() => { setAlert(false); }}
-          aria-labelledby="alert-dialog-title"
-        >
-          <DialogTitle id="alert-dialog-title">Delete Every Actuation Sequence?</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              After clicking confirm, all work you made will be deleted permanently.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => { setAlert(false); }} color="primary">
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                handlePause();
-                setCurrentStep(fullseq[0]);
-                setIndex(0);
-                clearAll();
-                setAlert(false);
-              }}
-              color="primary"
-              autoFocus
-              data-testid="delete-button"
-            >
-              Confirm
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <Dialog
-          open={flush}
-          onClose={() => { setFlush(false); }}
-          aria-labelledby="alert-dialog-title"
-        >
-          <DialogTitle id="alert-dialog-title">How long for each actuation sequence?</DialogTitle>
-          <DialogContent>
-            <TextField
-              variant="outlined"
-              value={duration}
-              onChange={(event) => { setDuration(event.target.value); }}
-              style={{ marginBottom: 10 }}
-              helperText={!Number.isNaN(duration) && parseInt(Number(duration), 10) === Number(duration) ? '' : 'need to be a number'}
-              error={Number.isNaN(duration) || parseInt(Number(duration), 10) !== Number(duration)}
-              data-testid="duration-all"
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => { setFlush(false); }} color="primary">
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                if (!Number.isNaN(duration)) {
-                  updateAllDuration(parseInt(Number(duration), 10));
-                }
-                setFlush(false);
-              }}
-              color="primary"
-              autoFocus
-              data-testid="delete-button"
-            >
-              Confirm
-            </Button>
-          </DialogActions>
-        </Dialog>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => {
+                  setUpdate(null);
+                  setFrom('');
+                  setTo('');
+                  setRepTime('');
+                  modelClose();
+                }}
+                color="primary"
+              >
+                Cancel
+              </Button>
+              {update
+                ? (
+                  <Button
+                    onClick={() => {
+                      deleteLoop(update);
+                      setUpdate(null);
+                      modelClose();
+                      setFrom('');
+                      setTo('');
+                      setRepTime('');
+                      generateSeq();
+                    }}
+                    color="primary"
+                  >
+                    Delete
+                  </Button>
+                ) : null}
+              <Button
+                onClick={() => {
+                  handleLoop(update);
+                  setUpdate(null);
+                }}
+                color="primary"
+              >
+                Confirm
+              </Button>
+            </DialogActions>
+          </Dialog>
+          <Dialog
+            open={alert}
+            onClose={() => { setAlert(false); }}
+            aria-labelledby="alert-dialog-title"
+          >
+            <DialogTitle id="alert-dialog-title">Delete Every Actuation Sequence?</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                After clicking confirm, all work you made will be deleted permanently.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => { setAlert(false); }} color="primary">
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  handlePause();
+                  setCurrentStep(fullseq[0]);
+                  setIndex(0);
+                  clearAll();
+                  setAlert(false);
+                }}
+                color="primary"
+                autoFocus
+                data-testid="delete-button"
+              >
+                Confirm
+              </Button>
+            </DialogActions>
+          </Dialog>
+          <Dialog
+            open={flush}
+            onClose={() => { setFlush(false); }}
+            aria-labelledby="alert-dialog-title"
+          >
+            <DialogTitle id="alert-dialog-title">How long for each actuation sequence?</DialogTitle>
+            <DialogContent>
+              <TextField
+                variant="outlined"
+                value={duration}
+                onChange={(event) => { setDuration(event.target.value); }}
+                style={{ marginBottom: 10 }}
+                helperText={!Number.isNaN(duration) && parseInt(Number(duration), 10) === Number(duration) ? '' : 'need to be a number'}
+                error={Number.isNaN(duration)
+                  || parseInt(Number(duration), 10) !== Number(duration)}
+                data-testid="duration-all"
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => { setFlush(false); }} color="primary">
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  if (!Number.isNaN(duration)) {
+                    updateAllDuration(parseInt(Number(duration), 10));
+                  }
+                  setFlush(false);
+                }}
+                color="primary"
+                autoFocus
+                data-testid="delete-button"
+              >
+                Confirm
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </div>
       </div>
-    </div>
+    </Drawer>
   );
 }

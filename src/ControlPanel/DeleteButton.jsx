@@ -10,6 +10,7 @@ import Button from '@material-ui/core/Button';
 import { DialogContentText } from '@material-ui/core';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { ActuationContext } from '../Contexts/ActuationProvider';
+import { GeneralContext } from '../Contexts/GeneralProvider';
 
 export default function DeleteButton() {
   const context = useContext(CanvasContext);
@@ -18,6 +19,8 @@ export default function DeleteButton() {
     setSelected, setElectrodes, setCombSelected, setComboLayout,
   } = context;
   const { clearAll } = actuation;
+
+  const { setPinToElec, setElecToPin } = useContext(GeneralContext);
   const [open, setOpen] = useState(false);
 
   function handleDelete() {
@@ -29,13 +32,17 @@ export default function DeleteButton() {
       deltas: [],
     });
     setComboLayout([]);
+
+    setPinToElec({});
+    setElecToPin({});
+
     clearAll();
     setOpen(false);
   }
   return (
     <div>
       <Tooltip title="Delete">
-        <ListItem button onClick={() => { setOpen(true); }}>
+        <ListItem button onClick={() => { setOpen(true); }} data-testid="clear">
           <DeleteForeverOutlined />
         </ListItem>
       </Tooltip>

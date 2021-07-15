@@ -53,7 +53,7 @@ const ActuationProvider = ({ children }) => {
   );
 
   useInterval(() => {
-    handleSave(null, null, actuation.pinActuate, db);
+    handleSave(null, null, actuation.pinActuate, null, null, db);
   }, 10000);
 
   return (
@@ -64,6 +64,12 @@ const ActuationProvider = ({ children }) => {
           const newList = actuation.pinActuate;
           newList.get(actuation.currentStep).actuatePin(pinNum);
           setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
+        },
+        setPinActuation: (map) => {
+          setActuation((stateBoi) => ({ ...stateBoi, pinActuate: map }));
+        },
+        setSimpleNum: (num) => {
+          setActuation((stateBoi) => ({ ...stateBoi, simpleNum: num }));
         },
         setCurrentStep: (initstep) => {
           let step = initstep;
@@ -94,7 +100,7 @@ const ActuationProvider = ({ children }) => {
           }
           if (actuation.pinActuate.has(step)) {
             const newList = actuation.pinActuate;
-            if (newList.get(step).parent !== null) {
+            if (newList.get(step).parent) {
               const { parent } = newList.get(step);
               if (newList.get(parent).content.length === 1) {
                 return false;
@@ -124,7 +130,7 @@ const ActuationProvider = ({ children }) => {
         insertStep: (initobj) => {
           const obj = initobj;
           let newList = actuation.pinActuate;
-          if (newList.get(actuation.currentStep).parent !== null) {
+          if (newList.get(actuation.currentStep).parent) {
             const { parent } = newList.get(actuation.currentStep);
             newList.get(parent).content.push(obj.id);
             obj.parent = parent;
@@ -141,7 +147,7 @@ const ActuationProvider = ({ children }) => {
               n += 1;
             }
           });
-          if (obj.parent !== null) {
+          if (obj.parent) {
             newList.get(obj.parent).content.sort((a, b) => {
               const ord1 = newList.get(a).order;
               const ord2 = newList.get(b).order;
@@ -151,19 +157,20 @@ const ActuationProvider = ({ children }) => {
           setActuation((stateBoi) => ({
             ...stateBoi,
             pinActuate: newList,
+            currentStep: obj.id,
             simpleNum: actuation.simpleNum + 1,
           }));
         },
         addLoop: (from, to, repTime) => {
           const newList = actuation.pinActuate;
-          const l = newList.size;
-          const newSeq = new ActuationSequence(newList.size, 'loop');
+          const key = Math.max(...newList.keys());
+          const newSeq = new ActuationSequence(key + 1, 'loop');
           const contentList = [];
           let error = 0;
           newList.forEach((value) => {
             if (value.type === 'simple' && value.order >= from && value.order <= to) {
               if (error === 1) return;
-              if (value.parent !== null) {
+              if (value.parent) {
                 error = 1;
                 return;
               }
@@ -178,7 +185,7 @@ const ActuationProvider = ({ children }) => {
           }
           newSeq.pushAllSteps(contentList);
           newSeq.repTime = repTime;
-          newList.set(l, newSeq);
+          newList.set(key + 1, newSeq);
           console.log(newList);
           setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
           return true;
@@ -191,7 +198,7 @@ const ActuationProvider = ({ children }) => {
           newList.forEach((value) => {
             if (value.type === 'simple' && value.order >= from && value.order <= to) {
               if (error === 1) return;
-              if (value.parent !== null && value.parent !== loopKey) {
+              if (value.parent && value.parent !== loopKey) {
                 error = 1;
                 return;
               }

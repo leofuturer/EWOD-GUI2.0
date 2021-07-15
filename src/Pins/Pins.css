@@ -1,0 +1,28 @@
+.pin {
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 30px;
+  min-width: 30px;
+  max-width: 30px;
+  margin: 2px;
+  font-weight: 600;
+  background-color: transparent;
+  color: #A06933;
+  border: solid 3px #D4A373;
+  cursor: pointer;
+}
+
+.ref {
+  border-color: #21B214 !important;
+  letter-spacing: 0em !important;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-left: 49px;
+  width: 1235px;
+  margin-bottom: 4px;
+}

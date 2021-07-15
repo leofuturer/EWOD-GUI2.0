@@ -11,7 +11,9 @@ import { GeneralContext } from '../Contexts/GeneralProvider';
 import { ELEC_SIZE } from '../constants';
 
 function DraggableItem({ id, children }) {
-  const { mode } = useContext(GeneralContext);
+  const {
+    mode, setCurrElec,
+  } = useContext(GeneralContext);
 
   const context = useContext(CanvasContext);
   const { setSelected, setDelta, setDragging } = context;
@@ -35,42 +37,53 @@ function DraggableItem({ id, children }) {
 
   const dragItem = useRef(null);
 
+  const [localMD, setLocalMD] = useState(false);
+
   const handleMouseDown = useCallback((e) => {
     if (e.which === 1) {
-      if (mode === 'CAN' && !isSelected && mode !== 'DRAW' && !isDragging) {
-        setSelected([...new Set([...elecSelected, id])]);
+      if (mode === 'PIN') {
+        setCurrElec(`S${id}`);
+      } else if (mode !== 'DRAW' && mode !== 'PAN' && !isDragging) {
+        if (isSelected) {
+          setLocalMD(true);
+        } else {
+          setSelected([...new Set([...elecSelected, id])]);
+        }
       }
     }
   }, [isDragging, setSelected, elecSelected, id, mode, isSelected]);
 
-  useEffect(() => {
-    if (dragItem && dragItem.current) {
-      const item = dragItem.current;
-      item.addEventListener('mousedown', handleMouseDown);
-      return () => {
-        item.removeEventListener('mousedown', handleMouseDown);
-      };
+  const handleMouseUp = useCallback(() => {
+    if (mode !== 'DRAW' && mode !== 'PAN' && isSelected && !isDragging && localMD) {
+      setSelected(elecSelected.filter((x) => x !== id));
+      setLocalMD(false);
     }
-    return undefined;
-  }, [handleMouseDown]);
+  }, [isDragging, setSelected, elecSelected, id, mode, isSelected]);
 
-  // handles selection of existing electrodes
   const handleMouseOver = useCallback(() => {
-    if (mouseDown === true && mode === 'CAN' && !isSelected && mode !== 'DRAW' && !isDragging) {
-      setSelected([...new Set([...elecSelected, id])]);
+    if (mouseDown === true && mode !== 'DRAW' && mode !== 'PAN' && !isDragging) {
+      if (isSelected) {
+        setSelected(elecSelected.filter((x) => x !== id));
+      } else {
+        setSelected([...new Set([...elecSelected, id])]);
+      }
     }
   }, [isDragging, mode, id, isSelected, mouseDown, elecSelected, setSelected]);
 
   useEffect(() => {
     if (dragItem && dragItem.current) {
       const item = dragItem.current;
+      item.addEventListener('mousedown', handleMouseDown);
       item.addEventListener('mouseover', handleMouseOver);
+      item.addEventListener('mouseup', handleMouseUp);
       return () => {
+        item.removeEventListener('mousedown', handleMouseDown);
         item.removeEventListener('mouseover', handleMouseOver);
+        item.removeEventListener('mouseup', handleMouseUp);
       };
     }
     return undefined;
-  }, [handleMouseOver]);
+  }, [handleMouseDown, handleMouseOver, handleMouseUp]);
 
   const [savingChanges, setSaveChanges] = useState(false);
 

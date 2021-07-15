@@ -13,8 +13,8 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Collapse from '@material-ui/core/Collapse';
 import {
-  Undo, Redo, Highlight, FileCopy, Create, Info, ViewWeek, Usb, Image, Menu,
-  FormatListNumberedOutlined, GridOn,
+  Undo, Redo, Highlight, Create, Info, ViewWeek, Usb, Image, Menu,
+  FormatListNumberedOutlined, GridOn, OpenWith,
 } from '@material-ui/icons';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -23,7 +23,7 @@ import { CanvasContext } from '../Contexts/CanvasProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 
 // import SaveButton from './SaveButton';
-// import UploadButton from './UploadButton';
+import UploadButton from './UploadButton';
 import DownloadButton from './DownloadButton';
 
 import USBPanel from './USBPanel';
@@ -101,7 +101,7 @@ const useStyles = makeStyles((theme) => ({
 export default function ControlPanel() {
   const canvasContext = useContext(CanvasContext);
   const actuationContext = useContext(ActuationContext);
-  const { setMode } = useContext(GeneralContext);
+  const { setMode, setCurrElec } = useContext(GeneralContext);
   const { setSelected, setCombSelected } = canvasContext;
   const { undo, redo } = actuationContext;
 
@@ -110,10 +110,11 @@ export default function ControlPanel() {
   const [usbPanelOpen, setUsbPanelOpen] = useState(false);
   const [usbConnected, setUsbConnected] = useState(false);
 
-  function toggleDraw() {
-    setMode('DRAW');
+  function setNewMode(newMode) {
+    setMode(newMode);
     setSelected([]);
     setCombSelected([]);
+    setCurrElec(null);
   }
 
   return (
@@ -131,32 +132,35 @@ export default function ControlPanel() {
         <Toolbar style={{ marginLeft: 40 }}>
           <List style={{ display: 'flex', flexDirection: 'row' }}>
             <Tooltip title="Draw">
-              <ListItem button onClick={toggleDraw}>
+              <ListItem button onClick={() => setNewMode('DRAW')} data-testid="draw-button">
                 <Create />
               </ListItem>
             </Tooltip>
 
-            <ListItem button>
-              <FileCopy />
-            </ListItem>
+            <UploadButton />
             <ListItem button>
               <ViewWeek />
             </ListItem>
             <DownloadButton />
 
             <Tooltip title="Map Pins">
-              <ListItem button onClick={() => setMode('PIN')}>
+              <ListItem button onClick={() => setNewMode('PIN')}>
                 <FormatListNumberedOutlined />
               </ListItem>
             </Tooltip>
             <Tooltip title="Sequence Actuation">
-              <ListItem button onClick={() => setMode('SEQ')}>
+              <ListItem button onClick={() => setNewMode('SEQ')} data-testid="act-seq-start">
                 <Highlight />
               </ListItem>
             </Tooltip>
-            <Tooltip title="Select and Move Electrodes">
-              <ListItem button onClick={() => setMode('CAN')}>
+            <Tooltip title="Select and Move Electrodes" data-testid="CAN">
+              <ListItem button onClick={() => setNewMode('CAN')}>
                 <GridOn />
+              </ListItem>
+            </Tooltip>
+            <Tooltip title="Pan Canvas" data-testid="PAN">
+              <ListItem button onClick={() => setNewMode('PAN')}>
+                <OpenWith />
               </ListItem>
             </Tooltip>
 

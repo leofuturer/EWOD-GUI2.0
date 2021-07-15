@@ -14,14 +14,14 @@ function DraggableItem({ id, children }) {
   const { mode } = useContext(GeneralContext);
 
   const context = useContext(CanvasContext);
-  const { setDelta, setDragging } = context;
+  const { setDelta, setDragging, setMoving } = context;
   const { delta, isDragging } = context.state;
   const { electrodes } = context.squares;
   const elecSelected = context.squares.selected;
 
   const { deltas } = electrodes;
 
-  const isSelected = elecSelected && elecSelected.indexOf(id) >= 0;
+  const isSelected = elecSelected && elecSelected.indexOf(`${id}`) >= 0;
 
   let transform = {};
   let boop;
@@ -58,8 +58,10 @@ function DraggableItem({ id, children }) {
         if (isDragging) {
           if (delta.x !== 0 || delta.y !== 0) setSaveChanges(true);
           else setResetting(true);
+          setMoving(false);
           setDragging(false);
         }
+        return false;
       }}
       position={{ x: 0, y: 0 }}
       disabled={mode !== 'CAN' || !isSelected}

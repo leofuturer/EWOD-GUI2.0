@@ -19,6 +19,7 @@ const CanvasProvider = ({ children }) => {
     mouseDown: false,
     drawing: false,
     isDragging: false,
+    moving: false,
   });
 
   const [combined, setCombined] = useState({
@@ -88,6 +89,7 @@ const CanvasProvider = ({ children }) => {
         state,
         squares,
         combined,
+        setMoving: (bool) => { setState((stateBoi) => ({ ...stateBoi, moving: bool })); },
         setDragging: (bool) => { setState((stateBoi) => ({ ...stateBoi, isDragging: bool })); },
         setCombSelected: (newSelected) => {
           setCombined((stateBoi) => ({ ...stateBoi, selected: newSelected }));

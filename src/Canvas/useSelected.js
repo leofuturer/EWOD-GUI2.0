@@ -148,7 +148,7 @@ export default function useSelected(callback, savingChanges) {
         combSelected.sort((a, b) => a - b);
 
         for (let i = 0; i < combSelected.length; i += 1) {
-          const layVal = combSelected[i];
+          const layVal = parseInt(combSelected[i], 10);
           const selectedCombs = [];
           for (let k = 0; k < allCombined.length; k += 1) {
             if (allCombined[k][2] === layVal) {

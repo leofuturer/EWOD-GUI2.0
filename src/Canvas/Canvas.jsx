@@ -5,7 +5,7 @@ import React, {
 // import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import SVGContainer from 'react-svg-drag-and-select';
 import DraggableItem from './DraggableItem';
-// import DraggableComb from './DraggableComb';
+import DraggableComb from './DraggableComb';
 
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { ActuationContext } from '../Contexts/ActuationProvider';
@@ -25,6 +25,7 @@ export default function Canvas() {
   const { electrodes, selected } = canvasContext.squares;
   const { mouseDown, moving } = canvasContext.state;
   const { allCombined } = canvasContext.combined;
+  const combSelected = canvasContext.combined.selected;
   const {
     setMouseDown, setElectrodes, setSelected, setCombSelected,
   } = canvasContext;
@@ -197,11 +198,12 @@ export default function Canvas() {
   const [selectables, setSelectables] = useState([]);
   useEffect(() => {
     const { deltas } = electrodes;
-    const newSelectables = electrodes.initPositions.map((startPos, ind) => {
+    let newSelectables = electrodes.initPositions.map((startPos, ind) => {
       let color = 'black';
       if (mode === 'SEQ'
         && pinActuate.has(currentStep)
-        && Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`) && pinActuate.get(currentStep).content.has(elecToPin[`S${ind}`])
+        && Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`)
+        && pinActuate.get(currentStep).content.has(elecToPin[`S${ind}`])
       ) color = 'red';
       else if (mode === 'CAN' && selected.includes(ind)) color = 'blue';
       else if (mode === 'PIN' && currElec === `S${ind}`) color = 'green';
@@ -217,7 +219,24 @@ export default function Canvas() {
         fill: color,
       };
     });
-    // TODO: add combined to selectables
+    newSelectables = newSelectables.concat(Object.entries(finalCombines).map((comb, ind) => {
+      let color = 'black';
+      if (mode === 'SEQ'
+        && pinActuate.has(currentStep)
+        && Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
+        && pinActuate.get(currentStep).content.has(elecToPin[`C${comb[0]}`])
+      ) color = 'red';
+      else if (mode === 'CAN' && combSelected.includes(ind)) color = 'blue';
+      else if (mode === 'PIN' && currElec === `C${ind}`) color = 'green';
+      return {
+        id: `C${ind}`,
+        tagName: 'path',
+        'data-testid': 'combined',
+        d: comb[1][0],
+        fill: color,
+      };
+    }));
+
     setSelectables(newSelectables);
   }, [mode, moving, finalCombines, electrodes.initPositions, electrodes.deltas, setSelectables]);
 
@@ -226,7 +245,7 @@ export default function Canvas() {
     const cIds = []; // combined ids
     selectedElecs.forEach((elec) => {
       if (elec.tagName === 'rect') sIds.push(elec.id.slice(1));
-      else cIds.push(elec.id);
+      else cIds.push(elec.id.slice(1));
     });
 
     if (mode === 'PIN') {
@@ -281,6 +300,20 @@ export default function Canvas() {
                                 ${mode === 'PIN' && currElec === `S${ind}` ? 'toPin' : ''}`}
                 />
               </DraggableItem>
+            ))}
+            {Object.entries(finalCombines).map((comb, ind) => (
+              <DraggableComb key={ind.id} id={comb[0]}>
+                <path
+                  d={comb[1][0]}
+                  className={`electrode
+                                ${mode === 'SEQ' && pinActuate.has(currentStep)
+                                && Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
+                                && pinActuate.get(currentStep).content.has(elecToPin[`C${comb[0]}`]) ? 'toSeq' : ''}
+                                ${mode === 'CAN' && combSelected.includes(`${ind}`) ? 'selected' : ''}
+                                ${mode === 'PIN' && currElec === `C${comb[0]}` ? 'toPin' : ''}`}
+                  data-testid="combined"
+                />
+              </DraggableComb>
             ))}
           </svg>
         ) : (

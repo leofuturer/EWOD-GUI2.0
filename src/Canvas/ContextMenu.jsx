@@ -122,8 +122,8 @@ export default function ContextMenu() {
     setPinToElec({ ...pinToElec });
     setElecToPin({ ...elecToPin });
 
-    const newPos = electrodes.initPositions.filter((val, ind) => !selected.includes(ind));
-    const newDel = electrodes.deltas.filter((val, ind) => !selected.includes(ind));
+    const newPos = electrodes.initPositions.filter((val, ind) => !selected.includes(`${ind}`));
+    const newDel = electrodes.deltas.filter((val, ind) => !selected.includes(`${ind}`));
     setSelected([]);
     setElectrodes({ initPositions: newPos, deltas: newDel });
   }

@@ -8,13 +8,13 @@ import { GeneralContext } from '../Contexts/GeneralProvider';
 import { ELEC_SIZE } from '../constants';
 import range from '../Pins/range';
 
-export default function ContextMenu({ setMoving }) {
+export default function ContextMenu() {
   const canvasContext = useContext(CanvasContext);
   const { electrodes, selected } = canvasContext.squares;
   const { allCombined } = canvasContext.combined;
   const combSelected = canvasContext.combined.selected;
   const {
-    setElectrodes, setSelected, setComboLayout, setCombSelected,
+    setElectrodes, setSelected, setComboLayout, setCombSelected, setMoving,
   } = canvasContext;
 
   const {
@@ -301,23 +301,31 @@ export default function ContextMenu({ setMoving }) {
     [setXPos, setYPos],
   );
 
-  const handleClick = useCallback(() => {
-    if (showMenu) setShowMenu(false);
-  }, [showMenu]);
+  // const handleClick = useCallback(() => {
+  //   if (showMenu) setShowMenu(false);
+  // }, [showMenu]);
 
   useEffect(() => {
-    document.querySelector('.greenArea').addEventListener('mouseup', handleContextMenu);
+    if (mode === 'CAN' || mode === 'PIN') {
+      document.querySelector('.greenArea').addEventListener('mouseup', handleContextMenu);
+    }
     return () => {
-      document.querySelector('.greenArea').removeEventListener('mouseup', handleContextMenu);
+      if (mode === 'CAN' || mode === 'PIN') {
+        document.querySelector('.greenArea').removeEventListener('mouseup', handleContextMenu);
+      }
     };
-  }, []);
+  }, [mode, setMoving]);
 
-  useEffect(() => {
-    if (showMenu) document.querySelector('.menu-container').addEventListener('click', handleClick);
-    return () => {
-      if (showMenu) document.removeEventListener('click', handleClick);
-    };
-  }, [showMenu]);
+  // useEffect(() => {
+  //   if (showMenu) {
+  //    document.querySelector('.menu-container').addEventListener('click', handleClick);
+  //   }
+  //   return () => {
+  //     if (!showMenu) {
+  //      document.querySelector('.menu-container').removeEventListener('click', handleClick);
+  //     }
+  //   };
+  // }, [showMenu]);
 
   return (
     <Motion

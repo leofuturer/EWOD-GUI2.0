@@ -23,7 +23,7 @@ import {
 export default function Canvas() {
   const canvasContext = useContext(CanvasContext);
   const { electrodes, selected } = canvasContext.squares;
-  const { mouseDown } = canvasContext.state;
+  const { mouseDown, moving } = canvasContext.state;
   const { allCombined } = canvasContext.combined;
   const {
     setMouseDown, setElectrodes, setSelected, setCombSelected,
@@ -36,8 +36,6 @@ export default function Canvas() {
   const {
     mode, currElec, elecToPin, setCurrElec,
   } = useContext(GeneralContext);
-
-  const [moving, setMoving] = useState(false);
 
   // sets mousedown status for selecting existing electrodes
   const handleMouseDown = useCallback((event) => {
@@ -198,6 +196,7 @@ export default function Canvas() {
 
   const [selectables, setSelectables] = useState([]);
   useEffect(() => {
+    const { deltas } = electrodes;
     const newSelectables = electrodes.initPositions.map((startPos, ind) => {
       let color = 'black';
       if (mode === 'SEQ'
@@ -207,58 +206,26 @@ export default function Canvas() {
       else if (mode === 'CAN' && selected.includes(ind)) color = 'blue';
       else if (mode === 'PIN' && currElec === `S${ind}`) color = 'green';
       return {
-        id: `${ind}`,
+        id: `S${ind}`,
         tagName: 'rect',
-        // 'data-testid': 'square',
-        // style: { transform: `translate(-${3 * ELEC_SIZE}px, 0px)` },
-        x: startPos[0] + electrodes.deltas[ind][0],
-        y: startPos[1] + electrodes.deltas[ind][1],
+        'data-testid': 'square',
+        style: { transform: `translate(${deltas[ind][0]}px, ${deltas[ind][1]}px)` },
+        x: startPos[0],
+        y: startPos[1],
         width: ELEC_SIZE - 5,
         height: ELEC_SIZE - 5,
         fill: color,
       };
     });
-    // newSelectables.concat(Object.entries(finalCombines).map((comb, ind) => (
-    //   // <DraggableComb key={ind.id} id={parseInt(comb[0], 10)}>
-    //   <path
-    //     d={comb[1][0]}
-    //     className={`electrode
-    //                   ${mode === 'SEQ' && pinActuate.has(currentStep)
-    //                   && Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
-    //                   && pinActuate.get(
-    //                    currentStep).content.has(elecToPin[`C${comb[0]}`]
-    //                    ) ? 'toSeq' : ''}
-    //                   ${mode === 'PIN' && currElec === `C${comb[0]}` ? 'toPin' : ''}`}
-    //     data-testid="combined"
-    //     onClick={() => {
-    //       if (mode === 'SEQ') {
-    //         if (Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)) {
-    //           handleClick(elecToPin[`C${comb[0]}`]);
-    //         } else {
-    //           window.alert('no pin number for this electrode');
-    //         }
-    //       } else {
-    //         handleClick(ind);
-    //       }
-    //     }}
-    //   />
-    //   // </DraggableComb>
-    // )));
+    // TODO: add combined to selectables
     setSelectables(newSelectables);
-  }, [mode, finalCombines, electrodes, pinActuate, currentStep, setSelectables]);
-
-  useEffect(() => {
-    if (moving) {
-      const newSelectables = selectables.filter((selectable) => !selected.includes(selectable.id));
-      console.log(newSelectables);
-    }
-  }, [moving]);
+  }, [mode, moving, finalCombines, electrodes.initPositions, electrodes.deltas, setSelectables]);
 
   function onSelectChange(selectedElecs) {
     const sIds = []; // square ids
     const cIds = []; // combined ids
     selectedElecs.forEach((elec) => {
-      if (elec.tagName === 'rect') sIds.push(elec.id);
+      if (elec.tagName === 'rect') sIds.push(elec.id.slice(1));
       else cIds.push(elec.id);
     });
 
@@ -272,6 +239,7 @@ export default function Canvas() {
       setCombSelected(cIds);
     }
   }
+
   /* ########################### COMBINE STUFF END ########################### */
   return (
     <div
@@ -282,30 +250,21 @@ export default function Canvas() {
         overflow: mode === 'PIN' ? 'hidden' : 'visible',
       }}
     >
-      {/*
-      <TransformWrapper
-        initialScale={mode === 'PIN' ? 0.51 : 1}
-        minScale={0.51}
-        limitToBounds={false}
-        panning={{ disabled: mode !== 'PAN' && mode !== 'PIN' }}
-        onPanningStop={(ref) => {
-          let newX = ref.state.positionX;
-          let newY = ref.state.positionY;
-          if (newX < CANVAS_RIGHT_EDGE * ref.state.scale) {
-            newX = CANVAS_RIGHT_EDGE * ref.state.scale;
-          } else if (newX > CANVAS_LEFT_EDGE) newX = CANVAS_LEFT_EDGE;
-
-          if (newY > CANVAS_TOP_EDGE) newY = CANVAS_TOP_EDGE;
-          else if (newY < CANVAS_BOTTOM_EDGE * ref.state.scale) {
-            newY = CANVAS_BOTTOM_EDGE * ref.state.scale;
-          }
-
-          ref.setTransform(newX, newY, ref.state.scale, 200, 'easeOut');
-        }}
-        velocityAnimation={{ disabled: true }}
-      >
-        <TransformComponent id="zoom_div">
-          <svg className="greenArea" xmlns="http://www.w3.org/2000/svg" style={{ width: CANVAS_TRUE_WIDTH, height: CANVAS_TRUE_HEIGHT }}>
+      {
+        mode === 'DRAW' || moving ? (
+          <svg
+            className="greenArea"
+            xmlns="http://www.w3.org/2000/svg"
+            style={{
+              width: '100%',
+              height: '100%',
+              backgroundColor: '#93D08C',
+              backgroundSize: `${ELEC_SIZE}px ${ELEC_SIZE}px`,
+              backgroundImage:
+                `linear-gradient(to right, grey 1px, transparent 1px),
+                linear-gradient(to bottom, grey 1px, transparent 1px)`,
+            }}
+          >
             {electrodes.initPositions.map((startPos, ind) => (
               <DraggableItem key={ind.id} id={ind}>
                 <rect
@@ -317,106 +276,11 @@ export default function Canvas() {
                   className={`electrode
                                 ${mode === 'SEQ' && pinActuate.has(currentStep)
                                 && Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`)
-                                && pinActuate.get(currentStep).content.has(elecToPin[`S${ind}`])
-                                ? 'toSeq' : ''}
-                                ${mode === 'CAN' && selected.includes(ind) ? 'selected' : ''}
+                                && pinActuate.get(currentStep).content.has(elecToPin[`S${ind}`]) ? 'toSeq' : ''}
+                                ${mode === 'CAN' && selected.includes(`${ind}`) ? 'selected' : ''}
                                 ${mode === 'PIN' && currElec === `S${ind}` ? 'toPin' : ''}`}
-                  onClick={() => {
-                    if (mode === 'SEQ') {
-                      if (Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`)) {
-                        handleClick(elecToPin[`S${ind}`]);
-                      } else {
-                        window.alert('no pin number for this electrode');
-                      }
-                    } else {
-                      handleClick(ind);
-                    }
-                  }}
                 />
-                {mode === 'PIN' && Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`)
-                  && (
-                    <text
-                      x={`${startPos[0] + 5}`}
-                      y={`${startPos[1] + ELEC_SIZE / 2}`}
-                      width={ELEC_SIZE - 5}
-                      height={ELEC_SIZE - 5}
-                      fill="white"
-                    >
-                      {elecToPin[`S${ind}`]}
-                    </text>
-                  )}
               </DraggableItem>
-            ))}
-            {Object.entries(finalCombines).map((comb, ind) => (
-              <DraggableComb key={ind.id} id={parseInt(comb[0], 10)}>
-                <path
-                  d={comb[1][0]}
-                  className={`electrode
-                                ${mode === 'SEQ' && pinActuate.has(currentStep)
-                                && Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
-                                && pinActuate.get(currentStep).content.has(elecToPin[`C${comb[0]}`])
-                                ? 'toSeq' : ''}
-                                ${mode === 'PIN' && currElec === `C${comb[0]}` ? 'toPin' : ''}`}
-                  data-testid="combined"
-                  onClick={() => {
-                    if (mode === 'SEQ') {
-                      if (Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)) {
-                        handleClick(elecToPin[`C${comb[0]}`]);
-                      } else {
-                        window.alert('no pin number for this electrode');
-                      }
-                    } else {
-                      handleClick(ind);
-                    }
-                  }}
-                />
-                {mode === 'PIN' && Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
-                  && (
-                    <text
-                      x={`${comb[1][1] + 5}`}
-                      y={`${comb[1][2] + ELEC_SIZE / 2}`}
-                      width={ELEC_SIZE - 5}
-                      height={ELEC_SIZE - 5}
-                      fill="white"
-                    >
-                      {elecToPin[`C${comb[0]}`]}
-                    </text>
-                  )}
-              </DraggableComb>
-            ))}
-          </svg>
-        </TransformComponent>
-      </TransformWrapper>
-      */}
-      {
-        mode === 'DRAW' || moving ? (
-          <svg
-            className="greenArea"
-            xmlns="http://www.w3.org/2000/svg"
-            style={{
-              width: '100%',
-              height: '100%',
-              backgroundColor: '#93D08C',
-              backgroundSize: '40px 40px',
-              backgroundImage:
-                `linear-gradient(to right, grey 1px, transparent 1px),
-                linear-gradient(to bottom, grey 1px, transparent 1px)`,
-            }}
-          >
-            {electrodes.initPositions.map((startPos, ind) => (
-              <ConditionalWrapper
-                condition={selected.includes(ind)}
-                wrapper={(children) => <DraggableItem>{children}</DraggableItem>}
-              >
-                <rect
-                  data-testid="square"
-                  x={startPos[0] + electrodes.deltas[ind][0]}
-                  y={startPos[1] + electrodes.deltas[ind][1]}
-                  width={ELEC_SIZE - 5}
-                  height={ELEC_SIZE - 5}
-                  fill="black"
-                />
-              </ConditionalWrapper>
             ))}
           </svg>
         ) : (
@@ -429,7 +293,7 @@ export default function Canvas() {
             isSelectable="true"
             style={{
               backgroundColor: '#93D08C',
-              backgroundSize: '40px 40px',
+              backgroundSize: `${ELEC_SIZE}px ${ELEC_SIZE}px`,
               backgroundImage: `linear-gradient(to right, grey 1px, transparent 1px),
                 linear-gradient(to bottom, grey 1px, transparent 1px)`,
               width: CANVAS_TRUE_WIDTH,
@@ -439,11 +303,7 @@ export default function Canvas() {
           />
         )
       }
-      <ContextMenu setMoving={setMoving} />
+      <ContextMenu />
     </div>
   );
 }
-
-const ConditionalWrapper = ({ condition, wrapper, children }) => (
-  condition ? wrapper(children) : children
-);

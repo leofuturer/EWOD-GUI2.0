@@ -141,7 +141,7 @@ export default function ContextMenu() {
 
     setPinToElec({ ...pinToElec });
     setElecToPin({ ...elecToPin });
-    setComboLayout(allCombined.filter((combi) => !combSelected.includes(combi[2])));
+    setComboLayout(allCombined.filter((combi) => !combSelected.includes(`${combi[2]}`)));
     setCombSelected([]);
   }
 
@@ -251,7 +251,7 @@ export default function ContextMenu() {
       window.alert('Can only separate combined electrodes');
       return;
     }
-    const selectedCombs = allCombined.filter((x) => combSelected.includes(x[2]));
+    const selectedCombs = allCombined.filter((x) => combSelected.includes(`${x[2]}`));
     const selectedCombCoords = [];
     selectedCombs.forEach((coord) => {
       selectedCombCoords.push([coord[0], coord[1]]);

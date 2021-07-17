@@ -40,8 +40,8 @@ export default function ContextMenu() {
     const combined = [];
 
     if (selected.length > 0) {
-      const inits = electrodes.initPositions.filter((_, ind) => selected.includes(ind));
-      const dels = electrodes.deltas.filter((_, ind) => selected.includes(ind));
+      const inits = electrodes.initPositions.filter((_, ind) => selected.includes(`${ind}`));
+      const dels = electrodes.deltas.filter((_, ind) => selected.includes(`${ind}`));
       for (let i = 0; i < inits.length; i += 1) {
         const tmp = [inits[i][0] + dels[i][0], inits[i][1] + dels[i][1]];
         squares.push(tmp);
@@ -53,13 +53,13 @@ export default function ContextMenu() {
       let maxLayval = -1;
       allCombined.forEach((comb) => {
         // eslint-disable-next-line prefer-destructuring
-        if (combSelected.includes(comb[2]) && comb[2] < minLayval) minLayval = comb[2];
+        if (combSelected.includes(`${comb[2]}`) && comb[2] < minLayval) minLayval = comb[2];
         // eslint-disable-next-line prefer-destructuring
         if (comb[2] > maxLayval) maxLayval = comb[2];
       });
       const gap = maxLayval + 1 - minLayval;
       allCombined.forEach((comb) => {
-        if (combSelected.includes(comb[2])) combined.push([comb[0], comb[1], comb[2] + gap]);
+        if (combSelected.includes(`${comb[2]}`)) combined.push([comb[0], comb[1], comb[2] + gap]);
       });
       setCombSelected([]);
     }

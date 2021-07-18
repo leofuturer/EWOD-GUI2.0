@@ -198,7 +198,7 @@ export default function Canvas() {
   const [selectables, setSelectables] = useState([]);
   useEffect(() => {
     const { deltas } = electrodes;
-    let newSelectables = [];
+    const newSelectables = [];
     electrodes.initPositions.forEach((startPos, ind) => {
       let color = 'black';
       if (mode === 'SEQ'
@@ -234,7 +234,7 @@ export default function Canvas() {
         });
       }
     });
-    newSelectables = newSelectables.concat(Object.entries(finalCombines).map((comb, ind) => {
+    Object.entries(finalCombines).forEach((comb, ind) => {
       let color = 'black';
       if (mode === 'SEQ'
         && pinActuate.has(currentStep)
@@ -243,18 +243,31 @@ export default function Canvas() {
       ) color = 'red';
       else if (mode === 'CAN' && combSelected.includes(ind)) color = 'blue';
       else if (mode === 'PIN' && currElec === `C${ind}`) color = 'green';
-      return {
+      newSelectables.push({
         id: `C${ind}`,
         tagName: 'path',
         'data-testid': 'combined',
         d: comb[1][0],
         fill: color,
-      };
-    }));
+      });
+      // text elems for pin number mapped to square
+      if (Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)) {
+        newSelectables.push({
+          id: `TC${ind}`,
+          tagName: 'text',
+          x: comb[1][1] + 5,
+          y: comb[1][2] + ELEC_SIZE / 2,
+          width: ELEC_SIZE - 5,
+          height: ELEC_SIZE - 5,
+          fill: 'white',
+          children: elecToPin[`C${comb[0]}`],
+        });
+      }
+    });
 
     setSelectables(newSelectables);
   }, [mode, moving, finalCombines, electrodes.initPositions, electrodes.deltas,
-    elecToPin, setSelected]);
+    elecToPin, setSelected, setCombSelected]);
 
   function onSelectChange(selectedElecs) {
     const sIds = []; // square ids
@@ -345,6 +358,18 @@ export default function Canvas() {
                                 ${mode === 'PIN' && currElec === `C${comb[0]}` ? 'toPin' : ''}`}
                   data-testid="combined"
                 />
+                {Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
+                  && (
+                    <text
+                      x={comb[1][1] + 5}
+                      y={comb[1][2] + ELEC_SIZE / 2}
+                      width={ELEC_SIZE - 5}
+                      height={ELEC_SIZE - 5}
+                      fill="white"
+                    >
+                      {elecToPin[`C${comb[0]}`]}
+                    </text>
+                  )}
               </DraggableComb>
             ))}
           </svg>

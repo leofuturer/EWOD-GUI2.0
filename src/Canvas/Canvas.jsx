@@ -32,7 +32,7 @@ export default function Canvas() {
 
   const actuationContext = useContext(ActuationContext);
   const { currentStep, pinActuate } = actuationContext.actuation;
-  // const { actuatePin, pushHistory } = actuationContext;
+  const { actuatePin, pushHistory } = actuationContext;
 
   const {
     mode, currElec, elecToPin, setCurrElec,
@@ -109,21 +109,21 @@ export default function Canvas() {
   }, [handleMouseMove]);
 
   /* ########################### ACTUATION START ########################### */
-  // function handleClick(ind) {
-  //   if (mode === 'SEQ') {
-  //     if (pinActuate.get(currentStep).content.has(ind)) {
-  //       pushHistory({
-  //         type: 'actuate', pin: ind, id: currentStep, act: false,
-  //       });
-  //     } else {
-  //       pushHistory({
-  //         type: 'actuate', pin: ind, id: currentStep, act: true,
-  //       });
-  //     }
-  //     actuatePin(ind);
-  //     console.log(`Actuate ${ind} electrode`);
-  //   }
-  // }
+  function handleActuationMapping(ind) {
+    if (mode === 'SEQ') {
+      if (pinActuate.get(currentStep).content.has(ind)) {
+        pushHistory({
+          type: 'actuate', pin: ind, id: currentStep, act: false,
+        });
+      } else {
+        pushHistory({
+          type: 'actuate', pin: ind, id: currentStep, act: true,
+        });
+      }
+      actuatePin(ind);
+      console.log(`Actuate ${ind} electrode`);
+    }
+  }
   /* ########################### ACTUATION END ########################### */
   /* ########################### HELPERS START ########################### */
   function isArrayInArray(arr, item) {
@@ -267,7 +267,7 @@ export default function Canvas() {
 
     setSelectables(newSelectables);
   }, [mode, moving, finalCombines, electrodes.initPositions, electrodes.deltas,
-    elecToPin, setSelected, setCombSelected]);
+    elecToPin, setSelected, setCombSelected, actuatePin]);
 
   function onSelectChange(selectedElecs) {
     const sIds = []; // square ids
@@ -287,6 +287,21 @@ export default function Canvas() {
     } else if (mode !== 'DRAW') {
       setSelected(sIds);
       setCombSelected(cIds);
+    }
+
+    // handle actuation
+    if (selectedElecs.length === 1) {
+      if (mode === 'SEQ') {
+        if (sIds.length && Object.prototype.hasOwnProperty.call(elecToPin, `S${sIds[0]}`)) {
+          handleActuationMapping(elecToPin[`S${sIds[0]}`]);
+        } else if (cIds.length && Object.prototype.hasOwnProperty.call(elecToPin, `C${cIds[0]}`)) {
+          handleActuationMapping(elecToPin[`C${cIds[0]}`]);
+        } else {
+          window.alert('no pin number for this electrode');
+        }
+      } else {
+        handleActuationMapping(sIds[0]);
+      }
     }
   }
 

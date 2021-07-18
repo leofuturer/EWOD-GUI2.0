@@ -198,7 +198,8 @@ export default function Canvas() {
   const [selectables, setSelectables] = useState([]);
   useEffect(() => {
     const { deltas } = electrodes;
-    let newSelectables = electrodes.initPositions.map((startPos, ind) => {
+    let newSelectables = [];
+    electrodes.initPositions.forEach((startPos, ind) => {
       let color = 'black';
       if (mode === 'SEQ'
         && pinActuate.has(currentStep)
@@ -207,7 +208,7 @@ export default function Canvas() {
       ) color = 'red';
       else if (mode === 'CAN' && selected.includes(ind)) color = 'blue';
       else if (mode === 'PIN' && currElec === `S${ind}`) color = 'green';
-      return {
+      newSelectables.push({
         id: `S${ind}`,
         tagName: 'rect',
         'data-testid': 'square',
@@ -217,7 +218,21 @@ export default function Canvas() {
         width: ELEC_SIZE - 5,
         height: ELEC_SIZE - 5,
         fill: color,
-      };
+      });
+      // text elems for pin number mapped to square
+      if (Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`)) {
+        newSelectables.push({
+          id: `TS${ind}`,
+          tagName: 'text',
+          style: { transform: `translate(${deltas[ind][0]}px, ${deltas[ind][1]}px)` },
+          x: startPos[0] + 5,
+          y: startPos[1] + ELEC_SIZE / 2,
+          width: ELEC_SIZE - 5,
+          height: ELEC_SIZE - 5,
+          fill: 'white',
+          children: elecToPin[`S${ind}`],
+        });
+      }
     });
     newSelectables = newSelectables.concat(Object.entries(finalCombines).map((comb, ind) => {
       let color = 'black';
@@ -238,14 +253,15 @@ export default function Canvas() {
     }));
 
     setSelectables(newSelectables);
-  }, [mode, moving, finalCombines, electrodes.initPositions, electrodes.deltas, setSelectables]);
+  }, [mode, moving, finalCombines, electrodes.initPositions, electrodes.deltas,
+    elecToPin, setSelected]);
 
   function onSelectChange(selectedElecs) {
     const sIds = []; // square ids
     const cIds = []; // combined ids
     selectedElecs.forEach((elec) => {
       if (elec.tagName === 'rect') sIds.push(elec.id.slice(1));
-      else cIds.push(elec.id.slice(1));
+      else if (elec.tagName === 'path') cIds.push(elec.id.slice(1));
     });
 
     if (mode === 'PIN') {
@@ -253,6 +269,8 @@ export default function Canvas() {
         if (sIds.length) setCurrElec(`S${sIds[0]}`);
         else setCurrElec(`C${cIds[0]}`);
       } else window.alert('Can only assign one electrode to a pin number');
+      // TODO: replace this else to enable user to select multiple electrodes
+      // to delete all their mappings
     } else if (mode !== 'DRAW') {
       setSelected(sIds);
       setCombSelected(cIds);
@@ -299,6 +317,20 @@ export default function Canvas() {
                                 ${mode === 'CAN' && selected.includes(`${ind}`) ? 'selected' : ''}
                                 ${mode === 'PIN' && currElec === `S${ind}` ? 'toPin' : ''}`}
                 />
+                {Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`)
+                  ? (
+                    <text
+                      x={startPos[0] + 5}
+                      y={startPos[1] + ELEC_SIZE / 2}
+                      width={ELEC_SIZE - 5}
+                      height={ELEC_SIZE - 5}
+                      fill="white"
+                    >
+                      {elecToPin[`S${ind}`]}
+                    </text>
+                  ) : (
+                    <></>
+                  )}
               </DraggableItem>
             ))}
             {Object.entries(finalCombines).map((comb, ind) => (

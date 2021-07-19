@@ -2,7 +2,7 @@ import React, {
   useEffect, useState, useCallback, useContext,
 } from 'react';
 // eslint-disable-next-line import/no-unresolved
-// import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import SVGContainer from 'react-svg-drag-and-select';
 import DraggableItem from './DraggableItem';
 import DraggableComb from './DraggableComb';
@@ -15,7 +15,7 @@ import ContextMenu from './ContextMenu';
 import {
   ELEC_SIZE, CANVAS_REAL_HEIGHT, CANVAS_REAL_WIDTH,
   CANVAS_TRUE_HEIGHT, CANVAS_TRUE_WIDTH,
-  // CANVAS_RIGHT_EDGE, CANVAS_LEFT_EDGE, CANVAS_TOP_EDGE, CANVAS_BOTTOM_EDGE,
+  CANVAS_RIGHT_EDGE, CANVAS_LEFT_EDGE, CANVAS_TOP_EDGE, CANVAS_BOTTOM_EDGE,
 } from '../constants';
 
 // const chassis = require('./chassis-with-background.svg');
@@ -35,7 +35,7 @@ export default function Canvas() {
   const { actuatePin, pushHistory } = actuationContext;
 
   const {
-    mode, currElec, elecToPin, setCurrElec,
+    mode, currElec, elecToPin, setCurrElec, panning,
   } = useContext(GeneralContext);
 
   // sets mousedown status for selecting existing electrodes
@@ -131,6 +131,21 @@ export default function Canvas() {
 
     const contains = arr.some((ele) => JSON.stringify(ele) === itemAsString);
     return contains;
+  }
+
+  function panningStop(ref) {
+    let newX = ref.state.positionX;
+    let newY = ref.state.positionY;
+    if (newX < CANVAS_RIGHT_EDGE * ref.state.scale) {
+      newX = CANVAS_RIGHT_EDGE * ref.state.scale;
+    } else if (newX > CANVAS_LEFT_EDGE) newX = CANVAS_LEFT_EDGE;
+
+    if (newY > CANVAS_TOP_EDGE) newY = CANVAS_TOP_EDGE;
+    else if (newY < CANVAS_BOTTOM_EDGE * ref.state.scale) {
+      newY = CANVAS_BOTTOM_EDGE * ref.state.scale;
+    }
+
+    ref.setTransform(newX, newY, ref.state.scale, 200, 'easeOut');
   }
   /* ########################### HELPERS END ########################### */
   /* ########################### COMBINE STUFF START ########################### */
@@ -317,95 +332,116 @@ export default function Canvas() {
     >
       {
         mode === 'DRAW' || moving ? (
-          <svg
-            className="greenArea"
-            xmlns="http://www.w3.org/2000/svg"
-            style={{
-              width: '100%',
-              height: '100%',
-              backgroundColor: '#93D08C',
-              backgroundSize: `${ELEC_SIZE}px ${ELEC_SIZE}px`,
-              backgroundImage:
-                `linear-gradient(to right, grey 1px, transparent 1px),
-                linear-gradient(to bottom, grey 1px, transparent 1px)`,
-            }}
+          <TransformWrapper
+            minScale={0.51}
+            limitToBounds={false}
+            panning={{ disabled: !panning }}
+            onPanningStop={(ref) => panningStop(ref)}
+            velocityAnimation={{ disabled: true }}
           >
-            {electrodes.initPositions.map((startPos, ind) => (
-              <DraggableItem key={ind.id} id={ind}>
-                <rect
-                  data-testid="square"
-                  x={startPos[0]}
-                  y={startPos[1]}
-                  width={ELEC_SIZE - 5}
-                  height={ELEC_SIZE - 5}
-                  className={`electrode
-                                ${mode === 'SEQ' && pinActuate.has(currentStep)
-                                && Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`)
-                                && pinActuate.get(currentStep).content.has(elecToPin[`S${ind}`]) ? 'toSeq' : ''}
-                                ${mode === 'CAN' && selected.includes(`${ind}`) ? 'selected' : ''}
-                                ${mode === 'PIN' && currElec === `S${ind}` ? 'toPin' : ''}`}
-                />
-                {Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`)
-                  ? (
-                    <text
-                      x={startPos[0] + 5}
-                      y={startPos[1] + ELEC_SIZE / 2}
+            <TransformComponent id="zoom_div">
+              <svg
+                className="greenArea"
+                xmlns="http://www.w3.org/2000/svg"
+                style={{
+                  width: CANVAS_TRUE_WIDTH,
+                  height: CANVAS_TRUE_HEIGHT,
+                  backgroundColor: '#93D08C',
+                  backgroundSize: `${ELEC_SIZE}px ${ELEC_SIZE}px`,
+                  backgroundImage:
+                    `linear-gradient(to right, grey 1px, transparent 1px),
+                    linear-gradient(to bottom, grey 1px, transparent 1px)`,
+                }}
+              >
+                {electrodes.initPositions.map((startPos, ind) => (
+                  <DraggableItem key={ind.id} id={ind}>
+                    <rect
+                      data-testid="square"
+                      x={startPos[0]}
+                      y={startPos[1]}
                       width={ELEC_SIZE - 5}
                       height={ELEC_SIZE - 5}
-                      fill="white"
-                    >
-                      {elecToPin[`S${ind}`]}
-                    </text>
-                  ) : (
-                    <></>
-                  )}
-              </DraggableItem>
-            ))}
-            {Object.entries(finalCombines).map((comb, ind) => (
-              <DraggableComb key={ind.id} id={comb[0]}>
-                <path
-                  d={comb[1][0]}
-                  className={`electrode
-                                ${mode === 'SEQ' && pinActuate.has(currentStep)
-                                && Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
-                                && pinActuate.get(currentStep).content.has(elecToPin[`C${comb[0]}`]) ? 'toSeq' : ''}
-                                ${mode === 'CAN' && combSelected.includes(`${ind}`) ? 'selected' : ''}
-                                ${mode === 'PIN' && currElec === `C${comb[0]}` ? 'toPin' : ''}`}
-                  data-testid="combined"
-                />
-                {Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
-                  && (
-                    <text
-                      x={comb[1][1] + 5}
-                      y={comb[1][2] + ELEC_SIZE / 2}
-                      width={ELEC_SIZE - 5}
-                      height={ELEC_SIZE - 5}
-                      fill="white"
-                    >
-                      {elecToPin[`C${comb[0]}`]}
-                    </text>
-                  )}
-              </DraggableComb>
-            ))}
-          </svg>
+                      className={`electrode
+                                    ${mode === 'SEQ' && pinActuate.has(currentStep)
+                                    && Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`)
+                                    && pinActuate.get(currentStep).content.has(elecToPin[`S${ind}`]) ? 'toSeq' : ''}
+                                    ${mode === 'CAN' && selected.includes(`${ind}`) ? 'selected' : ''}
+                                    ${mode === 'PIN' && currElec === `S${ind}` ? 'toPin' : ''}`}
+                    />
+                    {Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`)
+                      ? (
+                        <text
+                          x={startPos[0] + 5}
+                          y={startPos[1] + ELEC_SIZE / 2}
+                          width={ELEC_SIZE - 5}
+                          height={ELEC_SIZE - 5}
+                          fill="white"
+                        >
+                          {elecToPin[`S${ind}`]}
+                        </text>
+                      ) : (
+                        <></>
+                      )}
+                  </DraggableItem>
+                ))}
+                {Object.entries(finalCombines).map((comb, ind) => (
+                  <DraggableComb key={ind.id} id={comb[0]}>
+                    <path
+                      d={comb[1][0]}
+                      className={`electrode
+                                    ${mode === 'SEQ' && pinActuate.has(currentStep)
+                                    && Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
+                                    && pinActuate.get(currentStep).content.has(elecToPin[`C${comb[0]}`]) ? 'toSeq' : ''}
+                                    ${mode === 'CAN' && combSelected.includes(`${ind}`) ? 'selected' : ''}
+                                    ${mode === 'PIN' && currElec === `C${comb[0]}` ? 'toPin' : ''}`}
+                      data-testid="combined"
+                    />
+                    {Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
+                      && (
+                        <text
+                          x={comb[1][1] + 5}
+                          y={comb[1][2] + ELEC_SIZE / 2}
+                          width={ELEC_SIZE - 5}
+                          height={ELEC_SIZE - 5}
+                          fill="white"
+                        >
+                          {elecToPin[`C${comb[0]}`]}
+                        </text>
+                      )}
+                  </DraggableComb>
+                ))}
+              </svg>
+            </TransformComponent>
+          </TransformWrapper>
         ) : (
-          <SVGContainer
-            width={CANVAS_TRUE_WIDTH}
-            height={CANVAS_TRUE_HEIGHT}
-            onSelectChange={onSelectChange}
-            items={selectables}
-            isMovable={false}
-            isSelectable="true"
-            style={{
-              backgroundColor: '#93D08C',
-              backgroundSize: `${ELEC_SIZE}px ${ELEC_SIZE}px`,
-              backgroundImage: `linear-gradient(to right, grey 1px, transparent 1px),
-                linear-gradient(to bottom, grey 1px, transparent 1px)`,
-              width: CANVAS_TRUE_WIDTH,
-              height: CANVAS_TRUE_HEIGHT,
-            }}
-            className="greenArea"
-          />
+          <TransformWrapper
+            minScale={0.51}
+            initialScale={mode === 'PIN' ? 0.51 : 1}
+            limitToBounds={false}
+            panning={{ disabled: !panning }}
+            onPanningStop={(ref) => panningStop(ref)}
+            velocityAnimation={{ disabled: true }}
+          >
+            <TransformComponent id="zoom_div">
+              <SVGContainer
+                width={CANVAS_TRUE_WIDTH}
+                height={CANVAS_TRUE_HEIGHT}
+                onSelectChange={onSelectChange}
+                items={selectables}
+                isMovable={false}
+                isSelectable="true"
+                style={{
+                  backgroundColor: '#93D08C',
+                  backgroundSize: `${ELEC_SIZE}px ${ELEC_SIZE}px`,
+                  backgroundImage: `linear-gradient(to right, grey 1px, transparent 1px),
+                    linear-gradient(to bottom, grey 1px, transparent 1px)`,
+                  width: CANVAS_TRUE_WIDTH,
+                  height: CANVAS_TRUE_HEIGHT,
+                }}
+                className="greenArea"
+              />
+            </TransformComponent>
+          </TransformWrapper>
         )
       }
       <ContextMenu />

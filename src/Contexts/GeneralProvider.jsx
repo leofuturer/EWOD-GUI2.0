@@ -7,6 +7,7 @@ const GeneralContext = React.createContext();
 
 const GeneralProvider = ({ children }) => {
   const [mode, setMode] = useState('DRAW'); // either "PIN", "SEQ", or "CAN", or "DRAW"
+  const [panning, setPanning] = useState(false);
   const [currElec, setCurrElec] = useState(null);
   const [pinToElec, setPinToElec] = useState({});
   const [elecToPin, setElecToPin] = useState({});
@@ -58,6 +59,8 @@ const GeneralProvider = ({ children }) => {
       value={{
         mode,
         setMode,
+        panning,
+        setPanning,
         bannerRef,
         currElec,
         setCurrElec,

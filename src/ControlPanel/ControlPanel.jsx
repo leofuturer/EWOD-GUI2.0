@@ -126,7 +126,9 @@ const MuiListItem = withStyles({
 export default function ControlPanel() {
   const canvasContext = useContext(CanvasContext);
   const actuationContext = useContext(ActuationContext);
-  const { mode, setMode, setCurrElec } = useContext(GeneralContext);
+  const {
+    mode, setMode, setCurrElec, panning, setPanning,
+  } = useContext(GeneralContext);
   const { setSelected, setCombSelected } = canvasContext;
   const { undo, redo } = actuationContext;
 
@@ -188,7 +190,7 @@ export default function ControlPanel() {
               </ListItem>
             </Tooltip>
             <Tooltip title="Pan Canvas" data-testid="PAN">
-              <ListItem button onClick={() => setNewMode('PAN')}>
+              <ListItem button onClick={() => setPanning(!panning)}>
                 <OpenWith />
               </ListItem>
             </Tooltip>

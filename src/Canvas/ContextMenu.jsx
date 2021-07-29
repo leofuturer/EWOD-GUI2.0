@@ -307,11 +307,11 @@ export default function ContextMenu() {
 
   useEffect(() => {
     if (mode === 'CAN' || mode === 'PIN') {
-      document.querySelector('.greenArea').addEventListener('mouseup', handleContextMenu);
+      document.querySelector('.greenArea').addEventListener('contextmenu', handleContextMenu);
     }
     return () => {
       if (mode === 'CAN' || mode === 'PIN') {
-        document.querySelector('.greenArea').removeEventListener('mouseup', handleContextMenu);
+        document.querySelector('.greenArea').removeEventListener('contextmenu', handleContextMenu);
       }
     };
   }, [mode, setMoving]);

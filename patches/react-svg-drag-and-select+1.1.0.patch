@@ -1,0 +1,92 @@
+diff --git a/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js b/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js
+index 32c92ab..f361c0e 100644
+--- a/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js
++++ b/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js
+@@ -92,15 +92,13 @@ var SVGContainer = function (_React$PureComponent) {
+     }
+ 
+     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = SVGContainer.__proto__ || Object.getPrototypeOf(SVGContainer)).call.apply(_ref, [this].concat(args))), _this), _this.state = INIT_STATE, _this.onMouseDown = function (e) {
++      if (e.nativeEvent.which !== 1) return;
+       var _this$svg$getBounding = _this.svg.getBoundingClientRect(),
+           left = _this$svg$getBounding.left,
+           top = _this$svg$getBounding.top;
+ 
+-      var clientX = e.clientX,
+-          clientY = e.clientY;
+-
+-      var x = clientX - left;
+-      var y = clientY - top;
++      const x = e.nativeEvent.offsetX;
++      const y = e.nativeEvent.offsetY;
+       _this.x = x;
+       _this.y = y;
+       _this.setState({
+@@ -118,11 +116,9 @@ var SVGContainer = function (_React$PureComponent) {
+           left = _this$svg$getBounding2.left,
+           top = _this$svg$getBounding2.top;
+ 
+-      var clientX = e.clientX,
+-          clientY = e.clientY;
++      const x = e.offsetX;
++      const y = e.offsetY;
+ 
+-      var x = clientX - left;
+-      var y = clientY - top;
+       var nextX = Math.min(x, _this.x);
+       var nexty = Math.min(y, _this.y);
+       _this.setState({
+@@ -204,12 +200,12 @@ var SVGContainer = function (_React$PureComponent) {
+           y = _state.y,
+           width = _state.width,
+           height = _state.height;
++
+       var onMouseDown = this.onMouseDown,
+           onPositionChange = this.onPositionChange,
+           onIntersectChange = this.onIntersectChange,
+           onRef = this.onRef;
+ 
+-
+       return _react2.default.createElement(
+         'svg',
+         Object.assign({
+@@ -232,7 +228,7 @@ var SVGContainer = function (_React$PureComponent) {
+             isMovable: isMovable,
+             onPositionChange: onPositionChange
+           }, others, {
+-            box: { left: left, top: top, width: width, height: height },
++            box: { left: left, top: top, width: width, height: height, x: x, y: y },
+             onIntersectChange: onIntersectChange
+           }));
+         }),
+diff --git a/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js b/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
+index d54fe6e..a7d95dc 100644
+--- a/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
++++ b/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
+@@ -38,7 +38,12 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function"
+ var checkIntersect = function checkIntersect(A, box, tagName) {
+   if (tagName === 'text') return false;
+ 
+-  return A.left < box.left + box.width && A.left + A.width > box.left && A.top < box.top + box.height && A.top + A.height > box.top;
++  const leftA = A.left; const rightBox = (box.x + box.width);
++  const rightA = A.left + A.width; const leftBox = box.x;
++  const topA = A.top; const bottomBox = (box.y + box.height);
++  const bottomA = A.top + A.height; const topBox = box.y;
++
++  return (leftA < rightBox && rightA > leftBox && topA < bottomBox && bottomA > topBox);
+ };
+ 
+ var ShapeItem = function (_React$PureComponent) {
+@@ -159,7 +164,12 @@ var _initialiseProps = function _initialiseProps() {
+   };
+ 
+   this.updatePosition = function () {
+-    _this2.clientRect = _this2.component && _this2.component.getBoundingClientRect && _this2.component.getBoundingClientRect();
++    _this2.clientRect = {
++      left: parseInt(_this2.component.getAttribute("x")),
++      top: parseInt(_this2.component.getAttribute("y")),
++      width: parseInt(_this2.component.getAttribute("width")),
++      height: parseInt(_this2.component.getAttribute("height")),
++    };
+   };
+ 
+   this.checkIntersect = function (props) {

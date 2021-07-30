@@ -272,28 +272,23 @@ export default function ContextMenu() {
   const handleContextMenu = useCallback(
     (e) => {
       e.preventDefault();
-      // const styleSplit = e.currentTarget.parentNode.style.transform.split(/[(,)]/);
-      // console.log(e.currentTarget.parentNode.style);
+      const styleSplit = e.currentTarget.childNodes[0].childNodes[0].style.transform.split(/[(,)]/);
+      const scale = parseFloat(styleSplit[5], 10);
       // if user opens context menu far right or far down the canvas,
       // have context menu's bottom left corner start at mouse
       // rather than having the context menu's top left corner start at mouse
-      let x = 0;
-      if (mode !== 'PIN') x += e.offsetX + 49; // left bar width
-      else {
-        const xOffset = 50;
-        x += e.offsetX + 165 + xOffset;
-      }
+      let x = e.offsetX * scale + parseFloat(styleSplit[1].slice(0, -2), 10);
+      if (mode !== 'PIN') x += 49; // left bar width
+      else x += 215;
+
       setXPos(`${x}px`);
 
       setRelativeX(`${e.offsetX}px`);
       setRelativeY(`${e.offsetY}px`);
 
-      let y = 0;
-      if (mode !== 'PIN') y += e.offsetY + 75; // top bar height + menu padding
-      else {
-        const yOffset = 380;
-        y += e.offsetY + yOffset;
-      }
+      let y = e.offsetY * scale + parseFloat(styleSplit[2].slice(0, -2), 10);
+      if (mode !== 'PIN') y += 75; // top bar height + menu padding
+      else y += 380;
 
       setYPos(`${y}px`);
       setShowMenu(true);
@@ -307,11 +302,11 @@ export default function ContextMenu() {
 
   useEffect(() => {
     if (mode === 'CAN' || mode === 'PIN') {
-      document.querySelector('.greenArea').addEventListener('contextmenu', handleContextMenu);
+      document.querySelector('.wrapper').addEventListener('contextmenu', handleContextMenu);
     }
     return () => {
       if (mode === 'CAN' || mode === 'PIN') {
-        document.querySelector('.greenArea').removeEventListener('contextmenu', handleContextMenu);
+        document.querySelector('.wrapper').removeEventListener('contextmenu', handleContextMenu);
       }
     };
   }, [mode, setMoving]);
@@ -339,15 +334,15 @@ export default function ContextMenu() {
               className="menu-container"
               style={{
                 opacity: interpolatedStyle.opacity,
+                position: 'absolute',
+                top: yPos,
+                left: xPos,
               }}
             >
               <ul
                 className="menu"
                 style={{
                   zIndex: 5,
-                  position: 'absolute',
-                  top: yPos,
-                  left: xPos,
                   backgroundColor: 'white',
                   padding: '10px 0px',
                   borderRadius: '5px',
@@ -355,7 +350,7 @@ export default function ContextMenu() {
                 }}
               >
                 {
-                  mode === 'CAN' && canModeNames.map((name, idx) => (
+                  canModeNames.map((name, idx) => (
                     <MenuItem
                       key={idx.id}
                       onClick={(e) => {

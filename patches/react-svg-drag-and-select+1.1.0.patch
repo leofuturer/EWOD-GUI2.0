@@ -1,8 +1,20 @@
 diff --git a/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js b/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js
-index 32c92ab..f361c0e 100644
+index 32c92ab..a8f440a 100644
 --- a/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js
 +++ b/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js
-@@ -92,15 +92,13 @@ var SVGContainer = function (_React$PureComponent) {
+@@ -74,7 +74,10 @@ var INIT_STATE = {
+   width: 0,
+   height: 0,
+   left: 0,
+-  top: 0
++  top: 0,
++  scale: 1,
++  svgTop: 0,
++  svgLeft: 0,
+ };
+ 
+ var SVGContainer = function (_React$PureComponent) {
+@@ -92,15 +95,13 @@ var SVGContainer = function (_React$PureComponent) {
      }
  
      return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = SVGContainer.__proto__ || Object.getPrototypeOf(SVGContainer)).call.apply(_ref, [this].concat(args))), _this), _this.state = INIT_STATE, _this.onMouseDown = function (e) {
@@ -21,7 +33,17 @@ index 32c92ab..f361c0e 100644
        _this.x = x;
        _this.y = y;
        _this.setState({
-@@ -118,11 +116,9 @@ var SVGContainer = function (_React$PureComponent) {
+@@ -109,7 +110,8 @@ var SVGContainer = function (_React$PureComponent) {
+         width: 0,
+         height: 0,
+         left: x + left,
+-        top: y + top
++        top: y + top,
++        scaleXY: _this.props.scalexy,
+       });
+       document.addEventListener('mousemove', _this.onMouseMove);
+       document.addEventListener('mouseup', _this.onMouseUp);
+@@ -118,11 +120,9 @@ var SVGContainer = function (_React$PureComponent) {
            left = _this$svg$getBounding2.left,
            top = _this$svg$getBounding2.top;
  
@@ -35,7 +57,7 @@ index 32c92ab..f361c0e 100644
        var nextX = Math.min(x, _this.x);
        var nexty = Math.min(y, _this.y);
        _this.setState({
-@@ -204,12 +200,12 @@ var SVGContainer = function (_React$PureComponent) {
+@@ -204,12 +204,12 @@ var SVGContainer = function (_React$PureComponent) {
            y = _state.y,
            width = _state.width,
            height = _state.height;
@@ -49,7 +71,7 @@ index 32c92ab..f361c0e 100644
        return _react2.default.createElement(
          'svg',
          Object.assign({
-@@ -232,7 +228,7 @@ var SVGContainer = function (_React$PureComponent) {
+@@ -232,7 +232,7 @@ var SVGContainer = function (_React$PureComponent) {
              isMovable: isMovable,
              onPositionChange: onPositionChange
            }, others, {
@@ -59,34 +81,49 @@ index 32c92ab..f361c0e 100644
            }));
          }),
 diff --git a/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js b/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
-index d54fe6e..a7d95dc 100644
+index d54fe6e..db90d09 100644
 --- a/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
 +++ b/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
-@@ -38,7 +38,12 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function"
+@@ -37,8 +37,12 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function"
+ // https://silentmatt.com/rectangle-intersection/
  var checkIntersect = function checkIntersect(A, box, tagName) {
    if (tagName === 'text') return false;
- 
--  return A.left < box.left + box.width && A.left + A.width > box.left && A.top < box.top + box.height && A.top + A.height > box.top;
 +  const leftA = A.left; const rightBox = (box.x + box.width);
 +  const rightA = A.left + A.width; const leftBox = box.x;
 +  const topA = A.top; const bottomBox = (box.y + box.height);
 +  const bottomA = A.top + A.height; const topBox = box.y;
-+
+ 
+-  return A.left < box.left + box.width && A.left + A.width > box.left && A.top < box.top + box.height && A.top + A.height > box.top;
 +  return (leftA < rightBox && rightA > leftBox && topA < bottomBox && bottomA > topBox);
  };
  
  var ShapeItem = function (_React$PureComponent) {
-@@ -159,7 +164,12 @@ var _initialiseProps = function _initialiseProps() {
+@@ -159,7 +163,27 @@ var _initialiseProps = function _initialiseProps() {
    };
  
    this.updatePosition = function () {
 -    _this2.clientRect = _this2.component && _this2.component.getBoundingClientRect && _this2.component.getBoundingClientRect();
-+    _this2.clientRect = {
-+      left: parseInt(_this2.component.getAttribute("x")),
-+      top: parseInt(_this2.component.getAttribute("y")),
-+      width: parseInt(_this2.component.getAttribute("width")),
-+      height: parseInt(_this2.component.getAttribute("height")),
-+    };
++    if (_this2.component) {
++      if (_this2.component.nodeName === "path") {
++        const boundingRect = _this2.component.getBoundingClientRect();
++        const scale = _this2.component.getAttribute("scale");
++        const leftBoi = (boundingRect.x - parseFloat(_this2.component.getAttribute("svgx")) - 49) / scale;
++        const topBoi = (boundingRect.y - parseFloat(_this2.component.getAttribute("svgy")) - 96) / scale;
++        _this2.clientRect = {
++          left: leftBoi,
++          top: topBoi,
++          width: boundingRect.width / scale,
++          height: boundingRect.height / scale,
++        };
++      } else {
++        _this2.clientRect = {
++          left: parseInt(_this2.component.getAttribute("x")),
++          top: parseInt(_this2.component.getAttribute("y")),
++          width: parseInt(_this2.component.getAttribute("width")),
++          height: parseInt(_this2.component.getAttribute("height")),
++        };
++      }
++    }
    };
  
    this.checkIntersect = function (props) {

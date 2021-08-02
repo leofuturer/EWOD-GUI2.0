@@ -269,6 +269,8 @@ export default function Canvas() {
         d: comb[1][0],
         fill: color,
         scale: scaleXY.scale,
+        svgx: scaleXY.svgX,
+        svgy: scaleXY.svgY,
       });
       // text elems for pin number mapped to square
       if (Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)) {
@@ -287,7 +289,7 @@ export default function Canvas() {
 
     setSelectables(newSelectables);
   }, [mode, moving, finalCombines, electrodes.initPositions, electrodes.deltas,
-    elecToPin, setSelected, setCombSelected, actuatePin]);
+    elecToPin, setSelected, setCombSelected, actuatePin, scaleXY, setScaleXY]);
 
   function onSelectChange(selectedElecs) {
     const sIds = []; // square ids
@@ -341,7 +343,14 @@ export default function Canvas() {
             minScale={0.51}
             limitToBounds={false}
             panning={{ disabled: !panning }}
-            onPanningStop={(ref) => panningStop(ref)}
+            onPanningStop={(ref) => {
+              setScaleXY({
+                scale: ref.state.scale,
+                svgX: ref.state.positionX,
+                svgY: ref.state.positionY,
+              });
+              panningStop(ref);
+            }}
             velocityAnimation={{ disabled: true }}
           >
             <TransformComponent id="zoom_div">
@@ -424,7 +433,14 @@ export default function Canvas() {
             initialScale={mode === 'PIN' ? 0.51 : 1}
             limitToBounds={false}
             panning={{ disabled: !panning }}
-            onPanningStop={(ref) => panningStop(ref)}
+            onPanningStop={(ref) => {
+              setScaleXY({
+                scale: ref.state.scale,
+                svgX: ref.state.positionX,
+                svgY: ref.state.positionY,
+              });
+              panningStop(ref);
+            }}
             velocityAnimation={{ disabled: true }}
             onZoom={(ref) => setScaleXY({
               scale: ref.state.scale,
@@ -434,6 +450,7 @@ export default function Canvas() {
           >
             <TransformComponent id="zoom_div">
               <SVGContainer
+                scalexy={scaleXY}
                 width={CANVAS_TRUE_WIDTH}
                 height={CANVAS_TRUE_HEIGHT}
                 onSelectChange={onSelectChange}

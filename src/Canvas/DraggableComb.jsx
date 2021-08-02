@@ -10,7 +10,7 @@ import { CanvasContext } from '../Contexts/CanvasProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 import { ELEC_SIZE } from '../constants';
 
-function DraggableComb({ id, children }) {
+function DraggableComb({ id, children, scaleXY }) {
   const { mode } = useContext(GeneralContext);
 
   const context = useContext(CanvasContext);
@@ -47,7 +47,12 @@ function DraggableComb({ id, children }) {
         setDelta({ x: 0, y: 0 });
       }}
       onDrag={(e, data) => {
-        setDelta({ x: data.x, y: data.y });
+        setDelta({
+          // eslint-disable-next-line no-mixed-operators
+          x: Math.round(data.x / scaleXY.scale / ELEC_SIZE) * ELEC_SIZE,
+          // eslint-disable-next-line no-mixed-operators
+          y: Math.round(data.y / scaleXY.scale / ELEC_SIZE) * ELEC_SIZE,
+        });
         setDragging(true);
       }}
       onStop={() => {

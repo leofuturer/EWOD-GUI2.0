@@ -11,13 +11,7 @@ const GeneralProvider = ({ children }) => {
   const [currElec, setCurrElec] = useState(null);
   const [pinToElec, setPinToElec] = useState({});
   const [elecToPin, setElecToPin] = useState({});
-
   const bannerRef = React.useRef();
-
-  React.useEffect(() => {
-    console.log(pinToElec);
-    console.log(elecToPin);
-  }, [pinToElec, elecToPin]);
 
   React.useEffect( // idb stuff
     () => {

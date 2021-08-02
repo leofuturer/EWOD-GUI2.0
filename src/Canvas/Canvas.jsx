@@ -21,6 +21,11 @@ import {
 // const chassis = require('./chassis-with-background.svg');
 
 export default function Canvas() {
+  const [scaleXY, setScaleXY] = useState({
+    scale: 1,
+    svgX: 0,
+    svgY: 0,
+  });
   const canvasContext = useContext(CanvasContext);
   const { electrodes, selected } = canvasContext.squares;
   const { mouseDown, moving } = canvasContext.state;
@@ -227,9 +232,8 @@ export default function Canvas() {
         id: `S${ind}`,
         tagName: 'rect',
         'data-testid': 'square',
-        style: { transform: `translate(${deltas[ind][0]}px, ${deltas[ind][1]}px)` },
-        x: startPos[0],
-        y: startPos[1],
+        x: startPos[0] + deltas[ind][0],
+        y: startPos[1] + deltas[ind][1],
         width: ELEC_SIZE - 5,
         height: ELEC_SIZE - 5,
         fill: color,
@@ -264,6 +268,7 @@ export default function Canvas() {
         'data-testid': 'combined',
         d: comb[1][0],
         fill: color,
+        scale: scaleXY.scale,
       });
       // text elems for pin number mapped to square
       if (Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)) {
@@ -354,7 +359,7 @@ export default function Canvas() {
                 }}
               >
                 {electrodes.initPositions.map((startPos, ind) => (
-                  <DraggableItem key={ind.id} id={ind}>
+                  <DraggableItem key={ind.id} id={ind} scaleXY={scaleXY}>
                     <rect
                       data-testid="square"
                       x={startPos[0]}
@@ -385,7 +390,7 @@ export default function Canvas() {
                   </DraggableItem>
                 ))}
                 {Object.entries(finalCombines).map((comb, ind) => (
-                  <DraggableComb key={ind.id} id={comb[0]}>
+                  <DraggableComb key={ind.id} id={comb[0]} scaleXY={scaleXY}>
                     <path
                       d={comb[1][0]}
                       className={`electrode
@@ -421,6 +426,11 @@ export default function Canvas() {
             panning={{ disabled: !panning }}
             onPanningStop={(ref) => panningStop(ref)}
             velocityAnimation={{ disabled: true }}
+            onZoom={(ref) => setScaleXY({
+              scale: ref.state.scale,
+              svgX: ref.state.positionX,
+              svgY: ref.state.positionY,
+            })}
           >
             <TransformComponent id="zoom_div">
               <SVGContainer

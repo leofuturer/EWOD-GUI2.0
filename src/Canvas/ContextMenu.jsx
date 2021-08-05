@@ -296,9 +296,9 @@ export default function ContextMenu() {
     [setXPos, setYPos],
   );
 
-  // const handleClick = useCallback(() => {
-  //   if (showMenu) setShowMenu(false);
-  // }, [showMenu]);
+  const handleClick = useCallback(() => {
+    if (showMenu) setShowMenu(false);
+  }, [showMenu]);
 
   useEffect(() => {
     if (mode === 'CAN' || mode === 'PIN') {
@@ -311,16 +311,16 @@ export default function ContextMenu() {
     };
   }, [mode, setMoving]);
 
-  // useEffect(() => {
-  //   if (showMenu) {
-  //    document.querySelector('.menu-container').addEventListener('click', handleClick);
-  //   }
-  //   return () => {
-  //     if (!showMenu) {
-  //      document.querySelector('.menu-container').removeEventListener('click', handleClick);
-  //     }
-  //   };
-  // }, [showMenu]);
+  useEffect(() => {
+    if (showMenu) {
+      document.querySelector('.greenArea').addEventListener('click', handleClick);
+    }
+    return () => {
+      if (!showMenu) {
+        document.querySelector('.greenArea').removeEventListener('click', handleClick);
+      }
+    };
+  }, [showMenu]);
 
   return (
     <Motion

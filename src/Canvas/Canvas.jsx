@@ -21,11 +21,6 @@ import {
 // const chassis = require('./chassis-with-background.svg');
 
 export default function Canvas() {
-  const [scaleXY, setScaleXY] = useState({
-    scale: 1,
-    svgX: 0,
-    svgY: 0,
-  });
   const canvasContext = useContext(CanvasContext);
   const { electrodes, selected } = canvasContext.squares;
   const { mouseDown, moving } = canvasContext.state;
@@ -40,7 +35,7 @@ export default function Canvas() {
   const { actuatePin, pushHistory } = actuationContext;
 
   const {
-    mode, currElec, elecToPin, setCurrElec, panning,
+    mode, currElec, elecToPin, setCurrElec, panning, setScaleXY, scaleXY,
   } = useContext(GeneralContext);
 
   // sets mousedown status for selecting existing electrodes
@@ -450,6 +445,7 @@ export default function Canvas() {
           >
             <TransformComponent id="zoom_div">
               <SVGContainer
+                mode={mode}
                 scalexy={scaleXY}
                 width={CANVAS_TRUE_WIDTH}
                 height={CANVAS_TRUE_HEIGHT}

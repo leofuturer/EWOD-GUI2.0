@@ -13,6 +13,8 @@ const GeneralProvider = ({ children }) => {
   const [elecToPin, setElecToPin] = useState({});
   const bannerRef = React.useRef();
 
+  const [scaleXY, setScaleXY] = useState({ scale: 1, svgX: 0, svgY: 0 });
+
   React.useEffect( // idb stuff
     () => {
       db.transaction('rw', db.formData, async () => {
@@ -51,6 +53,8 @@ const GeneralProvider = ({ children }) => {
   return (
     <GeneralContext.Provider
       value={{
+        scaleXY,
+        setScaleXY,
         mode,
         setMode,
         panning,

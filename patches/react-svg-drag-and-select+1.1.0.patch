@@ -1,20 +1,22 @@
 diff --git a/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js b/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js
-index 32c92ab..a8f440a 100644
+index 32c92ab..3a7f4c3 100644
 --- a/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js
 +++ b/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js
-@@ -74,7 +74,10 @@ var INIT_STATE = {
+@@ -74,7 +74,12 @@ var INIT_STATE = {
    width: 0,
    height: 0,
    left: 0,
 -  top: 0
 +  top: 0,
-+  scale: 1,
-+  svgTop: 0,
-+  svgLeft: 0,
++  scaleXY: {
++    scale: 1,
++    svgTop: 0,
++    svgLeft: 0,
++  },
  };
  
  var SVGContainer = function (_React$PureComponent) {
-@@ -92,15 +95,13 @@ var SVGContainer = function (_React$PureComponent) {
+@@ -92,15 +97,13 @@ var SVGContainer = function (_React$PureComponent) {
      }
  
      return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = SVGContainer.__proto__ || Object.getPrototypeOf(SVGContainer)).call.apply(_ref, [this].concat(args))), _this), _this.state = INIT_STATE, _this.onMouseDown = function (e) {
@@ -33,7 +35,7 @@ index 32c92ab..a8f440a 100644
        _this.x = x;
        _this.y = y;
        _this.setState({
-@@ -109,7 +110,8 @@ var SVGContainer = function (_React$PureComponent) {
+@@ -109,7 +112,8 @@ var SVGContainer = function (_React$PureComponent) {
          width: 0,
          height: 0,
          left: x + left,
@@ -43,7 +45,7 @@ index 32c92ab..a8f440a 100644
        });
        document.addEventListener('mousemove', _this.onMouseMove);
        document.addEventListener('mouseup', _this.onMouseUp);
-@@ -118,11 +120,9 @@ var SVGContainer = function (_React$PureComponent) {
+@@ -118,11 +122,9 @@ var SVGContainer = function (_React$PureComponent) {
            left = _this$svg$getBounding2.left,
            top = _this$svg$getBounding2.top;
  
@@ -57,10 +59,21 @@ index 32c92ab..a8f440a 100644
        var nextX = Math.min(x, _this.x);
        var nexty = Math.min(y, _this.y);
        _this.setState({
-@@ -204,12 +204,12 @@ var SVGContainer = function (_React$PureComponent) {
+@@ -195,6 +197,7 @@ var SVGContainer = function (_React$PureComponent) {
+           isMovable = _props.isMovable,
+           items = _props.items,
+           style = _props.style,
++          mode = _props.mode,
+           otherProps = _objectWithoutProperties(_props, ['onItemsChange', 'onSelectChange', 'isSelectable', 'isMovable', 'items', 'style']);
+ 
+       var _state = this.state,
+@@ -203,13 +206,14 @@ var SVGContainer = function (_React$PureComponent) {
+           x = _state.x,
            y = _state.y,
            width = _state.width,
-           height = _state.height;
+-          height = _state.height;
++          height = _state.height,
++          scalexy = _state.scaleXY;
 +
        var onMouseDown = this.onMouseDown,
            onPositionChange = this.onPositionChange,
@@ -71,9 +84,14 @@ index 32c92ab..a8f440a 100644
        return _react2.default.createElement(
          'svg',
          Object.assign({
-@@ -232,7 +232,7 @@ var SVGContainer = function (_React$PureComponent) {
+@@ -230,9 +234,11 @@ var SVGContainer = function (_React$PureComponent) {
+             key: id,
+             tagName: tagName,
              isMovable: isMovable,
-             onPositionChange: onPositionChange
+-            onPositionChange: onPositionChange
++            onPositionChange: onPositionChange,
++            scalexy: scalexy,
++            mode: mode,
            }, others, {
 -            box: { left: left, top: top, width: width, height: height },
 +            box: { left: left, top: top, width: width, height: height, x: x, y: y },
@@ -81,7 +99,7 @@ index 32c92ab..a8f440a 100644
            }));
          }),
 diff --git a/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js b/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
-index d54fe6e..db90d09 100644
+index d54fe6e..17e0084 100644
 --- a/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
 +++ b/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
 @@ -37,8 +37,12 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function"
@@ -98,7 +116,15 @@ index d54fe6e..db90d09 100644
  };
  
  var ShapeItem = function (_React$PureComponent) {
-@@ -159,7 +163,27 @@ var _initialiseProps = function _initialiseProps() {
+@@ -71,7 +75,6 @@ var ShapeItem = function (_React$PureComponent) {
+           onRef = this.onRef;
+       var isIntersect = this.state.isIntersect;
+ 
+-
+       return _react2.default.createElement(Component, Object.assign({
+         ref: onRef,
+         style: _extends({}, style, {
+@@ -159,7 +162,33 @@ var _initialiseProps = function _initialiseProps() {
    };
  
    this.updatePosition = function () {
@@ -107,8 +133,14 @@ index d54fe6e..db90d09 100644
 +      if (_this2.component.nodeName === "path") {
 +        const boundingRect = _this2.component.getBoundingClientRect();
 +        const scale = _this2.component.getAttribute("scale");
-+        const leftBoi = (boundingRect.x - parseFloat(_this2.component.getAttribute("svgx")) - 49) / scale;
-+        const topBoi = (boundingRect.y - parseFloat(_this2.component.getAttribute("svgy")) - 96) / scale;
++        let leftBoi, topBoi;
++        if (_this2.component.getAttribute("mode") === "PIN") {
++          leftBoi = (boundingRect.x - parseFloat(_this2.component.getAttribute("svgx")) - 214) / scale;
++          topBoi = (boundingRect.y - parseFloat(_this2.component.getAttribute("svgy")) - 383) / scale;
++        } else {
++          leftBoi = (boundingRect.x - parseFloat(_this2.component.getAttribute("svgx")) - 49) / scale;
++          topBoi = (boundingRect.y - parseFloat(_this2.component.getAttribute("svgy")) - 96) / scale;
++        }
 +        _this2.clientRect = {
 +          left: leftBoi,
 +          top: topBoi,

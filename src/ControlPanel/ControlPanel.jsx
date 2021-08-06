@@ -127,7 +127,7 @@ export default function ControlPanel() {
   const canvasContext = useContext(CanvasContext);
   const actuationContext = useContext(ActuationContext);
   const {
-    mode, setMode, setCurrElec, panning, setPanning,
+    mode, setMode, setCurrElec, panning, setPanning, setScaleXY,
   } = useContext(GeneralContext);
   const { setSelected, setCombSelected } = canvasContext;
   const { undo, redo } = actuationContext;
@@ -171,7 +171,13 @@ export default function ControlPanel() {
             <DownloadButton />
 
             <Tooltip title="Map Pins" data-testid="PIN">
-              <ListItem button onClick={() => setNewMode('PIN')}>
+              <ListItem
+                button
+                onClick={() => {
+                  setScaleXY({ scale: 0.51, svgX: 0, svgY: 0 });
+                  setNewMode('PIN');
+                }}
+              >
                 <img src={mode === 'PIN' ? icons.electrodenumbering.onClick : icons.electrodenumbering.icon} alt="Electrode Numbering" />
               </ListItem>
             </Tooltip>

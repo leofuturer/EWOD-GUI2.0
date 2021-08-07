@@ -32,7 +32,7 @@ export default function ContextMenu() {
   const [clipboard, setClipboard] = useState([]);
 
   function contextMove() {
-    setMoving(true);
+    if (selected.length || combSelected.length) setMoving(true);
   }
 
   function contextCopy() {

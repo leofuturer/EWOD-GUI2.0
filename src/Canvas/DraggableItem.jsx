@@ -10,7 +10,7 @@ import { CanvasContext } from '../Contexts/CanvasProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 import { ELEC_SIZE } from '../constants';
 
-function DraggableItem({ id, children, scaleXY }) {
+function DraggableItem({ ind, children, scaleXY }) {
   const { mode } = useContext(GeneralContext);
 
   const context = useContext(CanvasContext);
@@ -21,15 +21,15 @@ function DraggableItem({ id, children, scaleXY }) {
 
   const { deltas } = electrodes;
 
-  const isSelected = elecSelected && elecSelected.indexOf(`${id}`) >= 0;
+  const isSelected = elecSelected && elecSelected.indexOf(`${electrodes.ids[ind]}`) >= 0;
 
   let transform = {};
   let boop;
   if (delta === null) boop = { x: 0, y: 0 };
   else boop = delta;
 
-  if (isSelected) transform = { transform: `translate(${boop.x + deltas[id][0]}px, ${boop.y + deltas[id][1]}px)` };
-  else transform = { transform: `translate(${deltas[id][0]}px, ${deltas[id][1]}px)` };
+  if (isSelected) transform = { transform: `translate(${boop.x + deltas[ind][0]}px, ${boop.y + deltas[ind][1]}px)` };
+  else transform = { transform: `translate(${deltas[ind][0]}px, ${deltas[ind][1]}px)` };
 
   const dragItem = useRef(null);
 

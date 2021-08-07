@@ -106,7 +106,11 @@ export default function UploadButton() {
         }
 
         setSelected([]);
-        setElectrodes({ initPositions: newInitPositions, deltas: newDeltas });
+        setElectrodes({
+          initPositions: newInitPositions,
+          deltas: newDeltas,
+          ids: [...new Array(newDeltas.length).keys()],
+        });
         setComboLayout(newAllCombined);
         setPinActuation(newPinActuate);
         setSimpleNum(newSimpleNum + 1);

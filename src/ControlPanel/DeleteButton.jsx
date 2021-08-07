@@ -30,6 +30,7 @@ export default function DeleteButton() {
     setElectrodes({
       initPositions: [],
       deltas: [],
+      ids: [],
     });
     setComboLayout([]);
 

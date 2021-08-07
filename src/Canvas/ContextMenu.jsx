@@ -86,9 +86,12 @@ export default function ContextMenu() {
           newDels.push([squares[j][0] - squares[0][0], squares[j][1] - squares[0][1]]);
         }
 
+        const maxID = Math.max(...electrodes.ids) + 1;
+        const newIDs = [...new Array(numSquaresCopied).keys()].map((num) => num + maxID);
         setElectrodes({
           initPositions: electrodes.initPositions.concat(newInits),
           deltas: electrodes.deltas.concat(newDels),
+          ids: electrodes.ids.concat(newIDs),
         });
       }
       if (numCombinedCopied > 0) {
@@ -110,22 +113,25 @@ export default function ContextMenu() {
 
   function squaresDelete() {
     // go through selected squares to erase any of their pin mappings
-    selected.forEach((index) => {
-      const square = `S${index}`;
-      const mappedPin = elecToPin[square];
-      if (mappedPin) { // mapping exists for this electrode so delete mapping
-        delete pinToElec[mappedPin];
-        delete elecToPin[square];
+    electrodes.ids.forEach((id) => {
+      if (selected.includes(id)) {
+        const square = `S${id}`;
+        const mappedPin = elecToPin[square];
+        if (mappedPin) { // mapping exists for this electrode so delete mapping
+          delete pinToElec[mappedPin];
+          delete elecToPin[square];
+        }
       }
     });
 
     setPinToElec({ ...pinToElec });
     setElecToPin({ ...elecToPin });
-
-    const newPos = electrodes.initPositions.filter((val, ind) => !selected.includes(`${ind}`));
-    const newDel = electrodes.deltas.filter((val, ind) => !selected.includes(`${ind}`));
+    const newPos = electrodes.initPositions
+      .filter((val, ind) => !selected.includes(`${electrodes.ids[ind]}`));
+    const newDel = electrodes.deltas.filter((val, ind) => !selected.includes(`${electrodes.ids[ind]}`));
+    const newIds = electrodes.ids.filter((id) => !selected.includes(`${id}`));
     setSelected([]);
-    setElectrodes({ initPositions: newPos, deltas: newDel });
+    setElectrodes({ initPositions: newPos, deltas: newDel, ids: newIds });
   }
 
   function combinedDelete() {
@@ -190,18 +196,20 @@ export default function ContextMenu() {
     let xMax = -1;
     let yMin = Infinity;
     let yMax = -1;
-    for (let j = 0; j < selected.length; j += 1) {
-      const init = electrodes.initPositions[selected[j]];
-      const del = electrodes.deltas[selected[j]];
-      const x = init[0] + del[0];
-      const y = init[1] + del[1];
-      if (x < xMin) xMin = x;
-      if (x > xMax) xMax = x;
+    for (let j = 0; j < electrodes.initPositions.length; j += 1) {
+      if (selected.includes(`${electrodes.ids[j]}`)) {
+        const init = electrodes.initPositions[j];
+        const del = electrodes.deltas[j];
+        const x = init[0] + del[0];
+        const y = init[1] + del[1];
+        if (x < xMin) xMin = x;
+        if (x > xMax) xMax = x;
 
-      if (y < yMin) yMin = y;
-      if (y > yMax) yMax = y;
+        if (y < yMin) yMin = y;
+        if (y > yMax) yMax = y;
 
-      positions.push([x, y, newLastFreeInd]);
+        positions.push([x, y, newLastFreeInd]);
+      }
     }
     /* CHECK NODES ARE ADJACENT BEFORE COMBINING */
     const numRows = (yMax - yMin) / ELEC_SIZE + 1;
@@ -256,10 +264,13 @@ export default function ContextMenu() {
     selectedCombs.forEach((coord) => {
       selectedCombCoords.push([coord[0], coord[1]]);
     });
+    const maxID = Math.max(...electrodes.ids) + 1;
+    const newIDs = [...new Array(selectedCombs.length).keys()].map((num) => num + maxID);
     setElectrodes({
       initPositions: electrodes.initPositions.concat(selectedCombCoords),
       deltas: electrodes.deltas
         .concat(new Array(allCombined.length).fill(null).map(() => new Array(2).fill(0))),
+      ids: electrodes.ids.concat(newIDs),
     });
     combinedDelete();
   }

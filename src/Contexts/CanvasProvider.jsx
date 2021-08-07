@@ -10,6 +10,7 @@ const CanvasProvider = ({ children }) => {
     electrodes: {
       initPositions: [],
       deltas: [],
+      ids: [],
     },
     selected: [],
   });

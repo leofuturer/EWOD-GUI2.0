@@ -68,8 +68,7 @@ export default function Canvas() {
 
       // electrode curr pos = init + deltas[idx]
       // wanna see if curr XY = electrodes[idx] + deltas[idx]
-      const { initPositions } = electrodes;
-      const { deltas } = electrodes;
+      const { initPositions, deltas, ids } = electrodes;
       const x = Math.floor(e.offsetX / ELEC_SIZE) * ELEC_SIZE;
       const y = Math.floor(e.offsetY / ELEC_SIZE) * ELEC_SIZE;
 
@@ -91,9 +90,15 @@ export default function Canvas() {
       }
 
       if (!elecAtXY) { // create new electrode
+        let newLastFreeInd = 0;
+        if (electrodes.initPositions.length) {
+          const availIDs = [...Array(Math.max(...electrodes.ids) + 2).keys()];
+          newLastFreeInd = availIDs.find((id) => !electrodes.ids.includes(id));
+        }
         setElectrodes({
           initPositions: initPositions.concat([[x, y]]),
           deltas: deltas.concat([[0, 0]]),
+          ids: ids.concat(newLastFreeInd),
         });
       }
     }
@@ -212,19 +217,20 @@ export default function Canvas() {
 
   const [selectables, setSelectables] = useState([]);
   useEffect(() => {
-    const { deltas } = electrodes;
+    const { deltas, ids } = electrodes;
     const newSelectables = [];
     electrodes.initPositions.forEach((startPos, ind) => {
       let color = 'black';
+      const id = ids[ind];
       if (mode === 'SEQ'
         && pinActuate.has(currentStep)
-        && Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`)
-        && pinActuate.get(currentStep).content.has(elecToPin[`S${ind}`])
+        && Object.prototype.hasOwnProperty.call(elecToPin, `S${id}`)
+        && pinActuate.get(currentStep).content.has(elecToPin[`S${id}`])
       ) color = 'red';
-      else if (mode === 'CAN' && selected.includes(ind)) color = 'blue';
-      else if (mode === 'PIN' && currElec === `S${ind}`) color = 'green';
+      else if (mode === 'CAN' && selected.includes(id)) color = 'blue';
+      else if (mode === 'PIN' && currElec === `S${id}`) color = 'green';
       newSelectables.push({
-        id: `S${ind}`,
+        id: `S${id}`,
         tagName: 'rect',
         'data-testid': 'square',
         x: startPos[0] + deltas[ind][0],
@@ -234,9 +240,9 @@ export default function Canvas() {
         fill: color,
       });
       // text elems for pin number mapped to square
-      if (Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`)) {
+      if (Object.prototype.hasOwnProperty.call(elecToPin, `S${id}`)) {
         newSelectables.push({
-          id: `TS${ind}`,
+          id: `TS${id}`,
           tagName: 'text',
           style: { transform: `translate(${deltas[ind][0]}px, ${deltas[ind][1]}px)` },
           x: startPos[0] + 5,
@@ -244,7 +250,7 @@ export default function Canvas() {
           width: ELEC_SIZE - 5,
           height: ELEC_SIZE - 5,
           fill: 'white',
-          children: elecToPin[`S${ind}`],
+          children: elecToPin[`S${id}`],
         });
       }
     });
@@ -362,37 +368,40 @@ export default function Canvas() {
                     linear-gradient(to bottom, grey 1px, transparent 1px)`,
                 }}
               >
-                {electrodes.initPositions.map((startPos, ind) => (
-                  <DraggableItem key={ind.id} id={ind} scaleXY={scaleXY}>
-                    <rect
-                      data-testid="square"
-                      x={startPos[0]}
-                      y={startPos[1]}
-                      width={ELEC_SIZE - 5}
-                      height={ELEC_SIZE - 5}
-                      className={`electrode
-                                    ${mode === 'SEQ' && pinActuate.has(currentStep)
-                                    && Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`)
-                                    && pinActuate.get(currentStep).content.has(elecToPin[`S${ind}`]) ? 'toSeq' : ''}
-                                    ${mode === 'CAN' && selected.includes(`${ind}`) ? 'selected' : ''}
-                                    ${mode === 'PIN' && currElec === `S${ind}` ? 'toPin' : ''}`}
-                    />
-                    {Object.prototype.hasOwnProperty.call(elecToPin, `S${ind}`)
-                      ? (
-                        <text
-                          x={startPos[0] + 5}
-                          y={startPos[1] + ELEC_SIZE / 2}
-                          width={ELEC_SIZE - 5}
-                          height={ELEC_SIZE - 5}
-                          fill="white"
-                        >
-                          {elecToPin[`S${ind}`]}
-                        </text>
-                      ) : (
-                        <></>
-                      )}
-                  </DraggableItem>
-                ))}
+                {electrodes.initPositions.map((startPos, ind) => {
+                  const idx = electrodes.ids[ind];
+                  return (
+                    <DraggableItem key={ind.id} ind={ind} scaleXY={scaleXY}>
+                      <rect
+                        data-testid="square"
+                        x={startPos[0]}
+                        y={startPos[1]}
+                        width={ELEC_SIZE - 5}
+                        height={ELEC_SIZE - 5}
+                        className={`electrode
+                                      ${mode === 'SEQ' && pinActuate.has(currentStep)
+                                      && Object.prototype.hasOwnProperty.call(elecToPin, `S${idx}`)
+                                      && pinActuate.get(currentStep).content.has(elecToPin[`S${idx}`]) ? 'toSeq' : ''}
+                                      ${mode === 'CAN' && selected.includes(`${idx}`) ? 'selected' : ''}
+                                      ${mode === 'PIN' && currElec === `S${idx}` ? 'toPin' : ''}`}
+                      />
+                      {Object.prototype.hasOwnProperty.call(elecToPin, `S${idx}`)
+                        ? (
+                          <text
+                            x={startPos[0] + 5}
+                            y={startPos[1] + ELEC_SIZE / 2}
+                            width={ELEC_SIZE - 5}
+                            height={ELEC_SIZE - 5}
+                            fill="white"
+                          >
+                            {elecToPin[`S${idx}`]}
+                          </text>
+                        ) : (
+                          <></>
+                        )}
+                    </DraggableItem>
+                  );
+                })}
                 {Object.entries(finalCombines).map((comb, ind) => (
                   <DraggableComb key={ind.id} id={comb[0]} scaleXY={scaleXY}>
                     <path

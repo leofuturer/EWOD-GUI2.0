@@ -220,24 +220,22 @@ export default function Canvas() {
     const { deltas, ids } = electrodes;
     const newSelectables = [];
     electrodes.initPositions.forEach((startPos, ind) => {
-      let color = 'black';
       const id = ids[ind];
-      if (mode === 'SEQ'
-        && pinActuate.has(currentStep)
-        && Object.prototype.hasOwnProperty.call(elecToPin, `S${id}`)
-        && pinActuate.get(currentStep).content.has(elecToPin[`S${id}`])
-      ) color = 'red';
-      else if (mode === 'CAN' && selected.includes(id)) color = 'blue';
-      else if (mode === 'PIN' && currElec === `S${id}`) color = 'green';
       newSelectables.push({
         id: `S${id}`,
         tagName: 'rect',
         'data-testid': 'square',
-        x: startPos[0] + deltas[ind][0],
-        y: startPos[1] + deltas[ind][1],
+        className: `electrode
+          ${mode === 'SEQ' && pinActuate.has(currentStep)
+          && Object.prototype.hasOwnProperty.call(elecToPin, `S${id}`)
+          && pinActuate.get(currentStep).content.has(elecToPin[`S${id}`]) ? 'toSeq' : ''}
+          ${mode === 'CAN' && selected.includes(`${id}`) ? 'selected' : ''}
+          ${mode === 'PIN' && currElec === `S${id}` ? 'toPin' : ''}`,
+        style: { transform: `translate(${deltas[ind][0]}px, ${deltas[ind][1]}px)` },
+        x: startPos[0],
+        y: startPos[1],
         width: ELEC_SIZE - 5,
         height: ELEC_SIZE - 5,
-        fill: color,
       });
       // text elems for pin number mapped to square
       if (Object.prototype.hasOwnProperty.call(elecToPin, `S${id}`)) {
@@ -255,20 +253,17 @@ export default function Canvas() {
       }
     });
     Object.entries(finalCombines).forEach((comb, ind) => {
-      let color = 'black';
-      if (mode === 'SEQ'
-        && pinActuate.has(currentStep)
-        && Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
-        && pinActuate.get(currentStep).content.has(elecToPin[`C${comb[0]}`])
-      ) color = 'red';
-      else if (mode === 'CAN' && combSelected.includes(ind)) color = 'blue';
-      else if (mode === 'PIN' && currElec === `C${ind}`) color = 'green';
       newSelectables.push({
         id: `C${ind}`,
         tagName: 'path',
         'data-testid': 'combined',
         d: comb[1][0],
-        fill: color,
+        className: `electrode
+          ${mode === 'SEQ' && pinActuate.has(currentStep)
+          && Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
+          && pinActuate.get(currentStep).content.has(elecToPin[`C${comb[0]}`]) ? 'toSeq' : ''}
+          ${mode === 'CAN' && combSelected.includes(`${ind}`) ? 'selected' : ''}
+          ${mode === 'PIN' && currElec === `C${comb[0]}` ? 'toPin' : ''}`,
         scale: scaleXY.scale,
         svgx: scaleXY.svgX,
         svgy: scaleXY.svgY,
@@ -373,6 +368,7 @@ export default function Canvas() {
                   return (
                     <DraggableItem key={ind.id} ind={ind} scaleXY={scaleXY}>
                       <rect
+                        id={`S${idx}`}
                         data-testid="square"
                         x={startPos[0]}
                         y={startPos[1]}
@@ -405,6 +401,7 @@ export default function Canvas() {
                 {Object.entries(finalCombines).map((comb, ind) => (
                   <DraggableComb key={ind.id} id={comb[0]} scaleXY={scaleXY}>
                     <path
+                      id={`C${comb[0]}`}
                       d={comb[1][0]}
                       className={`electrode
                                     ${mode === 'SEQ' && pinActuate.has(currentStep)
@@ -461,7 +458,8 @@ export default function Canvas() {
                 onSelectChange={onSelectChange}
                 items={selectables}
                 isMovable={false}
-                isSelectable="true"
+                // eslint-disable-next-line react/jsx-boolean-value
+                isSelectable={true}
                 style={{
                   backgroundColor: '#93D08C',
                   backgroundSize: `${ELEC_SIZE}px ${ELEC_SIZE}px`,

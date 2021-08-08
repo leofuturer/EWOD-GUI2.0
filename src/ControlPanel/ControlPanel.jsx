@@ -138,6 +138,9 @@ export default function ControlPanel() {
   const [usbConnected, setUsbConnected] = useState(false);
 
   function setNewMode(newMode) {
+    if (mode === 'PIN' && newMode !== 'PIN') {
+      setScaleXY({ scale: 1, svgX: 0, svgY: 0 });
+    }
     setMode(newMode);
     setSelected([]);
     setCombSelected([]);

@@ -54,6 +54,7 @@ const CanvasProvider = ({ children }) => {
             electrodes: {
               initPositions: initPos,
               deltas: dels,
+              ids: [...new Array(dels.length).keys()],
             },
           }));
         }

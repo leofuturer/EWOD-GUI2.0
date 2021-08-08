@@ -34,9 +34,10 @@ Cypress.Commands.add('createSquare', (CELL) => {
 });
 
 Cypress.Commands.add('moveElec', (subject, from, to) => {
-  cy.get('[data-testid="CAN"]').click({ force: true });
+  cy.get('.greenArea').rightclick({ force: true });
+  cy.get('ul.menu > li:nth-child(1)').click({ force: true }); // hit MOVE
 
-  cy.wrap(subject).first().click({ force: true })
+  cy.get(`#${subject[0].id}`)
     .trigger('mousedown', {
       button: 0,
       clientX: from.x,
@@ -57,4 +58,23 @@ Cypress.Commands.add('moveElec', (subject, from, to) => {
       force: true,
     })
     .trigger('mouseup');
+});
+
+Cypress.Commands.add('drag', (from, to) => {
+  cy.get('.greenArea')
+    .trigger('mousedown', from.x, from.y, {
+      which: 1,
+      force: true,
+    })
+    .trigger('mousemove', from.x, from.y, {
+      which: 1,
+      force: true,
+    })
+    .trigger('mousemove', to.x, to.y, {
+      which: 1,
+      force: true,
+    })
+    .trigger('mouseup', to.x, to.y, {
+      force: true,
+    });
 });

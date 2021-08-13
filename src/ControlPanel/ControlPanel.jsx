@@ -168,7 +168,7 @@ export default function ControlPanel() {
             </ListItem>
             <DownloadButton />
 
-            <Tooltip title="Map Pins">
+            <Tooltip title="Map Pins" data-testid="PIN">
               <ListItem button onClick={() => setNewMode('PIN')}>
                 <img src={mode === 'PIN' ? icons.electrodenumbering.onClick : icons.electrodenumbering.icon} alt="Electrode Numbering" />
               </ListItem>

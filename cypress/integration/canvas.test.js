@@ -113,4 +113,92 @@ describe('Canvas', () => {
     cy.get('[data-testid="square"]').should('have.length', 0);
     cy.get('[data-testid="combined"]').should('have.length', 0);
   });
+
+  // pins tests
+  it('Assign pin to square electrode', () => {
+    cy.createSquare(CELL1);
+
+    cy.get('[data-testid="PIN"]').click();
+    cy.get('[data-testid="square"]').click({ force: true });
+    cy.get('[data-testid="square"]').should('have.class', 'toPin');
+
+    cy.get('.pin').contains('97').click({ force: true });
+
+    cy.get('text')
+      .should('have.attr', 'x', Math.floor(CELL1.x / ELEC_SIZE) * ELEC_SIZE + 5)
+      .should('have.attr', 'y', Math.floor(CELL1.y / ELEC_SIZE) * ELEC_SIZE + ELEC_SIZE / 2)
+      .should('contain', '97');
+  });
+
+  it('Assign two pins to square', () => {
+    cy.createSquare(CELL4);
+
+    cy.get('[data-testid="PIN"]').click();
+    cy.get('[data-testid="square"]').click({ force: true });
+    cy.get('[data-testid="square"]').should('have.class', 'toPin');
+
+    cy.get('.pin').contains('97').click({ force: true });
+    cy.get('.pin').contains('130').click({ force: true });
+
+    cy.get('text')
+      .should('have.attr', 'x', Math.floor(CELL4.x / ELEC_SIZE) * ELEC_SIZE + 5)
+      .should('have.attr', 'y', Math.floor(CELL4.y / ELEC_SIZE) * ELEC_SIZE + ELEC_SIZE / 2)
+      .should('contain', '130');
+  });
+
+  it('Snatch pin number from another square', () => {
+    cy.createSquare(CELL2);
+    cy.createSquare(CELL4);
+
+    cy.get('[data-testid="PIN"]').click();
+    cy.get('[data-testid="square"]')
+      .eq(0)
+      .click({ force: true })
+      .should('have.class', 'toPin');
+    cy.get('.pin').contains('97').click({ force: true });
+
+    cy.get('[data-testid="square"]')
+      .eq(1)
+      .click({ force: true })
+      .should('have.class', 'toPin');
+    cy.get('.pin').contains('130').click({ force: true });
+
+    cy.get('[data-testid="square"]')
+      .eq(0)
+      .click({ force: true });
+    cy.get('.pin').contains('130').click({ force: true });
+    cy.get('text')
+      .should('have.length', 1)
+      .should('have.attr', 'x', Math.floor(CELL2.x / ELEC_SIZE) * ELEC_SIZE + 5)
+      .should('have.attr', 'y', Math.floor(CELL2.y / ELEC_SIZE) * ELEC_SIZE + ELEC_SIZE / 2)
+      .should('contain', '130');
+  });
+
+  it('Assign pin to combined electrode', () => {
+    cy.createSquare(CELL2);
+    cy.createSquare(CELL3);
+
+    cy.get('[data-testid="CAN"]').click();
+    cy.get('[data-testid="square"]').click({ multiple: true, force: true });
+    cy.get('.greenArea').rightclick({ force: true });
+    cy.get('ul.menu > li:nth-child(5)').click({ force: true });
+    cy.get('[data-testid="square"]').should('have.length', 0);
+    cy.get('[data-testid="combined"]').should('have.length', 1);
+
+    cy.get('[data-testid="PIN"]').click();
+    cy.get('[data-testid="combined"]').click({ force: true });
+    cy.get('[data-testid="combined"]').should('have.class', 'toPin');
+
+    cy.get('.pin').contains('97').click({ force: true });
+
+    cy.get('text')
+      .should('have.attr', 'x', Math.floor(CELL2.x / ELEC_SIZE) * ELEC_SIZE + 5)
+      .should('have.attr', 'y', Math.floor(CELL2.y / ELEC_SIZE) * ELEC_SIZE + ELEC_SIZE / 2)
+      .should('contain', '97');
+  });
+
+  it('Bottom row should be visible', () => {
+    cy.get('[data-testid="PIN"]').click();
+    cy.get('.pin').contains('174').should('be.visible');
+  });
 });

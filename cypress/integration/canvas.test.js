@@ -35,8 +35,8 @@ describe('Canvas', () => {
       .then(($square) => cy.moveElec($square, CELL1, POSITION));
 
     cy.get('[data-testid="square"]')
-      .should('have.attr', 'style')
-      .should('contain', `translate(${ELEC_SIZE}px, ${ELEC_SIZE}px)`);
+      .should('have.attr', 'x', POSITION.x - 10)
+      .should('have.attr', 'y', POSITION.y - 10);
   });
 
   it('Delete square', () => {
@@ -77,8 +77,8 @@ describe('Canvas', () => {
 
     cy.get('[data-testid="alert-box-error"]').should('be.visible');
     cy.get('[data-testid="square"]')
-      .should('have.attr', 'style')
-      .should('contain', 'translate(0px, 0px)');
+      .should('have.attr', 'x', CELL4.x - 10)
+      .should('have.attr', 'y', CELL4.y - 10);
   });
 
   it('Move off canvas', () => {
@@ -182,9 +182,9 @@ describe('Canvas', () => {
     cy.createSquare(CELL3);
 
     cy.get('[data-testid="CAN"]').click();
-    cy.get('[data-testid="square"]').click({ multiple: true, force: true });
+    cy.drag(CELL3, CELL2);
     cy.get('.greenArea').rightclick({ force: true });
-    cy.get('ul.menu > li:nth-child(5)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
     cy.get('[data-testid="square"]').should('have.length', 0);
     cy.get('[data-testid="combined"]').should('have.length', 1);
 

@@ -231,9 +231,8 @@ export default function Canvas() {
           && pinActuate.get(currentStep).content.has(elecToPin[`S${id}`]) ? 'toSeq' : ''}
           ${mode === 'CAN' && selected.includes(`${id}`) ? 'selected' : ''}
           ${mode === 'PIN' && currElec === `S${id}` ? 'toPin' : ''}`,
-        style: { transform: `translate(${deltas[ind][0]}px, ${deltas[ind][1]}px)` },
-        x: startPos[0],
-        y: startPos[1],
+        x: startPos[0] + deltas[ind][0],
+        y: startPos[1] + deltas[ind][1],
         width: ELEC_SIZE - 5,
         height: ELEC_SIZE - 5,
       });

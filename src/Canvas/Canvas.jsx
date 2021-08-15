@@ -242,7 +242,7 @@ export default function Canvas() {
           id: `TS${id}`,
           tagName: 'text',
           style: { transform: `translate(${deltas[ind][0]}px, ${deltas[ind][1]}px)` },
-          x: startPos[0] + 5,
+          x: startPos[0] + 2,
           y: startPos[1] + ELEC_SIZE / 2,
           width: ELEC_SIZE - 5,
           height: ELEC_SIZE - 5,
@@ -272,7 +272,7 @@ export default function Canvas() {
         newSelectables.push({
           id: `TC${comb[0]}`,
           tagName: 'text',
-          x: comb[1][1] + 5,
+          x: comb[1][1] + 2,
           y: comb[1][2] + ELEC_SIZE / 2,
           width: ELEC_SIZE - 5,
           height: ELEC_SIZE - 5,

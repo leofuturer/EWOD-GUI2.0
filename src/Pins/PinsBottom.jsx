@@ -14,19 +14,19 @@ export default function PinsBottom() {
         {
           range(169, 175).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setPin(e.target.innerText)}>{pinNum}</button>)
         }
-        <button className="pin ref" type="button" onClick={() => setPin(null)}>REF</button>
+        <button className="pin ref" type="button" onClick={() => setPin('REF')}>REF</button>
         {
           range(176, 182).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setPin(e.target.innerText)}>{pinNum}</button>)
         }
-        <button className="pin ref" type="button" onClick={() => setPin(null)}>REF</button>
+        <button className="pin ref" type="button" onClick={() => setPin('REF')}>REF</button>
         {
           range(183, 189).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setPin(e.target.innerText)}>{pinNum}</button>)
         }
-        <button className="pin ref" type="button" onClick={() => setPin(null)}>REF</button>
+        <button className="pin ref" type="button" onClick={() => setPin('REF')}>REF</button>
         {
           range(190, 196).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setPin(e.target.innerText)}>{pinNum}</button>)
         }
-        <button className="pin ref" type="button" onClick={() => setPin(null)}>REF</button>
+        <button className="pin ref" type="button" onClick={() => setPin('REF')}>REF</button>
       </div>
       <div className="row">
         {

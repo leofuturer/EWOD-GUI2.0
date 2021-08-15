@@ -31,6 +31,8 @@ export default function ContextMenu() {
 
   const [clipboard, setClipboard] = useState([]);
 
+  const [menuContents, setMenuContents] = useState(null);
+
   function contextMove() {
     if (selected.length || combSelected.length) setMoving(true);
   }
@@ -275,14 +277,62 @@ export default function ContextMenu() {
     combinedDelete();
   }
 
+  // can't just use selected, elecToPin, and pinToElec
+  // b/c of how how MenuItems are rendered
+  // when they're first rendered, the funcs that run trap context hook vals
+  function deleteSelectedMappings() {
+    if (selected.length || combSelected.length) {
+      const etp = { ...elecToPin };
+      const pte = { ...pinToElec };
+      if (selected.length) {
+        selected.forEach((num) => {
+          if (etp[`S${num}`]) {
+            delete pte[etp[`S${num}`]];
+            delete etp[`S${num}`];
+          }
+        });
+      }
+      if (combSelected.length) {
+        combSelected.forEach((num) => {
+          if (etp[`C${num}`]) {
+            delete pte[etp[`C${num}`]];
+            delete etp[`C${num}`];
+          }
+        });
+      }
+      setElecToPin(etp);
+      setPinToElec(pte);
+    }
+  }
+
   const canModeNames = ['Move', 'Cut', 'Copy', 'Paste', 'Delete', 'Combine', 'Separate'];
   const canModeFuncs = [
     contextMove, contextCut, contextCopy, contextPaste, contextDelete, handleCombine, separate,
   ];
 
+  const pinModeNames = ['Delete Selected Mappings'];
+  const pinModeFuncs = [deleteSelectedMappings];
+
   const handleContextMenu = useCallback(
     (e) => {
       e.preventDefault();
+      switch (mode) {
+        case 'PIN':
+          setMenuContents({
+            names: pinModeNames,
+            funcs: pinModeFuncs,
+          });
+          break;
+        case 'CAN':
+          setMenuContents({
+            names: canModeNames,
+            funcs: canModeFuncs,
+          });
+          break;
+        default:
+          setMenuContents(null);
+      }
+
       const styleSplit = e.currentTarget.childNodes[0].childNodes[0].style.transform.split(/[(,)]/);
       const scale = parseFloat(styleSplit[5], 10);
       // if user opens context menu far right or far down the canvas,
@@ -304,7 +354,7 @@ export default function ContextMenu() {
       setYPos(`${y}px`);
       setShowMenu(true);
     },
-    [setXPos, setYPos],
+    [setXPos, setYPos, setSelected, setCombSelected],
   );
 
   const handleClick = useCallback(() => {
@@ -361,11 +411,11 @@ export default function ContextMenu() {
                 }}
               >
                 {
-                  canModeNames.map((name, idx) => (
+                  menuContents && menuContents.names.map((name, idx) => (
                     <MenuItem
                       key={idx.id}
                       onClick={(e) => {
-                        canModeFuncs[idx](e, relativeX, relativeY);
+                        menuContents.funcs[idx](e);
                         setShowMenu(false);
                       }}
                     >

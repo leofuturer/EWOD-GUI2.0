@@ -204,4 +204,31 @@ describe('Canvas', () => {
     cy.get('[data-testid="PIN"]').click();
     cy.get('.pin').contains('174').should('be.visible');
   });
+
+  it('Delete Multiple Mappings', () => {
+    cy.createSquare(CELL1); // to be combined with CELL2 and assigned pin #
+    cy.createSquare(CELL2);
+    cy.createSquare(CELL3); // to be assigned pin #
+    cy.createSquare(CELL4); // will not get pin #
+
+    // combine CELL1 and CELL2
+    cy.get('[data-testid="CAN"]').click();
+    cy.drag(CELL1, CELL2);
+    cy.get('.greenArea').rightclick({ force: true });
+    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
+
+    // assign pins
+    cy.get('[data-testid="PIN"]').click();
+    cy.get('[data-testid="combined"]').click({ force: true });
+    cy.get('.pin').contains('97').click({ force: true });
+
+    cy.get('[data-testid="square"]').eq(0).click({ force: true });
+    cy.get('.pin').contains('47').click({ force: true });
+
+    // delete every electrode's pin #
+    cy.drag(CELL3, CELL4);
+    cy.get('.greenArea').rightclick({ force: true });
+    cy.get('ul.menu > li:nth-child(1)').click({ force: true });
+    cy.get('text').should('not.exist');
+  });
 });

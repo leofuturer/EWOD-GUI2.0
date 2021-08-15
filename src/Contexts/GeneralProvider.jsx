@@ -7,16 +7,13 @@ const GeneralContext = React.createContext();
 
 const GeneralProvider = ({ children }) => {
   const [mode, setMode] = useState('DRAW'); // either "PIN", "SEQ", or "CAN", or "DRAW"
+  const [panning, setPanning] = useState(false);
   const [currElec, setCurrElec] = useState(null);
   const [pinToElec, setPinToElec] = useState({});
   const [elecToPin, setElecToPin] = useState({});
-
   const bannerRef = React.useRef();
 
-  React.useEffect(() => {
-    console.log(pinToElec);
-    console.log(elecToPin);
-  }, [pinToElec, elecToPin]);
+  const [scaleXY, setScaleXY] = useState({ scale: 1, svgX: 0, svgY: 0 });
 
   React.useEffect( // idb stuff
     () => {
@@ -56,8 +53,12 @@ const GeneralProvider = ({ children }) => {
   return (
     <GeneralContext.Provider
       value={{
+        scaleXY,
+        setScaleXY,
         mode,
         setMode,
+        panning,
+        setPanning,
         bannerRef,
         currElec,
         setCurrElec,

@@ -14,7 +14,7 @@ export default function ContextMenu() {
   const { allCombined } = canvasContext.combined;
   const combSelected = canvasContext.combined.selected;
   const {
-    setElectrodes, setSelected, setComboLayout, setCombSelected,
+    setElectrodes, setSelected, setComboLayout, setCombSelected, setMoving,
   } = canvasContext;
 
   const {
@@ -30,13 +30,18 @@ export default function ContextMenu() {
   const [showMenu, setShowMenu] = useState(false);
 
   const [clipboard, setClipboard] = useState([]);
+
+  function contextMove() {
+    if (selected.length || combSelected.length) setMoving(true);
+  }
+
   function contextCopy() {
     const squares = [];
     const combined = [];
 
     if (selected.length > 0) {
-      const inits = electrodes.initPositions.filter((_, ind) => selected.includes(ind));
-      const dels = electrodes.deltas.filter((_, ind) => selected.includes(ind));
+      const inits = electrodes.initPositions.filter((_, ind) => selected.includes(`${ind}`));
+      const dels = electrodes.deltas.filter((_, ind) => selected.includes(`${ind}`));
       for (let i = 0; i < inits.length; i += 1) {
         const tmp = [inits[i][0] + dels[i][0], inits[i][1] + dels[i][1]];
         squares.push(tmp);
@@ -48,13 +53,13 @@ export default function ContextMenu() {
       let maxLayval = -1;
       allCombined.forEach((comb) => {
         // eslint-disable-next-line prefer-destructuring
-        if (combSelected.includes(comb[2]) && comb[2] < minLayval) minLayval = comb[2];
+        if (combSelected.includes(`${comb[2]}`) && comb[2] < minLayval) minLayval = comb[2];
         // eslint-disable-next-line prefer-destructuring
         if (comb[2] > maxLayval) maxLayval = comb[2];
       });
       const gap = maxLayval + 1 - minLayval;
       allCombined.forEach((comb) => {
-        if (combSelected.includes(comb[2])) combined.push([comb[0], comb[1], comb[2] + gap]);
+        if (combSelected.includes(`${comb[2]}`)) combined.push([comb[0], comb[1], comb[2] + gap]);
       });
       setCombSelected([]);
     }
@@ -81,9 +86,12 @@ export default function ContextMenu() {
           newDels.push([squares[j][0] - squares[0][0], squares[j][1] - squares[0][1]]);
         }
 
+        const maxID = Math.max(...electrodes.ids) + 1;
+        const newIDs = [...new Array(numSquaresCopied).keys()].map((num) => num + maxID);
         setElectrodes({
           initPositions: electrodes.initPositions.concat(newInits),
           deltas: electrodes.deltas.concat(newDels),
+          ids: electrodes.ids.concat(newIDs),
         });
       }
       if (numCombinedCopied > 0) {
@@ -105,22 +113,25 @@ export default function ContextMenu() {
 
   function squaresDelete() {
     // go through selected squares to erase any of their pin mappings
-    selected.forEach((index) => {
-      const square = `S${index}`;
-      const mappedPin = elecToPin[square];
-      if (mappedPin) { // mapping exists for this electrode so delete mapping
-        delete pinToElec[mappedPin];
-        delete elecToPin[square];
+    electrodes.ids.forEach((id) => {
+      if (selected.includes(id)) {
+        const square = `S${id}`;
+        const mappedPin = elecToPin[square];
+        if (mappedPin) { // mapping exists for this electrode so delete mapping
+          delete pinToElec[mappedPin];
+          delete elecToPin[square];
+        }
       }
     });
 
     setPinToElec({ ...pinToElec });
     setElecToPin({ ...elecToPin });
-
-    const newPos = electrodes.initPositions.filter((val, ind) => !selected.includes(ind));
-    const newDel = electrodes.deltas.filter((val, ind) => !selected.includes(ind));
+    const newPos = electrodes.initPositions
+      .filter((val, ind) => !selected.includes(`${electrodes.ids[ind]}`));
+    const newDel = electrodes.deltas.filter((val, ind) => !selected.includes(`${electrodes.ids[ind]}`));
+    const newIds = electrodes.ids.filter((id) => !selected.includes(`${id}`));
     setSelected([]);
-    setElectrodes({ initPositions: newPos, deltas: newDel });
+    setElectrodes({ initPositions: newPos, deltas: newDel, ids: newIds });
   }
 
   function combinedDelete() {
@@ -136,7 +147,7 @@ export default function ContextMenu() {
 
     setPinToElec({ ...pinToElec });
     setElecToPin({ ...elecToPin });
-    setComboLayout(allCombined.filter((combi) => !combSelected.includes(combi[2])));
+    setComboLayout(allCombined.filter((combi) => !combSelected.includes(`${combi[2]}`)));
     setCombSelected([]);
   }
 
@@ -185,18 +196,20 @@ export default function ContextMenu() {
     let xMax = -1;
     let yMin = Infinity;
     let yMax = -1;
-    for (let j = 0; j < selected.length; j += 1) {
-      const init = electrodes.initPositions[selected[j]];
-      const del = electrodes.deltas[selected[j]];
-      const x = init[0] + del[0];
-      const y = init[1] + del[1];
-      if (x < xMin) xMin = x;
-      if (x > xMax) xMax = x;
+    for (let j = 0; j < electrodes.initPositions.length; j += 1) {
+      if (selected.includes(`${electrodes.ids[j]}`)) {
+        const init = electrodes.initPositions[j];
+        const del = electrodes.deltas[j];
+        const x = init[0] + del[0];
+        const y = init[1] + del[1];
+        if (x < xMin) xMin = x;
+        if (x > xMax) xMax = x;
 
-      if (y < yMin) yMin = y;
-      if (y > yMax) yMax = y;
+        if (y < yMin) yMin = y;
+        if (y > yMax) yMax = y;
 
-      positions.push([x, y, newLastFreeInd]);
+        positions.push([x, y, newLastFreeInd]);
+      }
     }
     /* CHECK NODES ARE ADJACENT BEFORE COMBINING */
     const numRows = (yMax - yMin) / ELEC_SIZE + 1;
@@ -246,29 +259,49 @@ export default function ContextMenu() {
       window.alert('Can only separate combined electrodes');
       return;
     }
-    const selectedCombs = allCombined.filter((x) => combSelected.includes(x[2]));
+    const selectedCombs = allCombined.filter((x) => combSelected.includes(`${x[2]}`));
     const selectedCombCoords = [];
     selectedCombs.forEach((coord) => {
       selectedCombCoords.push([coord[0], coord[1]]);
     });
+    const maxID = Math.max(...electrodes.ids) + 1;
+    const newIDs = [...new Array(selectedCombs.length).keys()].map((num) => num + maxID);
     setElectrodes({
       initPositions: electrodes.initPositions.concat(selectedCombCoords),
       deltas: electrodes.deltas
         .concat(new Array(allCombined.length).fill(null).map(() => new Array(2).fill(0))),
+      ids: electrodes.ids.concat(newIDs),
     });
     combinedDelete();
   }
 
+  const canModeNames = ['Move', 'Cut', 'Copy', 'Paste', 'Delete', 'Combine', 'Separate'];
+  const canModeFuncs = [
+    contextMove, contextCut, contextCopy, contextPaste, contextDelete, handleCombine, separate,
+  ];
+
   const handleContextMenu = useCallback(
     (e) => {
       e.preventDefault();
-      const rect = e.currentTarget.getBoundingClientRect();
-      const styleSplit = e.currentTarget.parentNode.style.transform.split(/[(,)]/);
-      const scaleFactor = parseFloat(styleSplit[5]);
-      setXPos(`${e.offsetX * scaleFactor + rect.left}px`);
+      const styleSplit = e.currentTarget.childNodes[0].childNodes[0].style.transform.split(/[(,)]/);
+      const scale = parseFloat(styleSplit[5], 10);
+      // if user opens context menu far right or far down the canvas,
+      // have context menu's bottom left corner start at mouse
+      // rather than having the context menu's top left corner start at mouse
+      let x = e.offsetX * scale + parseFloat(styleSplit[1].slice(0, -2), 10);
+      if (mode !== 'PIN') x += 49; // left bar width
+      else x += 215;
+
+      setXPos(`${x}px`);
+
       setRelativeX(`${e.offsetX}px`);
       setRelativeY(`${e.offsetY}px`);
-      setYPos(`${e.offsetY * scaleFactor + rect.top}px`);
+
+      let y = e.offsetY * scale + parseFloat(styleSplit[2].slice(0, -2), 10);
+      if (mode !== 'PIN') y += 75; // top bar height + menu padding
+      else y += 380;
+
+      setYPos(`${y}px`);
       setShowMenu(true);
     },
     [setXPos, setYPos],
@@ -279,18 +312,26 @@ export default function ContextMenu() {
   }, [showMenu]);
 
   useEffect(() => {
-    document.addEventListener('click', handleClick);
-    document.querySelector('.greenArea').addEventListener('contextmenu', handleContextMenu);
+    if (mode === 'CAN' || mode === 'PIN') {
+      document.querySelector('.wrapper').addEventListener('contextmenu', handleContextMenu);
+    }
     return () => {
-      document.removeEventListener('click', handleClick);
-      document.querySelector('.greenArea').removeEventListener('contextmenu', handleContextMenu);
+      if (mode === 'CAN' || mode === 'PIN') {
+        document.querySelector('.wrapper').removeEventListener('contextmenu', handleContextMenu);
+      }
     };
-  }, [handleClick, handleContextMenu]);
+  }, [mode, setMoving]);
 
-  const canModeNames = ['Cut', 'Copy', 'Paste', 'Delete', 'Combine', 'Separate'];
-  const canModeFuncs = [
-    contextCut, contextCopy, contextPaste, contextDelete, handleCombine, separate,
-  ];
+  useEffect(() => {
+    if (showMenu) {
+      document.querySelector('.greenArea').addEventListener('click', handleClick);
+    }
+    return () => {
+      if (!showMenu) {
+        document.querySelector('.greenArea').removeEventListener('click', handleClick);
+      }
+    };
+  }, [showMenu]);
 
   return (
     <Motion
@@ -304,15 +345,15 @@ export default function ContextMenu() {
               className="menu-container"
               style={{
                 opacity: interpolatedStyle.opacity,
+                position: 'absolute',
+                top: yPos,
+                left: xPos,
               }}
             >
               <ul
                 className="menu"
                 style={{
                   zIndex: 5,
-                  position: 'absolute',
-                  top: yPos,
-                  left: xPos,
                   backgroundColor: 'white',
                   padding: '10px 0px',
                   borderRadius: '5px',
@@ -320,10 +361,13 @@ export default function ContextMenu() {
                 }}
               >
                 {
-                  mode === 'CAN' && canModeNames.map((name, idx) => (
+                  canModeNames.map((name, idx) => (
                     <MenuItem
                       key={idx.id}
-                      onClick={(e) => { canModeFuncs[idx](e, relativeX, relativeY); }}
+                      onClick={(e) => {
+                        canModeFuncs[idx](e, relativeX, relativeY);
+                        setShowMenu(false);
+                      }}
                     >
                       {name}
                     </MenuItem>

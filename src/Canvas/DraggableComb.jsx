@@ -1,6 +1,6 @@
 /* eslint-disable react/destructuring-assignment */
 import React, {
-  useRef, useEffect, useCallback, useContext, useState,
+  useRef, useContext, useState,
 } from 'react';
 import ReactDraggable from 'react-draggable';
 import useSelected from './useSelected';
@@ -10,21 +10,16 @@ import { CanvasContext } from '../Contexts/CanvasProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 import { ELEC_SIZE } from '../constants';
 
-function DraggableComb({ id, children }) {
-  const {
-    mode, setCurrElec,
-  } = useContext(GeneralContext);
+function DraggableComb({ id, children, scaleXY }) {
+  const { mode } = useContext(GeneralContext);
 
   const context = useContext(CanvasContext);
-  const { setDelta, setCombSelected, setDragging } = context;
-  const {
-    delta, mouseDown, isDragging,
-  } = context.state;
+  const { setDelta, setDragging, setMoving } = context;
+  const { delta, isDragging } = context.state;
 
   const { selected } = context.combined;
 
-  const isSelected = selected && selected.indexOf(id) >= 0;
-
+  const isSelected = selected && selected.indexOf(`${id}`) >= 0;
   let transform = {};
   let boop;
   if (delta === null) boop = { x: 0, y: 0 };
@@ -33,62 +28,6 @@ function DraggableComb({ id, children }) {
   if (isSelected) transform = { transform: `translate(${boop.x}px, ${boop.y}px)` };
 
   const dragItem = useRef(null);
-
-  const [localMD, setLocalMD] = useState(false);
-
-  const handleMouseDown = useCallback((e) => {
-    if (e.which === 1) {
-      if (mode === 'PIN') {
-        setCurrElec(`C${id}`);
-      } else if (mode !== 'DRAW' && mode !== 'PAN' && !isDragging) {
-        if (mode === 'SEQ') {
-          console.log(`Clicked on C${id}`);
-        } else if (isSelected) {
-          setLocalMD(true);
-        } else {
-          setCombSelected([...new Set([...selected, id])]);
-        }
-      }
-    }
-  }, [isDragging, setCombSelected, selected, id, mode, isSelected]);
-
-  const handleMouseUp = useCallback(() => {
-    if (mode !== 'DRAW' && mode !== 'PAN' && isSelected && !isDragging && localMD) {
-      if (mode === 'SEQ') {
-        console.log(`Clicked on C${id}`);
-      } else {
-        setCombSelected(selected.filter((x) => x !== id));
-        setLocalMD(false);
-      }
-    }
-  }, [isDragging, setCombSelected, selected, id, mode, isSelected]);
-
-  const handleMouseOver = useCallback(() => {
-    if (mouseDown === true && mode !== 'DRAW' && mode !== 'PAN' && !isDragging) {
-      if (mode === 'SEQ') {
-        console.log(`Clicked on C${id}`);
-      } else if (isSelected) {
-        setCombSelected(selected.filter((x) => x !== id));
-      } else {
-        setCombSelected([...new Set([...selected, id])]);
-      }
-    }
-  }, [isDragging, mode, id, isSelected, mouseDown, selected, setCombSelected]);
-
-  useEffect(() => {
-    if (dragItem && dragItem.current) {
-      const item = dragItem.current;
-      item.addEventListener('mousedown', handleMouseDown);
-      item.addEventListener('mouseover', handleMouseOver);
-      item.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        item.removeEventListener('mousedown', handleMouseDown);
-        item.removeEventListener('mouseover', handleMouseOver);
-        item.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-    return undefined;
-  }, [handleMouseDown, handleMouseOver, handleMouseUp]);
 
   const [savingChanges, setSaveChanges] = useState(false);
 
@@ -108,26 +47,31 @@ function DraggableComb({ id, children }) {
         setDelta({ x: 0, y: 0 });
       }}
       onDrag={(e, data) => {
-        setDelta({ x: data.x, y: data.y });
+        setDelta({
+          // eslint-disable-next-line no-mixed-operators
+          x: Math.round(data.x / scaleXY.scale / ELEC_SIZE) * ELEC_SIZE,
+          // eslint-disable-next-line no-mixed-operators
+          y: Math.round(data.y / scaleXY.scale / ELEC_SIZE) * ELEC_SIZE,
+        });
         setDragging(true);
       }}
       onStop={() => {
         if (isDragging) {
           if (delta.x !== 0 || delta.y !== 0) setSaveChanges(true);
           else setResetting(true);
+          setMoving(false);
           setDragging(false);
         }
+        return false;
       }}
       position={{ x: 0, y: 0 }}
-      disabled={!isSelected}
+      disabled={mode !== 'CAN' || !isSelected}
       grid={[ELEC_SIZE, ELEC_SIZE]}
       nodeRef={dragItem}
     >
       <g ref={dragItem}>
         <g style={transform}>
-          <g className={`${mode === 'CAN' && isSelected ? 'selected' : ''}`}>
-            {children}
-          </g>
+          {children}
         </g>
       </g>
     </ReactDraggable>

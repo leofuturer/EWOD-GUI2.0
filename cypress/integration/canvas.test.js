@@ -34,9 +34,9 @@ describe('Canvas', () => {
     cy.get('[data-testid="square"]')
       .then(($square) => cy.moveElec($square, CELL1, POSITION));
 
-    cy.get('[data-testid="square"]').parent()
-      .should('have.attr', 'style')
-      .should('contain', `translate(${ELEC_SIZE}px, ${ELEC_SIZE}px)`);
+    cy.get('[data-testid="square"]')
+      .should('have.attr', 'x', POSITION.x - 10)
+      .should('have.attr', 'y', POSITION.y - 10);
   });
 
   it('Delete square', () => {
@@ -45,7 +45,7 @@ describe('Canvas', () => {
     cy.get('[data-testid="square"]').click({ force: true });
 
     cy.get('.greenArea').rightclick({ force: true });
-    cy.get('ul.menu > li:nth-child(4)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(5)').click({ force: true });
     cy.get('[data-testid="square"]').should('have.length', 0);
   });
 
@@ -54,9 +54,9 @@ describe('Canvas', () => {
     cy.createSquare(CELL3);
 
     cy.get('[data-testid="CAN"]').click();
-    cy.get('[data-testid="square"]').click({ multiple: true, force: true });
+    cy.drag(CELL3, CELL2);
     cy.get('.greenArea').rightclick({ force: true });
-    cy.get('ul.menu > li:nth-child(5)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
     cy.get('[data-testid="square"]').should('have.length', 0);
     cy.get('[data-testid="combined"]').should('have.length', 1);
   });
@@ -67,18 +67,18 @@ describe('Canvas', () => {
     cy.createSquare(CELL4);
     cy.get('[data-testid="CAN"]').click();
 
-    cy.get('[data-testid="square"]').eq(0).click({ force: true });
-    cy.get('[data-testid="square"]').eq(1).click({ force: true });
+    cy.drag(CELL3, CELL2);
     cy.get('.greenArea').rightclick({ force: true });
-    cy.get('ul.menu > li:nth-child(5)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
 
     cy.get('[data-testid="square"]')
+      .click({ force: true })
       .then(($square) => cy.moveElec($square, CELL4, CELL2));
 
     cy.get('[data-testid="alert-box-error"]').should('be.visible');
-    cy.get('[data-testid="square"]').parent()
-      .should('have.attr', 'style')
-      .should('contain', 'translate(0px, 0px)');
+    cy.get('[data-testid="square"]')
+      .should('have.attr', 'x', CELL4.x - 10)
+      .should('have.attr', 'y', CELL4.y - 10);
   });
 
   it('Move off canvas', () => {
@@ -87,11 +87,15 @@ describe('Canvas', () => {
 
     cy.get('[data-testid="CAN"]').click();
 
-    cy.get('[data-testid="square"]').click({ multiple: true, force: true });
+    cy.drag(CELL2, CELL3);
     cy.get('.greenArea').rightclick({ force: true });
-    cy.get('ul.menu > li:nth-child(5)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
 
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000); // wait 1s for all the electrodes to be deleted
+    // and for the combined electrode to appear
     cy.get('[data-testid="combined"]')
+      .click({ force: true })
       .then(($comb) => cy.moveElec($comb, CELL2, { x: -10, y: 10 }));
     cy.get('[data-testid="alert-box-error"]').should('be.visible');
   });
@@ -103,10 +107,9 @@ describe('Canvas', () => {
     cy.createSquare(CELL4);
 
     cy.get('[data-testid="CAN"]').click();
-    cy.get('[data-testid="square"]').eq(2).click({ force: true });
-    cy.get('[data-testid="square"]').eq(3).click({ force: true });
+    cy.drag(CELL1, CELL2);
     cy.get('.greenArea').rightclick({ force: true });
-    cy.get('ul.menu > li:nth-child(5)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
 
     cy.get('[data-testid="clear"]').click();
     cy.contains('Confirm').click();
@@ -179,9 +182,9 @@ describe('Canvas', () => {
     cy.createSquare(CELL3);
 
     cy.get('[data-testid="CAN"]').click();
-    cy.get('[data-testid="square"]').click({ multiple: true, force: true });
+    cy.drag(CELL3, CELL2);
     cy.get('.greenArea').rightclick({ force: true });
-    cy.get('ul.menu > li:nth-child(5)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
     cy.get('[data-testid="square"]').should('have.length', 0);
     cy.get('[data-testid="combined"]').should('have.length', 1);
 

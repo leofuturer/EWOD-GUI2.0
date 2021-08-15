@@ -41,7 +41,7 @@ export default function useSelected(callback, savingChanges) {
         const newDelY = deltas[sInd][1];
         const newX = newDelX + init[0];
         const newY = newDelY + init[1];
-        const typeId = `s${sInd}`;
+        const typeId = `s${electrodes.ids[sInd]}`;
         if (Object.prototype.hasOwnProperty.call(positions, newX)) {
           positions[newX].push([newY, typeId]);
         } else {
@@ -59,28 +59,30 @@ export default function useSelected(callback, savingChanges) {
       });
 
       // go through selected and see if overlap with anything in positions
-      const flag = elecSelected.some((selSqInd) => {
-        const init = electrodes.initPositions[selSqInd];
-        const newDelX = delta.x + deltas[selSqInd][0];
-        const newDelY = delta.y + deltas[selSqInd][1];
-        const newX = newDelX + init[0];
-        const newY = newDelY + init[1];
+      const flag = electrodes.ids.some((id, selSqInd) => {
+        if (elecSelected.includes(`${id}`)) {
+          const init = electrodes.initPositions[selSqInd];
+          const newDelX = delta.x + deltas[selSqInd][0];
+          const newDelY = delta.y + deltas[selSqInd][1];
+          const newX = newDelX + init[0];
+          const newY = newDelY + init[1];
 
-        if (Object.prototype.hasOwnProperty.call(positions, newX)) {
-          return positions[newX].some((yAndType) => {
-            if (yAndType[0] === newY) {
-              // check type to see if what we're overlapping on is selected
-              if (yAndType[1][0] === 'c' && !combSelected.includes(parseInt(yAndType[1].substring(1), 10))) {
-                bannerRef.current.getAlert('error', 'Overlapping on combined electrode!');
-                return true;
+          if (Object.prototype.hasOwnProperty.call(positions, newX)) {
+            return positions[newX].some((yAndType) => {
+              if (yAndType[0] === newY) {
+                // check type to see if what we're overlapping on is selected
+                if (yAndType[1][0] === 'c' && !combSelected.includes(yAndType[1].substring(1))) {
+                  bannerRef.current.getAlert('error', 'Overlapping on combined electrode!');
+                  return true;
+                }
+                if (yAndType[1][0] === 's' && !elecSelected.includes(yAndType[1].substring(1))) {
+                  bannerRef.current.getAlert('error', 'Overlapping on square electrode!');
+                  return true;
+                }
               }
-              if (yAndType[1][0] === 's' && !elecSelected.includes(parseInt(yAndType[1].substring(1), 10))) {
-                bannerRef.current.getAlert('error', 'Overlapping on square electrode!');
-                return true;
-              }
-            }
-            return false;
-          });
+              return false;
+            });
+          }
         }
         return false;
       });
@@ -91,15 +93,15 @@ export default function useSelected(callback, savingChanges) {
       }
 
       const eflag = combSelected.some((cInd) => {
-        const selCs = allCombined.filter((x) => x[2] === cInd);
+        const selCs = allCombined.filter((x) => `${x[2]}` === cInd);
         return selCs.some((selC) => {
           const newX = selC[0] + delta.x;
           const newY = selC[1] + delta.y;
           if (Object.prototype.hasOwnProperty.call(positions, newX)) {
             return positions[newX].some((yAndType) => { // all the electrodes on column x
               if (yAndType[0] === newY) { // same y and not overlapping where you used to be
-                const matchNum = parseInt(yAndType[1].substring(1), 10);
-                if (yAndType[1][0] === 'c' && !combSelected.includes(matchNum)) {
+                const matchNum = yAndType[1].substring(1);
+                if (yAndType[1][0] === 'c' && !combSelected.includes(parseInt(matchNum, 10))) {
                   bannerRef.current.getAlert('error', 'Overlapping on combined electrode!');
                   return true;
                 } if (yAndType[1][0] === 's' && !elecSelected.includes(matchNum)) {
@@ -124,18 +126,20 @@ export default function useSelected(callback, savingChanges) {
       if (elecSelected.length > 0) {
         copy = [...deltas];
 
-        for (let j = 0; j < elecSelected.length; j += 1) {
-          const init = electrodes.initPositions[elecSelected[j]];
-          const newDelX = delta.x + deltas[elecSelected[j]][0];
-          const newDelY = delta.y + deltas[elecSelected[j]][1];
-          const newX = newDelX + init[0];
-          const newY = newDelY + init[1];
-          if (newX < 0 || newX >= CANVAS_TRUE_WIDTH || newY < 0 || newY >= CANVAS_TRUE_HEIGHT) {
-            bannerRef.current.getAlert('error', 'Square electrode going off canvas!');
-            reset();
-            return;
+        for (let j = 0; j < electrodes.initPositions.length; j += 1) {
+          if (elecSelected.includes(`${electrodes.ids[j]}`)) {
+            const init = electrodes.initPositions[j];
+            const newDelX = delta.x + deltas[j][0];
+            const newDelY = delta.y + deltas[j][1];
+            const newX = newDelX + init[0];
+            const newY = newDelY + init[1];
+            if (newX < 0 || newX >= CANVAS_TRUE_WIDTH || newY < 0 || newY >= CANVAS_TRUE_HEIGHT) {
+              bannerRef.current.getAlert('error', 'Square electrode going off canvas!');
+              reset();
+              return;
+            }
+            copy[j] = [newDelX, newDelY];
           }
-          copy[elecSelected[j]] = [newDelX, newDelY];
         }
         // don't want to setElectrodes here because
         // might have combined being dragged out of bounds in next for loop
@@ -148,7 +152,7 @@ export default function useSelected(callback, savingChanges) {
         combSelected.sort((a, b) => a - b);
 
         for (let i = 0; i < combSelected.length; i += 1) {
-          const layVal = combSelected[i];
+          const layVal = parseInt(combSelected[i], 10);
           const selectedCombs = [];
           for (let k = 0; k < allCombined.length; k += 1) {
             if (allCombined[k][2] === layVal) {
@@ -172,7 +176,9 @@ export default function useSelected(callback, savingChanges) {
       }
 
       if (elecSelected.length > 0) {
-        setElectrodes({ initPositions: electrodes.initPositions, deltas: copy });
+        setElectrodes({
+          initPositions: electrodes.initPositions, deltas: copy, ids: electrodes.ids,
+        });
         setSelected([]);
       }
       setDelta(null);

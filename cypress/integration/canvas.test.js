@@ -117,6 +117,14 @@ describe('Canvas', () => {
     cy.get('[data-testid="combined"]').should('have.length', 0);
   });
 
+  it('panning button changes color', () => {
+    cy.get('[data-testid="PAN"] > svg')
+      .should('have.attr', 'style', 'color: black;');
+    cy.get('[data-testid="PAN"] > svg').click();
+    cy.get('[data-testid="PAN"] > svg')
+      .should('have.attr', 'style', 'color: rgb(35, 168, 41);');
+  });
+
   // pins tests
   it('Assign pin to square electrode', () => {
     cy.createSquare(CELL1);

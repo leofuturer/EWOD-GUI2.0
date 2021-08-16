@@ -131,6 +131,32 @@ describe('Canvas', () => {
     cy.get('[data-testid="square"]').should('have.length', 0);
   });
 
+  it('Drag with middle mouse button to pan', () => {
+    cy.get('.greenArea')
+      .trigger('mousedown', CELL2.x, CELL2.y, {
+        which: 2,
+        force: true,
+      })
+      .trigger('mousemove', CELL2.x, CELL2.y, {
+        which: 2,
+        force: true,
+      })
+      .trigger('mousemove', CELL4.x, CELL4.y, {
+        which: 2,
+        force: true,
+      })
+      .trigger('mouseup', CELL4.x, CELL4.y, {
+        force: true,
+      });
+
+    cy.get('.greenArea').parent()
+      .should(
+        'have.attr',
+        'style',
+        `transform: translate3d(${CELL4.x - CELL2.x}px, ${CELL4.y - CELL2.y}px, 0px) scale(1);`,
+      );
+  });
+
   // pins tests
   it('Assign pin to square electrode', () => {
     cy.createSquare(CELL1);

@@ -35,14 +35,20 @@ export default function Canvas() {
   const { actuatePin, pushHistory } = actuationContext;
 
   const {
-    mode, currElec, elecToPin, setCurrElec, panning, setScaleXY, scaleXY,
+    mode, currElec, elecToPin, setCurrElec, panning, setScaleXY, scaleXY, setPanning,
   } = useContext(GeneralContext);
+
+  const [middleDown, setMiddleDown] = useState(false);
 
   // sets mousedown status for selecting existing electrodes
   const handleMouseDown = useCallback((event) => {
     switch (event.which) {
       case 1: // left mouse button pressed
         setMouseDown(true);
+        break;
+      case 2: // middle mouse button pressed
+        setMiddleDown(true);
+        setPanning(true);
         break;
       default: // you're weird
         break;
@@ -51,7 +57,11 @@ export default function Canvas() {
 
   const handleMouseUp = useCallback(() => {
     setMouseDown(false);
-  }, [setMouseDown]);
+    if (middleDown) {
+      setPanning(false);
+      setMiddleDown(false);
+    }
+  }, [setMouseDown, middleDown]);
 
   useEffect(() => {
     document.querySelector('.greenArea').addEventListener('mousedown', handleMouseDown);

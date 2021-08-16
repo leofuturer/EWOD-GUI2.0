@@ -128,7 +128,7 @@ describe('Canvas', () => {
     cy.get('.pin').contains('97').click({ force: true });
 
     cy.get('text')
-      .should('have.attr', 'x', Math.floor(CELL1.x / ELEC_SIZE) * ELEC_SIZE + 5)
+      .should('have.attr', 'x', Math.floor(CELL1.x / ELEC_SIZE) * ELEC_SIZE + 2)
       .should('have.attr', 'y', Math.floor(CELL1.y / ELEC_SIZE) * ELEC_SIZE + ELEC_SIZE / 2)
       .should('contain', '97');
   });
@@ -144,7 +144,7 @@ describe('Canvas', () => {
     cy.get('.pin').contains('130').click({ force: true });
 
     cy.get('text')
-      .should('have.attr', 'x', Math.floor(CELL4.x / ELEC_SIZE) * ELEC_SIZE + 5)
+      .should('have.attr', 'x', Math.floor(CELL4.x / ELEC_SIZE) * ELEC_SIZE + 2)
       .should('have.attr', 'y', Math.floor(CELL4.y / ELEC_SIZE) * ELEC_SIZE + ELEC_SIZE / 2)
       .should('contain', '130');
   });
@@ -172,7 +172,7 @@ describe('Canvas', () => {
     cy.get('.pin').contains('130').click({ force: true });
     cy.get('text')
       .should('have.length', 1)
-      .should('have.attr', 'x', Math.floor(CELL2.x / ELEC_SIZE) * ELEC_SIZE + 5)
+      .should('have.attr', 'x', Math.floor(CELL2.x / ELEC_SIZE) * ELEC_SIZE + 2)
       .should('have.attr', 'y', Math.floor(CELL2.y / ELEC_SIZE) * ELEC_SIZE + ELEC_SIZE / 2)
       .should('contain', '130');
   });
@@ -195,7 +195,7 @@ describe('Canvas', () => {
     cy.get('.pin').contains('97').click({ force: true });
 
     cy.get('text')
-      .should('have.attr', 'x', Math.floor(CELL2.x / ELEC_SIZE) * ELEC_SIZE + 5)
+      .should('have.attr', 'x', Math.floor(CELL2.x / ELEC_SIZE) * ELEC_SIZE + 2)
       .should('have.attr', 'y', Math.floor(CELL2.y / ELEC_SIZE) * ELEC_SIZE + ELEC_SIZE / 2)
       .should('contain', '97');
   });
@@ -230,5 +230,38 @@ describe('Canvas', () => {
     cy.get('.greenArea').rightclick({ force: true });
     cy.get('ul.menu > li:nth-child(1)').click({ force: true });
     cy.get('text').should('not.exist');
+  });
+
+  it('REF maps to 1 electrode at a time', () => {
+    cy.createSquare(CELL1);
+    cy.createSquare(CELL2);
+    cy.createSquare(CELL3);
+
+    // combine CELL2 and CELL3
+    cy.get('[data-testid="CAN"]').click();
+    cy.drag(CELL3, CELL2);
+    cy.get('.greenArea').rightclick({ force: true });
+    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
+
+    // assign REF to combined then assign to CELL1
+    cy.get('[data-testid="PIN"]').click();
+    cy.get('[data-testid="combined"]').click({ force: true });
+    cy.get('.ref').eq(2).click({ force: true });
+
+    // verify that combined has been assigned REF
+    cy.get('text')
+      .should('have.attr', 'x', Math.floor(CELL2.x / ELEC_SIZE) * ELEC_SIZE + 2)
+      .should('have.attr', 'y', Math.floor(CELL2.y / ELEC_SIZE) * ELEC_SIZE + ELEC_SIZE / 2)
+      .should('contain', 'REF');
+
+    // assign to CELL1
+    cy.get('[data-testid="square"]').click({ force: true });
+    cy.get('.ref').eq(6).click({ force: true });
+
+    // verify that CELL1 has been assigned REF
+    cy.get('text')
+      .should('have.attr', 'x', Math.floor(CELL1.x / ELEC_SIZE) * ELEC_SIZE + 2)
+      .should('have.attr', 'y', Math.floor(CELL1.y / ELEC_SIZE) * ELEC_SIZE + ELEC_SIZE / 2)
+      .should('contain', 'REF');
   });
 });

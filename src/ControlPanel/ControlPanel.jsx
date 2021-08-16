@@ -200,7 +200,7 @@ export default function ControlPanel() {
             </Tooltip>
             <Tooltip title="Pan Canvas" data-testid="PAN">
               <ListItem button onClick={() => setPanning(!panning)}>
-                <OpenWith />
+                <OpenWith style={{ color: panning ? '#23A829' : 'black' }} />
               </ListItem>
             </Tooltip>
 

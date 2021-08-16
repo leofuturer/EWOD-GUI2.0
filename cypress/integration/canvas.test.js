@@ -125,6 +125,12 @@ describe('Canvas', () => {
       .should('have.attr', 'style', 'color: rgb(35, 168, 41);');
   });
 
+  it('Not drawing while panning', () => {
+    cy.get('[data-testid="PAN"]').click();
+    cy.createSquare(CELL4);
+    cy.get('[data-testid="square"]').should('have.length', 0);
+  });
+
   // pins tests
   it('Assign pin to square electrode', () => {
     cy.createSquare(CELL1);

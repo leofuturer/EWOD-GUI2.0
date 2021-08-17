@@ -40,7 +40,7 @@ const useStyles = makeStyles({
     overflowX: 'scroll',
     width: '100vw',
     height: `${SCROLL_HEIGHT}vh`,
-    backgroundColor: '#fce6bd',
+    backgroundColor: '#FAEDCD',
     scrollPaddingRight: '10px',
   },
   subcontainer: {
@@ -49,6 +49,7 @@ const useStyles = makeStyles({
     flexShrink: 0,
     // overflowX: "scroll",
     alignItems: 'center',
+    marginLeft: '10px', // to align with the loop bar
     // scrollPaddingRight: "10px"
   },
   button: {
@@ -56,26 +57,26 @@ const useStyles = makeStyles({
     minWidth: '15%',
     height: '27vh',
     borderRadius: 5,
-    borderWidth: 3,
+    borderWidth: 2,
     borderColor: '#A06933',
     color: '#A06933',
     margin: '5px',
     marginTop: 30,
     textTransform: 'none',
-    boxShadow: '2px 2px 3px 1px #bfbbb4',
+    boxShadow: '0px 4px 4px #bfbbb4',
   },
   add: {
     width: '6%',
     minWidth: '6%',
     height: '27vh',
     borderRadius: 5,
-    borderWidth: 3,
+    borderWidth: 2,
     borderColor: '#A06933',
     color: '#A06933',
     backgroundColor: '#FEFAE0',
     marginTop: 30,
     margin: '10px',
-    boxShadow: '2px 2px 3px 1px #bfbbb4',
+    boxShadow: '0px 4px 4px #bfbbb4',
   },
   modal: {
     width: 400,

@@ -23,11 +23,28 @@ import SetVoltage from './SetVoltage.svg';
 import SetVpp from './SetVpp.svg';
 import SetVoltageonClick from './onClick/SetVoltageonClick.svg';
 import SetVpponClick from './onClick/SetVpponClick.svg';
+import ActuationDelete from './ActuationDelete.svg';
+import Back from './Back.svg';
+import Play from './Play.svg';
+import Forward from './Forward.svg';
+import Pause from './Pause.svg';
+import Repeat from './Repeat.svg';
+import ActuationDuration from './ActuationDuration.svg';
+import StartOver from './StartOver.svg';
 
 const icons = {
   actuation: {
     icon: Actuation,
     onClick: ActuationonClick,
+  },
+  actuationDelete: {
+    icon: ActuationDelete,
+  },
+  actuationDuration: {
+    icon: ActuationDuration,
+  },
+  back: {
+    icon: Back,
   },
   delete: {
     icon: Delete,
@@ -43,14 +60,29 @@ const icons = {
     icon: ElectrodePen,
     onClick: ElectrodePenonClick,
   },
+  forward: {
+    icon: Forward,
+  },
   info: {
     icon: Information,
   },
   menu: {
     icon: Menu,
   },
+  pause: {
+    icon: Pause,
+  },
+  play: {
+    icon: Play,
+  },
   redo: {
     icon: Redo,
+  },
+  repeat: {
+    icon: Repeat,
+  },
+  startOver: {
+    icon: StartOver,
   },
   undo: {
     icon: Undo,

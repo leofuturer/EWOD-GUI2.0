@@ -35,13 +35,14 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     position: 'fixed',
     left: 0,
-    bottom: -20,
+    top: `calc(${100 - SCROLL_HEIGHT}vh + 40px)`,
     flexShrink: 0,
     overflowX: 'scroll',
     width: '100vw',
-    height: `${SCROLL_HEIGHT}vh`,
+    height: `calc(${SCROLL_HEIGHT}vh - 40px)`,
     backgroundColor: '#FAEDCD',
     scrollPaddingRight: '10px',
+    justifyContent: 'center',
   },
   subcontainer: {
     display: 'flex',
@@ -94,7 +95,7 @@ const useStyles = makeStyles({
   },
   playTab: {
     position: 'fixed',
-    bottom: '33vh',
+    top: `${100 - SCROLL_HEIGHT}vh`,
     height: '40px',
     width: '100vw',
     backgroundColor: '#FEFAE0',
@@ -102,8 +103,8 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    borderTop: '3px solid #A06933',
-    borderBottom: '3px solid #A06933',
+    alignItems: 'center',
+    border: '1px solid #A06933',
   },
   input: {
     color: '#A06933',
@@ -335,7 +336,7 @@ export default function Scroll() {
       <div>
         <div className={classes.playTab}>
           <p style={{
-            position: 'absolute', left: '48vw', top: -10, fontSize: 14, color: '#A06933', fontWeight: 'bold',
+            position: 'absolute', left: '48vw', fontSize: 14, color: '#A06933', fontWeight: 'bold', margin: 0,
           }}
           >
             {`Step ${pinActuate.get(currentStep).order} of ${pinActuate.size}`}

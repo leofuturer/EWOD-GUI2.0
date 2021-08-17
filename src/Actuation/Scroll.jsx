@@ -86,9 +86,9 @@ const useStyles = makeStyles({
   },
   loop: {
     height: '4vh',
-    backgroundColor: '#b86944',
-    color: 'white',
-    borderRadius: 3,
+    backgroundColor: '#D4A373',
+    color: '#FEFAE0',
+    border: '2px solid #A06933',
     marginLeft: 10,
     textTransform: 'none',
     boxShadow: '2px 2px 3px 1px #bfbbb4',
@@ -459,7 +459,7 @@ export default function Scroll() {
                     key={key}
                     data-testid="loop-button"
                   >
-                    {`Frame ${appendString} repeat ${value.repTime} times`}
+                    {`Step ${appendString} | Repeat ${value.repTime} times`}
                   </Button>
                 );
               }

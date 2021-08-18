@@ -63,7 +63,7 @@ export default function Canvas() {
   }, [handleMouseDown, handleMouseUp]);
 
   const handleMouseMove = useCallback((e) => { // creating new electrode
-    if (mode === 'DRAW' && mouseDown) {
+    if (mode === 'DRAW' && mouseDown && !panning) {
       let elecAtXY = false;
 
       // electrode curr pos = init + deltas[idx]

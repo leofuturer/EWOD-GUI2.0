@@ -28,6 +28,7 @@ import DownloadButton from './DownloadButton';
 
 import USBPanel from './USBPanel';
 import DeleteButton from './DeleteButton';
+import { SCROLL_HEIGHT } from '../constants';
 
 const drawerWidth = 240;
 
@@ -38,8 +39,7 @@ const useStyles = makeStyles((theme) => ({
   },
   appBar: {
     zIndex: theme.zIndex.drawer - 1,
-    marginLeft: '3wh',
-    height: '7vh',
+    marginLeft: '3vh',
     backgroundColor: '#FAEDCD',
     transition: theme.transitions.create(['width', 'margin'], {
       easing: theme.transitions.easing.sharp,
@@ -61,12 +61,16 @@ const useStyles = makeStyles((theme) => ({
     display: 'none',
   },
   drawer: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    zIndex: theme.zIndex.drawer + 1,
     flexShrink: 0,
     whiteSpace: 'nowrap',
   },
   drawerOpen: {
     width: drawerWidth,
-    height: '63vh',
+    height: `${100 - SCROLL_HEIGHT}vh`,
     backgroundColor: '#FAEDCD',
     border: '1px solid #A06933',
     transition: theme.transitions.create('width', {
@@ -83,7 +87,7 @@ const useStyles = makeStyles((theme) => ({
     }),
     overflowX: 'hidden',
     width: theme.spacing(5) + 1,
-    height: '63vh',
+    height: `${100 - SCROLL_HEIGHT}vh`,
     [theme.breakpoints.up('sm')]: {
       width: theme.spacing(6) + 1,
     },
@@ -106,11 +110,17 @@ const useStyles = makeStyles((theme) => ({
     color: '#A06933',
   },
   toolbarContainer: {
-    marginLeft: 40,
     backgroundColor: '#FAEDCD',
     boxShadow: '2px 2px 4px 3px rgba(0, 0, 0, 0.2)',
     justifyContent: 'space-between',
     border: '1px solid #A06933',
+  },
+  toolbarContainerShift: {
+    marginLeft: 40,
+    transition: theme.transitions.create(['margin'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
   },
 }));
 
@@ -159,7 +169,11 @@ export default function ControlPanel() {
           [classes.appBarShift]: open,
         })}
       >
-        <Toolbar className={classes.toolbarContainer}>
+        <Toolbar
+          className={clsx(classes.toolbarContainer, {
+            [classes.toolbarContainerShift]: !open,
+          })}
+        >
           <List style={{ display: 'flex', flexDirection: 'row' }}>
             <Tooltip title="Draw">
               <ListItem button onClick={() => setNewMode('DRAW')} data-testid="draw-button">

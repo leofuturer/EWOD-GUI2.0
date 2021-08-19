@@ -159,4 +159,11 @@ describe('Actuation', () => {
     cy.get('[data-testid="seq-button"]').first().rightclick();
     cy.get('[data-testid="act-context-menu"]').should('not.be.visible');
   });
+
+  it('toggle scroll bar', () => {
+    cy.get('[data-testid="act-close"]').click();
+    cy.get('[data-testid="act-contents"]').should('not.be.visible');
+    cy.get('[data-testid="act-open"]').click();
+    cy.get('[data-testid="act-contents"]').should('be.visible');
+  });
 });

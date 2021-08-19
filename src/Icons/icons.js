@@ -31,17 +31,25 @@ import Pause from './Pause.svg';
 import Repeat from './Repeat.svg';
 import ActuationDuration from './ActuationDuration.svg';
 import StartOver from './StartOver.svg';
+import ActuationClose from './ActuationClose.svg';
+import ActuationOpen from './ActuationOpen.svg';
 
 const icons = {
   actuation: {
     icon: Actuation,
     onClick: ActuationonClick,
   },
+  actuationClose: {
+    icon: ActuationClose,
+  },
   actuationDelete: {
     icon: ActuationDelete,
   },
   actuationDuration: {
     icon: ActuationDuration,
+  },
+  actuationOpen: {
+    icon: ActuationOpen,
   },
   back: {
     icon: Back,

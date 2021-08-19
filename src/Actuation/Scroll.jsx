@@ -11,16 +11,15 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import TextField from '@material-ui/core/TextField';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import {
-  PlayArrow, SkipNext, SkipPrevious, Pause, Replay, AddCircleOutline, DeleteForever, Stop,
-  DynamicFeed,
-} from '@material-ui/icons';
+import { AddCircleOutline } from '@material-ui/icons';
+import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import { DialogContentText } from '@material-ui/core';
 import ActuationSequence from './Actuation';
 import { ActuationContext } from '../Contexts/ActuationProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 import { setPin } from '../USBCommunication/USBCommunication';
+import icons from '../Icons/icons';
 
 import { SCROLL_HEIGHT } from '../constants';
 
@@ -36,13 +35,14 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     position: 'fixed',
     left: 0,
-    bottom: -20,
+    top: `calc(${100 - SCROLL_HEIGHT}vh + 40px)`,
     flexShrink: 0,
     overflowX: 'scroll',
     width: '100vw',
-    height: `${SCROLL_HEIGHT}vh`,
-    backgroundColor: '#fce6bd',
+    height: `calc(${SCROLL_HEIGHT}vh - 40px)`,
+    backgroundColor: '#FAEDCD',
     scrollPaddingRight: '10px',
+    justifyContent: 'center',
   },
   subcontainer: {
     display: 'flex',
@@ -50,6 +50,7 @@ const useStyles = makeStyles({
     flexShrink: 0,
     // overflowX: "scroll",
     alignItems: 'center',
+    marginLeft: '10px', // to align with the loop bar
     // scrollPaddingRight: "10px"
   },
   button: {
@@ -57,26 +58,26 @@ const useStyles = makeStyles({
     minWidth: '15%',
     height: '27vh',
     borderRadius: 5,
-    borderWidth: 3,
+    borderWidth: 2,
     borderColor: '#A06933',
     color: '#A06933',
     margin: '5px',
     marginTop: 30,
     textTransform: 'none',
-    boxShadow: '2px 2px 3px 1px #bfbbb4',
+    boxShadow: '0px 4px 4px #bfbbb4',
   },
   add: {
     width: '6%',
     minWidth: '6%',
     height: '27vh',
     borderRadius: 5,
-    borderWidth: 3,
+    borderWidth: 2,
     borderColor: '#A06933',
     color: '#A06933',
     backgroundColor: '#FEFAE0',
     marginTop: 30,
     margin: '10px',
-    boxShadow: '2px 2px 3px 1px #bfbbb4',
+    boxShadow: '0px 4px 4px #bfbbb4',
   },
   modal: {
     width: 400,
@@ -85,25 +86,25 @@ const useStyles = makeStyles({
   },
   loop: {
     height: '4vh',
-    backgroundColor: '#b86944',
-    color: 'white',
-    borderRadius: 3,
+    backgroundColor: '#D4A373',
+    color: '#FEFAE0',
+    border: '2px solid #A06933',
     marginLeft: 10,
     textTransform: 'none',
     boxShadow: '2px 2px 3px 1px #bfbbb4',
   },
   playTab: {
     position: 'fixed',
-    bottom: '33vh',
-    height: '30px',
+    top: `${100 - SCROLL_HEIGHT}vh`,
+    height: '40px',
     width: '100vw',
     backgroundColor: '#FEFAE0',
     zIndex: 2,
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    borderTop: '3px solid #A06933',
-    borderBottom: '3px solid #A06933',
+    alignItems: 'center',
+    border: '1px solid #A06933',
   },
   input: {
     color: '#A06933',
@@ -335,74 +336,90 @@ export default function Scroll() {
       <div>
         <div className={classes.playTab}>
           <p style={{
-            position: 'absolute', left: '48vw', top: -10, fontSize: 14, color: '#A06933',
+            position: 'absolute', left: '48vw', fontSize: 14, color: '#A06933', fontWeight: 'bold', margin: 0,
           }}
           >
-            {`Step ${pinActuate.get(currentStep).order}`}
+            {`Step ${pinActuate.get(currentStep).order} of ${pinActuate.size}`}
           </p>
-          <IconButton
-            onClick={() => {
-              if (pause) {
-                setFlush(true);
-              } else {
-                bannerRef.current.getAlert('error', 'Pleast stop playing before editing!');
+          <Tooltip title="Delete all Frames">
+            <IconButton onClick={() => { setAlert(true); }} data-testid="delete-start">
+              <img src={icons.actuationDelete.icon} alt="delete all frames" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Back">
+            <IconButton onClick={() => {
+              if (pause && index !== 0) {
+                setCurrentStep(fullseq[index - 1]);
+                setIndex(index - 1);
               }
             }}
-            data-testid="set-all-duration"
-          >
-            <DynamicFeed fontSize="small" style={{ color: '#A06933' }} />
-          </IconButton>
-          <IconButton onClick={() => { setAlert(true); }} data-testid="delete-start">
-            <DeleteForever fontSize="small" style={{ color: '#A06933' }} />
-          </IconButton>
-          <IconButton onClick={handlePause}>
-            <Pause fontSize="small" style={{ color: '#A06933' }} />
-          </IconButton>
-          <IconButton onClick={() => {
-            if (pause && index !== 0) {
-              setCurrentStep(fullseq[index - 1]);
-              setIndex(index - 1);
-            }
-          }}
-          >
-            <SkipPrevious fontSize="small" style={{ color: '#A06933' }} />
-          </IconButton>
-          <IconButton
-            onClick={() => {
-              handlePlay();
+            >
+              <img src={icons.back.icon} alt="one step back" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Play">
+            <IconButton
+              onClick={() => {
+                handlePlay();
+              }}
+              data-testid="play-button"
+            >
+              <img src={icons.play.icon} alt="play" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Forward">
+            <IconButton onClick={() => {
+              if (pause && index !== fullseq.length - 1) {
+                setCurrentStep(fullseq[index + 1]);
+                setIndex(index + 1);
+              }
             }}
-            data-testid="play-button"
-          >
-            <PlayArrow fontSize="small" style={{ color: '#A06933' }} />
-          </IconButton>
-          <IconButton onClick={() => {
-            if (pause && index !== fullseq.length - 1) {
-              setCurrentStep(fullseq[index + 1]);
-              setIndex(index + 1);
-            }
-          }}
-          >
-            <SkipNext fontSize="small" style={{ color: '#A06933' }} />
-          </IconButton>
-          <IconButton onClick={() => {
-            handlePause();
-            setCurrentStep(fullseq[0]);
-            setIndex(0);
-            setForever(false);
-          }}
-          >
-            <Stop fontSize="small" style={{ color: '#A06933' }} />
-          </IconButton>
-          <IconButton
-            onClick={() => {
-              setForever((tempforever) => !tempforever);
-              if (!pause) handlePause();
+            >
+              <img src={icons.forward.icon} alt="one step forward" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Start Over">
+            <IconButton onClick={() => {
+              handlePause();
+              setCurrentStep(fullseq[0]);
+              setIndex(0);
+              setForever(false);
             }}
-            style={{ backgroundColor: forever ? '#85daed' : 'transparent' }}
-            data-testid="play-forever"
-          >
-            <Replay fontSize="small" style={{ color: forever ? 'black' : '#A06933' }} />
-          </IconButton>
+            >
+              <img src={icons.startOver.icon} alt="start over" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Pause">
+            <IconButton onClick={handlePause}>
+              <img src={icons.pause.icon} alt="pause" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Loop">
+            <IconButton
+              onClick={() => {
+                setForever((tempforever) => !tempforever);
+                if (!pause) handlePause();
+              }}
+              style={{ backgroundColor: forever ? '#85daed' : 'transparent' }}
+              data-testid="play-forever"
+            >
+              <img src={icons.repeat.icon} alt="repeat" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Duration">
+            <IconButton
+              onClick={() => {
+                if (pause) {
+                  setFlush(true);
+                } else {
+                  bannerRef.current.getAlert('error', 'Please stop playing before editing!');
+                }
+              }}
+              data-testid="set-all-duration"
+            >
+              <img src={icons.actuationDuration.icon} alt="actuation duration" />
+            </IconButton>
+          </Tooltip>
         </div>
 
         <div className={classes.container} ref={scrollRef} onWheel={handleWheel}>
@@ -442,7 +459,7 @@ export default function Scroll() {
                     key={key}
                     data-testid="loop-button"
                   >
-                    {`Frame ${appendString} repeat ${value.repTime} times`}
+                    {`Step ${appendString} | Repeat ${value.repTime} times`}
                   </Button>
                 );
               }

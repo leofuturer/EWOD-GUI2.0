@@ -15,6 +15,7 @@ import { AddCircleOutline } from '@material-ui/icons';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import { DialogContentText } from '@material-ui/core';
+import clsx from 'clsx';
 import ActuationSequence from './Actuation';
 import { ActuationContext } from '../Contexts/ActuationProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
@@ -28,14 +29,14 @@ const initState = {
   mouseY: null,
 };
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   container: {
     zIndex: 2,
     display: 'flex',
     flexDirection: 'column',
-    position: 'fixed',
+    position: 'absolute',
     left: 0,
-    top: `calc(${100 - SCROLL_HEIGHT}vh + 40px)`,
+    top: 40,
     flexShrink: 0,
     overflowX: 'scroll',
     width: '100vw',
@@ -95,7 +96,7 @@ const useStyles = makeStyles({
   },
   playTab: {
     position: 'fixed',
-    top: `${100 - SCROLL_HEIGHT}vh`,
+    top: 'inherit',
     height: '40px',
     width: '100vw',
     backgroundColor: '#FEFAE0',
@@ -110,13 +111,19 @@ const useStyles = makeStyles({
     color: '#A06933',
   },
   drawer: {
-    height: `${SCROLL_HEIGHT}vh`,
     flexShrink: 0,
   },
-  drawerPaper: {
+  drawerOpen: {
     height: `${SCROLL_HEIGHT}vh`,
+    top: `${100 - SCROLL_HEIGHT}vh`,
+    transition: `top ${theme.transitions.duration.enteringScreen}ms ${theme.transitions.easing.sharp} 0s`,
   },
-});
+  drawerClose: {
+    height: 40,
+    top: 'calc(100vh - 40px)',
+    transition: `top ${theme.transitions.duration.leavingScreen}ms ${theme.transitions.easing.sharp} 0s`,
+  },
+}));
 
 export default function Scroll() {
   const context = useContext(ActuationContext);
@@ -142,6 +149,7 @@ export default function Scroll() {
   const [forever, setForever] = useState(false);
   const [flush, setFlush] = useState(false);
   const [duration, setDuration] = useState(100);
+  const [drawerOpen, setDrawerOpen] = useState(true);
 
   const indexRef = useRef();
   indexRef.current = index;
@@ -330,8 +338,16 @@ export default function Scroll() {
       anchor="bottom"
       open={mode === 'SEQ'}
       variant="persistent"
-      className={classes.drawer}
-      classes={{ paper: classes.drawerPaper }}
+      className={clsx(classes.drawer, {
+        [classes.drawerOpen]: drawerOpen,
+        [classes.drawerClose]: !drawerOpen,
+      })}
+      classes={{
+        paper: clsx({
+          [classes.drawerOpen]: drawerOpen,
+          [classes.drawerClose]: !drawerOpen,
+        }),
+      }}
     >
       <div>
         <div className={classes.playTab}>
@@ -420,9 +436,32 @@ export default function Scroll() {
               <img src={icons.actuationDuration.icon} alt="actuation duration" />
             </IconButton>
           </Tooltip>
+          {
+            drawerOpen ? (
+              <Tooltip title="Close" data-testid="act-close">
+                <IconButton onClick={() => setDrawerOpen(false)}>
+                  <img src={icons.actuationClose.icon} alt="close" />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <Tooltip title="Open" data-testid="act-open">
+                <IconButton onClick={() => setDrawerOpen(true)}>
+                  <img src={icons.actuationOpen.icon} alt="open" />
+                </IconButton>
+              </Tooltip>
+            )
+          }
         </div>
 
-        <div className={classes.container} ref={scrollRef} onWheel={handleWheel}>
+        <div
+          data-testid="act-contents"
+          className={clsx(classes.container, {
+            [classes.containerOpen]: drawerOpen,
+            [classes.containerClose]: !drawerOpen,
+          })}
+          ref={scrollRef}
+          onWheel={handleWheel}
+        >
           <div className={classes.subcontainer} style={{ overflowX: 'visible' }}>
             {
             Array.from(pinActuate.keys()).map((key) => {

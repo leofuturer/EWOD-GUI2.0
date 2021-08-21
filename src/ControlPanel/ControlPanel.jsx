@@ -199,8 +199,6 @@ export default function ControlPanel() {
               </ListItem>
             </Tooltip>
 
-            <DownloadButton />
-
             <Tooltip title="Sequence Actuation">
               <ListItem button onClick={() => setNewMode('SEQ')} data-testid="act-seq-start">
                 <img src={mode === 'SEQ' ? icons.actuation.onClick : icons.actuation.icon} alt="Actuation Sequence" />

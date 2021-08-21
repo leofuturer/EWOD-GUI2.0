@@ -1,4 +1,4 @@
-export default function genFileContents(electrodes, allCombined, pinActuate) {
+export default function genFileContents(electrodes, allCombined, pinActuate, elecToPin) {
   const newContents = {}; const squares = []; const
     combs = [];
   const seq = [];
@@ -6,7 +6,10 @@ export default function genFileContents(electrodes, allCombined, pinActuate) {
   if (allCombined) {
     for (let i = 0; i < allCombined.length; i += 1) {
       const comb = allCombined[i];
-      const boop = `combine ${comb[0]} ${comb[1]} ${comb[2]}`;
+      let boop = `combine ${comb[0]} ${comb[1]} ${comb[2]}`;
+      if (elecToPin[`C${comb[2]}`]) {
+        boop = `${boop} ${elecToPin[`C${comb[2]}`]}`;
+      }
       combs.push(boop);
     }
   }
@@ -15,7 +18,10 @@ export default function genFileContents(electrodes, allCombined, pinActuate) {
     for (let j = 0; j < electrodes.initPositions.length; j += 1) {
       const x = electrodes.initPositions[j][0] + electrodes.deltas[j][0];
       const y = electrodes.initPositions[j][1] + electrodes.deltas[j][1];
-      const boop = `square ${x} ${y}`;
+      let boop = `square ${x} ${y}`;
+      if (elecToPin[`S${electrodes.ids[j]}`]) {
+        boop = `${boop} ${elecToPin[`S${electrodes.ids[j]}`]}`;
+      }
       squares.push(boop);
     }
   }

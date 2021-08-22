@@ -15,13 +15,15 @@ import {
 
 export default function App() {
   const { bannerRef, mode } = React.useContext(GeneralContext);
+  const [scrollOpen, setScrollOpen] = React.useState(true);
+
   return (
     <div className="App">
       <CustomAlert ref={bannerRef} />
 
       <ActuationProvider>
         <CanvasProvider>
-          <ControlPanel />
+          <ControlPanel scrollOpen={scrollOpen} />
           <ConditionalWrapper
             condition={mode === 'PIN'}
             wrapper={(children) => (
@@ -46,7 +48,7 @@ export default function App() {
             <Canvas />
             {mode === 'PIN' ? <PinsBottom /> : <></>}
           </ConditionalWrapper>
-          <Scroll />
+          <Scroll scrollOpen={scrollOpen} setScrollOpen={setScrollOpen} />
         </CanvasProvider>
       </ActuationProvider>
     </div>

@@ -125,7 +125,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Scroll() {
+export default function Scroll({ scrollOpen, setScrollOpen }) {
   const context = useContext(ActuationContext);
   const classes = useStyles();
   const { actuation } = context;
@@ -149,7 +149,6 @@ export default function Scroll() {
   const [forever, setForever] = useState(false);
   const [flush, setFlush] = useState(false);
   const [duration, setDuration] = useState(100);
-  const [drawerOpen, setDrawerOpen] = useState(true);
 
   const indexRef = useRef();
   indexRef.current = index;
@@ -338,14 +337,11 @@ export default function Scroll() {
       anchor="bottom"
       open={mode === 'SEQ'}
       variant="persistent"
-      className={clsx(classes.drawer, {
-        [classes.drawerOpen]: drawerOpen,
-        [classes.drawerClose]: !drawerOpen,
-      })}
+      className={classes.drawer}
       classes={{
         paper: clsx({
-          [classes.drawerOpen]: drawerOpen,
-          [classes.drawerClose]: !drawerOpen,
+          [classes.drawerOpen]: scrollOpen,
+          [classes.drawerClose]: !scrollOpen,
         }),
       }}
     >
@@ -437,15 +433,15 @@ export default function Scroll() {
             </IconButton>
           </Tooltip>
           {
-            drawerOpen ? (
+            scrollOpen ? (
               <Tooltip title="Close" data-testid="act-close">
-                <IconButton onClick={() => setDrawerOpen(false)}>
+                <IconButton onClick={() => setScrollOpen(false)}>
                   <img src={icons.actuationClose.icon} alt="close" />
                 </IconButton>
               </Tooltip>
             ) : (
               <Tooltip title="Open" data-testid="act-open">
-                <IconButton onClick={() => setDrawerOpen(true)}>
+                <IconButton onClick={() => setScrollOpen(true)}>
                   <img src={icons.actuationOpen.icon} alt="open" />
                 </IconButton>
               </Tooltip>
@@ -456,8 +452,8 @@ export default function Scroll() {
         <div
           data-testid="act-contents"
           className={clsx(classes.container, {
-            [classes.containerOpen]: drawerOpen,
-            [classes.containerClose]: !drawerOpen,
+            [classes.containerOpen]: scrollOpen,
+            [classes.containerClose]: !scrollOpen,
           })}
           ref={scrollRef}
           onWheel={handleWheel}

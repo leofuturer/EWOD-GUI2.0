@@ -5,6 +5,7 @@ import { Motion, spring } from 'react-motion';
 import MenuItem from '@material-ui/core/MenuItem';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
+import { ActuationContext } from '../Contexts/ActuationProvider';
 import { ELEC_SIZE } from '../constants';
 import range from '../Pins/range';
 
@@ -20,6 +21,9 @@ export default function ContextMenu() {
   const {
     setPinToElec, setElecToPin, pinToElec, elecToPin, mode,
   } = useContext(GeneralContext);
+
+  const { actuation, setPinActuation } = useContext(ActuationContext);
+  const { pinActuate } = actuation;
 
   const [xPos, setXPos] = useState('0px');
   const [yPos, setYPos] = useState('0px');
@@ -114,17 +118,28 @@ export default function ContextMenu() {
   }
 
   function squaresDelete() {
+    const mappedPins = [];
     // go through selected squares to erase any of their pin mappings
     electrodes.ids.forEach((id) => {
-      if (selected.includes(id)) {
+      if (selected.includes(`${id}`)) {
         const square = `S${id}`;
         const mappedPin = elecToPin[square];
         if (mappedPin) { // mapping exists for this electrode so delete mapping
+          mappedPins.push(mappedPin);
           delete pinToElec[mappedPin];
           delete elecToPin[square];
         }
       }
     });
+
+    Array.from(pinActuate.keys()).forEach((key) => {
+      const value = pinActuate.get(key);
+      value.content.forEach((e) => {
+        if (mappedPins.includes(e)) value.content.delete(e);
+      });
+    });
+
+    setPinActuation(new Map(pinActuate));
 
     setPinToElec({ ...pinToElec });
     setElecToPin({ ...elecToPin });

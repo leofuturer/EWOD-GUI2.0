@@ -266,7 +266,7 @@ export default function ContextMenu() {
     selectedCombs.forEach((coord) => {
       selectedCombCoords.push([coord[0], coord[1]]);
     });
-    const maxID = Math.max(...electrodes.ids) + 1;
+    const maxID = electrodes.ids.length ? Math.max(...electrodes.ids) + 1 : 0;
     const newIDs = [...new Array(selectedCombs.length).keys()].map((num) => num + maxID);
     setElectrodes({
       initPositions: electrodes.initPositions.concat(selectedCombCoords),

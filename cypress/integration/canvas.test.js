@@ -61,6 +61,27 @@ describe('Canvas', () => {
     cy.get('[data-testid="combined"]').should('have.length', 1);
   });
 
+  it('Separate', () => {
+    cy.createSquare(CELL2);
+    cy.createSquare(CELL3);
+
+    // combine
+    cy.get('[data-testid="CAN"]').click();
+    cy.drag(CELL3, CELL2);
+    cy.get('.greenArea').rightclick({ force: true });
+    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
+
+    // now separate
+    cy.get('[data-testid="combined"]').click({ force: true });
+    cy.get('.greenArea').rightclick({ force: true });
+    cy.get('ul.menu > li:nth-child(7)').click({ force: true });
+    cy.get('[data-testid="square"]')
+      .should((sub) => {
+        expect(sub[0].id).to.match(/S[01]/);
+        expect(sub[1].id).to.match(/S[01]/);
+      });
+  });
+
   it('Overlap', () => {
     cy.createSquare(CELL2);
     cy.createSquare(CELL3);

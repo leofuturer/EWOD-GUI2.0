@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import db from './DBStorage';
 import useInterval from '../useInterval';
 import handleSave from '../ControlPanel/handleSave';
+import { GeneralContext } from './GeneralProvider';
 
 const CanvasContext = React.createContext();
 
@@ -27,6 +28,8 @@ const CanvasProvider = ({ children }) => {
     selected: [],
     allCombined: [],
   });
+
+  const { elecToPin } = React.useContext(GeneralContext);
 
   useEffect( // idb stuff
     () => {
@@ -82,7 +85,7 @@ const CanvasProvider = ({ children }) => {
   );
 
   useInterval(() => {
-    handleSave(squares.electrodes, combined.allCombined, null, null, null, db);
+    handleSave(squares.electrodes, combined.allCombined, null, null, elecToPin, db);
   }, 10000);
 
   return (

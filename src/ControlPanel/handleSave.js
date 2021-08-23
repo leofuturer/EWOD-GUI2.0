@@ -2,8 +2,8 @@ import genFileContents from './genFileContents';
 
 export default function handleSave(electrodes, allCombined, pinActuate, pinToElec, elecToPin, db) {
   db.transaction('rw', db.formData, async () => {
-    if (electrodes && allCombined) {
-      const newContents = genFileContents(electrodes, allCombined, pinActuate);
+    if (electrodes && allCombined && elecToPin) {
+      const newContents = genFileContents(electrodes, allCombined, pinActuate, elecToPin);
 
       db.formData.put({ id: 'squares', value: newContents.squares });
       db.formData.put({ id: 'combine', value: newContents.combs });

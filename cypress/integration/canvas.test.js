@@ -82,6 +82,22 @@ describe('Canvas', () => {
       });
   });
 
+  it('Copy paste square', () => {
+    cy.createSquare(CELL2);
+    cy.get('[data-testid="CAN"]').click();
+    cy.get('[data-testid="square"]').click({ force: true });
+
+    cy.get('.greenArea').rightclick({ force: true });
+    cy.get('ul.menu > li:nth-child(3)').click({ force: true });
+
+    cy.get('.greenArea').rightclick(CELL4.x, CELL4.y, { force: true });
+    cy.get('ul.menu > li:nth-child(4)').click({ force: true });
+
+    cy.get('[data-testid="square"]')
+      .eq(1)
+      .should('have.attr', 'x', CELL4.x - 10, CELL4.y - 10);
+  });
+
   it('Overlap', () => {
     cy.createSquare(CELL2);
     cy.createSquare(CELL3);

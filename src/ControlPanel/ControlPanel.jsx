@@ -70,7 +70,6 @@ const useStyles = makeStyles((theme) => ({
   },
   drawerOpen: {
     width: drawerWidth,
-    height: `${100 - SCROLL_HEIGHT}vh`,
     backgroundColor: '#FAEDCD',
     border: '1px solid #A06933',
     transition: theme.transitions.create('width', {
@@ -87,7 +86,6 @@ const useStyles = makeStyles((theme) => ({
     }),
     overflowX: 'hidden',
     width: theme.spacing(5) + 1,
-    height: `${100 - SCROLL_HEIGHT}vh`,
     [theme.breakpoints.up('sm')]: {
       width: theme.spacing(6) + 1,
     },
@@ -122,6 +120,15 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
   },
+  scrollOpen: {
+    height: `${100 - SCROLL_HEIGHT}vh`,
+  },
+  scrollClose: {
+    height: 'calc(100vh - 40px)',
+  },
+  fullHeight: {
+    height: '100vh',
+  },
 }));
 
 const MuiListItem = withStyles({
@@ -133,7 +140,7 @@ const MuiListItem = withStyles({
   },
 })(ListItem);
 
-export default function ControlPanel() {
+export default function ControlPanel({ scrollOpen }) {
   const canvasContext = useContext(CanvasContext);
   const actuationContext = useContext(ActuationContext);
   const {
@@ -227,14 +234,14 @@ export default function ControlPanel() {
       </AppBar>
       <Drawer
         variant="permanent"
-        className={clsx(classes.drawer, {
-          [classes.drawerOpen]: open,
-          [classes.drawerClose]: !open,
-        })}
+        className={classes.drawer}
         classes={{
           paper: clsx({
             [classes.drawerOpen]: open,
             [classes.drawerClose]: !open,
+            [classes.scrollOpen]: scrollOpen,
+            [classes.scrollClose]: !scrollOpen,
+            [classes.fullHeight]: mode !== 'SEQ',
           }),
         }}
       >

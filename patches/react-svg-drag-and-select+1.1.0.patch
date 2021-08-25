@@ -111,7 +111,7 @@ index 32c92ab..259c31f 100644
            }));
          }),
 diff --git a/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js b/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
-index d54fe6e..da826b1 100644
+index d54fe6e..2ee4076 100644
 --- a/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
 +++ b/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
 @@ -37,8 +37,14 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function"
@@ -155,7 +155,7 @@ index d54fe6e..da826b1 100644
 +  this.getPathClientRect = function() {
 +    const boundingRect = _this2.component.getBoundingClientRect();
 +    const scale = parseFloat(_this2.component.getAttribute("scale"));
-+    const alertBottom = document.querySelector("div.makeStyles-root-2").getBoundingClientRect().bottom;
++    const alertBottom = document.getElementById("topbar-buffer").getBoundingClientRect().bottom;
 +    let leftBoi, topBoi;
 +
 +    if (_this2.component.getAttribute("mode") === "PIN") {

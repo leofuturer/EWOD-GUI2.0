@@ -68,14 +68,14 @@ export default function ContextMenu() {
     setClipboard({ squares, combined });
   }
 
-  function contextPaste() {
+  function contextPaste(e, relX, relY) {
     if (selected.length > 0) setSelected([]);
     if (combSelected.length > 0) setCombSelected([]);
     const numSquaresCopied = clipboard.squares.length;
     const numCombinedCopied = clipboard.combined.length;
     if (numSquaresCopied > 0 || numCombinedCopied > 0) {
-      const xInt = parseInt(relativeX, 10);
-      const yInt = parseInt(relativeY, 10);
+      const xInt = parseInt(relX, 10);
+      const yInt = parseInt(relY, 10);
       const x = xInt - (xInt % ELEC_SIZE);
       const y = yInt - (yInt % ELEC_SIZE);
       if (numSquaresCopied > 0) {
@@ -277,9 +277,6 @@ export default function ContextMenu() {
     combinedDelete();
   }
 
-  // can't just use selected, elecToPin, and pinToElec
-  // b/c of how how MenuItems are rendered
-  // when they're first rendered, the funcs that run trap context hook vals
   function deleteSelectedMappings() {
     if (selected.length || combSelected.length) {
       const etp = { ...elecToPin };
@@ -415,7 +412,7 @@ export default function ContextMenu() {
                     <MenuItem
                       key={idx.id}
                       onClick={(e) => {
-                        menuContents.funcs[idx](e);
+                        menuContents.funcs[idx](e, relativeX, relativeY);
                         setShowMenu(false);
                       }}
                     >

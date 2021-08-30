@@ -360,7 +360,7 @@ export default function ContextMenu() {
 
       let y = e.offsetY * scale + parseFloat(styleSplit[2].slice(0, -2), 10);
       if (mode !== 'PIN') y += 75; // top bar height + menu padding
-      else y += 380;
+      else y += 280;
 
       setYPos(`${y}px`);
       setShowMenu(true);

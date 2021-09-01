@@ -167,7 +167,7 @@ export default function ControlPanel({ scrollOpen }) {
   return (
     // <UploadButton />
     // <SaveButton />
-    <div className={classes.root}>
+    <div className={classes.root} id="topbar-buffer">
       <CssBaseline />
       <AppBar
         position="fixed"

@@ -113,7 +113,6 @@ export default function ContextMenu() {
         }
         setComboLayout(allCombined.concat(newCombs));
       }
-      setClipboard({ squares: [], combined: [] });
     }
   }
 

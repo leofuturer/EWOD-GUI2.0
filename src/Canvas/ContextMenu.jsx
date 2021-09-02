@@ -19,7 +19,7 @@ export default function ContextMenu() {
   } = canvasContext;
 
   const {
-    setPinToElec, setElecToPin, pinToElec, elecToPin, mode,
+    setPinToElec, setElecToPin, pinToElec, elecToPin, mode, currElec, setCurrElec,
   } = useContext(GeneralContext);
 
   const { actuation, setPinActuation } = useContext(ActuationContext);
@@ -292,24 +292,32 @@ export default function ContextMenu() {
   }
 
   function deleteSelectedMappings() {
-    if (selected.length || combSelected.length) {
+    if (selected.length || combSelected.length || currElec) {
       const etp = { ...elecToPin };
       const pte = { ...pinToElec };
-      if (selected.length) {
-        selected.forEach((num) => {
-          if (etp[`S${num}`]) {
-            delete pte[etp[`S${num}`]];
-            delete etp[`S${num}`];
-          }
-        });
-      }
-      if (combSelected.length) {
-        combSelected.forEach((num) => {
-          if (etp[`C${num}`]) {
-            delete pte[etp[`C${num}`]];
-            delete etp[`C${num}`];
-          }
-        });
+      if (currElec) {
+        if (etp[currElec]) {
+          delete pte[etp[currElec]];
+          delete etp[currElec];
+        }
+        setCurrElec(null);
+      } else {
+        if (selected.length) {
+          selected.forEach((num) => {
+            if (etp[`S${num}`]) {
+              delete pte[etp[`S${num}`]];
+              delete etp[`S${num}`];
+            }
+          });
+        }
+        if (combSelected.length) {
+          combSelected.forEach((num) => {
+            if (etp[`C${num}`]) {
+              delete pte[etp[`C${num}`]];
+              delete etp[`C${num}`];
+            }
+          });
+        }
       }
       setElecToPin(etp);
       setPinToElec(pte);

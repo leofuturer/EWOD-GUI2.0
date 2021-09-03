@@ -351,7 +351,10 @@ export default function Canvas() {
           <TransformWrapper
             minScale={0.51}
             limitToBounds={false}
-            panning={{ disabled: !panning }}
+            panning={{ disabled: !panning, excluded: ['react-transform-wrapper'] }}
+            pinch={{ excluded: ['react-transform-wrapper'] }}
+            doubleClick={{ excluded: ['react-transform-wrapper'] }}
+            wheel={{ excluded: ['react-transform-wrapper'] }}
             onPanningStop={(ref) => {
               setScaleXY({
                 scale: ref.state.scale,
@@ -446,7 +449,10 @@ export default function Canvas() {
             minScale={0.51}
             initialScale={mode === 'PIN' ? 0.51 : 1}
             limitToBounds={false}
-            panning={{ disabled: !panning }}
+            panning={{ disabled: !panning, excluded: ['react-transform-wrapper'] }}
+            pinch={{ excluded: ['react-transform-wrapper'] }}
+            doubleClick={{ excluded: ['react-transform-wrapper'] }}
+            wheel={{ excluded: ['react-transform-wrapper'] }}
             onPanningStop={(ref) => {
               setScaleXY({
                 scale: ref.state.scale,

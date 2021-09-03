@@ -54,7 +54,7 @@ export default function useMap(callback, pin) {
         newObj[currElec] = pin;
         return newObj;
       });
-      savedCallback.current();
     }
+    savedCallback.current();
   }, [pin]);
 }

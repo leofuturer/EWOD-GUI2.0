@@ -353,4 +353,74 @@ describe('Canvas', () => {
       .should('have.attr', 'y', Math.floor(CELL1.y / ELEC_SIZE) * ELEC_SIZE + ELEC_SIZE / 2)
       .should('contain', 'REF');
   });
+
+  it('Pan chassis and canvas together', () => {
+    cy.get('[data-testid="PIN"]').click();
+
+    const from = { x: 150, y: 150 };
+    const to = { x: 200, y: 200 };
+    cy.get('#chassis')
+      .trigger('mousedown', from.x, from.y, {
+        which: 2,
+        force: true,
+      })
+      .trigger('mousemove', from.x, from.y, {
+        which: 2,
+        force: true,
+      })
+      .trigger('mousemove', to.x, to.y, {
+        which: 2,
+        force: true,
+      })
+      .trigger('mouseup', to.x, to.y, {
+        force: true,
+      });
+
+    cy.get('#chassis').parent()
+      .should(
+        'have.attr',
+        'style',
+        `transform: translate3d(${to.x - from.x}px, ${to.y - from.y}px, 0px) scale(1);`,
+      );
+  });
+
+  it('Panning on green without panning mode', () => {
+    cy.get('[data-testid="PIN"]').click();
+
+    cy.get('.greenArea')
+      .trigger('mousedown', CELL1.x, CELL1.y, {
+        which: 2,
+        force: true,
+      })
+      .trigger('mousemove', CELL1.x, CELL1.y, {
+        which: 2,
+        force: true,
+      })
+      .trigger('mousemove', CELL2.x, CELL2.y, {
+        which: 2,
+        force: true,
+      })
+      .trigger('mouseup', CELL2.x, CELL2.y, {
+        force: true,
+      });
+
+    cy.get('.greenArea').parent()
+      .should(
+        'have.attr',
+        'style',
+        'transform: translate3d(0px, 0px, 0px) scale(0.51);',
+      );
+  });
+
+  it('Zoom chassis and canvas together', () => {
+    cy.get('[data-testid="PIN"]').click();
+
+    cy.get('#chassis')
+      .trigger('wheel', 150, 150, { wheelDelta: 100 });
+
+    cy.get('#chassis').parent().should(($el) => {
+      const styleSplit = $el[0].getAttribute('style').split(/[(,)]/);
+      expect(styleSplit[styleSplit.indexOf(' scale') + 1]).to.not.equal('1');
+    });
+  });
 });

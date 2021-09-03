@@ -282,6 +282,18 @@ describe('Canvas', () => {
     cy.get('.pin').contains('174').should('be.visible');
   });
 
+  it('Delete One Mapping', () => {
+    cy.createSquare(CELL2);
+    cy.get('[data-testid="square"]').click({ force: true });
+    cy.get('[data-testid="PIN"]').click();
+    cy.get('.pin').contains('97').click({ force: true });
+
+    cy.get('[data-testid="PIN"]').click();
+    cy.get('.greenArea').rightclick({ force: true });
+    cy.get('ul.menu > li:nth-child(1)').click({ force: true });
+    cy.get('text').should('not.exist');
+  });
+
   it('Delete Multiple Mappings', () => {
     cy.createSquare(CELL1); // to be combined with CELL2 and assigned pin #
     cy.createSquare(CELL2);

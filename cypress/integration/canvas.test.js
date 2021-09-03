@@ -210,6 +210,26 @@ describe('Canvas', () => {
       .should('contain', '97');
   });
 
+  it('Select pin before electrode', () => {
+    // doing the pin mapping out of order shouldn't crash or break anything
+    // the mapping just shouldn't work
+    // a proper mapping consists of clicking electrode and then clicking its corresponding pin
+    cy.createSquare(CELL1);
+
+    cy.get('[data-testid="PIN"]').click();
+    cy.get('.pin').contains('97').click({ force: true });
+
+    cy.get('[data-testid="square"]').click({ force: true });
+    cy.get('text').should('not.exist');
+
+    cy.get('.pin').contains('97').click({ force: true });
+
+    cy.get('text')
+      .should('have.attr', 'x', Math.floor(CELL1.x / ELEC_SIZE) * ELEC_SIZE + 2)
+      .should('have.attr', 'y', Math.floor(CELL1.y / ELEC_SIZE) * ELEC_SIZE + ELEC_SIZE / 2)
+      .should('contain', '97');
+  });
+
   it('Assign two pins to square', () => {
     cy.createSquare(CELL4);
 

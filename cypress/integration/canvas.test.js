@@ -194,6 +194,40 @@ describe('Canvas', () => {
       );
   });
 
+  it('Canvas does not zoom outside svg in non-PIN mode', () => {
+    // move canvas out of the way to get at outer regions
+    cy.drag(CELL3, CELL4, '.greenArea', 2);
+
+    // try to zoom outside svg but within canvas region/wrapper
+    cy.get('.wrapper')
+      .trigger('wheel', 100, 50, { deltaY: 10 });
+
+    cy.get('.greenArea').parent() // should be unchanged
+      .should(
+        'have.attr',
+        'style',
+        `transform: translate3d(${CELL4.x - CELL3.x}px, ${CELL4.y - CELL3.y}px, 0px) scale(1);`,
+      );
+  });
+
+  it('Canvas does not pan outside svg in non-PIN mode', () => {
+    // move canvas out of the way to get at outer regions
+    cy.drag(CELL3, CELL4, '.greenArea', 2);
+
+    // try to pan outside svg but within canvas region/wrapper
+    cy.get("[data-testid='PAN']").click();
+    const from = { x: 100, y: 50 };
+    const to = { x: 100, y: 100 };
+    cy.drag(from, to, '.wrapper');
+
+    cy.get('.greenArea').parent() // should be unchanged
+      .should(
+        'have.attr',
+        'style',
+        `transform: translate3d(${CELL4.x - CELL3.x}px, ${CELL4.y - CELL3.y}px, 0px) scale(1);`,
+      );
+  });
+
   // pins tests
   it('Assign pin to square electrode', () => {
     cy.createSquare(CELL1);
@@ -436,11 +470,55 @@ describe('Canvas', () => {
     cy.get('[data-testid="PIN"]').click();
 
     cy.get('#chassis')
-      .trigger('wheel', 150, 150, { wheelDelta: 100 });
+      .trigger('wheel', 150, 150, { deltaY: 10 });
 
-    cy.get('#chassis').parent().should(($el) => {
-      const styleSplit = $el[0].getAttribute('style').split(/[(,)]/);
-      expect(styleSplit[styleSplit.indexOf(' scale') + 1]).to.not.equal('1');
-    });
+    cy.get('#chassis').parent()
+      .should(($el) => {
+        const styleSplit = $el[0].getAttribute('style').split(/[(,)]/);
+        expect(styleSplit[styleSplit.indexOf(' scale') + 1]).to.not.equal('1');
+      });
+    // if #chassis doesn't have scale=1, means everything in it,
+    // including the canvas, was also scaled
+  });
+
+  it('Pan chassis and canvas together', () => {
+    cy.get('[data-testid="PIN"]').click();
+
+    // drag outside canvas wrapper
+    cy.get('[data-testid="PAN"]').click();
+    const to = { x: 200, y: 200 };
+    const from = { x: 150, y: 150 };
+
+    cy.drag(from, to, '#chassis');
+
+    cy.get('#chassis').parent()
+      .should(($el) => {
+        const styleSplit = $el[0].getAttribute('style').split(/ scale/);
+        expect(styleSplit[0]).to.not.equal('transform: translate3d(0px, 0px, 0px)');
+      });
+    // if #chassis doesn't have 0 translation, means everything in it,
+    // including the canvas, was translated
+  });
+
+  it('Canvas does not zoom outside svg in PIN mode', () => {
+    cy.get('[data-testid="PIN"]').click();
+
+    // zoom within canvas wrapper but outside the svg
+    cy.get('#chassis')
+      .trigger('wheel', 1300, 450, { deltaY: 10, force: true });
+
+    // zoom outside svg but within canvas wrapper should be
+    // perceived as zoom on chassis region
+    cy.get('.greenArea').parent()
+      .should(($el) => {
+        const styleSplit = $el[0].getAttribute('style').split(/[(,)]/);
+        expect(styleSplit[styleSplit.indexOf(' scale') + 1]).to.equal('0.51');
+      });
+
+    cy.get('#chassis').parent()
+      .should(($el) => {
+        const styleSplit = $el[0].getAttribute('style').split(/[(, )]/);
+        expect(styleSplit[styleSplit.indexOf(' scale') + 1]).to.not.equal('1');
+      });
   });
 });

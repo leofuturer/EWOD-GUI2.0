@@ -11,18 +11,15 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Collapse from '@material-ui/core/Collapse';
-import {
-  ViewWeek, OpenWith,
-} from '@material-ui/icons';
+import { OpenWith } from '@material-ui/icons';
 import Tooltip from '@material-ui/core/Tooltip';
-import Divider from '@material-ui/core/Divider';
 import icons from '../Icons/icons';
 
 import { ActuationContext } from '../Contexts/ActuationProvider';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 
-// import SaveButton from './SaveButton';
+import SaveButton from './SaveButton';
 import UploadButton from './UploadButton';
 import DownloadButton from './DownloadButton';
 
@@ -165,8 +162,6 @@ export default function ControlPanel({ scrollOpen }) {
   }
 
   return (
-    // <UploadButton />
-    // <SaveButton />
     <div className={classes.root} id="topbar-buffer">
       <CssBaseline />
       <AppBar
@@ -182,17 +177,15 @@ export default function ControlPanel({ scrollOpen }) {
           })}
         >
           <List style={{ display: 'flex', flexDirection: 'row' }}>
-            <Tooltip title="Draw">
-              <ListItem button onClick={() => setNewMode('DRAW')} data-testid="draw-button">
-                <img src={mode === 'DRAW' ? icons.electrodepen.onClick : icons.electrodepen.icon} alt="Electrode Pen" />
+            <DeleteButton name="New File" />
+            <UploadButton />
+            <DownloadButton />
+
+            <Tooltip title="Sequence Actuation">
+              <ListItem button onClick={() => setNewMode('SEQ')} data-testid="act-seq-start">
+                <img src={mode === 'SEQ' ? icons.actuation.onClick : icons.actuation.icon} alt="Actuation Sequence" />
               </ListItem>
             </Tooltip>
-
-            <UploadButton />
-            <ListItem button>
-              <ViewWeek />
-            </ListItem>
-            <DownloadButton />
 
             <Tooltip title="Map Pins" data-testid="PIN">
               <ListItem
@@ -206,28 +199,42 @@ export default function ControlPanel({ scrollOpen }) {
               </ListItem>
             </Tooltip>
 
-            <Tooltip title="Sequence Actuation">
-              <ListItem button onClick={() => setNewMode('SEQ')} data-testid="act-seq-start">
-                <img src={mode === 'SEQ' ? icons.actuation.onClick : icons.actuation.icon} alt="Actuation Sequence" />
-              </ListItem>
-            </Tooltip>
-
             <Tooltip title="Select and Move Electrodes" data-testid="CAN">
               <ListItem button onClick={() => setNewMode('CAN')}>
                 <img src={mode === 'CAN' ? icons.selectiontool.onClick : icons.selectiontool.icon} alt="Selection Tool" />
               </ListItem>
             </Tooltip>
-            <Tooltip title="Pan Canvas" data-testid="PAN">
-              <ListItem button onClick={() => setPanning(!panning)}>
-                <OpenWith style={{ color: panning ? '#23A829' : 'black' }} />
+            <Tooltip title="Draw">
+              <ListItem button onClick={() => setNewMode('DRAW')} data-testid="draw-button">
+                <img src={mode === 'DRAW' ? icons.electrodepen.onClick : icons.electrodepen.icon} alt="Electrode Pen" />
               </ListItem>
             </Tooltip>
 
-            <ListItem button onClick={undo}>
-              <img src={icons.undo.icon} alt="Undo" />
-            </ListItem>
-            <ListItem button onClick={redo}>
-              <img src={icons.redo.icon} alt="Redo" />
+            <Tooltip title="Pan Canvas" data-testid="PAN">
+              <ListItem button onClick={() => setPanning(!panning)}>
+                <OpenWith style={{ color: panning ? '#23A829' : '#A06933', marginBottom: panning && 5 }} />
+              </ListItem>
+            </Tooltip>
+
+            {
+              mode === 'SEQ' && (
+                <>
+                  <ListItem button onClick={undo}>
+                    <img src={icons.undo.icon} alt="Undo" />
+                  </ListItem>
+                  <ListItem button onClick={redo}>
+                    <img src={icons.redo.icon} alt="Redo" />
+                  </ListItem>
+                </>
+              )
+            }
+          </List>
+
+          <List style={{ display: 'flex', flexDirection: 'row' }}>
+            <SaveButton />
+            <DeleteButton name="Delete" />
+            <ListItem button>
+              <img src={icons.info.icon} alt="Info" />
             </ListItem>
           </List>
         </Toolbar>
@@ -272,13 +279,6 @@ export default function ControlPanel({ scrollOpen }) {
             </ListItemIcon>
             <ListItemText classes={{ primary: classes.listItemText }} primary="Reference Image" />
           </MuiListItem>
-        </List>
-        <Divider />
-        <List>
-          <DeleteButton />
-          <ListItem button>
-            <img src={icons.info.icon} alt="Info" />
-          </ListItem>
         </List>
       </Drawer>
     </div>

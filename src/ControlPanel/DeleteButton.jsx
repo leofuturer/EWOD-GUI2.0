@@ -12,7 +12,7 @@ import { ActuationContext } from '../Contexts/ActuationProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 import icons from '../Icons/icons';
 
-export default function DeleteButton() {
+export default function DeleteButton({ name }) {
   const context = useContext(CanvasContext);
   const actuation = useContext(ActuationContext);
   const {
@@ -41,10 +41,10 @@ export default function DeleteButton() {
     setOpen(false);
   }
   return (
-    <div>
-      <Tooltip title="Delete">
-        <ListItem button onClick={() => { setOpen(true); }} data-testid="clear">
-          <img src={icons.delete.icon} alt="Delete" />
+    <>
+      <Tooltip title={name}>
+        <ListItem button onClick={() => { setOpen(true); }} data-testid={name === 'Delete' && 'clear'}>
+          <img src={name === 'Delete' ? icons.delete.icon : icons.create.icon} alt={name} />
         </ListItem>
       </Tooltip>
       <Dialog
@@ -72,6 +72,6 @@ export default function DeleteButton() {
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </>
   );
 }

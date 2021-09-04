@@ -163,10 +163,16 @@ describe('Canvas', () => {
 
   it('panning button changes color', () => {
     cy.get('[data-testid="PAN"] > svg')
-      .should('have.attr', 'style', 'color: black;');
+      .should(($el) => {
+        const styleSplit = $el[0].getAttribute('style').split(/; ?/);
+        expect(styleSplit[0]).to.equal('color: rgb(160, 105, 51)');
+      });
     cy.get('[data-testid="PAN"] > svg').click();
     cy.get('[data-testid="PAN"] > svg')
-      .should('have.attr', 'style', 'color: rgb(35, 168, 41);');
+      .should(($el) => {
+        const styleSplit = $el[0].getAttribute('style').split(/; ?/);
+        expect(styleSplit[0]).to.equal('color: rgb(35, 168, 41)');
+      });
   });
 
   it('Not drawing while panning', () => {

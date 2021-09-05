@@ -135,6 +135,13 @@ describe('Canvas', () => {
       .click({ force: true })
       .then(($comb) => cy.moveElec($comb, CELL2, { x: -10, y: 10 }));
     cy.get('[data-testid="alert-box-error"]').should('be.visible');
+
+    // do a major state change to ensure combined electrode
+    // doesn't suddenly get chopped at canvas edge
+    cy.get('[data-testid="PIN"]').click();
+    cy.get('[data-testid="combined"]')
+      .should('have.attr', 'd', 'M140 140 L140 170 L175 170 L175 140 Z M175 140 L175 170 L205 170 L205 140 Z ');
+    // the path for combined rects at CELL2 and CELL3
   });
 
   it('Clear canvas', () => {

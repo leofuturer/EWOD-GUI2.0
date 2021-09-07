@@ -60,18 +60,18 @@ Cypress.Commands.add('moveElec', (subject, from, to) => {
     .trigger('mouseup');
 });
 
-Cypress.Commands.add('drag', (from, to) => {
-  cy.get('.greenArea')
+Cypress.Commands.add('drag', (from, to, obj = '.greenArea', which = 1) => {
+  cy.get(obj)
     .trigger('mousedown', from.x, from.y, {
-      which: 1,
+      which,
       force: true,
     })
     .trigger('mousemove', from.x, from.y, {
-      which: 1,
+      which,
       force: true,
     })
     .trigger('mousemove', to.x, to.y, {
-      which: 1,
+      which,
       force: true,
     })
     .trigger('mouseup', to.x, to.y, {

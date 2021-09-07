@@ -1,5 +1,9 @@
 diff --git a/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js b/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js
+<<<<<<< HEAD
 index 32c92ab..c01ec45 100644
+=======
+index 32c92ab..363d1ee 100644
+>>>>>>> 7a84204... context menu func->select box bye
 --- a/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js
 +++ b/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js
 @@ -73,8 +73,17 @@ var INIT_STATE = {
@@ -20,17 +24,17 @@ index 32c92ab..c01ec45 100644
 +  mode: 'DRAW',
 +  menuClick: 0,
  };
- 
+
  var SVGContainer = function (_React$PureComponent) {
 @@ -92,46 +101,48 @@ var SVGContainer = function (_React$PureComponent) {
      }
- 
+
      return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = SVGContainer.__proto__ || Object.getPrototypeOf(SVGContainer)).call.apply(_ref, [this].concat(args))), _this), _this.state = INIT_STATE, _this.onMouseDown = function (e) {
 +      if (e.nativeEvent.which !== 1) return;
        var _this$svg$getBounding = _this.svg.getBoundingClientRect(),
            left = _this$svg$getBounding.left,
            top = _this$svg$getBounding.top;
- 
+
 -      var clientX = e.clientX,
 -          clientY = e.clientY;
 -
@@ -58,12 +62,12 @@ index 32c92ab..c01ec45 100644
        var _this$svg$getBounding2 = _this.svg.getBoundingClientRect(),
            left = _this$svg$getBounding2.left,
            top = _this$svg$getBounding2.top;
- 
+
 -      var clientX = e.clientX,
 -          clientY = e.clientY;
 +      const x = e.offsetX || e.pageX - left;
 +      const y = e.offsetY || e.pageY - top;
- 
+
 -      var x = clientX - left;
 -      var y = clientY - top;
        var nextX = Math.min(x, _this.x);
@@ -86,7 +90,11 @@ index 32c92ab..c01ec45 100644
        });
      }, _this.onMouseUp = function () {
        _this.x = null;
+<<<<<<< HEAD
 @@ -146,6 +157,13 @@ var SVGContainer = function (_React$PureComponent) {
+=======
+@@ -146,6 +157,14 @@ var SVGContainer = function (_React$PureComponent) {
+>>>>>>> 7a84204... context menu func->select box bye
          return (0, _contains2.default)(item.id, intersectIds);
        })(_this.props.items);
        _this.props.onSelectChange(selected);
@@ -100,7 +108,7 @@ index 32c92ab..c01ec45 100644
      }, _this.onPositionChange = function (_ref2) {
        var id = _ref2.id,
            others = _objectWithoutProperties(_ref2, ['id']);
-@@ -176,7 +194,8 @@ var SVGContainer = function (_React$PureComponent) {
+@@ -176,7 +195,8 @@ var SVGContainer = function (_React$PureComponent) {
          };
        });
      }, _this.onRef = function (ref) {
@@ -109,8 +117,12 @@ index 32c92ab..c01ec45 100644
 +      else _this.svg = ref;
      }, _temp), _possibleConstructorReturn(_this, _ret);
    }
- 
+
+<<<<<<< HEAD
 @@ -184,6 +203,28 @@ var SVGContainer = function (_React$PureComponent) {
+=======
+@@ -184,6 +204,28 @@ var SVGContainer = function (_React$PureComponent) {
+>>>>>>> 7a84204... context menu func->select box bye
      key: 'componentWillReceiveProps',
      value: function componentWillReceiveProps(nextProps) {
        if (!nextProps.isSelectable) this.setState(INIT_STATE);
@@ -139,13 +151,17 @@ index 32c92ab..c01ec45 100644
      }
    }, {
      key: 'render',
+<<<<<<< HEAD
 @@ -195,29 +236,27 @@ var SVGContainer = function (_React$PureComponent) {
+=======
+@@ -195,29 +237,27 @@ var SVGContainer = function (_React$PureComponent) {
+>>>>>>> 7a84204... context menu func->select box bye
            isMovable = _props.isMovable,
            items = _props.items,
            style = _props.style,
 +          mode = _props.mode,
            otherProps = _objectWithoutProperties(_props, ['onItemsChange', 'onSelectChange', 'isSelectable', 'isMovable', 'items', 'style']);
- 
+
        var _state = this.state,
 -          left = _state.left,
 -          top = _state.top,
@@ -160,7 +176,7 @@ index 32c92ab..c01ec45 100644
            onPositionChange = this.onPositionChange,
            onIntersectChange = this.onIntersectChange,
            onRef = this.onRef;
- 
+
 -
        return _react2.default.createElement(
          'svg',
@@ -215,7 +231,7 @@ index d54fe6e..809c255 100644
 +  }
 +  return false;
  };
- 
+
  var ShapeItem = function (_React$PureComponent) {
 @@ -65,20 +71,19 @@ var ShapeItem = function (_React$PureComponent) {
            Component = _props.tagName,
@@ -223,11 +239,11 @@ index d54fe6e..809c255 100644
            style = _props.style,
 +          mode = _props.mode,
            otherProps = _objectWithoutProperties(_props, ['box', 'onPositionChange', 'onIntersectChange', 'tagName', 'isMovable', 'style']);
- 
+
        var onMouseDown = this.onMouseDown,
            onRef = this.onRef;
        var isIntersect = this.state.isIntersect;
- 
+
 -
        return _react2.default.createElement(Component, Object.assign({
          ref: onRef,
@@ -242,17 +258,17 @@ index d54fe6e..809c255 100644
      }
 @@ -151,18 +156,70 @@ var _initialiseProps = function _initialiseProps() {
    };
- 
+
    this.onRef = function (ref) {
 -    _this2.component = ref;
 +    if (!ref) _this2.component = document.getElementById(_this2.props.id);
 +    else _this2.component = ref;
    };
- 
+
    this.componentWillUnMount = function () {
      document.removeEventListener('scroll', _this2.updatePosition);
    };
- 
+
 +  this.getPathClientRect = function() {
 +    const boundingRect = _this2.component.getBoundingClientRect();
 +    const scale = parseFloat(_this2.component.getAttribute("scale"));
@@ -290,7 +306,7 @@ index d54fe6e..809c255 100644
 +      }
 +    }
    };
- 
+
    this.checkIntersect = function (props) {
 +    if (!_this2.clientRect) {
 +      if (_this2.component.nodeName === "path") {

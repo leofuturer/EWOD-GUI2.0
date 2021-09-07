@@ -336,6 +336,9 @@ export default function Canvas() {
     }
   }
 
+  const [menuClick, setMenuClick] = useState(0);
+  // val doesn't matter -- just need to toggle state to trigger rerender of SVGContainer
+
   /* ########################### COMBINE STUFF END ########################### */
   return (
     <div
@@ -470,6 +473,7 @@ export default function Canvas() {
           >
             <TransformComponent id="zoom_div">
               <SVGContainer
+                menuClick={menuClick}
                 mode={mode}
                 scalexy={scaleXY}
                 width={CANVAS_TRUE_WIDTH}
@@ -493,7 +497,7 @@ export default function Canvas() {
           </TransformWrapper>
         )
       }
-      <ContextMenu />
+      <ContextMenu setMenuClick={setMenuClick} />
     </div>
   );
 }

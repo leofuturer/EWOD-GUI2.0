@@ -9,7 +9,7 @@ import { ActuationContext } from '../Contexts/ActuationProvider';
 import { ELEC_SIZE } from '../constants';
 import range from '../Pins/range';
 
-export default function ContextMenu() {
+export default function ContextMenu({ setMenuClick }) {
   const canvasContext = useContext(CanvasContext);
   const { electrodes, selected } = canvasContext.squares;
   const { allCombined } = canvasContext.combined;
@@ -440,6 +440,7 @@ export default function ContextMenu() {
                       key={idx.id}
                       onClick={(e) => {
                         menuContents.funcs[idx](e, relativeX, relativeY);
+                        setMenuClick((menuclick) => (menuclick ? 0 : 1));
                         setShowMenu(false);
                       }}
                     >

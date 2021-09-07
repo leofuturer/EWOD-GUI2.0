@@ -55,17 +55,20 @@ export default function ContextMenu() {
       setSelected([]);
     }
     if (combSelected.length > 0) {
-      let minLayval = Infinity;
-      let maxLayval = -1;
+      // ex: selected IDs 2 4 7
+      // want those to have some permutation of IDs 0 1 2 in clipboard
+      const record = {};
+      let ind = 0;
       allCombined.forEach((comb) => {
-        // eslint-disable-next-line prefer-destructuring
-        if (combSelected.includes(`${comb[2]}`) && comb[2] < minLayval) minLayval = comb[2];
-        // eslint-disable-next-line prefer-destructuring
-        if (comb[2] > maxLayval) maxLayval = comb[2];
-      });
-      const gap = maxLayval + 1 - minLayval;
-      allCombined.forEach((comb) => {
-        if (combSelected.includes(`${comb[2]}`)) combined.push([comb[0], comb[1], comb[2] + gap]);
+        if (combSelected.includes(`${comb[2]}`)) {
+          if (Object.prototype.hasOwnProperty.call(record, comb[2])) {
+            combined.push([comb[0], comb[1], record[comb[2]]]);
+          } else {
+            record[comb[2]] = ind;
+            combined.push([comb[0], comb[1], ind]);
+            ind += 1;
+          }
+        }
       });
       setCombSelected([]);
     }
@@ -104,11 +107,13 @@ export default function ContextMenu() {
         const { combined } = clipboard;
         const first = clipboard.squares.length > 0 ? clipboard.squares[0] : combined[0];
         const newCombs = [];
+        const combIds = allCombined.map((el) => el[2]);
+        const maxID = Math.max(...combIds);
         for (let k = 0; k < numCombinedCopied; k += 1) {
           newCombs.push([
             x + combined[k][0] - first[0],
             y + combined[k][1] - first[1],
-            combined[k][2],
+            combined[k][2] + maxID + 1,
           ]);
         }
         setComboLayout(allCombined.concat(newCombs));

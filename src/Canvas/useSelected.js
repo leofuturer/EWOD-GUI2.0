@@ -164,9 +164,7 @@ export default function useSelected(callback, savingChanges) {
                 reset();
                 return;
               }
-              allCombined[k][0] = newX;
-              allCombined[k][1] = newY;
-              selectedCombs.push(allCombined[k]);
+              selectedCombs.push([newX, newY, layVal]);
             }
           }
           combines = allCombined.filter((x) => x[2] !== layVal).concat(selectedCombs);

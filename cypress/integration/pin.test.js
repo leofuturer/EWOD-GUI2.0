@@ -193,22 +193,8 @@ describe('Pin', () => {
 
     const from = { x: 150, y: 150 };
     const to = { x: 200, y: 200 };
-    cy.get('#chassis')
-      .trigger('mousedown', from.x, from.y, {
-        which: 2,
-        force: true,
-      })
-      .trigger('mousemove', from.x, from.y, {
-        which: 2,
-        force: true,
-      })
-      .trigger('mousemove', to.x, to.y, {
-        which: 2,
-        force: true,
-      })
-      .trigger('mouseup', to.x, to.y, {
-        force: true,
-      });
+
+    cy.drag(from, to, '#chassis', 2);
 
     cy.get('#chassis').parent()
       .should(
@@ -221,22 +207,7 @@ describe('Pin', () => {
   it('Panning on green without panning mode', () => {
     cy.get('[data-testid="PIN"]').click();
 
-    cy.get('.greenArea')
-      .trigger('mousedown', CELL1.x, CELL1.y, {
-        which: 2,
-        force: true,
-      })
-      .trigger('mousemove', CELL1.x, CELL1.y, {
-        which: 2,
-        force: true,
-      })
-      .trigger('mousemove', CELL2.x, CELL2.y, {
-        which: 2,
-        force: true,
-      })
-      .trigger('mouseup', CELL2.x, CELL2.y, {
-        force: true,
-      });
+    cy.drag(CELL1, CELL2, '.greenArea', 2);
 
     cy.get('.greenArea').parent()
       .should(

@@ -182,22 +182,7 @@ describe('Canvas', () => {
   });
 
   it('Drag with middle mouse button to pan', () => {
-    cy.get('.greenArea')
-      .trigger('mousedown', CELL2.x, CELL2.y, {
-        which: 2,
-        force: true,
-      })
-      .trigger('mousemove', CELL2.x, CELL2.y, {
-        which: 2,
-        force: true,
-      })
-      .trigger('mousemove', CELL4.x, CELL4.y, {
-        which: 2,
-        force: true,
-      })
-      .trigger('mouseup', CELL4.x, CELL4.y, {
-        force: true,
-      });
+    cy.drag(CELL2, CELL4, '.greenArea', 2);
 
     cy.get('.greenArea').parent()
       .should(

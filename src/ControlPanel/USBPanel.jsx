@@ -1,25 +1,45 @@
-/**
- * USBPanel - One required prop setUSBConnected
- *   setUSBConnected should be a function from USBPanel that sets
- *   the icon to green or black (on or off)
- */
-
 import React, { useState } from 'react';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
-import TextField from '@material-ui/core/TextField';
 import CancelIcon from '@material-ui/icons/Cancel';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import { makeStyles } from '@material-ui/styles';
+import icons from '../Icons/icons';
 
 import './USBPanel.css';
 import {
   initiateConnection, setV, setF, setPin, isDeviceConnected,
 } from '../USBCommunication/USBCommunication';
 
-export default function USBPanel(props) {
+const useStyles = makeStyles({
+  transparentBtn: {
+    border: 'none',
+  },
+  brownBtn: {
+    border: '2px solid #A06933',
+    color: '#FEFAE0',
+    backgroundColor: '#D4A373',
+    fontWeight: 900,
+    fontSize: '14px',
+    textTransform: 'none',
+    boxShadow: 'inset 0px 3px 4px rgba(250, 237, 205, 0.5)',
+  },
+  grayBtn: {
+    border: '2px solid #7D7B79',
+    color: '#FEFAE0',
+    backgroundColor: '#AEAEAE',
+    fontWeight: 900,
+    fontSize: '14px',
+    textTransform: 'none',
+    boxShadow: 'inset 0px 3px 4px rgba(255, 255, 255, 0.5)',
+  },
+});
+
+export default function USBPanel({ usbConnected, setUsbConnected }) {
+  const classes = useStyles();
+
   const [volt, setVolt] = useState(0);
   const [freq, setFreq] = useState(0);
-  const [usbConnected, setUsbConnected] = useState(false);
 
   let timeOut = null;
 
@@ -43,8 +63,7 @@ export default function USBPanel(props) {
   }
 
   function disconnect() {
-    if (props.setUsbConnected) {
-      props.setUsbConnected(false);
+    if (setUsbConnected) {
       setUsbConnected(false);
     }
   }
@@ -52,8 +71,7 @@ export default function USBPanel(props) {
   function recvData() {
     if (timeOut) clearTimeout(timeOut);
 
-    if (props.setUsbConnected) {
-      props.setUsbConnected(true);
+    if (setUsbConnected) {
       setUsbConnected(true);
       timeOut = setTimeout(disconnect, 3000);
     }
@@ -77,10 +95,25 @@ export default function USBPanel(props) {
   }
 
   return (
-    <div style={{ display: 'block', paddingLeft: '20px' }}>
-      <div>
-        USB Connected
-        {usbConnected ? <CheckCircleIcon className="icon" style={{ color: '#21b214' }} /> : <CancelIcon className="icon" color="secondary" />}
+    <div id="usb-panel">
+      <div id="usb-connect-status">
+        {usbConnected
+          ? (
+            <>
+              USB Connected
+              <CheckCircleIcon fontSize="small" className="icon" style={{ color: '#21b214' }} />
+            </>
+          ) : (
+            <>
+              USB Not Connected
+              <CancelIcon
+                fontSize="small"
+                className="icon"
+                color="secondary"
+                style={{ height: '100%' }}
+              />
+            </>
+          )}
       </div>
 
       <div style={{ padding: '10px' }}>
@@ -89,46 +122,69 @@ export default function USBPanel(props) {
 
       <div>
         <ButtonGroup size="small" style={{ width: '170px', float: 'left' }} className="inputCounters">
-          <Button onClick={() => setAndCheckFreq(freq - 5)}>-</Button>
-          <TextField
+          <Button className={classes.transparentBtn} onClick={() => setAndCheckFreq(freq - 5)}>
+            <img src={icons.decrease.icon} alt="Decrease" />
+          </Button>
+          <input
             id="tf-frequency"
             onChange={(e) => { setFreq(parseInt(e.target.value, 10)); }}
             type="number"
             value={freq}
             onBlur={() => { if (freq > 10000 || freq < 0) { setFreq(0); } }}
+            style={{ border: '2px solid #D4A373', borderRadius: '3px' }}
           />
-          <Button onClick={() => setAndCheckFreq(freq + 5)}>+</Button>
+          <Button className={classes.transparentBtn} onClick={() => setAndCheckFreq(freq + 5)}>
+            <img src={icons.increase.icon} alt="Increase" />
+          </Button>
         </ButtonGroup>
-        <div style={{ float: 'left', paddingTop: '15px' }} className="unit"> HZ </div>
+        <div className="unit"> Hz </div>
       </div>
 
       <div>
         <ButtonGroup size="small" style={{ width: '170px', float: 'left' }} className="inputCounters">
-          <Button onClick={() => setAndCheckVolt(volt - 5)}>-</Button>
-          <TextField
+          <Button className={classes.transparentBtn} onClick={() => setAndCheckVolt(volt - 5)}>
+            <img src={icons.decrease.icon} alt="Decrease" />
+          </Button>
+          <input
             id="tf-voltage"
             onChange={(e) => { setVolt(parseInt(e.target.value, 10)); }}
             type="number"
             value={volt}
             onBlur={() => { if (volt > 180 || volt < 0) { setVolt(0); } }}
           />
-          <Button onClick={() => setAndCheckVolt(volt + 5)}>+</Button>
+          <Button className={classes.transparentBtn} onClick={() => setAndCheckVolt(volt + 5)}>
+            <img src={icons.increase.icon} alt="Increase" />
+          </Button>
         </ButtonGroup>
-        <div style={{ float: 'left', paddingTop: '15px' }} className="unit"> V </div>
+        <div className="unit"> V </div>
       </div>
 
       <div />
 
       <div style={{ paddingLeft: '10px', paddingTop: '140px' }}>
-        <Button size="small" onClick={setZero} variant="contained">Set Voltage to 0 V</Button>
+        <Button
+          size="small"
+          onClick={setZero}
+          variant="contained"
+          className={usbConnected && volt ? classes.brownBtn : classes.grayBtn}
+        >
+          Set voltage to 0 V
+        </Button>
       </div>
 
       <div style={{ padding: '10px' }}>
         <Button size="small" variant="contained" onClick={test}>Test</Button>
       </div>
 
-      <div className="rButton" style={{ padding: '15px' }}>
-        <Button size="small" onClick={setVpp} variant="contained">Set Vpp</Button>
+      <div className="rButton">
+        <Button
+          size="small"
+          onClick={setVpp}
+          variant="contained"
+          className={usbConnected ? classes.brownBtn : classes.grayBtn}
+        >
+          Set Vpp
+        </Button>
       </div>
 
     </div>

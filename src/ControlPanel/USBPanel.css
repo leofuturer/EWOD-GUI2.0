@@ -8,6 +8,15 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+  background-color: #FEFAE0;
+  color: #A06933;
+  border: 2px solid #D4A373;
+  border-radius: 3px;
+  padding: 3px 6px;
+}
+
+input:focus {
+  outline: none;
 }
 
 .inputCounters {
@@ -16,7 +25,10 @@ input[type=number] {
 
 .rButton {
   position: relative;
-  margin-bottom: 30px;
+  padding: 40px;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 15px;
 }
 
 .rButton button {
@@ -26,7 +38,12 @@ input[type=number] {
 
 .unit {
   font-size: 15px;
-  margin-left: 170;
+  color: #A06933;
+  font-weight: 550;
+  float: left;
+  height: 47px;
+  display: flex;
+  align-items: center;
 }
 
 .inputGroup {
@@ -35,4 +52,28 @@ input[type=number] {
 
 .icon {
   margin-left: 8px;
+}
+
+#tf-frequency, #tf-voltage {
+  padding: 3px 6px;
+  background-color: #FEFAE0;
+  border: 2px solid #D4A373;
+  border-radius: 3px;
+  color: #A06933;
+  font-weight: 550;
+}
+
+#usb-panel {
+  display: block;
+  padding-left: 20px;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(212, 163, 115, 0.25));
+  border-bottom: 1px solid #D4A373;
+}
+
+#usb-connect-status {
+  color: #A06933;
+  font-weight: 500;
+  height: 25px;
+  display: flex;
+  align-items: center;
 }

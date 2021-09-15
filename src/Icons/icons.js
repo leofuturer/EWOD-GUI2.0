@@ -33,6 +33,8 @@ import ActuationDuration from './ActuationDuration.svg';
 import StartOver from './StartOver.svg';
 import ActuationClose from './ActuationClose.svg';
 import ActuationOpen from './ActuationOpen.svg';
+import Decrease from './Decrease.svg';
+import Increase from './Increase.svg';
 
 const icons = {
   actuation: {
@@ -54,6 +56,9 @@ const icons = {
   back: {
     icon: Back,
   },
+  decrease: {
+    icon: Decrease,
+  },
   delete: {
     icon: Delete,
   },
@@ -70,6 +75,9 @@ const icons = {
   },
   forward: {
     icon: Forward,
+  },
+  increase: {
+    icon: Increase,
   },
   info: {
     icon: Information,

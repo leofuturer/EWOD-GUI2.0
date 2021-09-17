@@ -27,7 +27,7 @@ export default function Canvas() {
   const { allCombined } = canvasContext.combined;
   const combSelected = canvasContext.combined.selected;
   const {
-    setMouseDown, setElectrodes, setSelected, setCombSelected,
+    setMouseDown, setElectrodes, setSelected, setCombSelected, pushCanHistory,
   } = canvasContext;
 
   const actuationContext = useContext(ActuationContext);
@@ -39,6 +39,7 @@ export default function Canvas() {
   } = useContext(GeneralContext);
 
   const [middleDown, setMiddleDown] = useState(false);
+  const [elecsToAdd, setElecsToAdd] = useState([]); // to add to history from drawing
 
   // sets mousedown status for selecting existing electrodes
   const handleMouseDown = useCallback((event) => {
@@ -56,6 +57,12 @@ export default function Canvas() {
   }, [setMouseDown]);
 
   const handleMouseUp = useCallback(() => {
+    if (elecsToAdd.length) {
+      pushCanHistory({
+        '+S': elecsToAdd,
+      });
+      setElecsToAdd([]);
+    }
     setMouseDown(false);
     if (middleDown) {
       setPanning(false);
@@ -105,6 +112,9 @@ export default function Canvas() {
           const availIDs = [...Array(Math.max(...electrodes.ids) + 2).keys()];
           newLastFreeInd = availIDs.find((id) => !electrodes.ids.includes(id));
         }
+        elecsToAdd.push({ x, y, id: newLastFreeInd });
+        setElecsToAdd(elecsToAdd);
+
         setElectrodes({
           initPositions: initPositions.concat([[x, y]]),
           deltas: deltas.concat([[0, 0]]),

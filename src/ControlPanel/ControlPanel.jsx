@@ -143,13 +143,49 @@ export default function ControlPanel({ scrollOpen }) {
   const {
     mode, setMode, setCurrElec, panning, setPanning, setScaleXY,
   } = useContext(GeneralContext);
-  const { setSelected, setCombSelected } = canvasContext;
+  const {
+    setSelected, setCombSelected, canUndo, canRedo,
+  } = canvasContext;
   const { undo, redo } = actuationContext;
 
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const [usbPanelOpen, setUsbPanelOpen] = useState(false);
   const [usbConnected, setUsbConnected] = useState(false);
+
+  function masterUndo() {
+    switch (mode) {
+      case 'DRAW':
+        canUndo();
+        break;
+      case 'CAN':
+        canUndo();
+        break;
+      case 'PIN':
+        break;
+      case 'SEQ':
+        undo();
+        break;
+      default:
+    }
+  }
+
+  function masterRedo() {
+    switch (mode) {
+      case 'DRAW':
+        canRedo();
+        break;
+      case 'CAN':
+        canRedo();
+        break;
+      case 'PIN':
+        break;
+      case 'SEQ':
+        redo();
+        break;
+      default:
+    }
+  }
 
   function setNewMode(newMode) {
     if (mode === 'PIN' && newMode !== 'PIN') {
@@ -216,18 +252,12 @@ export default function ControlPanel({ scrollOpen }) {
               </ListItem>
             </Tooltip>
 
-            {
-              mode === 'SEQ' && (
-                <>
-                  <ListItem button onClick={undo}>
-                    <img src={icons.undo.icon} alt="Undo" />
-                  </ListItem>
-                  <ListItem button onClick={redo}>
-                    <img src={icons.redo.icon} alt="Redo" />
-                  </ListItem>
-                </>
-              )
-            }
+            <ListItem button onClick={masterUndo} data-testid="undo">
+              <img src={icons.undo.icon} alt="Undo" />
+            </ListItem>
+            <ListItem button onClick={masterRedo} data-testid="redo">
+              <img src={icons.redo.icon} alt="Redo" />
+            </ListItem>
           </List>
 
           <List style={{ display: 'flex', flexDirection: 'row' }}>

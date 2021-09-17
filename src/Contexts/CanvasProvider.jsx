@@ -29,6 +29,11 @@ const CanvasProvider = ({ children }) => {
     allCombined: [],
   });
 
+  const [history, setHistory] = useState({
+    content: [],
+    index: -1,
+  });
+
   const { elecToPin } = React.useContext(GeneralContext);
 
   useEffect( // idb stuff
@@ -113,6 +118,59 @@ const CanvasProvider = ({ children }) => {
         },
         setMouseDown: (md) => {
           setState((stateBoi) => ({ ...stateBoi, mouseDown: md }));
+        },
+        canUndo: () => {
+          if (history.index > -1) {
+            const latestDiff = history.content[history.index];
+            // need to just keep track of combined and square elecs
+            // will look like
+            // {
+            //    "+S": [{
+            //       "x": 70,
+            //       "y": 105,
+            //       "id": "1",
+            //    }, ...],
+            //    "+C": [{
+            //      "x": 140,
+            //      "y": 140,
+            //      "id": "2",
+            //    }, ...],
+            //    "-S": ...,
+            //    "-C": ...,
+            // }
+
+            if (latestDiff['+S'].length) { // want to delete these squares
+              const inds = latestDiff['+S'].map((obj) => (
+                squares.electrodes.ids.indexOf(obj.id)
+              ));
+              const indsToDelete = new Set(inds);
+              squares.electrodes.initPositions = squares.electrodes.initPositions
+                .filter((val, ind) => !indsToDelete.has(ind));
+              squares.electrodes.deltas = squares.electrodes.deltas
+                .filter((val, ind) => !indsToDelete.has(ind));
+              squares.electrodes.ids = squares.electrodes.ids
+                .filter((val, ind) => !indsToDelete.has(ind));
+
+              setSquares({
+                electrodes: squares.electrodes,
+                selected: [],
+              });
+            }
+
+            setHistory((old) => ({
+              ...old,
+              index: old.index - 1,
+            }));
+          }
+        },
+        canRedo: () => {
+
+        },
+        pushCanHistory: (obj) => {
+          setHistory((oldHistory) => ({
+            content: oldHistory.content.concat(obj),
+            index: oldHistory.index + 1,
+          }));
         },
       }}
     >

@@ -241,6 +241,27 @@ describe('Canvas', () => {
       );
   });
 
+  it('Undo create square', () => {
+    cy.createSquare(CELL1);
+
+    cy.get('[data-testid="undo"]').click();
+    cy.get('[data-testid="square"]').should('not.exist');
+  });
+
+  it('Undo delete squares', () => {
+    cy.createSquare(CELL3);
+    cy.createSquare(CELL4);
+
+    cy.get('[data-testid="CAN"]').click();
+
+    cy.drag(CELL3, CELL4, '.greenArea');
+    cy.get('.greenArea').rightclick({ force: true });
+    cy.get('ul.menu > li:nth-child(5)').click({ force: true }); // delete elecs
+
+    cy.get('[data-testid="undo"]').click();
+    cy.get('[data-testid="square"]').should('have.length', 2);
+  });
+
   // pins tests
   it('Assign pin to square electrode', () => {
     cy.createSquare(CELL1);

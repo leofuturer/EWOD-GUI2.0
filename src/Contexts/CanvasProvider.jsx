@@ -139,7 +139,7 @@ const CanvasProvider = ({ children }) => {
             //    "-C": ...,
             // }
 
-            if (latestDiff['+S'].length) { // want to delete these squares
+            if (latestDiff['+S']) { // want to delete these squares
               const inds = latestDiff['+S'].map((obj) => (
                 squares.electrodes.ids.indexOf(obj.id)
               ));
@@ -150,6 +150,17 @@ const CanvasProvider = ({ children }) => {
                 .filter((val, ind) => !indsToDelete.has(ind));
               squares.electrodes.ids = squares.electrodes.ids
                 .filter((val, ind) => !indsToDelete.has(ind));
+
+              setSquares({
+                electrodes: squares.electrodes,
+                selected: [],
+              });
+            } else if (latestDiff['-S']) { // want to add these squares
+              latestDiff['-S'].forEach((obj) => {
+                squares.electrodes.initPositions.push([obj.x, obj.y]);
+                squares.electrodes.deltas.push([0, 0]);
+                squares.electrodes.ids.push(obj.id);
+              });
 
               setSquares({
                 electrodes: squares.electrodes,
@@ -167,10 +178,20 @@ const CanvasProvider = ({ children }) => {
 
         },
         pushCanHistory: (obj) => {
-          setHistory((oldHistory) => ({
-            content: oldHistory.content.concat(obj),
-            index: oldHistory.index + 1,
-          }));
+          setHistory((oldHistory) => {
+            if (oldHistory.index === oldHistory.content.length - 1) {
+              return {
+                content: oldHistory.content.concat(obj),
+                index: oldHistory.index + 1,
+              };
+            }
+            const newHistoryContent = [...oldHistory.content];
+            newHistoryContent[oldHistory.index + 1] = obj;
+            return {
+              content: newHistoryContent,
+              index: oldHistory.index + 1,
+            };
+          });
         },
       }}
     >

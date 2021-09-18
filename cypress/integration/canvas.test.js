@@ -285,6 +285,68 @@ describe('Canvas', () => {
     cy.get('[data-testid="square"]').should('not.exist');
   });
 
+  it('Undo/Redo combine', () => {
+    cy.createSquare(CELL2);
+    cy.createSquare(CELL3);
+
+    cy.get('[data-testid="CAN"]').click();
+    cy.drag(CELL3, CELL2);
+    cy.get('.greenArea').rightclick({ force: true });
+    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
+
+    cy.get('[data-testid="undo"]').click();
+    cy.get('[data-testid="combined"]').should('not.exist');
+    cy.get('[data-testid="square"]').should('have.length', 2);
+
+    cy.get('[data-testid="redo"]').click();
+    cy.get('[data-testid="combined"]').should('have.length', 1);
+    cy.get('[data-testid="square"]').should('not.exist');
+  });
+
+  it('Undo/Redo delete combined', () => {
+    cy.createSquare(CELL2);
+    cy.createSquare(CELL3);
+
+    cy.get('[data-testid="CAN"]').click();
+    cy.drag(CELL3, CELL2);
+    cy.get('.greenArea').rightclick({ force: true });
+    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
+
+    // delete the combined
+    cy.drag(CELL2, CELL3);
+    cy.get('.greenArea').rightclick({ force: true });
+    cy.get('ul.menu > li:nth-child(5)').click({ force: true });
+
+    cy.get('[data-testid="undo"]').click();
+    cy.get('[data-testid="combined"]').should('have.length', 1);
+
+    cy.get('[data-testid="redo"]').click();
+    cy.get('[data-testid="combined"]').should('not.exist');
+  });
+
+  it('Undo/Redo separate', () => {
+    cy.createSquare(CELL2);
+    cy.createSquare(CELL3);
+
+    cy.get('[data-testid="CAN"]').click();
+    cy.drag(CELL3, CELL2);
+    cy.get('.greenArea').rightclick({ force: true });
+    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
+
+    // separate the combined
+    cy.drag(CELL2, CELL3);
+    cy.get('.greenArea').rightclick({ force: true });
+    cy.get('ul.menu > li:nth-child(7)').click({ force: true });
+
+    cy.get('[data-testid="undo"]').click();
+    cy.get('[data-testid="combined"]').should('have.length', 1);
+    cy.get('[data-testid="square"]').should('not.exist');
+
+    cy.get('[data-testid="redo"]').click();
+    cy.get('[data-testid="combined"]').should('not.exist');
+    cy.get('[data-testid="square"]').should('have.length', 2);
+  });
+
   // pins tests
   it('Assign pin to square electrode', () => {
     cy.createSquare(CELL1);

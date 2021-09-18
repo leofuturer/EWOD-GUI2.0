@@ -37,6 +37,24 @@ export default function ContextMenu() {
 
   const [menuContents, setMenuContents] = useState(null);
 
+  function historySqDeleteHelper() {
+    // for square deletion history
+    const setOfSelected = new Set(selected);
+    const sqHistoryEntry = [];
+    electrodes.initPositions.forEach((initPos, ind) => {
+      if (setOfSelected.has(`${electrodes.ids[ind]}`)) { // want to delete this square
+        // so save this square's position and id to history
+        sqHistoryEntry.push({
+          x: initPos[0] + electrodes.deltas[ind][0],
+          y: initPos[1] + electrodes.deltas[ind][1],
+          id: electrodes.ids[ind],
+        });
+      } // else don't want to delete this square so it makes it into next state
+    });
+
+    return sqHistoryEntry;
+  }
+
   function contextMove() {
     if (selected.length || combSelected.length) setMoving(true);
   }
@@ -168,20 +186,7 @@ export default function ContextMenu() {
   }
 
   function contextDelete() {
-    // for square deletion history
-    const setOfSelected = new Set(selected);
-    const sqHistoryEntry = [];
-    electrodes.initPositions.forEach((initPos, ind) => {
-      if (setOfSelected.has(`${electrodes.ids[ind]}`)) { // want to delete this square
-        // so save this square's position and id to history
-        sqHistoryEntry.push({
-          x: initPos[0] + electrodes.deltas[ind][0],
-          y: initPos[1] + electrodes.deltas[ind][1],
-          id: electrodes.ids[ind],
-        });
-      } // else don't want to delete this square so it makes it into next state
-    });
-
+    const sqHistoryEntry = historySqDeleteHelper();
     pushCanHistory({ '-S': sqHistoryEntry });
 
     combinedDelete();
@@ -281,6 +286,13 @@ export default function ContextMenu() {
       window.alert("Selected electrodes to combine aren't adjacent");
       return;
     }
+
+    // history keeping
+    const sqHistoryEntry = historySqDeleteHelper();
+    pushCanHistory({
+      '+C': positions,
+      '-S': sqHistoryEntry,
+    });
 
     setComboLayout(allCombined.concat(positions));
     squaresDelete();

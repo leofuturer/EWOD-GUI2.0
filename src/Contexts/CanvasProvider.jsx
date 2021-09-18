@@ -67,6 +67,20 @@ const CanvasProvider = ({ children }) => {
     });
   }
 
+  function historyDeleteCombHelper(diff) {
+    const indsToDelete = new Set(diff.map((obj) => obj[2]));
+    const newCombines = combined.allCombined.filter((comb) => !indsToDelete.has(comb[2]));
+
+    setCombined({ allCombined: newCombines, selected: [] });
+  }
+
+  function historyAddCombHelper(diff) {
+    setCombined({
+      allCombined: combined.allCombined.concat(diff),
+      selected: [],
+    });
+  }
+
   useEffect( // idb stuff
     () => {
       // create the store
@@ -161,11 +175,11 @@ const CanvasProvider = ({ children }) => {
             //       "y": 105,
             //       "id": "1",
             //    }, ...],
-            //    "+C": [{
-            //      "x": 140,
-            //      "y": 140,
-            //      "id": "2",
-            //    }, ...],
+            //    "+C": [[
+            //      140, // x
+            //      140, // y
+            //      2,   // id
+            //    ], ...],
             //    "-S": ...,
             //    "-C": ...,
             // }
@@ -174,6 +188,12 @@ const CanvasProvider = ({ children }) => {
               historyDeleteSqHelper(latestDiff['+S']);
             } else if (latestDiff['-S']) { // want to add these squares
               historyAddSqHelper(latestDiff['-S']);
+            }
+
+            if (latestDiff['+C']) { // want to delete these combined
+              historyDeleteCombHelper(latestDiff['+C']);
+            } else if (latestDiff['-C']) { // want to add these combined
+              historyAddCombHelper(latestDiff['-C']);
             }
 
             setHistory((old) => ({
@@ -190,6 +210,12 @@ const CanvasProvider = ({ children }) => {
               historyDeleteSqHelper(latestDiff['-S']);
             } else if (latestDiff['+S']) { // want to add these squares
               historyAddSqHelper(latestDiff['+S']);
+            }
+
+            if (latestDiff['-C']) { // want to delete these combined
+              historyDeleteCombHelper(latestDiff['-C']);
+            } else if (latestDiff['+C']) { // want to add these combined
+              historyAddCombHelper(latestDiff['+C']);
             }
 
             setHistory((old) => ({

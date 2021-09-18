@@ -36,6 +36,37 @@ const CanvasProvider = ({ children }) => {
 
   const { elecToPin } = React.useContext(GeneralContext);
 
+  function historyDeleteSqHelper(diff) {
+    const inds = diff.map((obj) => (
+      squares.electrodes.ids.indexOf(obj.id)
+    ));
+    const indsToDelete = new Set(inds);
+    squares.electrodes.initPositions = squares.electrodes.initPositions
+      .filter((val, ind) => !indsToDelete.has(ind));
+    squares.electrodes.deltas = squares.electrodes.deltas
+      .filter((val, ind) => !indsToDelete.has(ind));
+    squares.electrodes.ids = squares.electrodes.ids
+      .filter((val, ind) => !indsToDelete.has(ind));
+
+    setSquares({
+      electrodes: squares.electrodes,
+      selected: [],
+    });
+  }
+
+  function historyAddSqHelper(diff) {
+    diff.forEach((obj) => {
+      squares.electrodes.initPositions.push([obj.x, obj.y]);
+      squares.electrodes.deltas.push([0, 0]);
+      squares.electrodes.ids.push(obj.id);
+    });
+
+    setSquares({
+      electrodes: squares.electrodes,
+      selected: [],
+    });
+  }
+
   useEffect( // idb stuff
     () => {
       // create the store
@@ -140,32 +171,9 @@ const CanvasProvider = ({ children }) => {
             // }
 
             if (latestDiff['+S']) { // want to delete these squares
-              const inds = latestDiff['+S'].map((obj) => (
-                squares.electrodes.ids.indexOf(obj.id)
-              ));
-              const indsToDelete = new Set(inds);
-              squares.electrodes.initPositions = squares.electrodes.initPositions
-                .filter((val, ind) => !indsToDelete.has(ind));
-              squares.electrodes.deltas = squares.electrodes.deltas
-                .filter((val, ind) => !indsToDelete.has(ind));
-              squares.electrodes.ids = squares.electrodes.ids
-                .filter((val, ind) => !indsToDelete.has(ind));
-
-              setSquares({
-                electrodes: squares.electrodes,
-                selected: [],
-              });
+              historyDeleteSqHelper(latestDiff['+S']);
             } else if (latestDiff['-S']) { // want to add these squares
-              latestDiff['-S'].forEach((obj) => {
-                squares.electrodes.initPositions.push([obj.x, obj.y]);
-                squares.electrodes.deltas.push([0, 0]);
-                squares.electrodes.ids.push(obj.id);
-              });
-
-              setSquares({
-                electrodes: squares.electrodes,
-                selected: [],
-              });
+              historyAddSqHelper(latestDiff['-S']);
             }
 
             setHistory((old) => ({
@@ -175,7 +183,20 @@ const CanvasProvider = ({ children }) => {
           }
         },
         canRedo: () => {
+          if (history.index < history.content.length - 1) {
+            const latestDiff = history.content[history.index + 1];
 
+            if (latestDiff['-S']) { // want to delete these squares
+              historyDeleteSqHelper(latestDiff['-S']);
+            } else if (latestDiff['+S']) { // want to add these squares
+              historyAddSqHelper(latestDiff['+S']);
+            }
+
+            setHistory((old) => ({
+              ...old,
+              index: old.index + 1,
+            }));
+          }
         },
         pushCanHistory: (obj) => {
           setHistory((oldHistory) => {

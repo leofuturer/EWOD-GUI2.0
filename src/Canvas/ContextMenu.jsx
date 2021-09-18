@@ -168,7 +168,7 @@ export default function ContextMenu() {
     setElectrodes({ initPositions: newPos, deltas: newDel, ids: newIds });
   }
 
-  function combinedDelete() {
+  function combinedDelete(combsToSave) {
     // go through selected combined elecs to erase any of their pin mappings
     combSelected.forEach((index) => {
       const combined = `C${index}`;
@@ -181,15 +181,22 @@ export default function ContextMenu() {
 
     setPinToElec({ ...pinToElec });
     setElecToPin({ ...elecToPin });
-    setComboLayout(allCombined.filter((combi) => !combSelected.includes(`${combi[2]}`)));
+    setComboLayout(combsToSave);
     setCombSelected([]);
   }
 
   function contextDelete() {
     const sqHistoryEntry = historySqDeleteHelper();
-    pushCanHistory({ '-S': sqHistoryEntry });
+    const setOfCombSelected = new Set(combSelected);
+    const combsToDelete = [];
+    const combsToSave = [];
+    allCombined.forEach((comb) => {
+      if (setOfCombSelected.has(`${comb[2]}`)) combsToDelete.push(comb);
+      else combsToSave.push(comb);
+    });
+    pushCanHistory({ '-S': sqHistoryEntry, '-C': combsToDelete });
 
-    combinedDelete();
+    combinedDelete(combsToSave);
     squaresDelete();
   }
 
@@ -303,20 +310,36 @@ export default function ContextMenu() {
       window.alert('Can only separate combined electrodes');
       return;
     }
-    const selectedCombs = allCombined.filter((x) => combSelected.includes(`${x[2]}`));
-    const selectedCombCoords = [];
-    selectedCombs.forEach((coord) => {
-      selectedCombCoords.push([coord[0], coord[1]]);
+    const combsToSave = [];
+    const combsToDelete = [];
+    const setOfCombSelected = new Set(combSelected);
+    allCombined.forEach((x) => {
+      if (setOfCombSelected.has(`${x[2]}`)) {
+        // if selected combined and separating, means delete this combinied
+        combsToDelete.push(x);
+      } else combsToSave.push(x);
     });
+
+    const selectedCombCoords = combsToDelete.map((coord) => [coord[0], coord[1]]);
     const maxID = electrodes.ids.length ? Math.max(...electrodes.ids) + 1 : 0;
-    const newIDs = [...new Array(selectedCombs.length).keys()].map((num) => num + maxID);
+    const newIDs = [...new Array(combsToDelete.length).keys()].map((num) => num + maxID);
     setElectrodes({
       initPositions: electrodes.initPositions.concat(selectedCombCoords),
       deltas: electrodes.deltas
         .concat(new Array(allCombined.length).fill(null).map(() => new Array(2).fill(0))),
       ids: electrodes.ids.concat(newIDs),
     });
-    combinedDelete();
+
+    // history keeping
+    const sqHistoryEntry = newIDs.map((newId, ind) => ({
+      x: selectedCombCoords[ind][0],
+      y: selectedCombCoords[ind][1],
+      id: newId,
+    }));
+
+    pushCanHistory({ '+S': sqHistoryEntry, '-C': combsToDelete });
+
+    combinedDelete(combsToSave);
   }
 
   function deleteSelectedMappings() {

@@ -154,37 +154,15 @@ export default function ControlPanel({ scrollOpen }) {
   const [usbConnected, setUsbConnected] = useState(false);
 
   function masterUndo() {
-    switch (mode) {
-      case 'DRAW':
-        canUndo();
-        break;
-      case 'CAN':
-        canUndo();
-        break;
-      case 'PIN':
-        break;
-      case 'SEQ':
-        undo();
-        break;
-      default:
-    }
+    canUndo();
+    undo(); // actuation undo
+    // TODO: pin undo
   }
 
   function masterRedo() {
-    switch (mode) {
-      case 'DRAW':
-        canRedo();
-        break;
-      case 'CAN':
-        canRedo();
-        break;
-      case 'PIN':
-        break;
-      case 'SEQ':
-        redo();
-        break;
-      default:
-    }
+    canRedo();
+    redo(); // actuation redo
+    // TODO: pin redo
   }
 
   function setNewMode(newMode) {

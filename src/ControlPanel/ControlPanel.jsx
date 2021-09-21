@@ -100,8 +100,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(3),
   },
   listItemText: {
-    fontFamily: 'Roboto',
-    fontWeight: 500,
+    fontWeight: 700,
     color: '#A06933',
   },
   toolbarContainer: {
@@ -125,6 +124,12 @@ const useStyles = makeStyles((theme) => ({
   },
   fullHeight: {
     height: '100vh',
+  },
+  borderTop: {
+    borderTop: '1px solid #D4A373',
+  },
+  bkgrdGradient: {
+    backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0), rgba(212, 163, 115, 0.25))',
   },
 }));
 
@@ -262,7 +267,11 @@ export default function ControlPanel({ scrollOpen }) {
           </IconButton>
         </div>
         <List>
-          <MuiListItem button onClick={() => { if (open) setUsbPanelOpen(!usbPanelOpen); }}>
+          <MuiListItem
+            button
+            onClick={() => { if (open) setUsbPanelOpen(!usbPanelOpen); }}
+            className={`${usbPanelOpen && classes.bkgrdGradient} ${usbPanelOpen && classes.borderTop}`}
+          >
             <ListItemIcon>
               <img src={usbConnected ? icons.usb.connected : icons.usb.disconnected} alt="USB Connection" />
             </ListItemIcon>
@@ -270,7 +279,7 @@ export default function ControlPanel({ scrollOpen }) {
           </MuiListItem>
 
           <Collapse in={usbPanelOpen} timeout="auto">
-            <USBPanel setUsbConnected={setUsbConnected} />
+            <USBPanel usbConnected={usbConnected} setUsbConnected={setUsbConnected} />
           </Collapse>
 
           <MuiListItem button>

@@ -39,6 +39,24 @@ export default function Canvas() {
   } = useContext(GeneralContext);
 
   const [middleDown, setMiddleDown] = useState(false);
+  const [shiftDown, setShiftDown] = useState(false);
+
+  const startShift = useCallback((event) => {
+    if (event.keyCode === 16) setShiftDown(true);
+  });
+
+  const endShift = useCallback((event) => {
+    if (event.keyCode === 16) setShiftDown(false);
+  });
+
+  useEffect(() => {
+    document.addEventListener('keydown', startShift);
+    document.addEventListener('keyup', endShift);
+    return () => {
+      document.removeEventListener('keydown', startShift);
+      document.removeEventListener('keyup', endShift);
+    };
+  }, [startShift]);
 
   // sets mousedown status for selecting existing electrodes
   const handleMouseDown = useCallback((event) => {
@@ -225,6 +243,20 @@ export default function Canvas() {
     setFinalCombines(combines);
   }, [allCombined]);
 
+  function processSelected(sIds, cIds) {
+    // if sId already in selected, then erase from concatenation and so on
+    const setOfSelected = new Set(selected);
+    const setOfCombSelected = new Set(combSelected);
+    const mushedSquares = new Set(selected.concat(sIds));
+    const mushedCombines = new Set(combSelected.concat(cIds));
+    sIds.forEach((sId) => {
+      if (setOfSelected.has(sId)) mushedSquares.delete(sId);
+    });
+    cIds.forEach((cId) => {
+      if (setOfCombSelected.has(cId)) mushedCombines.delete(cId);
+    });
+    return [Array.from(mushedSquares), Array.from(mushedCombines)];
+  }
   const [selectables, setSelectables] = useState([]);
   useEffect(() => {
     const { deltas, ids } = electrodes;
@@ -305,19 +337,36 @@ export default function Canvas() {
     });
 
     if (mode === 'PIN') {
-      if (selectedElecs.length === 1) {
-        if (sIds.length) setCurrElec(`S${sIds[0]}`);
-        else setCurrElec(`C${cIds[0]}`);
-        setCombSelected([]);
-        setSelected([]);
-      } else {
-        setCurrElec(null);
+      if (shiftDown) {
+        const newSelected = processSelected(sIds, cIds);
+        setSelected(newSelected[0]); // first off, set new selections
+        setCombSelected(newSelected[1]);
+
+        // then figure out if user's selecting one electrode to set pin next
+        if (newSelected[0].length + newSelected[1].length === 1) { // if selected one
+          if (selected.length + combSelected.length > 1) setCurrElec(null); // if deselecting
+          else if (newSelected[0].length) setCurrElec(`S${sIds[0]}`); // if selected square
+          else setCurrElec(`C${cIds[0]}`); // if selected combined
+        }
+      } else { // not holding 'shift' down
+        if (selectedElecs.length === 1) {
+          if (sIds.length) setCurrElec(`S${sIds[0]}`); // if selected square
+          else setCurrElec(`C${cIds[0]}`); // if selected combined
+        } else { // selected multiple electrodes so has nothing to do with assigning pins
+          setCurrElec(null);
+        }
         setSelected(sIds);
         setCombSelected(cIds);
       }
     } else if (mode !== 'DRAW') {
-      setSelected(sIds);
-      setCombSelected(cIds);
+      if (shiftDown) {
+        const newSelected = processSelected(sIds, cIds);
+        setSelected(newSelected[0]);
+        setCombSelected(newSelected[1]);
+      } else {
+        setSelected(sIds);
+        setCombSelected(cIds);
+      }
     }
 
     // handle actuation

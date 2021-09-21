@@ -98,6 +98,48 @@ describe('Canvas', () => {
       .should('have.attr', 'x', CELL4.x - 10, CELL4.y - 10);
   });
 
+  it('Copy paste multiple combined', () => {
+    // combine 2 electrodes
+    cy.createSquare(CELL2);
+    cy.createSquare(CELL3);
+    cy.get('[data-testid="CAN"]').click();
+    cy.drag(CELL3, CELL2);
+    cy.get('.greenArea').rightclick({ force: true });
+    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
+
+    // copy
+    cy.drag(CELL2, CELL3);
+    cy.get('.greenArea').rightclick({ force: true });
+    cy.get('ul.menu > li:nth-child(3)').click({ force: true });
+
+    // paste
+    const pos1 = 7 * ELEC_SIZE + 10;
+    cy.get('.greenArea').rightclick(pos1, pos1, { force: true });
+    cy.get('ul.menu > li:nth-child(4)').click({ force: true });
+
+    // paste again
+    const pos2 = 9 * ELEC_SIZE + 10;
+    cy.get('.greenArea').rightclick(pos2, pos2, { force: true });
+    cy.get('ul.menu > li:nth-child(4)').click({ force: true });
+
+    // assert they all have diff ids
+    cy.get('[data-testid="combined"]')
+      .should(($el) => {
+        expect($el).to.have.lengthOf(3);
+        expect($el[0].getAttribute('id')).not.to.equal($el[1].getAttribute('id'));
+        expect($el[1].getAttribute('id')).not.to.equal($el[2].getAttribute('id'));
+        expect($el[2].getAttribute('id')).not.to.equal($el[0].getAttribute('id'));
+      });
+
+    // hard to assert positions since they're path objs with no clear singular coordinates
+    // but try to drag select 3rd combined electrode and see if it turns blue
+    cy.drag({ x: pos2, y: pos2 }, { x: pos2, y: pos2 });
+    cy.get('path.selected').should(($el) => {
+      expect($el).to.have.lengthOf(1);
+      expect($el[0].getAttribute('id')).to.equal('C2');
+    });
+  });
+
   it('Overlap', () => {
     cy.createSquare(CELL2);
     cy.createSquare(CELL3);

@@ -303,7 +303,7 @@ describe('Canvas', () => {
 
     cy.get('[data-testid="square"]')
       .should(($el) => {
-        expect($el[0].getAttribute('fill')).to.equal('blue');
+        expect($el[0]).not.to.have.property('fill');
         expect($el[0].getAttribute('style')).not.to.contain('fillOpacity');
       });
   });

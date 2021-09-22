@@ -1,22 +1,28 @@
 diff --git a/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js b/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js
-index 32c92ab..263aac6 100644
+index 32c92ab..c01ec45 100644
 --- a/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js
 +++ b/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js
-@@ -74,7 +74,12 @@ var INIT_STATE = {
+@@ -73,8 +73,17 @@ var INIT_STATE = {
+   y: 0,
    width: 0,
    height: 0,
-   left: 0,
+-  left: 0,
 -  top: 0
-+  top: 0,
 +  scaleXY: {
 +    scale: 1,
 +    svgTop: 0,
 +    svgLeft: 0,
 +  },
++  appearX: 0,
++  appearY: 0,
++  appearWidth: 0,
++  appearHeight: 0,
++  mode: 'DRAW',
++  menuClick: 0,
  };
  
  var SVGContainer = function (_React$PureComponent) {
-@@ -92,15 +97,13 @@ var SVGContainer = function (_React$PureComponent) {
+@@ -92,46 +101,48 @@ var SVGContainer = function (_React$PureComponent) {
      }
  
      return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = SVGContainer.__proto__ || Object.getPrototypeOf(SVGContainer)).call.apply(_ref, [this].concat(args))), _this), _this.state = INIT_STATE, _this.onMouseDown = function (e) {
@@ -35,12 +41,14 @@ index 32c92ab..263aac6 100644
        _this.x = x;
        _this.y = y;
        _this.setState({
-@@ -109,20 +112,20 @@ var SVGContainer = function (_React$PureComponent) {
+         x: x,
+         y: y,
++        appearX: x,
++        appearY: y,
          width: 0,
          height: 0,
-         left: x + left,
+-        left: x + left,
 -        top: y + top
-+        top: y + top,
 +        scaleXY: _this.props.scalexy,
        });
        document.addEventListener('mousemove', _this.onMouseMove);
@@ -60,8 +68,39 @@ index 32c92ab..263aac6 100644
 -      var y = clientY - top;
        var nextX = Math.min(x, _this.x);
        var nexty = Math.min(y, _this.y);
++      const width = Math.abs(x - _this.x);
++      const height = Math.abs(y - _this.y);
        _this.setState({
-@@ -176,7 +179,8 @@ var SVGContainer = function (_React$PureComponent) {
+         x: nextX,
+         y: nexty,
+-        width: Math.abs(x - _this.x),
+-        height: Math.abs(y - _this.y),
+-        left: nextX + left,
+-        top: nexty + top
++        appearX: nextX,
++        appearY: nexty,
++        appearWidth: width,
++        appearHeight: height,
++        width: width,
++        height: height,
+       });
+     }, _this.onMouseUp = function () {
+       _this.x = null;
+@@ -146,6 +157,13 @@ var SVGContainer = function (_React$PureComponent) {
+         return (0, _contains2.default)(item.id, intersectIds);
+       })(_this.props.items);
+       _this.props.onSelectChange(selected);
++
++      _this.setState({
++        appearX: 0,
++        appearY: -5,
++        appearWidth: 0,
++        appearHeight: 0,
++      });
+     }, _this.onPositionChange = function (_ref2) {
+       var id = _ref2.id,
+           others = _objectWithoutProperties(_ref2, ['id']);
+@@ -176,7 +194,8 @@ var SVGContainer = function (_React$PureComponent) {
          };
        });
      }, _this.onRef = function (ref) {
@@ -71,7 +110,36 @@ index 32c92ab..263aac6 100644
      }, _temp), _possibleConstructorReturn(_this, _ret);
    }
  
-@@ -195,6 +199,7 @@ var SVGContainer = function (_React$PureComponent) {
+@@ -184,6 +203,28 @@ var SVGContainer = function (_React$PureComponent) {
+     key: 'componentWillReceiveProps',
+     value: function componentWillReceiveProps(nextProps) {
+       if (!nextProps.isSelectable) this.setState(INIT_STATE);
++
++      const selectBoxGoneState = {
++        width: 0,
++        height: 0,
++        appearX: 0,
++        appearY: -5,
++        appearWidth: 0,
++        appearHeight: 0,
++      };
++      if (nextProps.mode !== this.state.mode) {
++        this.setState({
++          mode: nextProps.mode,
++          ...selectBoxGoneState,
++        });
++      }
++      if (nextProps.menuClick !== this.state.menuClick) {
++        // clicked on context menu function so want select box to disappear
++        this.setState({
++          menuClick: nextProps.menuClick,
++          ...selectBoxGoneState
++        });
++      }
+     }
+   }, {
+     key: 'render',
+@@ -195,29 +236,27 @@ var SVGContainer = function (_React$PureComponent) {
            isMovable = _props.isMovable,
            items = _props.items,
            style = _props.style,
@@ -79,7 +147,8 @@ index 32c92ab..263aac6 100644
            otherProps = _objectWithoutProperties(_props, ['onItemsChange', 'onSelectChange', 'isSelectable', 'isMovable', 'items', 'style']);
  
        var _state = this.state,
-@@ -203,21 +208,20 @@ var SVGContainer = function (_React$PureComponent) {
+-          left = _state.left,
+-          top = _state.top,
            x = _state.x,
            y = _state.y,
            width = _state.width,
@@ -105,7 +174,7 @@ index 32c92ab..263aac6 100644
            onMouseDown: isSelectable ? onMouseDown : null
          }),
          items.map(function (_ref4) {
-@@ -230,9 +234,11 @@ var SVGContainer = function (_React$PureComponent) {
+@@ -230,13 +269,18 @@ var SVGContainer = function (_React$PureComponent) {
              key: id,
              tagName: tagName,
              isMovable: isMovable,
@@ -115,12 +184,20 @@ index 32c92ab..263aac6 100644
 +            mode: mode,
            }, others, {
 -            box: { left: left, top: top, width: width, height: height },
-+            box: { left: left, top: top, width: width, height: height, x: x, y: y },
++            box: { width: width, height: height, x: x, y: y },
              onIntersectChange: onIntersectChange
            }));
          }),
+-        _react2.default.createElement(_Box2.default, { x: x, y: y, width: width, height: height })
++        _react2.default.createElement(
++          _Box2.default,
++          { x: _state.appearX, y: _state.appearY, width: _state.appearWidth, height: _state.appearHeight }
++        )
+       );
+     }
+   }]);
 diff --git a/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js b/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
-index d54fe6e..2f34372 100644
+index d54fe6e..809c255 100644
 --- a/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
 +++ b/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
 @@ -37,8 +37,14 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function"
@@ -140,7 +217,14 @@ index d54fe6e..2f34372 100644
  };
  
  var ShapeItem = function (_React$PureComponent) {
-@@ -71,11 +77,9 @@ var ShapeItem = function (_React$PureComponent) {
+@@ -65,20 +71,19 @@ var ShapeItem = function (_React$PureComponent) {
+           Component = _props.tagName,
+           isMovable = _props.isMovable,
+           style = _props.style,
++          mode = _props.mode,
+           otherProps = _objectWithoutProperties(_props, ['box', 'onPositionChange', 'onIntersectChange', 'tagName', 'isMovable', 'style']);
+ 
+       var onMouseDown = this.onMouseDown,
            onRef = this.onRef;
        var isIntersect = this.state.isIntersect;
  
@@ -151,8 +235,12 @@ index d54fe6e..2f34372 100644
 -          cursor: isMovable ? 'move' : 'crosshair',
            userSelect: 'none'
          }),
-         fillOpacity: isIntersect ? 0.3 : 1,
-@@ -151,18 +155,70 @@ var _initialiseProps = function _initialiseProps() {
+-        fillOpacity: isIntersect ? 0.3 : 1,
++        fill: isIntersect && (mode === 'CAN' ? 'blue' : (mode === 'SEQ' ? 'red' : (mode === 'PIN' && 'green'))),
+         onMouseDown: isMovable ? onMouseDown : null
+       }, otherProps));
+     }
+@@ -151,18 +156,70 @@ var _initialiseProps = function _initialiseProps() {
    };
  
    this.onRef = function (ref) {

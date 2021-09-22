@@ -267,4 +267,44 @@ describe('Canvas', () => {
         `transform: translate3d(${CELL4.x - CELL3.x}px, ${CELL4.y - CELL3.y}px, 0px) scale(1);`,
       );
   });
+
+  it('Select box gone after context menu op (combine)', () => {
+    cy.createSquare(CELL1);
+    cy.createSquare(CELL2);
+
+    // combine
+    cy.get('[data-testid="CAN"]').click();
+    cy.drag(CELL1, CELL2);
+    cy.get('.greenArea').rightclick({ force: true });
+    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
+
+    // select box shouldn't be visible
+    cy.get('rect[style="fill: rgba(0, 162, 255, 0.2);"]')
+      .should('not.be.visible');
+  });
+
+  it('No transient select color', () => {
+    cy.createSquare(CELL2);
+
+    cy.get('[data-testid="CAN"]').click();
+    cy.get('.greenArea')
+      .trigger('mousedown', CELL3.x, CELL3.y, {
+        which: 1,
+        force: true,
+      })
+      .trigger('mousemove', CELL3.x, CELL3.y, {
+        which: 1,
+        force: true,
+      })
+      .trigger('mousemove', CELL4.x, CELL4.y, {
+        which: 1,
+        force: true,
+      });
+
+    cy.get('[data-testid="square"]')
+      .should(($el) => {
+        expect($el[0].getAttribute('fill')).to.equal('blue');
+        expect($el[0].getAttribute('style')).not.to.contain('fillOpacity');
+      });
+  });
 });

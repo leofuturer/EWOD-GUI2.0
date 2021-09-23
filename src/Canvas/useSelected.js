@@ -147,29 +147,25 @@ export default function useSelected(callback, savingChanges) {
       }
 
       // handle dragged combined
-      let combines;
       if (combSelected.length > 0) {
-        combSelected.sort((a, b) => a - b);
+        const setOfCombSelected = new Set(combSelected);
+        const newCombines = [...allCombined];
+        newCombines.forEach((comb, ind) => {
+          if (setOfCombSelected.has(`${comb[2]}`)) { // this elec was selected
+            // so record its new position
+            const newX = parseInt(comb[0], 10) + delta.x;
+            const newY = parseInt(comb[1], 10) + delta.y;
 
-        for (let i = 0; i < combSelected.length; i += 1) {
-          const layVal = parseInt(combSelected[i], 10);
-          const selectedCombs = [];
-          for (let k = 0; k < allCombined.length; k += 1) {
-            if (allCombined[k][2] === layVal) {
-              const newX = parseInt(allCombined[k][0], 10) + delta.x; const
-                newY = parseInt(allCombined[k][1], 10) + delta.y;
-
-              if (newX < 0 || newX >= CANVAS_TRUE_WIDTH || newY < 0 || newY >= CANVAS_TRUE_HEIGHT) {
-                bannerRef.current.getAlert('error', 'Combined electrode going off canvas!');
-                reset();
-                return;
-              }
-              selectedCombs.push([newX, newY, layVal]);
+            if (newX < 0 || newX >= CANVAS_TRUE_WIDTH || newY < 0 || newY >= CANVAS_TRUE_HEIGHT) {
+              bannerRef.current.getAlert('error', 'Combined electrode going off canvas!');
+              reset();
+              return;
             }
+            newCombines[ind][0] = newX;
+            newCombines[ind][1] = newY;
           }
-          combines = allCombined.filter((x) => x[2] !== layVal).concat(selectedCombs);
-        }
-        setComboLayout(combines);
+        });
+        setComboLayout(newCombines);
         setCombSelected([]);
       }
 

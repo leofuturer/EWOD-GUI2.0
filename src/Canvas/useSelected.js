@@ -92,31 +92,40 @@ export default function useSelected(callback, savingChanges) {
         return;
       }
 
-      const eflag = combSelected.some((cInd) => {
-        const selCs = allCombined.filter((x) => `${x[2]}` === cInd);
-        return selCs.some((selC) => {
-          const newX = selC[0] + delta.x;
-          const newY = selC[1] + delta.y;
-          if (Object.prototype.hasOwnProperty.call(positions, newX)) {
-            return positions[newX].some((yAndType) => { // all the electrodes on column x
-              if (yAndType[0] === newY) { // same y and not overlapping where you used to be
-                const matchNum = yAndType[1].substring(1);
-                if (yAndType[1][0] === 'c' && !combSelected.includes(parseInt(matchNum, 10))) {
+      // go through selected combined electrodes and see if any overlap with anything not selected
+      // go through all
+      // rmb that allCombined is an arr where each elem is of the form [x, y, id]
+      const setOfCombSelected = new Set(combSelected);
+      const setOfSqSelected = new Set(elecSelected);
+      const combinedOverlaps = allCombined.some((comb) => {
+        if (setOfCombSelected.has(`${comb[2]}`)) { // this combined elec is selected
+          // see if it overlaps anything unselected
+          const newX = comb[0] + delta.x;
+          const newY = comb[1] + delta.y;
+
+          if (positions[newX]) { // look at elecs with same x coord
+            return positions[newX].some((yAndType) => {
+              if (yAndType[0] === newY) { // same x, y coord -- now just check if it's selected
+                if (yAndType[1][0] === 'c') { // means overlapping on some combined elec
+                  // if combined elec is selected tho, that means it's no longer at that position
+                  // so not actually overlapping
+                  if (setOfCombSelected.has(yAndType[1].substring(1))) return false;
                   bannerRef.current.getAlert('error', 'Overlapping on combined electrode!');
                   return true;
-                } if (yAndType[1][0] === 's' && !elecSelected.includes(matchNum)) {
-                  bannerRef.current.getAlert('error', 'Overlapping on square electrode!');
-                  return true;
                 }
+                // else overlapping on some square elec
+                if (setOfSqSelected.has(yAndType[1].substring(1))) return false;
+                bannerRef.current.getAlert('error', 'Overlapping on square electrode!');
+                return true;
               }
               return false;
             });
           }
-          return false;
-        });
+        }
+        return false;
       });
 
-      if (eflag) {
+      if (combinedOverlaps) {
         reset();
         return;
       }

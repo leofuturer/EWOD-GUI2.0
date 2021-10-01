@@ -303,8 +303,62 @@ describe('Canvas', () => {
 
     cy.get('[data-testid="square"]')
       .should(($el) => {
-        expect($el[0].getAttribute('fill')).to.equal('blue');
+        expect($el[0]).not.to.have.property('fill');
         expect($el[0].getAttribute('style')).not.to.contain('fillOpacity');
+      });
+  });
+
+  it('No shift click-select squares', () => {
+    // without holding down the shift keep,
+    // clicking on multiple squares will only select the latest clicked
+    cy.createSquare(CELL3);
+    cy.createSquare(CELL4);
+
+    cy.get('[data-testid="CAN"]').click();
+    cy.get('[data-testid="square"]').eq(0).click();
+    cy.get('[data-testid="square"]')
+      .eq(0)
+      .should('have.class', 'selected');
+
+    cy.get('[data-testid="square"]').eq(1).click();
+    cy.get('[data-testid="square"]')
+      .eq(0)
+      .should('not.have.class', 'selected');
+    cy.get('[data-testid="square"]')
+      .eq(1)
+      .should('have.class', 'selected');
+  });
+
+  it('Shift drag-select squares', () => {
+    cy.createSquare(CELL3);
+    cy.createSquare(CELL4);
+
+    cy.get('[data-testid="CAN"]').click();
+    cy.get('body').trigger('keydown', { keyCode: 16 }); // shift key
+
+    cy.drag(CELL3, { x: CELL3.x + 10, y: CELL3.y + 10 });
+    cy.drag(CELL4, { x: CELL4.x + 10, y: CELL4.y + 10 });
+
+    cy.get('[data-testid="square"]')
+      .should((sub) => {
+        expect(sub[0]).to.have.class('selected');
+        expect(sub[1]).to.have.class('selected');
+      });
+  });
+
+  it('Shift deselect squares', () => {
+    cy.createSquare(CELL3);
+    cy.createSquare(CELL4);
+
+    cy.get('[data-testid="CAN"]').click();
+    cy.get('body').trigger('keydown', { keyCode: 16 }); // shift key
+    cy.drag(CELL3, CELL4);
+
+    cy.get('[data-testid="square"]').eq(1).click();
+    cy.get('[data-testid="square"]')
+      .should((sub) => {
+        expect(sub[0]).to.have.class('selected');
+        expect(sub[1]).not.to.have.class('selected');
       });
   });
 });

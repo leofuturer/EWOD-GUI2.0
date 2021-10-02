@@ -361,4 +361,33 @@ describe('Canvas', () => {
         expect(sub[1]).not.to.have.class('selected');
       });
   });
+
+  it('Select in unfilled part of combined elec', () => {
+    // create a donut electrode then try to select a square in its center
+    const min = ELEC_SIZE + 10;
+    const mid = 2 * ELEC_SIZE + 10;
+    const max = 3 * ELEC_SIZE + 10;
+
+    cy.createSquare({ x: min, y: min });
+    cy.createSquare({ x: mid, y: min });
+    cy.createSquare({ x: max, y: min });
+    cy.createSquare({ x: min, y: mid });
+    cy.createSquare({ x: max, y: mid });
+    cy.createSquare({ x: min, y: max });
+    cy.createSquare({ x: mid, y: max });
+    cy.createSquare({ x: max, y: max });
+
+    cy.get('[data-testid="CAN"]').click();
+    cy.drag({ x: min, y: min }, { x: max, y: max });
+    cy.get('.greenArea').rightclick({ force: true });
+    cy.get('ul.menu > li:nth-child(6)').click({ force: true }); // combine
+
+    cy.get('[data-testid="draw-button"]').click();
+    cy.createSquare({ x: mid, y: mid });
+
+    cy.get('[data-testid="CAN"]').click();
+    cy.get('[data-testid="square"]').click({ force: true });
+    cy.get('[data-testid="square"]').should('have.class', 'selected');
+    cy.get('[data-testid="combined"]').should('not.have.class', 'selected');
+  });
 });

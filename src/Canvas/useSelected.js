@@ -157,7 +157,6 @@ export default function useSelected(callback, savingChanges) {
 
       // handle dragged combined
       if (combSelected.length > 0) {
-        const setOfCombSelected = new Set(combSelected);
         const newCombines = [...allCombined];
         newCombines.forEach((comb, ind) => {
           if (setOfCombSelected.has(`${comb[2]}`)) { // this elec was selected

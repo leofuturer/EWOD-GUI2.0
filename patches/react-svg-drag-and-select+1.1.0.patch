@@ -197,10 +197,10 @@ index 32c92ab..c01ec45 100644
      }
    }]);
 diff --git a/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js b/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
-index d54fe6e..133f80f 100644
+index d54fe6e..f54272f 100644
 --- a/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
 +++ b/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
-@@ -34,11 +34,68 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
+@@ -34,11 +34,73 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
  
  function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } // ref: https://codepen.io/techniq/pen/yVEeOx
  
@@ -225,6 +225,11 @@ index d54fe6e..133f80f 100644
 +      // like U-shaped -- but path objects are overall rectangular no matter what
 +      // so check if box border points (tested at every ELEC_SIZE offset) are ever
 +      // in the filled part of the combined electrode
++
++      // but first see if selection box completely overlaps A
++      // (and box's borders doesn't intersect w/ A's borders)
++      if (leftBox <= leftA && topBox <= topA && rightBox >= rightA && bottomBox >= bottomA)
++        return true;
 +
 +      let x = leftBox;
 +      let y = topBox;
@@ -272,7 +277,7 @@ index d54fe6e..133f80f 100644
  };
  
  var ShapeItem = function (_React$PureComponent) {
-@@ -65,20 +122,18 @@ var ShapeItem = function (_React$PureComponent) {
+@@ -65,20 +127,18 @@ var ShapeItem = function (_React$PureComponent) {
            Component = _props.tagName,
            isMovable = _props.isMovable,
            style = _props.style,
@@ -294,7 +299,7 @@ index d54fe6e..133f80f 100644
          onMouseDown: isMovable ? onMouseDown : null
        }, otherProps));
      }
-@@ -151,19 +206,71 @@ var _initialiseProps = function _initialiseProps() {
+@@ -151,19 +211,71 @@ var _initialiseProps = function _initialiseProps() {
    };
  
    this.onRef = function (ref) {

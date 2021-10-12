@@ -15,7 +15,7 @@ export default function ContextMenu() {
   const { allCombined } = canvasContext.combined;
   const combSelected = canvasContext.combined.selected;
   const {
-    setElectrodes, setSelected, setComboLayout, setCombSelected, setMoving,
+    setElectrodes, setSelected, setComboLayout, setCombSelected, setMoving, pushCanHistory,
   } = canvasContext;
 
   const {
@@ -168,6 +168,22 @@ export default function ContextMenu() {
   }
 
   function contextDelete() {
+    // for square deletion history
+    const setOfSelected = new Set(selected);
+    const sqHistoryEntry = [];
+    electrodes.initPositions.forEach((initPos, ind) => {
+      if (setOfSelected.has(`${electrodes.ids[ind]}`)) { // want to delete this square
+        // so save this square's position and id to history
+        sqHistoryEntry.push({
+          x: initPos[0] + electrodes.deltas[ind][0],
+          y: initPos[1] + electrodes.deltas[ind][1],
+          id: electrodes.ids[ind],
+        });
+      } // else don't want to delete this square so it makes it into next state
+    });
+
+    pushCanHistory({ '-S': sqHistoryEntry });
+
     combinedDelete();
     squaresDelete();
   }

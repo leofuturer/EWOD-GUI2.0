@@ -29,43 +29,7 @@ const CanvasProvider = ({ children }) => {
     allCombined: [],
   });
 
-  const [history, setHistory] = useState({
-    content: [],
-    index: -1,
-  });
-
   const { elecToPin } = React.useContext(GeneralContext);
-
-  function historyDeleteSqHelper(diff) {
-    const inds = diff.map((obj) => (
-      squares.electrodes.ids.indexOf(obj.id)
-    ));
-    const indsToDelete = new Set(inds);
-    squares.electrodes.initPositions = squares.electrodes.initPositions
-      .filter((val, ind) => !indsToDelete.has(ind));
-    squares.electrodes.deltas = squares.electrodes.deltas
-      .filter((val, ind) => !indsToDelete.has(ind));
-    squares.electrodes.ids = squares.electrodes.ids
-      .filter((val, ind) => !indsToDelete.has(ind));
-
-    setSquares({
-      electrodes: squares.electrodes,
-      selected: [],
-    });
-  }
-
-  function historyAddSqHelper(diff) {
-    diff.forEach((obj) => {
-      squares.electrodes.initPositions.push([obj.x, obj.y]);
-      squares.electrodes.deltas.push([0, 0]);
-      squares.electrodes.ids.push(obj.id);
-    });
-
-    setSquares({
-      electrodes: squares.electrodes,
-      selected: [],
-    });
-  }
 
   useEffect( // idb stuff
     () => {
@@ -149,70 +113,6 @@ const CanvasProvider = ({ children }) => {
         },
         setMouseDown: (md) => {
           setState((stateBoi) => ({ ...stateBoi, mouseDown: md }));
-        },
-        canUndo: () => {
-          if (history.index > -1) {
-            const latestDiff = history.content[history.index];
-            // need to just keep track of combined and square elecs
-            // will look like
-            // {
-            //    "+S": [{
-            //       "x": 70,
-            //       "y": 105,
-            //       "id": "1",
-            //    }, ...],
-            //    "+C": [{
-            //      "x": 140,
-            //      "y": 140,
-            //      "id": "2",
-            //    }, ...],
-            //    "-S": ...,
-            //    "-C": ...,
-            // }
-
-            if (latestDiff['+S']) { // want to delete these squares
-              historyDeleteSqHelper(latestDiff['+S']);
-            } else if (latestDiff['-S']) { // want to add these squares
-              historyAddSqHelper(latestDiff['-S']);
-            }
-
-            setHistory((old) => ({
-              ...old,
-              index: old.index - 1,
-            }));
-          }
-        },
-        canRedo: () => {
-          if (history.index < history.content.length - 1) {
-            const latestDiff = history.content[history.index + 1];
-
-            if (latestDiff['-S']) { // want to delete these squares
-              historyDeleteSqHelper(latestDiff['-S']);
-            } else if (latestDiff['+S']) { // want to add these squares
-              historyAddSqHelper(latestDiff['+S']);
-            }
-
-            setHistory((old) => ({
-              ...old,
-              index: old.index + 1,
-            }));
-          }
-        },
-        pushCanHistory: (obj) => {
-          setHistory((oldHistory) => {
-            if (oldHistory.index === oldHistory.content.length - 1) {
-              return {
-                content: oldHistory.content.concat(obj),
-                index: oldHistory.index + 1,
-              };
-            }
-            const newHistoryContent = [...oldHistory.content];
-            newHistoryContent[oldHistory.index + 1] = obj;
-            return {
-              content: newHistoryContent,
-              index: oldHistory.index + 1,
-            };
-          });
         },
       }}
     >

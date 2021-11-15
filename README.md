@@ -5,7 +5,10 @@ The 2nd generation of EWOD Graphic User Interface (GUI)
 To run on your local machine:
 
 1. Open your terminal/command line and navigate to whatever directory you want the EWOD-GUI2.0 folder to be in.
-2. If you haven't already, install Node.js so that you can get npm [here](https://nodejs.org/en/download/). (You can check whether you have npm by typing ```npm --version``` into your terminal/command line.)
+2. If you haven't already, install Node.js [here](https://nodejs.org/en/download/). (You can check whether you have npm by typing ```npm --version``` into your terminal/command line.)
+
+    Note: Currently, we are using Node.js v14, as this was the LTS when the project was started. We will look into migrating to the current LTS release, v16, but in the meantime, please be sure to download/install version 14.18.1 of Node.js [here](https://nodejs.org/download/release/latest-v14.x/).
+
 3. Type in ```git clone https://github.com/leofuturer/EWOD-GUI2.0.git``` (to pull the code from Github onto your local machine)
 4. Type in ```npm install --global yarn``` (to install yarn, our package manager)
 5. Type in ```yarn``` (to install the needed 3rd-party libraries)

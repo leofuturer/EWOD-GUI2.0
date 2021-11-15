@@ -1,0 +1,376 @@
+diff --git a/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js b/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js
+index 32c92ab..c01ec45 100644
+--- a/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js
++++ b/node_modules/react-svg-drag-and-select/lib/components/SVGContainer/SVGContainer.js
+@@ -73,8 +73,17 @@ var INIT_STATE = {
+   y: 0,
+   width: 0,
+   height: 0,
+-  left: 0,
+-  top: 0
++  scaleXY: {
++    scale: 1,
++    svgTop: 0,
++    svgLeft: 0,
++  },
++  appearX: 0,
++  appearY: 0,
++  appearWidth: 0,
++  appearHeight: 0,
++  mode: 'DRAW',
++  menuClick: 0,
+ };
+ 
+ var SVGContainer = function (_React$PureComponent) {
+@@ -92,46 +101,48 @@ var SVGContainer = function (_React$PureComponent) {
+     }
+ 
+     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = SVGContainer.__proto__ || Object.getPrototypeOf(SVGContainer)).call.apply(_ref, [this].concat(args))), _this), _this.state = INIT_STATE, _this.onMouseDown = function (e) {
++      if (e.nativeEvent.which !== 1) return;
+       var _this$svg$getBounding = _this.svg.getBoundingClientRect(),
+           left = _this$svg$getBounding.left,
+           top = _this$svg$getBounding.top;
+ 
+-      var clientX = e.clientX,
+-          clientY = e.clientY;
+-
+-      var x = clientX - left;
+-      var y = clientY - top;
++      const x = e.nativeEvent.offsetX || e.pageX - left;
++      const y = e.nativeEvent.offsetY || e.pageY - top;
+       _this.x = x;
+       _this.y = y;
+       _this.setState({
+         x: x,
+         y: y,
++        appearX: x,
++        appearY: y,
+         width: 0,
+         height: 0,
+-        left: x + left,
+-        top: y + top
++        scaleXY: _this.props.scalexy,
+       });
+       document.addEventListener('mousemove', _this.onMouseMove);
+       document.addEventListener('mouseup', _this.onMouseUp);
+     }, _this.onMouseMove = function (e) {
++      if (!_this.svg) _this.svg = e.path[0];
+       var _this$svg$getBounding2 = _this.svg.getBoundingClientRect(),
+           left = _this$svg$getBounding2.left,
+           top = _this$svg$getBounding2.top;
+ 
+-      var clientX = e.clientX,
+-          clientY = e.clientY;
++      const x = e.offsetX || e.pageX - left;
++      const y = e.offsetY || e.pageY - top;
+ 
+-      var x = clientX - left;
+-      var y = clientY - top;
+       var nextX = Math.min(x, _this.x);
+       var nexty = Math.min(y, _this.y);
++      const width = Math.abs(x - _this.x);
++      const height = Math.abs(y - _this.y);
+       _this.setState({
+         x: nextX,
+         y: nexty,
+-        width: Math.abs(x - _this.x),
+-        height: Math.abs(y - _this.y),
+-        left: nextX + left,
+-        top: nexty + top
++        appearX: nextX,
++        appearY: nexty,
++        appearWidth: width,
++        appearHeight: height,
++        width: width,
++        height: height,
+       });
+     }, _this.onMouseUp = function () {
+       _this.x = null;
+@@ -146,6 +157,13 @@ var SVGContainer = function (_React$PureComponent) {
+         return (0, _contains2.default)(item.id, intersectIds);
+       })(_this.props.items);
+       _this.props.onSelectChange(selected);
++
++      _this.setState({
++        appearX: 0,
++        appearY: -5,
++        appearWidth: 0,
++        appearHeight: 0,
++      });
+     }, _this.onPositionChange = function (_ref2) {
+       var id = _ref2.id,
+           others = _objectWithoutProperties(_ref2, ['id']);
+@@ -176,7 +194,8 @@ var SVGContainer = function (_React$PureComponent) {
+         };
+       });
+     }, _this.onRef = function (ref) {
+-      _this.svg = ref;
++      if (!ref) _this.svg = document.getElementById(".greenArea");
++      else _this.svg = ref;
+     }, _temp), _possibleConstructorReturn(_this, _ret);
+   }
+ 
+@@ -184,6 +203,28 @@ var SVGContainer = function (_React$PureComponent) {
+     key: 'componentWillReceiveProps',
+     value: function componentWillReceiveProps(nextProps) {
+       if (!nextProps.isSelectable) this.setState(INIT_STATE);
++
++      const selectBoxGoneState = {
++        width: 0,
++        height: 0,
++        appearX: 0,
++        appearY: -5,
++        appearWidth: 0,
++        appearHeight: 0,
++      };
++      if (nextProps.mode !== this.state.mode) {
++        this.setState({
++          mode: nextProps.mode,
++          ...selectBoxGoneState,
++        });
++      }
++      if (nextProps.menuClick !== this.state.menuClick) {
++        // clicked on context menu function so want select box to disappear
++        this.setState({
++          menuClick: nextProps.menuClick,
++          ...selectBoxGoneState
++        });
++      }
+     }
+   }, {
+     key: 'render',
+@@ -195,29 +236,27 @@ var SVGContainer = function (_React$PureComponent) {
+           isMovable = _props.isMovable,
+           items = _props.items,
+           style = _props.style,
++          mode = _props.mode,
+           otherProps = _objectWithoutProperties(_props, ['onItemsChange', 'onSelectChange', 'isSelectable', 'isMovable', 'items', 'style']);
+ 
+       var _state = this.state,
+-          left = _state.left,
+-          top = _state.top,
+           x = _state.x,
+           y = _state.y,
+           width = _state.width,
+-          height = _state.height;
++          height = _state.height,
++          scalexy = _state.scaleXY;
++
+       var onMouseDown = this.onMouseDown,
+           onPositionChange = this.onPositionChange,
+           onIntersectChange = this.onIntersectChange,
+           onRef = this.onRef;
+ 
+-
+       return _react2.default.createElement(
+         'svg',
+         Object.assign({
+           ref: onRef
+         }, otherProps, {
+-          style: _extends({}, style, {
+-            cursor: isSelectable ? 'crosshair' : 'auto'
+-          }),
++          style: style,
+           onMouseDown: isSelectable ? onMouseDown : null
+         }),
+         items.map(function (_ref4) {
+@@ -230,13 +269,18 @@ var SVGContainer = function (_React$PureComponent) {
+             key: id,
+             tagName: tagName,
+             isMovable: isMovable,
+-            onPositionChange: onPositionChange
++            onPositionChange: onPositionChange,
++            scalexy: scalexy,
++            mode: mode,
+           }, others, {
+-            box: { left: left, top: top, width: width, height: height },
++            box: { width: width, height: height, x: x, y: y },
+             onIntersectChange: onIntersectChange
+           }));
+         }),
+-        _react2.default.createElement(_Box2.default, { x: x, y: y, width: width, height: height })
++        _react2.default.createElement(
++          _Box2.default,
++          { x: _state.appearX, y: _state.appearY, width: _state.appearWidth, height: _state.appearHeight }
++        )
+       );
+     }
+   }]);
+diff --git a/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js b/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
+index d54fe6e..f54272f 100644
+--- a/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
++++ b/node_modules/react-svg-drag-and-select/lib/components/ShapeItem/ShapeItem.js
+@@ -34,11 +34,73 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
+ 
+ function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } // ref: https://codepen.io/techniq/pen/yVEeOx
+ 
++const ELEC_SIZE = 35; // 35 x 35
++
+ // https://silentmatt.com/rectangle-intersection/
+-var checkIntersect = function checkIntersect(A, box, tagName) {
++var checkIntersect = function checkIntersect(A, box, tagName, elem) {
+   if (tagName === 'text') return false;
+-
+-  return A.left < box.left + box.width && A.left + A.width > box.left && A.top < box.top + box.height && A.top + A.height > box.top;
++  if (A && box) {
++    const leftA = A.left; const rightBox = (box.x + box.width);
++    const rightA = A.left + A.width; const leftBox = box.x;
++    const topA = A.top; const bottomBox = (box.y + box.height);
++    const bottomA = A.top + A.height; const topBox = box.y;
++    if (!(leftA < rightBox && rightA > leftBox && topA < bottomBox && bottomA > topBox)) return false;
++
++    // from hereon, know we at least intersect with the elem
++    if (tagName === 'path') {
++      // have to handle this case b/c combined electrode could be non-rectangular
++      // like U-shaped -- but path objects are overall rectangular no matter what
++      // so check if box border points (tested at every ELEC_SIZE offset) are ever
++      // in the filled part of the combined electrode
++
++      // but first see if selection box completely overlaps A
++      // (and box's borders doesn't intersect w/ A's borders)
++      if (leftBox <= leftA && topBox <= topA && rightBox >= rightA && bottomBox >= bottomA)
++        return true;
++
++      let x = leftBox;
++      let y = topBox;
++      const pt = elem.component.parentNode.createSVGPoint();
++      // top border -- topleft to topright
++      while (x <= rightBox) {
++        pt.x = x;
++        pt.y = y;
++        if (elem.component.isPointInFill(pt)) return true;
++        x += ELEC_SIZE;
++      }
++
++      // right border -- topright to bottomright
++      x = rightBox;
++      y = topBox;
++      while (y <= bottomBox) {
++        pt.x = x;
++        pt.y = y;
++        if (elem.component.isPointInFill(pt)) return true;
++        y += ELEC_SIZE;
++      }
++
++      // bottom border -- bottomright to bottomleft
++      x = rightBox;
++      y = bottomBox;
++      while (x >= leftBox) {
++        pt.x = x;
++        pt.y = y;
++        if (elem.component.isPointInFill(pt)) return true;
++        x -= ELEC_SIZE;
++      }
++
++      // left border -- bottomleft to topleft
++      x = leftBox;
++      y = bottomBox;
++      while (y >= topBox) {
++        pt.x = x;
++        pt.y = y;
++        if (elem.component.isPointInFill(pt)) return true;
++        y -= ELEC_SIZE;
++      }
++    } else return true;
++  }
++  return false;
+ };
+ 
+ var ShapeItem = function (_React$PureComponent) {
+@@ -65,20 +127,18 @@ var ShapeItem = function (_React$PureComponent) {
+           Component = _props.tagName,
+           isMovable = _props.isMovable,
+           style = _props.style,
++          mode = _props.mode,
+           otherProps = _objectWithoutProperties(_props, ['box', 'onPositionChange', 'onIntersectChange', 'tagName', 'isMovable', 'style']);
+ 
+       var onMouseDown = this.onMouseDown,
+           onRef = this.onRef;
+       var isIntersect = this.state.isIntersect;
+ 
+-
+       return _react2.default.createElement(Component, Object.assign({
+         ref: onRef,
+         style: _extends({}, style, {
+-          cursor: isMovable ? 'move' : 'crosshair',
+           userSelect: 'none'
+         }),
+-        fillOpacity: isIntersect ? 0.3 : 1,
+         onMouseDown: isMovable ? onMouseDown : null
+       }, otherProps));
+     }
+@@ -151,19 +211,71 @@ var _initialiseProps = function _initialiseProps() {
+   };
+ 
+   this.onRef = function (ref) {
+-    _this2.component = ref;
++    if (!ref) _this2.component = document.getElementById(_this2.props.id);
++    else _this2.component = ref;
+   };
+ 
+   this.componentWillUnMount = function () {
+     document.removeEventListener('scroll', _this2.updatePosition);
+   };
+ 
++  this.getPathClientRect = function() {
++    const boundingRect = _this2.component.getBoundingClientRect();
++    const scale = parseFloat(_this2.component.getAttribute("scale"));
++    const alertBottom = document.getElementById("topbar-buffer").getBoundingClientRect().bottom;
++    let leftBoi, topBoi;
++
++    if (_this2.component.getAttribute("mode") === "PIN") {
++      leftBoi = (boundingRect.x - parseFloat(_this2.component.getAttribute("svgx")) - 214) / scale;
++      topBoi = (boundingRect.y - parseFloat(_this2.component.getAttribute("svgy")) - 295 - alertBottom) / scale;
++    } else {
++      leftBoi = (boundingRect.x - parseFloat(_this2.component.getAttribute("svgx")) - 49) / scale;
++      topBoi = (boundingRect.y - parseFloat(_this2.component.getAttribute("svgy")) - alertBottom) / scale;
++    }
++    return { leftBoi, topBoi, boundingRect, scale };
++  };
++
+   this.updatePosition = function () {
+-    _this2.clientRect = _this2.component && _this2.component.getBoundingClientRect && _this2.component.getBoundingClientRect();
++    if (_this2.component) {
++      if (_this2.component.nodeName === "path") {
++        const { leftBoi, topBoi, boundingRect, scale } = _this2.getPathClientRect();
++        _this2.clientRect = {
++          left: leftBoi,
++          top: topBoi,
++          width: boundingRect.width / scale,
++          height: boundingRect.height / scale,
++        };
++      } else {
++        _this2.clientRect = {
++          left: parseInt(_this2.component.getAttribute("x")),
++          top: parseInt(_this2.component.getAttribute("y")),
++          width: parseInt(_this2.component.getAttribute("width")),
++          height: parseInt(_this2.component.getAttribute("height")),
++        };
++      }
++    }
+   };
+ 
+   this.checkIntersect = function (props) {
+-    var isIntersect = checkIntersect(_this2.clientRect, props.box, _this2.props.tagName);
++    if (!_this2.clientRect) {
++      if (_this2.component.nodeName === "path") {
++        const { leftBoi, topBoi, boundingRect, scale } = _this2.getPathClientRect();
++        _this2.clientRect = {
++          left: leftBoi,
++          top: topBoi,
++          width: boundingRect.width / scale,
++          height: boundingRect.height / scale,
++        };
++      } else {
++        _this2.clientRect = {
++          left: parseInt(_this2.component.getAttribute("x")),
++          top: parseInt(_this2.component.getAttribute("y")),
++          width: parseInt(_this2.component.getAttribute("width")),
++          height: parseInt(_this2.component.getAttribute("height")),
++        };
++      }
++    }
++    var isIntersect = checkIntersect(_this2.clientRect, props.box, _this2.props.tagName, _this2);
+     _this2.setState({ isIntersect: isIntersect });
+     _this2.props.onIntersectChange({ id: props.id, isIntersect: isIntersect });
+   };

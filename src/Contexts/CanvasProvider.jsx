@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import db from './DBStorage';
 import useInterval from '../useInterval';
 import handleSave from '../ControlPanel/handleSave';
+import { GeneralContext } from './GeneralProvider';
 
 const CanvasContext = React.createContext();
 
@@ -10,6 +11,7 @@ const CanvasProvider = ({ children }) => {
     electrodes: {
       initPositions: [],
       deltas: [],
+      ids: [],
     },
     selected: [],
   });
@@ -19,12 +21,15 @@ const CanvasProvider = ({ children }) => {
     mouseDown: false,
     drawing: false,
     isDragging: false,
+    moving: false,
   });
 
   const [combined, setCombined] = useState({
     selected: [],
     allCombined: [],
   });
+
+  const { elecToPin } = React.useContext(GeneralContext);
 
   useEffect( // idb stuff
     () => {
@@ -52,6 +57,7 @@ const CanvasProvider = ({ children }) => {
             electrodes: {
               initPositions: initPos,
               deltas: dels,
+              ids: [...new Array(dels.length).keys()],
             },
           }));
         }
@@ -79,7 +85,7 @@ const CanvasProvider = ({ children }) => {
   );
 
   useInterval(() => {
-    handleSave(squares.electrodes, combined.allCombined, null, null, null, db);
+    handleSave(squares.electrodes, combined.allCombined, null, null, elecToPin, db);
   }, 10000);
 
   return (
@@ -88,6 +94,7 @@ const CanvasProvider = ({ children }) => {
         state,
         squares,
         combined,
+        setMoving: (bool) => { setState((stateBoi) => ({ ...stateBoi, moving: bool })); },
         setDragging: (bool) => { setState((stateBoi) => ({ ...stateBoi, isDragging: bool })); },
         setCombSelected: (newSelected) => {
           setCombined((stateBoi) => ({ ...stateBoi, selected: newSelected }));

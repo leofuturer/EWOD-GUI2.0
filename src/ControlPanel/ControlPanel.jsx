@@ -1,33 +1,31 @@
 import React, { useContext, useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
-import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Collapse from '@material-ui/core/Collapse';
-import {
-  Undo, Redo, Highlight, Create, Info, ViewWeek, Usb, Image, Menu,
-  FormatListNumberedOutlined, GridOn, OpenWith,
-} from '@material-ui/icons';
+import { OpenWith } from '@material-ui/icons';
 import Tooltip from '@material-ui/core/Tooltip';
+import icons from '../Icons/icons';
 
 import { ActuationContext } from '../Contexts/ActuationProvider';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 
-// import SaveButton from './SaveButton';
+import SaveButton from './SaveButton';
 import UploadButton from './UploadButton';
 import DownloadButton from './DownloadButton';
 
 import USBPanel from './USBPanel';
 import DeleteButton from './DeleteButton';
+import { SCROLL_HEIGHT } from '../constants';
 
 const drawerWidth = 240;
 
@@ -38,9 +36,8 @@ const useStyles = makeStyles((theme) => ({
   },
   appBar: {
     zIndex: theme.zIndex.drawer - 1,
-    marginLeft: '3wh',
-    height: '7vh',
-    backgroundColor: '#f7cd83',
+    marginLeft: '3vh',
+    backgroundColor: '#FAEDCD',
     transition: theme.transitions.create(['width', 'margin'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
@@ -61,25 +58,31 @@ const useStyles = makeStyles((theme) => ({
     display: 'none',
   },
   drawer: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    zIndex: theme.zIndex.drawer + 1,
     flexShrink: 0,
     whiteSpace: 'nowrap',
   },
   drawerOpen: {
     width: drawerWidth,
-    height: '63vh',
+    backgroundColor: '#FAEDCD',
+    border: '1px solid #A06933',
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
   },
   drawerClose: {
+    backgroundColor: '#FAEDCD',
+    border: '1px solid #A06933',
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
     overflowX: 'hidden',
     width: theme.spacing(5) + 1,
-    height: '63vh',
     [theme.breakpoints.up('sm')]: {
       width: theme.spacing(6) + 1,
     },
@@ -96,12 +99,55 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
   },
+  listItemText: {
+    fontWeight: 700,
+    color: '#A06933',
+  },
+  toolbarContainer: {
+    backgroundColor: '#FAEDCD',
+    boxShadow: '2px 2px 4px 3px rgba(0, 0, 0, 0.2)',
+    justifyContent: 'space-between',
+    border: '1px solid #A06933',
+  },
+  toolbarContainerShift: {
+    marginLeft: 40,
+    transition: theme.transitions.create(['margin'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
+  scrollOpen: {
+    height: `${100 - SCROLL_HEIGHT}vh`,
+  },
+  scrollClose: {
+    height: 'calc(100vh - 40px)',
+  },
+  fullHeight: {
+    height: '100vh',
+  },
+  borderTop: {
+    borderTop: '1px solid #D4A373',
+  },
+  bkgrdGradient: {
+    backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0), rgba(212, 163, 115, 0.25))',
+  },
 }));
 
-export default function ControlPanel() {
+const MuiListItem = withStyles({
+  root: {
+    '&:hover': {
+      backgroundImage: 'linear-gradient(to right, #FAEDCD 0%, rgba(212, 163, 115, 0.25) 100%)',
+      border: '1px solid #D4A373',
+    },
+  },
+})(ListItem);
+
+export default function ControlPanel({ scrollOpen }) {
   const canvasContext = useContext(CanvasContext);
   const actuationContext = useContext(ActuationContext);
-  const { setMode, setCurrElec } = useContext(GeneralContext);
+  const {
+    mode, setMode, setCurrElec, panning, setPanning, setScaleXY,
+  } = useContext(GeneralContext);
   const { setSelected, setCombSelected } = canvasContext;
   const { undo, redo } = actuationContext;
 
@@ -111,6 +157,9 @@ export default function ControlPanel() {
   const [usbConnected, setUsbConnected] = useState(false);
 
   function setNewMode(newMode) {
+    if (mode === 'PIN' && newMode !== 'PIN') {
+      setScaleXY({ scale: 1, svgX: 0, svgY: 0 });
+    }
     setMode(newMode);
     setSelected([]);
     setCombSelected([]);
@@ -118,9 +167,7 @@ export default function ControlPanel() {
   }
 
   return (
-    // <UploadButton />
-    // <SaveButton />
-    <div className={classes.root}>
+    <div className={classes.root} id="topbar-buffer">
       <CssBaseline />
       <AppBar
         position="fixed"
@@ -129,60 +176,84 @@ export default function ControlPanel() {
           [classes.appBarShift]: open,
         })}
       >
-        <Toolbar style={{ marginLeft: 40 }}>
+        <Toolbar
+          className={clsx(classes.toolbarContainer, {
+            [classes.toolbarContainerShift]: !open,
+          })}
+        >
           <List style={{ display: 'flex', flexDirection: 'row' }}>
-            <Tooltip title="Draw">
-              <ListItem button onClick={() => setNewMode('DRAW')} data-testid="draw-button">
-                <Create />
-              </ListItem>
-            </Tooltip>
-
+            <DeleteButton name="New File" />
             <UploadButton />
-            <ListItem button>
-              <ViewWeek />
-            </ListItem>
             <DownloadButton />
 
-            <Tooltip title="Map Pins">
-              <ListItem button onClick={() => setNewMode('PIN')}>
-                <FormatListNumberedOutlined />
-              </ListItem>
-            </Tooltip>
             <Tooltip title="Sequence Actuation">
               <ListItem button onClick={() => setNewMode('SEQ')} data-testid="act-seq-start">
-                <Highlight />
-              </ListItem>
-            </Tooltip>
-            <Tooltip title="Select and Move Electrodes" data-testid="CAN">
-              <ListItem button onClick={() => setNewMode('CAN')}>
-                <GridOn />
-              </ListItem>
-            </Tooltip>
-            <Tooltip title="Pan Canvas" data-testid="PAN">
-              <ListItem button onClick={() => setNewMode('PAN')}>
-                <OpenWith />
+                <img src={mode === 'SEQ' ? icons.actuation.onClick : icons.actuation.icon} alt="Actuation Sequence" />
               </ListItem>
             </Tooltip>
 
-            <ListItem button onClick={undo}>
-              <Undo />
-            </ListItem>
-            <ListItem button onClick={redo}>
-              <Redo />
+            <Tooltip title="Map Pins" data-testid="PIN">
+              <ListItem
+                button
+                onClick={() => {
+                  setScaleXY({ scale: 0.51, svgX: 0, svgY: 0 });
+                  setNewMode('PIN');
+                }}
+              >
+                <img src={mode === 'PIN' ? icons.electrodenumbering.onClick : icons.electrodenumbering.icon} alt="Electrode Numbering" />
+              </ListItem>
+            </Tooltip>
+
+            <Tooltip title="Select and Move Electrodes" data-testid="CAN">
+              <ListItem button onClick={() => setNewMode('CAN')}>
+                <img src={mode === 'CAN' ? icons.selectiontool.onClick : icons.selectiontool.icon} alt="Selection Tool" />
+              </ListItem>
+            </Tooltip>
+            <Tooltip title="Draw">
+              <ListItem button onClick={() => setNewMode('DRAW')} data-testid="draw-button">
+                <img src={mode === 'DRAW' ? icons.electrodepen.onClick : icons.electrodepen.icon} alt="Electrode Pen" />
+              </ListItem>
+            </Tooltip>
+
+            <Tooltip title="Pan Canvas" data-testid="PAN">
+              <ListItem button onClick={() => setPanning(!panning)}>
+                <OpenWith style={{ color: panning ? '#23A829' : '#A06933', marginBottom: panning && 5 }} />
+              </ListItem>
+            </Tooltip>
+
+            {
+              mode === 'SEQ' && (
+                <>
+                  <ListItem button onClick={undo}>
+                    <img src={icons.undo.icon} alt="Undo" />
+                  </ListItem>
+                  <ListItem button onClick={redo}>
+                    <img src={icons.redo.icon} alt="Redo" />
+                  </ListItem>
+                </>
+              )
+            }
+          </List>
+
+          <List style={{ display: 'flex', flexDirection: 'row' }}>
+            <SaveButton />
+            <DeleteButton name="Delete" />
+            <ListItem button>
+              <img src={icons.info.icon} alt="Info" />
             </ListItem>
           </List>
         </Toolbar>
       </AppBar>
       <Drawer
         variant="permanent"
-        className={clsx(classes.drawer, {
-          [classes.drawerOpen]: open,
-          [classes.drawerClose]: !open,
-        })}
+        className={classes.drawer}
         classes={{
           paper: clsx({
             [classes.drawerOpen]: open,
             [classes.drawerClose]: !open,
+            [classes.scrollOpen]: scrollOpen,
+            [classes.scrollClose]: !scrollOpen,
+            [classes.fullHeight]: mode !== 'SEQ',
           }),
         }}
       >
@@ -192,34 +263,31 @@ export default function ControlPanel() {
             setOpen(!open);
           }}
           >
-            <Menu />
+            <img src={icons.menu.icon} alt="Sidebar menu" />
           </IconButton>
         </div>
-        <Divider />
         <List>
-          <ListItem button onClick={() => { if (open) setUsbPanelOpen(!usbPanelOpen); }}>
+          <MuiListItem
+            button
+            onClick={() => { if (open) setUsbPanelOpen(!usbPanelOpen); }}
+            className={`${usbPanelOpen && classes.bkgrdGradient} ${usbPanelOpen && classes.borderTop}`}
+          >
             <ListItemIcon>
-              {usbConnected ? <Usb style={{ color: '#21b214' }} /> : <Usb />}
+              <img src={usbConnected ? icons.usb.connected : icons.usb.disconnected} alt="USB Connection" />
             </ListItemIcon>
-            <ListItemText primary="USB Connection" />
-          </ListItem>
+            <ListItemText classes={{ primary: classes.listItemText }} primary="USB Connection" />
+          </MuiListItem>
 
           <Collapse in={usbPanelOpen} timeout="auto">
-            <USBPanel setUsbConnected={setUsbConnected} />
+            <USBPanel usbConnected={usbConnected} setUsbConnected={setUsbConnected} />
           </Collapse>
 
-          <ListItem button>
-            <ListItemIcon><Image /></ListItemIcon>
-            <ListItemText primary="Reference Image" />
-          </ListItem>
-        </List>
-        <Divider />
-        <List>
-          <DeleteButton />
-          <ListItem button>
-            <ListItemIcon><Info /></ListItemIcon>
-            <ListItemText primary="Info" />
-          </ListItem>
+          <MuiListItem button>
+            <ListItemIcon>
+              <img src={icons.refimage.icon} alt="Ref" />
+            </ListItemIcon>
+            <ListItemText classes={{ primary: classes.listItemText }} primary="Reference Image" />
+          </MuiListItem>
         </List>
       </Drawer>
     </div>

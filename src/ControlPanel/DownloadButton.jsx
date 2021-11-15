@@ -1,14 +1,16 @@
 import React, { useContext } from 'react';
 import ListItem from '@material-ui/core/ListItem';
-import { GetApp } from '@material-ui/icons';
 import Tooltip from '@material-ui/core/Tooltip';
 import genFileContents from './genFileContents';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { ActuationContext } from '../Contexts/ActuationProvider';
+import { GeneralContext } from '../Contexts/GeneralProvider';
+import icons from '../Icons/icons';
 
 export default function DownloadButton() {
   const canvasContext = useContext(CanvasContext);
   const actuationContext = useContext(ActuationContext);
+  const { elecToPin } = useContext(GeneralContext);
   const { electrodes } = canvasContext.squares;
   const { allCombined } = canvasContext.combined;
   const { pinActuate } = actuationContext.actuation;
@@ -38,7 +40,7 @@ export default function DownloadButton() {
     await writable.close();
   }
   async function handleDownload() {
-    const contents = genFileContents(electrodes, allCombined, pinActuate);
+    const contents = genFileContents(electrodes, allCombined, pinActuate, elecToPin);
     const fileText = `${contents.squares.join('\n')}\n${contents.combs.join('\n')
     }\n#ENDOFELECTRODE#\n${contents.actuation.join('\n')}\n#ENDOFSEQUENCE#\n`;
     if ('showSaveFilePicker' in window) {
@@ -66,7 +68,7 @@ export default function DownloadButton() {
   return (
     <Tooltip title="Download">
       <ListItem button onClick={handleDownload}>
-        <GetApp />
+        <img src={icons.downloadfile.icon} alt="Download File" />
       </ListItem>
     </Tooltip>
   );

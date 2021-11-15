@@ -24,3 +24,6 @@ yarn-debug.log*
 yarn-error.log*
 
 .eslintcache
+
+* text=auto eol=lf
+*.{ico,png,jpg,jpeg,gif,webp,woff,woff2} binary

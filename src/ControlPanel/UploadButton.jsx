@@ -1,14 +1,16 @@
 import React, { useContext } from 'react';
 import ListItem from '@material-ui/core/ListItem';
 import Tooltip from '@material-ui/core/Tooltip';
-import { FileCopy } from '@material-ui/icons';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { ActuationContext } from '../Contexts/ActuationProvider';
+import { GeneralContext } from '../Contexts/GeneralProvider';
 import ActuationSequence from '../Actuation/Actuation';
+import icons from '../Icons/icons';
 
 export default function UploadButton() {
   const context = useContext(CanvasContext);
   const actuation = useContext(ActuationContext);
+  const { setElecToPin } = useContext(GeneralContext);
   const {
     squares, setElectrodes, setSelected, setComboLayout,
   } = context;
@@ -60,6 +62,7 @@ export default function UploadButton() {
         const newDeltas = [];
         const newAllCombined = [];
         const newPinActuate = new Map();
+        const newElecToPin = {};
         let newSimpleNum = 1;
         const stringList = content.split('\n');
         for (let i = 0; i < stringList.length; i += 1) {
@@ -69,9 +72,13 @@ export default function UploadButton() {
             if (words.length >= 3 && words[0] === 'square' && !Number.isNaN(words[1]) && !Number.isNaN(words[2])) {
               newInitPositions.push([parseInt(words[1], 10), parseInt(words[2], 10)]);
               newDeltas.push([0, 0]);
+              // eslint-disable-next-line prefer-destructuring
+              if (words.length > 3) newElecToPin[`S${i}`] = words[3];
             } else if (words.length >= 4 && words[0] === 'combine' && !Number.isNaN(words[1]) && !Number.isNaN(words[2]) && !Number.isNaN(words[1])) {
               newAllCombined.push([parseInt(words[1], 10),
                 parseInt(words[2], 10), parseInt(words[3], 10)]);
+              // eslint-disable-next-line prefer-destructuring
+              if (words.length > 4) newElecToPin[`C${words[3]}`] = words[4];
             } else if (e.charAt(0) === '#') {
             // line starts with #
             } else if (!Number.isNaN(e.charAt(0))) {
@@ -105,8 +112,13 @@ export default function UploadButton() {
           }
         }
 
+        setElecToPin(newElecToPin);
         setSelected([]);
-        setElectrodes({ initPositions: newInitPositions, deltas: newDeltas });
+        setElectrodes({
+          initPositions: newInitPositions,
+          deltas: newDeltas,
+          ids: [...new Array(newDeltas.length).keys()],
+        });
         setComboLayout(newAllCombined);
         setPinActuation(newPinActuate);
         setSimpleNum(newSimpleNum + 1);
@@ -126,7 +138,7 @@ export default function UploadButton() {
   return (
     <Tooltip title="Upload">
       <ListItem button onClick={handleImport}>
-        <FileCopy />
+        <img src={icons.import.icon} alt="Import File" />
       </ListItem>
     </Tooltip>
   );

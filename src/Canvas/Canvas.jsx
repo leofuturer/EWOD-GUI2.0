@@ -144,6 +144,10 @@ export default function Canvas() {
   /* ########################### ACTUATION START ########################### */
   function handleActuationMapping(ind) {
     if (mode === 'SEQ') {
+      if (ind === 'REF') {
+        window.alert('cannot actuate REF electrode');
+        return;
+      }
       if (pinActuate.get(currentStep).content.has(ind)) {
         pushHistory({
           type: 'actuate', pin: ind, id: currentStep, act: false,

@@ -269,7 +269,10 @@ export default function ControlPanel({ scrollOpen }) {
         <List>
           <MuiListItem
             button
-            onClick={() => { if (open) setUsbPanelOpen(!usbPanelOpen); }}
+            onClick={() => {
+              setOpen(!open);
+              setUsbPanelOpen(!usbPanelOpen);
+            }}
             className={`${usbPanelOpen && classes.bkgrdGradient} ${usbPanelOpen && classes.borderTop}`}
           >
             <ListItemIcon>
@@ -282,7 +285,12 @@ export default function ControlPanel({ scrollOpen }) {
             <USBPanel usbConnected={usbConnected} setUsbConnected={setUsbConnected} />
           </Collapse>
 
-          <MuiListItem button>
+          <MuiListItem
+            button
+            onClick={() => {
+              setOpen(!open);
+            }}
+          >
             <ListItemIcon>
               <img src={icons.refimage.icon} alt="Ref" />
             </ListItemIcon>

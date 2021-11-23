@@ -270,7 +270,11 @@ export default function ControlPanel({ scrollOpen }) {
           <MuiListItem
             button
             onClick={() => {
-              setOpen(!open);
+              if (open && !usbPanelOpen) {
+                setOpen(open);
+              } else {
+                setOpen(!open);
+              }
               setUsbPanelOpen(!usbPanelOpen);
             }}
             className={`${usbPanelOpen && classes.bkgrdGradient} ${usbPanelOpen && classes.borderTop}`}

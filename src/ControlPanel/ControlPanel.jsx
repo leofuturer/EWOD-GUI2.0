@@ -24,6 +24,7 @@ import UploadButton from './UploadButton';
 import DownloadButton from './DownloadButton';
 
 import USBPanel from './USBPanel';
+import RefPanel from './RefPanel';
 import DeleteButton from './DeleteButton';
 import { SCROLL_HEIGHT } from '../constants';
 
@@ -155,6 +156,7 @@ export default function ControlPanel({ scrollOpen }) {
   const [open, setOpen] = useState(false);
   const [usbPanelOpen, setUsbPanelOpen] = useState(false);
   const [usbConnected, setUsbConnected] = useState(false);
+  const [refPanelOpen, setRefPanelOpen] = useState(false);
 
   function setNewMode(newMode) {
     if (mode === 'PIN' && newMode !== 'PIN') {
@@ -267,39 +269,51 @@ export default function ControlPanel({ scrollOpen }) {
           </IconButton>
         </div>
         <List>
-          <MuiListItem
-            button
-            onClick={() => {
-              if (open && !usbPanelOpen) {
-                setOpen(open);
-              } else {
-                setOpen(!open);
-              }
-              setUsbPanelOpen(!usbPanelOpen);
-            }}
-            className={`${usbPanelOpen && classes.bkgrdGradient} ${usbPanelOpen && classes.borderTop}`}
-          >
-            <ListItemIcon>
-              <img src={usbConnected ? icons.usb.connected : icons.usb.disconnected} alt="USB Connection" />
-            </ListItemIcon>
-            <ListItemText classes={{ primary: classes.listItemText }} primary="USB Connection" />
-          </MuiListItem>
+          <Tooltip title="USB Connection">
+            <MuiListItem
+              button
+              onClick={() => {
+                if (!usbPanelOpen || refPanelOpen) {
+                  setOpen(true);
+                } else {
+                  setOpen(!open);
+                }
+                setUsbPanelOpen(!usbPanelOpen);
+              }}
+              className={`${usbPanelOpen && classes.bkgrdGradient} ${usbPanelOpen && classes.borderTop}`}
+            >
+              <ListItemIcon>
+                <img src={usbConnected ? icons.usb.connected : icons.usb.disconnected} alt="USB Connection" />
+              </ListItemIcon>
+              <ListItemText classes={{ primary: classes.listItemText }} primary="USB Connection" />
+            </MuiListItem>
+          </Tooltip>
 
           <Collapse in={usbPanelOpen} timeout="auto">
             <USBPanel usbConnected={usbConnected} setUsbConnected={setUsbConnected} />
           </Collapse>
 
-          <MuiListItem
-            button
-            onClick={() => {
-              setOpen(!open);
-            }}
-          >
-            <ListItemIcon>
-              <img src={icons.refimage.icon} alt="Ref" />
-            </ListItemIcon>
-            <ListItemText classes={{ primary: classes.listItemText }} primary="Reference Image" />
-          </MuiListItem>
+          <Tooltip title="Reference Image">
+            <MuiListItem
+              button
+              onClick={() => {
+                if (!refPanelOpen || usbPanelOpen) {
+                  setOpen(true);
+                } else {
+                  setOpen(!open);
+                }
+                setRefPanelOpen(!refPanelOpen);
+              }}
+            >
+              <ListItemIcon>
+                <img src={icons.refimage.icon} alt="Ref" />
+              </ListItemIcon>
+              <ListItemText classes={{ primary: classes.listItemText }} primary="Reference Image" />
+            </MuiListItem>
+          </Tooltip>
+          <Collapse in={refPanelOpen} timeout="auto">
+            <RefPanel />
+          </Collapse>
         </List>
       </Drawer>
     </div>

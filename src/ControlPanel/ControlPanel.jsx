@@ -263,6 +263,7 @@ export default function ControlPanel({ scrollOpen }) {
           <IconButton onClick={() => {
             setUsbPanelOpen(false);
             setOpen(!open);
+            setRefPanelOpen(false);
           }}
           >
             <img src={icons.menu.icon} alt="Sidebar menu" />

@@ -35,6 +35,8 @@ import ActuationClose from './ActuationClose.svg';
 import ActuationOpen from './ActuationOpen.svg';
 import Decrease from './Decrease.svg';
 import Increase from './Increase.svg';
+import Search from './SearchFile.svg';
+import SearchLogo from './SearchLogo.svg';
 
 const icons = {
   actuation: {
@@ -130,6 +132,12 @@ const icons = {
   setvpp: {
     icon: SetVpp,
     onClick: SetVpponClick,
+  },
+  search: {
+    icon: Search,
+  },
+  searchlogo: {
+    icon: SearchLogo,
   },
 };
 

@@ -13,7 +13,10 @@ To run on your local machine:
 4. Type in ```npm install --global yarn``` (to install yarn, our package manager)
 5. Type in ```yarn``` (to install the needed 3rd-party libraries)
 6. Run with ```yarn start```
-7. If it doesn't automatically pop up for you, point your favorite browser to localhost:3000 to see the app.
+7. If your default browser is not Chrome, navigate to localhost:3000 using Chrome to see the app.
+
+    Note: Due to the specific framework that we use to access USB devices locally (WebHID), the only web browser that works with our app is Chrome.
+
 8. For running end-to-end test, type ```yarn e2e```. If you want to use cypress test runner to debug your code, type ```yarn e2e-gui```.
 
 ## Instructions for submitting code changes

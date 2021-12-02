@@ -229,10 +229,10 @@ export default function Canvas() {
 
   useHotkeys('ctrl+c', () => {
     contextCopy();
-  });
+  }, [selected, combSelected, clipboard, electrodes, allCombined]);
   useHotkeys('ctrl+v', () => {
     contextPaste();
-  });
+  }, [selected, combSelected, clipboard, electrodes, allCombined]);
 
   /* ########################### ACTUATION START ########################### */
   function handleActuationMapping(ind) {

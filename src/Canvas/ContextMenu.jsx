@@ -78,6 +78,7 @@ export default function ContextMenu({ setMenuClick }) {
   function contextPaste(e, relX, relY) {
     if (selected.length > 0) setSelected([]);
     if (combSelected.length > 0) setCombSelected([]);
+    if (!clipboard.squares && !clipboard.combined) return;
     const numSquaresCopied = clipboard.squares.length;
     const numCombinedCopied = clipboard.combined.length;
     if (numSquaresCopied > 0 || numCombinedCopied > 0) {

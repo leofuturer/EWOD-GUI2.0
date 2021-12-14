@@ -186,7 +186,7 @@ export default function ControlPanel({ scrollOpen }) {
   }
 
   // not sure what recvData does
-  // also, this is not running at all for some reason.
+  // also, recvData is not running at all for some reason. possible no data was received.
 
   async function handleConnect() {
     await initiateConnection(recvData);
@@ -300,7 +300,9 @@ export default function ControlPanel({ scrollOpen }) {
               button
               onClick={() => {
                 setOpen(true);
-                handleConnect();
+                if (!usbPanelOpen) {
+                  handleConnect();
+                }
                 setUsbPanelOpen(!usbPanelOpen);
               }}
               className={`${usbPanelOpen && classes.bkgrdGradient} ${usbPanelOpen && classes.borderTop}`}

@@ -7,8 +7,9 @@ import { makeStyles } from '@material-ui/styles';
 import icons from '../Icons/icons';
 
 import './USBPanel.css';
+// removed setPin
 import {
-  setV, setF, setPin, isDeviceConnected,
+  setV, setF, isDeviceConnected,
 } from '../USBCommunication/USBCommunication';
 
 const useStyles = makeStyles({
@@ -32,6 +33,14 @@ const useStyles = makeStyles({
     fontSize: '14px',
     textTransform: 'none',
     boxShadow: 'inset 0px 3px 4px rgba(255, 255, 255, 0.5)',
+  },
+  text: {
+    fontFamily: 'Roboto',
+    fontStyle: 'normal',
+    fontWeight: '700',
+    lineHeight: '12px',
+    fontSize: '10px',
+    color: '#A06933',
   },
 });
 
@@ -59,14 +68,16 @@ export default function USBPanel({ usbConnected, setUsbConnected }) {
     if (isDeviceConnected()) {
       setV(0);
       setF(0);
+      setVolt(0);
+      setFreq(0);
     }
   }
 
-  function disconnect() {
-    if (setUsbConnected) {
-      setUsbConnected(false);
-    }
-  }
+  // function disconnect() {
+  //   if (setUsbConnected) {
+  //     setUsbConnected(false);
+  //   }
+  // }
 
   function setVpp() {
     if (isDeviceConnected()) {
@@ -79,11 +90,11 @@ export default function USBPanel({ usbConnected, setUsbConnected }) {
   //   initiateConnection(recvData);
   // }
 
-  function test() {
-    if (isDeviceConnected()) {
-      setPin([9, 10, 11, 12, 13], 1);
-    }
-  }
+  // function test() {
+  //   if (isDeviceConnected()) {
+  //     setPin([9, 10, 11, 12, 13], 1);
+  //   }
+  // }
   // function recvData() {
   //   if (timeOut) clearTimeout(timeOut);
 
@@ -135,6 +146,17 @@ export default function USBPanel({ usbConnected, setUsbConnected }) {
         </ButtonGroup>
         <div className="unit"> Hz </div>
       </div>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingRight: '85px',
+        paddingLeft: '45px',
+      }}
+      >
+        <div className={classes.text}>0</div>
+        <div className={classes.text}>10000</div>
+      </div>
 
       <div>
         <ButtonGroup size="small" style={{ width: '170px', float: 'left' }} className="inputCounters">
@@ -154,10 +176,19 @@ export default function USBPanel({ usbConnected, setUsbConnected }) {
         </ButtonGroup>
         <div className="unit"> V </div>
       </div>
-
       <div />
-
-      <div style={{ paddingLeft: '10px', paddingTop: '140px' }}>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingRight: '90px',
+        paddingLeft: '45px',
+      }}
+      >
+        <div className={classes.text}>40</div>
+        <div className={classes.text}>180</div>
+      </div>
+      <div style={{ paddingLeft: '10px', paddingTop: '80px', marginBottom: '20px' }}>
         <Button
           size="small"
           onClick={setZero}
@@ -167,25 +198,27 @@ export default function USBPanel({ usbConnected, setUsbConnected }) {
           Set voltage to 0 V
         </Button>
       </div>
-
-      <div style={{ padding: '10px' }}>
-        <Button size="small" variant="contained" onClick={test}>Test</Button>
-      </div>
-      <div style={{ padding: '10px' }}>
-        <Button size="small" variant="contained" onClick={disconnect}>Disconnect</Button>
-      </div>
-
       <div className="rButton">
         <Button
           size="small"
-          onClick={setVpp}
+          onClick={() => {
+            setVpp();
+            // added to avoid eslint errors for disconnect being commented out
+            // not sure what we want the condition for disconnect to be
+            console.log(setUsbConnected);
+          }}
           variant="contained"
           className={usbConnected ? classes.brownBtn : classes.grayBtn}
         >
           Set Vpp
         </Button>
       </div>
-
+      {/* <div style={{ padding: '10px' }}>
+        <Button size="small" variant="contained" onClick={test}>Test</Button>
+      </div>
+      <div style={{ padding: '10px' }}>
+        <Button size="small" variant="contained" onClick={disconnect}>Disconnect</Button>
+      </div> */}
     </div>
   );
 }

@@ -170,30 +170,27 @@ export default function ControlPanel({ scrollOpen }) {
     setCurrElec(null);
   }
 
-  // let timeOut = null;
-  // function disconnect() {
-  //   if (setUsbConnected) {
-  //     setUsbConnected(false);
-  //   }
-  // }
-  // function recvData() {
-  //   if (timeOut) clearTimeout(timeOut);
-
-  //   if (!setUsbConnected) {
-  //     setUsbConnected(false);
-  //     timeOut = setTimeout(disconnect, 3000);
-  //   }
-  //   setUsbConnected(true);
-  // }
-
-  // not sure what recvData does, but this fixes the way it registers the usb as being connected.
-  function recvData() {
-    setUsbConnected(isDeviceConnected());
+  let timeOut = null;
+  function disconnect() {
+    if (setUsbConnected) {
+      setUsbConnected(false);
+    }
   }
+
+  function recvData() {
+    if (timeOut) clearTimeout(timeOut);
+    if (setUsbConnected) {
+      setUsbConnected(true);
+      timeOut = setTimeout(disconnect, 3000);
+    }
+  }
+
+  // not sure what recvData does
+  // also, this is not running at all for some reason.
 
   async function handleConnect() {
     await initiateConnection(recvData);
-    setUsbPanelOpen(!usbPanelOpen);
+    setUsbConnected(isDeviceConnected());
   }
 
   return (
@@ -304,6 +301,7 @@ export default function ControlPanel({ scrollOpen }) {
               onClick={() => {
                 setOpen(true);
                 handleConnect();
+                setUsbPanelOpen(!usbPanelOpen);
               }}
               className={`${usbPanelOpen && classes.bkgrdGradient} ${usbPanelOpen && classes.borderTop}`}
             >

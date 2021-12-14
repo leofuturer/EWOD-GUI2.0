@@ -97,7 +97,7 @@ export default function USBPanel({ usbConnected, setUsbConnected }) {
   return (
     <div id="usb-panel">
       <div id="usb-connect-status">
-        {isDeviceConnected()
+        {usbConnected
           ? (
             <>
               USB Connected

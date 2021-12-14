@@ -8,7 +8,7 @@ import icons from '../Icons/icons';
 
 import './USBPanel.css';
 import {
-  initiateConnection, setV, setF, setPin, isDeviceConnected,
+  setV, setF, setPin, isDeviceConnected,
 } from '../USBCommunication/USBCommunication';
 
 const useStyles = makeStyles({
@@ -41,7 +41,7 @@ export default function USBPanel({ usbConnected, setUsbConnected }) {
   const [volt, setVolt] = useState(0);
   const [freq, setFreq] = useState(0);
 
-  let timeOut = null;
+  // let timeOut = null;
 
   function setAndCheckVolt(v) {
     if (v <= 180 && v >= 0) {
@@ -68,15 +68,6 @@ export default function USBPanel({ usbConnected, setUsbConnected }) {
     }
   }
 
-  function recvData() {
-    if (timeOut) clearTimeout(timeOut);
-
-    if (setUsbConnected) {
-      setUsbConnected(true);
-      timeOut = setTimeout(disconnect, 3000);
-    }
-  }
-
   function setVpp() {
     if (isDeviceConnected()) {
       setV(volt);
@@ -84,20 +75,29 @@ export default function USBPanel({ usbConnected, setUsbConnected }) {
     }
   }
 
-  function handleConnect() {
-    initiateConnection(recvData);
-  }
+  // function handleConnect() {
+  //   initiateConnection(recvData);
+  // }
 
   function test() {
     if (isDeviceConnected()) {
       setPin([9, 10, 11, 12, 13], 1);
     }
   }
+  // function recvData() {
+  //   if (timeOut) clearTimeout(timeOut);
+
+  //   if (!setUsbConnected) {
+  //     setUsbConnected(false);
+  //     timeOut = setTimeout(disconnect, 3000);
+  //   }
+  //   setUsbConnected(true);
+  // }
 
   return (
     <div id="usb-panel">
       <div id="usb-connect-status">
-        {usbConnected
+        {isDeviceConnected()
           ? (
             <>
               USB Connected
@@ -114,10 +114,6 @@ export default function USBPanel({ usbConnected, setUsbConnected }) {
               />
             </>
           )}
-      </div>
-
-      <div style={{ padding: '10px' }}>
-        <Button variant="contained" onClick={handleConnect} size="small"> Connect </Button>
       </div>
 
       <div>
@@ -174,6 +170,9 @@ export default function USBPanel({ usbConnected, setUsbConnected }) {
 
       <div style={{ padding: '10px' }}>
         <Button size="small" variant="contained" onClick={test}>Test</Button>
+      </div>
+      <div style={{ padding: '10px' }}>
+        <Button size="small" variant="contained" onClick={disconnect}>Disconnect</Button>
       </div>
 
       <div className="rButton">

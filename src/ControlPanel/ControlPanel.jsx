@@ -28,6 +28,8 @@ import RefPanel from './RefPanel';
 import DeleteButton from './DeleteButton';
 import { SCROLL_HEIGHT } from '../constants';
 
+import { initiateConnection, isDeviceConnected } from '../USBCommunication/USBCommunication';
+
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
@@ -168,6 +170,32 @@ export default function ControlPanel({ scrollOpen }) {
     setCurrElec(null);
   }
 
+  // let timeOut = null;
+  // function disconnect() {
+  //   if (setUsbConnected) {
+  //     setUsbConnected(false);
+  //   }
+  // }
+  // function recvData() {
+  //   if (timeOut) clearTimeout(timeOut);
+
+  //   if (!setUsbConnected) {
+  //     setUsbConnected(false);
+  //     timeOut = setTimeout(disconnect, 3000);
+  //   }
+  //   setUsbConnected(true);
+  // }
+
+  // not sure what recvData does, but this fixes the way it registers the usb as being connected.
+  function recvData() {
+    setUsbConnected(isDeviceConnected());
+  }
+
+  async function handleConnect() {
+    await initiateConnection(recvData);
+    setUsbPanelOpen(!usbPanelOpen);
+  }
+
   return (
     <div className={classes.root} id="topbar-buffer">
       <CssBaseline />
@@ -274,12 +302,8 @@ export default function ControlPanel({ scrollOpen }) {
             <MuiListItem
               button
               onClick={() => {
-                if (!usbPanelOpen || refPanelOpen) {
-                  setOpen(true);
-                } else {
-                  setOpen(!open);
-                }
-                setUsbPanelOpen(!usbPanelOpen);
+                setOpen(true);
+                handleConnect();
               }}
               className={`${usbPanelOpen && classes.bkgrdGradient} ${usbPanelOpen && classes.borderTop}`}
             >
@@ -298,11 +322,7 @@ export default function ControlPanel({ scrollOpen }) {
             <MuiListItem
               button
               onClick={() => {
-                if (!refPanelOpen || usbPanelOpen) {
-                  setOpen(true);
-                } else {
-                  setOpen(!open);
-                }
+                setOpen(true);
                 setRefPanelOpen(!refPanelOpen);
               }}
             >

@@ -45,7 +45,7 @@ const useStyles = makeStyles({
     paddingRight: '5px',
     paddingLeft: '5px',
     alignItems: 'center',
-    justifyConent: 'space-around',
+    justifyContent: 'space-around',
     border: '2px solid #D4A373',
     borderRadius: '4px',
   },
@@ -81,7 +81,7 @@ export default function RefPanel() {
           <img src={icons.searchlogo.icon} alt="Search" />
           <TextField
             className={classes.field}
-            label="Paste URL to a file..."
+            label="Paste URL to file..."
             inputProps={{
               style: {
                 fontSize: '12px',

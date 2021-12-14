@@ -40,7 +40,7 @@ const useStyles = makeStyles({
     fontWeight: '700',
     lineHeight: '12px',
     fontSize: '10px',
-    color: '#A06933',
+    color: '#D4A373',
   },
 });
 
@@ -188,7 +188,7 @@ export default function USBPanel({ usbConnected, setUsbConnected }) {
         <div className={classes.text}>40</div>
         <div className={classes.text}>180</div>
       </div>
-      <div style={{ paddingLeft: '10px', paddingTop: '80px', marginBottom: '20px' }}>
+      <div style={{ paddingLeft: '10px', paddingTop: '60px', marginBottom: '20px' }}>
         <Button
           size="small"
           onClick={setZero}

@@ -7,7 +7,7 @@ import { makeStyles } from '@material-ui/styles';
 import icons from '../Icons/icons';
 
 import './USBPanel.css';
-// removed setPin
+// removed setPin from imports.
 import {
   setV, setF, isDeviceConnected,
 } from '../USBCommunication/USBCommunication';
@@ -39,8 +39,8 @@ const useStyles = makeStyles({
     fontStyle: 'normal',
     fontWeight: '700',
     lineHeight: '12px',
-    fontSize: '10px',
-    color: '#D4A373',
+    fontSize: '12px',
+    color: '#A06933',
   },
 });
 
@@ -189,7 +189,7 @@ export default function USBPanel({ usbConnected, setUsbConnected }) {
         <div className={classes.text}>180</div>
       </div>
       <div style={{
-        display: (volt >= 60) ? 'flex' : 'none',
+        display: (volt >= 60 && usbConnected) ? 'flex' : 'none',
         flexDirection: 'row',
         justifyContent: 'center',
         paddingRight: '45px',
@@ -202,7 +202,7 @@ export default function USBPanel({ usbConnected, setUsbConnected }) {
       <div
         style={{
           paddingLeft: '10px',
-          paddingTop: (volt >= 60) ? '15px' : '60px',
+          paddingTop: (volt >= 60 && usbConnected) ? '15px' : '60px',
           marginBottom: '20px',
         }}
       >

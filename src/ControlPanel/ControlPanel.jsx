@@ -24,7 +24,7 @@ import UploadButton from './UploadButton';
 import DownloadButton from './DownloadButton';
 
 import USBPanel from './USBPanel';
-import RefPanel from './RefPanel';
+// import RefPanel from './RefPanel';
 import DeleteButton from './DeleteButton';
 import { SCROLL_HEIGHT } from '../constants';
 
@@ -158,7 +158,7 @@ export default function ControlPanel({ scrollOpen }) {
   const [open, setOpen] = useState(false);
   const [usbPanelOpen, setUsbPanelOpen] = useState(false);
   const [usbConnected, setUsbConnected] = useState(false);
-  const [refPanelOpen, setRefPanelOpen] = useState(false);
+  // const [refPanelOpen, setRefPanelOpen] = useState(false);
 
   function setNewMode(newMode) {
     if (mode === 'PIN' && newMode !== 'PIN') {
@@ -288,7 +288,7 @@ export default function ControlPanel({ scrollOpen }) {
           <IconButton onClick={() => {
             setUsbPanelOpen(false);
             setOpen(!open);
-            setRefPanelOpen(false);
+          //  setRefPanelOpen(false);
           }}
           >
             <img src={icons.menu.icon} alt="Sidebar menu" />
@@ -318,7 +318,7 @@ export default function ControlPanel({ scrollOpen }) {
             <USBPanel usbConnected={usbConnected} setUsbConnected={setUsbConnected} />
           </Collapse>
 
-          <Tooltip title="Reference Image">
+          {/* <Tooltip title="Reference Image">
             <MuiListItem
               button
               onClick={() => {
@@ -334,7 +334,7 @@ export default function ControlPanel({ scrollOpen }) {
           </Tooltip>
           <Collapse in={refPanelOpen} timeout="auto">
             <RefPanel />
-          </Collapse>
+          </Collapse> */}
         </List>
       </Drawer>
     </div>

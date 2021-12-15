@@ -188,7 +188,24 @@ export default function USBPanel({ usbConnected, setUsbConnected }) {
         <div className={classes.text}>40</div>
         <div className={classes.text}>180</div>
       </div>
-      <div style={{ paddingLeft: '10px', paddingTop: '60px', marginBottom: '20px' }}>
+      <div style={{
+        display: (volt >= 60) ? 'flex' : 'none',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        paddingRight: '45px',
+        paddingTop: '10px',
+      }}
+      >
+        <img src={icons.voltagewarning.icon} alt="Voltage Warning" />
+
+      </div>
+      <div
+        style={{
+          paddingLeft: '10px',
+          paddingTop: (volt >= 60) ? '15px' : '60px',
+          marginBottom: '20px',
+        }}
+      >
         <Button
           size="small"
           onClick={setZero}

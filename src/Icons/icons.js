@@ -37,6 +37,7 @@ import Decrease from './Decrease.svg';
 import Increase from './Increase.svg';
 import Search from './SearchFile.svg';
 import SearchLogo from './SearchLogo.svg';
+import VoltageWarning from './VoltageWarning.svg';
 
 const icons = {
   actuation: {
@@ -138,6 +139,9 @@ const icons = {
   },
   searchlogo: {
     icon: SearchLogo,
+  },
+  voltagewarning: {
+    icon: VoltageWarning,
   },
 };
 

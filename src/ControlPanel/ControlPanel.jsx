@@ -300,7 +300,7 @@ export default function ControlPanel({ scrollOpen }) {
               button
               onClick={() => {
                 setOpen(true);
-                if (!usbPanelOpen) {
+                if (!usbPanelOpen && !usbConnected) {
                   handleConnect();
                 }
                 setUsbPanelOpen(!usbPanelOpen);
@@ -315,7 +315,7 @@ export default function ControlPanel({ scrollOpen }) {
           </Tooltip>
 
           <Collapse in={usbPanelOpen} timeout="auto">
-            <USBPanel usbConnected={usbConnected} setUsbConnected={setUsbConnected} />
+            <USBPanel usbConnected={usbConnected} />
           </Collapse>
 
           {/* <Tooltip title="Reference Image">

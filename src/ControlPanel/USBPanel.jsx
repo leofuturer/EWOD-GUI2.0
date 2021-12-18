@@ -44,13 +44,11 @@ const useStyles = makeStyles({
   },
 });
 
-export default function USBPanel({ usbConnected, setUsbConnected }) {
+export default function USBPanel({ usbConnected }) {
   const classes = useStyles();
 
   const [volt, setVolt] = useState(0);
   const [freq, setFreq] = useState(0);
-
-  // let timeOut = null;
 
   function setAndCheckVolt(v) {
     if (v <= 180 && v >= 0) {
@@ -72,13 +70,6 @@ export default function USBPanel({ usbConnected, setUsbConnected }) {
       setFreq(0);
     }
   }
-
-  // function disconnect() {
-  //   if (setUsbConnected) {
-  //     setUsbConnected(false);
-  //   }
-  // }
-
   function setVpp() {
     if (isDeviceConnected()) {
       setV(volt);
@@ -86,25 +77,11 @@ export default function USBPanel({ usbConnected, setUsbConnected }) {
     }
   }
 
-  // function handleConnect() {
-  //   initiateConnection(recvData);
-  // }
-
   // function test() {
   //   if (isDeviceConnected()) {
   //     setPin([9, 10, 11, 12, 13], 1);
   //   }
   // }
-  // function recvData() {
-  //   if (timeOut) clearTimeout(timeOut);
-
-  //   if (!setUsbConnected) {
-  //     setUsbConnected(false);
-  //     timeOut = setTimeout(disconnect, 3000);
-  //   }
-  //   setUsbConnected(true);
-  // }
-
   return (
     <div id="usb-panel">
       <div id="usb-connect-status">
@@ -218,24 +195,13 @@ export default function USBPanel({ usbConnected, setUsbConnected }) {
       <div className="rButton">
         <Button
           size="small"
-          onClick={() => {
-            setVpp();
-            // added to avoid eslint errors for disconnect being commented out
-            // not sure what we want the condition for disconnect to be
-            console.log(setUsbConnected);
-          }}
+          onClick={setVpp}
           variant="contained"
           className={usbConnected ? classes.brownBtn : classes.grayBtn}
         >
           Set Vpp
         </Button>
       </div>
-      {/* <div style={{ padding: '10px' }}>
-        <Button size="small" variant="contained" onClick={test}>Test</Button>
-      </div>
-      <div style={{ padding: '10px' }}>
-        <Button size="small" variant="contained" onClick={disconnect}>Disconnect</Button>
-      </div> */}
     </div>
   );
 }

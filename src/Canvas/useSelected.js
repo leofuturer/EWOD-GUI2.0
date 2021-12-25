@@ -156,9 +156,12 @@ export default function useSelected(callback, savingChanges) {
       }
 
       // handle dragged combined
+
+      // new bool ensures that we only move electrodes in comb if
+      // we know for sure the comb does not move off the screen.
       if (combSelected.length > 0) {
         const newCombines = [...allCombined];
-        newCombines.forEach((comb, ind) => {
+        const allOnCanvas = newCombines.every((comb, ind) => {
           if (setOfCombSelected.has(`${comb[2]}`)) { // this elec was selected
             // so record its new position
             const newX = parseInt(comb[0], 10) + delta.x;
@@ -167,13 +170,16 @@ export default function useSelected(callback, savingChanges) {
             if (newX < 0 || newX >= CANVAS_TRUE_WIDTH || newY < 0 || newY >= CANVAS_TRUE_HEIGHT) {
               bannerRef.current.getAlert('error', 'Combined electrode going off canvas!');
               reset();
-              return;
+              return false;
             }
             newCombines[ind][0] = newX;
             newCombines[ind][1] = newY;
           }
+          return true;
         });
-        setComboLayout(newCombines);
+        if (allOnCanvas) {
+          setComboLayout(newCombines);
+        }
         setCombSelected([]);
       }
 

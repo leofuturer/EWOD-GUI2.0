@@ -35,10 +35,11 @@ export default function Canvas() {
 
   const actuationContext = useContext(ActuationContext);
   const { currentStep, pinActuate } = actuationContext.actuation;
-  const { actuatePin, pushHistory } = actuationContext;
+  const { actuatePin, pushHistory, setPinActuation } = actuationContext;
 
   const {
     mode, currElec, elecToPin, setCurrElec, panning, setScaleXY, scaleXY, setPanning,
+    pinToElec, setPinToElec, setElecToPin,
   } = useContext(GeneralContext);
 
   const [middleDown, setMiddleDown] = useState(false);
@@ -505,6 +506,67 @@ export default function Canvas() {
     }
   }
 
+  function squaresDelete() {
+    const mappedPins = [];
+    // go through selected squares to erase any of their pin mappings
+    electrodes.ids.forEach((id) => {
+      if (selected.includes(`${id}`)) {
+        const square = `S${id}`;
+        const mappedPin = elecToPin[square];
+        if (mappedPin) { // mapping exists for this electrode so delete mapping
+          mappedPins.push(mappedPin);
+          delete pinToElec[mappedPin];
+          delete elecToPin[square];
+        }
+      }
+    });
+
+    Array.from(pinActuate.keys()).forEach((key) => {
+      const value = pinActuate.get(key);
+      value.content.forEach((e) => {
+        if (mappedPins.includes(e)) value.content.delete(e);
+      });
+    });
+
+    setPinActuation(new Map(pinActuate));
+
+    setPinToElec({ ...pinToElec });
+    setElecToPin({ ...elecToPin });
+    const newPos = electrodes.initPositions
+      .filter((val, ind) => !selected.includes(`${electrodes.ids[ind]}`));
+    const newDel = electrodes.deltas.filter((val, ind) => !selected.includes(`${electrodes.ids[ind]}`));
+    const newIds = electrodes.ids.filter((id) => !selected.includes(`${id}`));
+    setSelected([]);
+    setElectrodes({ initPositions: newPos, deltas: newDel, ids: newIds });
+  }
+
+  function combinedDelete() {
+    // go through selected combined elecs to erase any of their pin mappings
+    combSelected.forEach((index) => {
+      const combined = `C${index}`;
+      const mappedPin = elecToPin[combined];
+      if (mappedPin) { // mapping exists for this electrode so delete mapping
+        delete pinToElec[mappedPin];
+        delete elecToPin[combined];
+      }
+    });
+
+    setPinToElec({ ...pinToElec });
+    setElecToPin({ ...elecToPin });
+    setComboLayout(allCombined.filter((combi) => !combSelected.includes(`${combi[2]}`)));
+    setCombSelected([]);
+  }
+
+  function BothDelete() {
+    combinedDelete();
+    squaresDelete();
+  }
+
+  function cut() {
+    copy();
+    BothDelete();
+  }
+
   // keyboard shortcuts
   useHotkeys('ctrl+c', () => {
     copy();
@@ -513,6 +575,10 @@ export default function Canvas() {
   useHotkeys('ctrl+v', () => {
     paste(null, relativeX, relativeY);
   }, [selected, combSelected, clipboard, electrodes, allCombined, relativeX, relativeY]);
+
+  useHotkeys('ctrl+x', () => {
+    cut();
+  }, [selected, combSelected, clipboard, electrodes, allCombined]);
 
   return (
     <div
@@ -671,7 +737,15 @@ export default function Canvas() {
           </TransformWrapper>
         )
       }
-      <ContextMenu setMenuClick={setMenuClick} contextCopy={copy} contextPaste={paste} />
+      <ContextMenu
+        setMenuClick={setMenuClick}
+        contextCopy={copy}
+        contextPaste={paste}
+        contextCut={cut}
+        contextDelete={BothDelete}
+        squaresDelete={squaresDelete}
+        combinedDelete={combinedDelete}
+      />
     </div>
   );
 }

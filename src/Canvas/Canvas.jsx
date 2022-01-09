@@ -30,7 +30,7 @@ export default function Canvas() {
   const { allCombined } = canvasContext.combined;
   const combSelected = canvasContext.combined.selected;
   const {
-    setMouseDown, setElectrodes, setSelected, setCombSelected, setComboLayout,
+    setMouseDown, setElectrodes, setSelected, setCombSelected, setComboLayout, setMoving,
   } = canvasContext;
 
   const actuationContext = useContext(ActuationContext);
@@ -406,6 +406,10 @@ export default function Canvas() {
 
   /* ########################### CLIPBOARD STUFF ########################### */
 
+  function move() {
+    if (selected.length || combSelected.length) setMoving(true);
+  }
+
   function copy() {
     const squares = [];
     const combined = [];
@@ -745,6 +749,7 @@ export default function Canvas() {
         contextDelete={BothDelete}
         squaresDelete={squaresDelete}
         combinedDelete={combinedDelete}
+        contextMove={move}
       />
     </div>
   );

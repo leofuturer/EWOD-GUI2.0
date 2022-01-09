@@ -5,11 +5,13 @@ import { Motion, spring } from 'react-motion';
 import MenuItem from '@material-ui/core/MenuItem';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
-import { ActuationContext } from '../Contexts/ActuationProvider';
 import { ELEC_SIZE } from '../constants';
 import range from '../Pins/range';
 
-export default function ContextMenu({ setMenuClick, contextCopy, contextPaste }) {
+export default function ContextMenu({
+  setMenuClick, contextCopy, contextPaste,
+  contextCut, contextDelete, squaresDelete, combinedDelete,
+}) {
   const canvasContext = useContext(CanvasContext);
   const { electrodes, selected } = canvasContext.squares;
   const { allCombined } = canvasContext.combined;
@@ -21,9 +23,6 @@ export default function ContextMenu({ setMenuClick, contextCopy, contextPaste })
   const {
     setPinToElec, setElecToPin, pinToElec, elecToPin, mode, currElec, setCurrElec,
   } = useContext(GeneralContext);
-
-  const { actuation, setPinActuation } = useContext(ActuationContext);
-  const { pinActuate } = actuation;
 
   const [xPos, setXPos] = useState('0px');
   const [yPos, setYPos] = useState('0px');
@@ -37,67 +36,6 @@ export default function ContextMenu({ setMenuClick, contextCopy, contextPaste })
 
   function contextMove() {
     if (selected.length || combSelected.length) setMoving(true);
-  }
-
-  function squaresDelete() {
-    const mappedPins = [];
-    // go through selected squares to erase any of their pin mappings
-    electrodes.ids.forEach((id) => {
-      if (selected.includes(`${id}`)) {
-        const square = `S${id}`;
-        const mappedPin = elecToPin[square];
-        if (mappedPin) { // mapping exists for this electrode so delete mapping
-          mappedPins.push(mappedPin);
-          delete pinToElec[mappedPin];
-          delete elecToPin[square];
-        }
-      }
-    });
-
-    Array.from(pinActuate.keys()).forEach((key) => {
-      const value = pinActuate.get(key);
-      value.content.forEach((e) => {
-        if (mappedPins.includes(e)) value.content.delete(e);
-      });
-    });
-
-    setPinActuation(new Map(pinActuate));
-
-    setPinToElec({ ...pinToElec });
-    setElecToPin({ ...elecToPin });
-    const newPos = electrodes.initPositions
-      .filter((val, ind) => !selected.includes(`${electrodes.ids[ind]}`));
-    const newDel = electrodes.deltas.filter((val, ind) => !selected.includes(`${electrodes.ids[ind]}`));
-    const newIds = electrodes.ids.filter((id) => !selected.includes(`${id}`));
-    setSelected([]);
-    setElectrodes({ initPositions: newPos, deltas: newDel, ids: newIds });
-  }
-
-  function combinedDelete() {
-    // go through selected combined elecs to erase any of their pin mappings
-    combSelected.forEach((index) => {
-      const combined = `C${index}`;
-      const mappedPin = elecToPin[combined];
-      if (mappedPin) { // mapping exists for this electrode so delete mapping
-        delete pinToElec[mappedPin];
-        delete elecToPin[combined];
-      }
-    });
-
-    setPinToElec({ ...pinToElec });
-    setElecToPin({ ...elecToPin });
-    setComboLayout(allCombined.filter((combi) => !combSelected.includes(`${combi[2]}`)));
-    setCombSelected([]);
-  }
-
-  function contextDelete() {
-    combinedDelete();
-    squaresDelete();
-  }
-
-  function contextCut() {
-    contextCopy();
-    contextDelete();
   }
 
   function getCombinedLastFreeInd() {

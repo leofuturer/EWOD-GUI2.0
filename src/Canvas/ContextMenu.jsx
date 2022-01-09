@@ -9,7 +9,7 @@ import { ActuationContext } from '../Contexts/ActuationProvider';
 import { ELEC_SIZE } from '../constants';
 import range from '../Pins/range';
 
-export default function ContextMenu({ setMenuClick }) {
+export default function ContextMenu({ setMenuClick, contextCopy, contextPaste }) {
   const canvasContext = useContext(CanvasContext);
   const { electrodes, selected } = canvasContext.squares;
   const { allCombined } = canvasContext.combined;
@@ -33,112 +33,10 @@ export default function ContextMenu({ setMenuClick }) {
 
   const [showMenu, setShowMenu] = useState(false);
 
-  const [clipboard, setClipboard] = useState([]);
-
   const [menuContents, setMenuContents] = useState(null);
 
   function contextMove() {
     if (selected.length || combSelected.length) setMoving(true);
-  }
-
-  function contextCopy() {
-    const squares = [];
-    const combined = [];
-
-    if (selected.length > 0) {
-      const inits = electrodes.initPositions.filter((_, ind) => selected.includes(`${ind}`));
-      const dels = electrodes.deltas.filter((_, ind) => selected.includes(`${ind}`));
-      for (let i = 0; i < inits.length; i += 1) {
-        const tmp = [inits[i][0] + dels[i][0], inits[i][1] + dels[i][1]];
-        squares.push(tmp);
-      }
-      setSelected([]);
-    }
-    if (combSelected.length > 0) {
-      // ex: selected IDs 2 4 7
-      // want those to have some permutation of IDs 0 1 2 in clipboard
-      const record = {};
-      let ind = 0;
-      allCombined.forEach((comb) => {
-        if (combSelected.includes(`${comb[2]}`)) {
-          if (Object.prototype.hasOwnProperty.call(record, comb[2])) {
-            combined.push([comb[0], comb[1], record[comb[2]]]);
-          } else {
-            record[comb[2]] = ind;
-            combined.push([comb[0], comb[1], ind]);
-            ind += 1;
-          }
-        }
-      });
-      setCombSelected([]);
-    }
-    setClipboard({ squares, combined });
-  }
-
-  function contextPaste(e, relX, relY) {
-    if (selected.length > 0) setSelected([]);
-    if (combSelected.length > 0) setCombSelected([]);
-    if (!clipboard.squares && !clipboard.combined) return;
-    const numSquaresCopied = clipboard.squares.length;
-    const numCombinedCopied = clipboard.combined.length;
-    if (numSquaresCopied > 0 || numCombinedCopied > 0) {
-      const xInt = parseInt(relX, 10);
-      const yInt = parseInt(relY, 10);
-      const x = xInt - (xInt % ELEC_SIZE);
-      const y = yInt - (yInt % ELEC_SIZE);
-      if (numSquaresCopied > 0) {
-        const newInits = [];
-        const newDels = [];
-        const { squares } = clipboard;
-        const offsetX = squares[0][0];
-        const offsetY = squares[0][1];
-        for (let i = 0; i < numSquaresCopied; i += 1) {
-          const temp = [x + squares[i][0] - offsetX, y + squares[i][1] - offsetY];
-          if (!(
-            electrodes.initPositions.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
-            || allCombined.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
-          )) {
-            newInits.push(temp);
-            newDels.push([0, 0]);
-          } else {
-            window.alert('Pasted electrodes overlap!');
-            return;
-          }
-        }
-
-        const maxID = Math.max(...electrodes.ids) + 1;
-        const newIDs = [...new Array(numSquaresCopied).keys()].map((num) => num + maxID);
-        setElectrodes({
-          initPositions: electrodes.initPositions.concat(newInits),
-          deltas: electrodes.deltas.concat(newDels),
-          ids: electrodes.ids.concat(newIDs),
-        });
-      }
-      if (numCombinedCopied > 0) {
-        const { combined } = clipboard;
-        const first = clipboard.squares.length > 0 ? clipboard.squares[0] : combined[0];
-        const newCombs = [];
-        const combIds = allCombined.map((el) => el[2]);
-        const maxID = Math.max(...combIds);
-        for (let k = 0; k < numCombinedCopied; k += 1) {
-          const temp = [x + combined[k][0] - first[0], y + combined[k][1] - first[1]];
-          if (!(
-            electrodes.initPositions.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
-            || allCombined.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
-          )) {
-            newCombs.push([
-              temp[0],
-              temp[1],
-              combined[k][2] + maxID + 1,
-            ]);
-          } else {
-            window.alert('Pasted combined electrode overlap!');
-            return;
-          }
-        }
-        setComboLayout(allCombined.concat(newCombs));
-      }
-    }
   }
 
   function squaresDelete() {

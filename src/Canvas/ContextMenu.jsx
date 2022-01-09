@@ -5,24 +5,18 @@ import { Motion, spring } from 'react-motion';
 import MenuItem from '@material-ui/core/MenuItem';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
-import { ELEC_SIZE } from '../constants';
-import range from '../Pins/range';
 
 export default function ContextMenu({
   setMenuClick, contextCopy, contextPaste, contextMove,
-  contextCut, contextDelete, squaresDelete, combinedDelete,
+  contextCut, contextDelete, deleteSelectedMappings,
+  separate, handleCombine,
 }) {
   const canvasContext = useContext(CanvasContext);
-  const { electrodes, selected } = canvasContext.squares;
-  const { allCombined } = canvasContext.combined;
-  const combSelected = canvasContext.combined.selected;
   const {
-    setElectrodes, setSelected, setComboLayout, setCombSelected, setMoving,
+    setSelected, setCombSelected, setMoving,
   } = canvasContext;
 
-  const {
-    setPinToElec, setElecToPin, pinToElec, elecToPin, mode, currElec, setCurrElec,
-  } = useContext(GeneralContext);
+  const { mode } = useContext(GeneralContext);
 
   const [xPos, setXPos] = useState('0px');
   const [yPos, setYPos] = useState('0px');
@@ -33,153 +27,6 @@ export default function ContextMenu({
   const [showMenu, setShowMenu] = useState(false);
 
   const [menuContents, setMenuContents] = useState(null);
-
-  function getCombinedLastFreeInd() {
-    if (!allCombined.length) return 0;
-    const layVals = new Set();
-    allCombined.forEach((comb) => layVals.add(comb[2]));
-
-    // probably don't actually need lowest last free index
-    // but would be unfortunate if they keep combining and deleting
-    // on the same design and if it kept picking the latest free index (allCombined.length)
-    const availIDs = range(0, Math.max(...layVals) + 1);
-    const newLastFreeInd = availIDs.find((layoutVal) => !layVals.has(layoutVal));
-    return newLastFreeInd;
-  }
-
-  function handleCombine(e) {
-    e.preventDefault();
-    if (selected.length < 2) {
-      window.alert('You need to combine at least 2 square electrodes.');
-      return;
-    }
-    if (combSelected.length > 0) {
-      window.alert("You can't combine already combined electrodes.");
-      return;
-    }
-
-    const positions = [];
-    // see if selected electrodes are adjacent to each other
-    const layVals = new Set([]);
-    for (let i = 0; i < allCombined.length; i += 1) layVals.add(allCombined[i][2]);
-
-    const newLastFreeInd = getCombinedLastFreeInd();
-
-    let xMin = Infinity;
-    let xMax = -1;
-    let yMin = Infinity;
-    let yMax = -1;
-    for (let j = 0; j < electrodes.initPositions.length; j += 1) {
-      if (selected.includes(`${electrodes.ids[j]}`)) {
-        const init = electrodes.initPositions[j];
-        const del = electrodes.deltas[j];
-        const x = init[0] + del[0];
-        const y = init[1] + del[1];
-        if (x < xMin) xMin = x;
-        if (x > xMax) xMax = x;
-
-        if (y < yMin) yMin = y;
-        if (y > yMax) yMax = y;
-
-        positions.push([x, y, newLastFreeInd]);
-      }
-    }
-    /* CHECK NODES ARE ADJACENT BEFORE COMBINING */
-    const numRows = (yMax - yMin) / ELEC_SIZE + 1;
-    const numCols = (xMax - xMin) / ELEC_SIZE + 1;
-    const adj = new Array(numRows).fill(0).map(() => new Array(numCols).fill(0));
-    // want 2D grid from xMin to xMax, yMin to yMax
-    // indexed 0 on both axes
-
-    /*
-            ex: y: 40-120, x: 80-160, startY = 1, startX = 2
-            (y , x)
-            (40, 80) ->  (1 - 1, 2 - 2) want (0, 0)
-            (120, 160) -> (3 - 1, 4 - 2)
-        */
-
-    const startY = yMin / ELEC_SIZE;
-    const startX = xMin / ELEC_SIZE;
-
-    positions.forEach((pos) => {
-      adj[(pos[1] / ELEC_SIZE) - startY][(pos[0] / ELEC_SIZE) - startX] = 1;
-    });
-
-    function connect(y, x) {
-      if (y < 0 || y >= numRows || x < 0 || x >= numCols) return;
-      if (adj[y][x] === 1) {
-        adj[y][x] = 0;
-        connect(y - 1, x);
-        connect(y + 1, x);
-        connect(y, x - 1);
-        connect(y, x + 1);
-      }
-    }
-    connect((positions[0][1] / ELEC_SIZE) - startY, (positions[0][0] / ELEC_SIZE) - startX);
-
-    // if selected electrodes aren't adj, alert then return
-    if (adj.some((row) => row.includes(1))) {
-      window.alert("Selected electrodes to combine aren't adjacent");
-      return;
-    }
-
-    setComboLayout(allCombined.concat(positions));
-    squaresDelete();
-  }
-
-  function separate() {
-    if (!combSelected.length || selected.length) {
-      window.alert('Can only separate combined electrodes');
-      return;
-    }
-    const selectedCombs = allCombined.filter((x) => combSelected.includes(`${x[2]}`));
-    const selectedCombCoords = [];
-    selectedCombs.forEach((coord) => {
-      selectedCombCoords.push([coord[0], coord[1]]);
-    });
-    const maxID = electrodes.ids.length ? Math.max(...electrodes.ids) + 1 : 0;
-    const newIDs = [...new Array(selectedCombs.length).keys()].map((num) => num + maxID);
-    setElectrodes({
-      initPositions: electrodes.initPositions.concat(selectedCombCoords),
-      deltas: electrodes.deltas
-        .concat(new Array(allCombined.length).fill(null).map(() => new Array(2).fill(0))),
-      ids: electrodes.ids.concat(newIDs),
-    });
-    combinedDelete();
-  }
-
-  function deleteSelectedMappings() {
-    if (selected.length || combSelected.length || currElec) {
-      const etp = { ...elecToPin };
-      const pte = { ...pinToElec };
-      if (currElec) {
-        if (etp[currElec]) {
-          delete pte[etp[currElec]];
-          delete etp[currElec];
-        }
-        setCurrElec(null);
-      } else {
-        if (selected.length) {
-          selected.forEach((num) => {
-            if (etp[`S${num}`]) {
-              delete pte[etp[`S${num}`]];
-              delete etp[`S${num}`];
-            }
-          });
-        }
-        if (combSelected.length) {
-          combSelected.forEach((num) => {
-            if (etp[`C${num}`]) {
-              delete pte[etp[`C${num}`]];
-              delete etp[`C${num}`];
-            }
-          });
-        }
-      }
-      setElecToPin(etp);
-      setPinToElec(pte);
-    }
-  }
 
   const canModeNames = ['Move', 'Cut', 'Copy', 'Paste', 'Delete', 'Combine', 'Separate'];
   const canModeFuncs = [

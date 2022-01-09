@@ -9,7 +9,7 @@ import { ELEC_SIZE } from '../constants';
 import range from '../Pins/range';
 
 export default function ContextMenu({
-  setMenuClick, contextCopy, contextPaste,
+  setMenuClick, contextCopy, contextPaste, contextMove,
   contextCut, contextDelete, squaresDelete, combinedDelete,
 }) {
   const canvasContext = useContext(CanvasContext);
@@ -33,10 +33,6 @@ export default function ContextMenu({
   const [showMenu, setShowMenu] = useState(false);
 
   const [menuContents, setMenuContents] = useState(null);
-
-  function contextMove() {
-    if (selected.length || combSelected.length) setMoving(true);
-  }
 
   function getCombinedLastFreeInd() {
     if (!allCombined.length) return 0;

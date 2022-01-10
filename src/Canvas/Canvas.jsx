@@ -720,6 +720,10 @@ export default function Canvas() {
   }
 
   // keyboard shortcuts
+  useHotkeys('m', () => {
+    move();
+  }, [selected, combSelected, electrodes, allCombined]);
+
   useHotkeys('ctrl+c', () => {
     copy();
   }, [selected, combSelected, clipboard, electrodes, allCombined]);
@@ -731,6 +735,18 @@ export default function Canvas() {
   useHotkeys('ctrl+x', () => {
     cut();
   }, [selected, combSelected, clipboard, electrodes, allCombined]);
+
+  useHotkeys('delete', () => {
+    squaresDelete();
+  }, [selected, combSelected, electrodes, allCombined]);
+
+  useHotkeys('c', (e) => {
+    handleCombine(e);
+  }, [selected, combSelected, electrodes, allCombined]);
+
+  useHotkeys('s', () => {
+    separate();
+  }, [selected, combSelected, electrodes, allCombined]);
 
   return (
     <div

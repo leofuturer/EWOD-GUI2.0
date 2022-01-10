@@ -722,7 +722,7 @@ export default function Canvas() {
   // keyboard shortcuts
   useHotkeys('m', () => {
     move();
-  }, [selected, combSelected, electrodes, allCombined]);
+  }, [selected, combSelected]);
 
   useHotkeys('ctrl+c', () => {
     copy();
@@ -738,7 +738,7 @@ export default function Canvas() {
 
   useHotkeys('delete', () => {
     squaresDelete();
-  }, [selected, combSelected, electrodes, allCombined]);
+  }, [selected, combSelected, electrodes, pinActuate, pinToElec, elecToPin]);
 
   useHotkeys('c', (e) => {
     handleCombine(e);

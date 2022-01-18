@@ -93,8 +93,16 @@ export default function ContextMenu({ setMenuClick }) {
         const offsetX = squares[0][0];
         const offsetY = squares[0][1];
         for (let i = 0; i < numSquaresCopied; i += 1) {
-          newInits.add([x + squares[i][0] - offsetX, y + squares[i][1] - offsetY]);
-          newDels.push([0, 0]);
+          const temp = [x + squares[i][0] - offsetX, y + squares[i][1] - offsetY];
+          if (!(
+            electrodes.initPositions.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
+          )) {
+            newInits.push(temp);
+            newDels.push([0, 0]);
+          } else {
+            window.alert('Pasted electrodes overlap!');
+            return;
+          }
         }
 
         const maxID = Math.max(...electrodes.ids) + 1;

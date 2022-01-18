@@ -120,11 +120,19 @@ export default function ContextMenu({ setMenuClick }) {
         const combIds = allCombined.map((el) => el[2]);
         const maxID = Math.max(...combIds);
         for (let k = 0; k < numCombinedCopied; k += 1) {
-          newCombs.push([
-            x + combined[k][0] - first[0],
-            y + combined[k][1] - first[1],
-            combined[k][2] + maxID + 1,
-          ]);
+          const temp = [x + combined[k][0] - first[0], y + combined[k][1] - first[1]];
+          if (!(
+            allCombined.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
+          )) {
+            newCombs.push([
+              temp[0],
+              temp[1],
+              combined[k][2] + maxID + 1,
+            ]);
+          } else {
+            window.alert('Pasted combined electrode overlap!');
+            return;
+          }
         }
         setComboLayout(allCombined.concat(newCombs));
       }

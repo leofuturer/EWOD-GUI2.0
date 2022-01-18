@@ -88,12 +88,11 @@ export default function ContextMenu({ setMenuClick }) {
       const y = yInt - (yInt % ELEC_SIZE);
       if (numSquaresCopied > 0) {
         const newInits = [];
-        for (let i = 0; i < numSquaresCopied; i += 1) newInits.push([x, y]);
-
         const newDels = [];
         const { squares } = clipboard;
-        for (let j = 0; j < numSquaresCopied; j += 1) {
-          newDels.push([squares[j][0] - squares[0][0], squares[j][1] - squares[0][1]]);
+        for (let i = 0; i < numSquaresCopied; i += 1) {
+          newInits.push([x, y]);
+          newDels.push([squares[i][0] - squares[0][0], squares[i][1] - squares[0][1]]);
         }
 
         const maxID = Math.max(...electrodes.ids) + 1;

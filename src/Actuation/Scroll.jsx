@@ -149,7 +149,8 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
   const [forever, setForever] = useState(false);
   const [flush, setFlush] = useState(false);
   const [duration, setDuration] = useState(100);
-
+  const [playorPause, setPlayorPause] = useState(true);
+  const [init, setInit] = useState(true);
   const indexRef = useRef();
   indexRef.current = index;
   const scrollRef = useRef();
@@ -249,9 +250,9 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
 
   function proceed() {
     if (fullseq.length === 0) return;
-    console.log(indexRef.current);
     if (indexRef.current === fullseq.length) {
       setPause(true);
+      setPlayorPause(true);
       setIndex(0);
       setCurrentStep(fullseq[0]);
       clearTimeout(time);
@@ -277,13 +278,18 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
       setPause(false);
       proceed();
     }
+    if (indexRef.current === 0 && init) {
+      setPlayorPause(true);
+    } else {
+      setPlayorPause(false);
+    }
   }
 
   function handlePause() {
     if (time) {
       clearTimeout(time);
     }
-    setIndex((ind) => ind - 1);
+    setIndex((ind) => ind % fullseq.length);
     setPause(true);
   }
 
@@ -351,7 +357,7 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
             position: 'absolute', left: '48vw', fontSize: 14, color: '#A06933', fontWeight: 'bold', margin: 0,
           }}
           >
-            {`Step ${pinActuate.get(currentStep).order} of ${pinActuate.size}`}
+            {`Step ${pinActuate.get(currentStep).order + 1} of ${pinActuate.size}`}
           </p>
           <Tooltip title="Delete all Frames">
             <IconButton onClick={() => { setAlert(true); }} data-testid="delete-start">
@@ -369,16 +375,32 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
               <img src={icons.back.icon} alt="one step back" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Play">
-            <IconButton
-              onClick={() => {
-                handlePlay();
-              }}
-              data-testid="play-button"
-            >
-              <img src={icons.play.icon} alt="play" />
-            </IconButton>
-          </Tooltip>
+          {playorPause
+            ? (
+              <Tooltip title="Play">
+                <IconButton
+                  onClick={() => {
+                    handlePlay();
+                    setInit(false);
+                    setPlayorPause(false);
+                  }}
+                  data-testid="play-button"
+                >
+                  <img src={icons.play.icon} alt="play" />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <Tooltip title="Pause">
+                <IconButton onClick={() => {
+                  handlePause();
+                  setInit(false);
+                  setPlayorPause(true);
+                }}
+                >
+                  <img src={icons.pause.icon} alt="pause" />
+                </IconButton>
+              </Tooltip>
+            )}
           <Tooltip title="Forward">
             <IconButton onClick={() => {
               if (pause && index !== fullseq.length - 1) {
@@ -396,14 +418,10 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
               setCurrentStep(fullseq[0]);
               setIndex(0);
               setForever(false);
+              setPlayorPause(true);
             }}
             >
               <img src={icons.startOver.icon} alt="start over" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Pause">
-            <IconButton onClick={handlePause}>
-              <img src={icons.pause.icon} alt="pause" />
             </IconButton>
           </Tooltip>
           <Tooltip title="Loop">
@@ -460,47 +478,47 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
         >
           <div className={classes.subcontainer} style={{ overflowX: 'visible' }}>
             {
-            Array.from(pinActuate.keys()).map((key) => {
-              const value = pinActuate.get(key);
-              if (value.type === 'loop') {
-                let appendString = '';
-                value.content.forEach((e) => { appendString += (`${pinActuate.get(e).order.toString()}, `); });
-                appendString = appendString.slice(0, -2);
-                const startBlock = pinActuate.get(value.content[0]);
-                const padding = startBlock.order;
-                return (
-                  <Button
-                    className={classes.loop}
-                    style={{
-                      position: 'absolute',
-                      top: 5,
-                      left: `calc(calc(15% + 10px) * ${padding} )`,
-                      width: `calc(calc(15% + 10px) * ${value.content.length} - 10px)`,
-                      height: 25,
-                    }}
-                    onClick={() => {
-                      if (pause) {
-                        const loop = pinActuate.get(key);
-                        setFrom(pinActuate.get(loop.content[0]).order.toString());
-                        setTo(pinActuate.get(loop.content[loop.content.length - 1])
-                          .order.toString());
-                        setRepTime(loop.repTime.toString());
-                        setUpdate(key);
-                        modelOpen();
-                      } else {
-                        bannerRef.current.getAlert('error', 'Please stop playing before editing!');
-                      }
-                    }}
-                    key={key}
-                    data-testid="loop-button"
-                  >
-                    {`Step ${appendString} | Repeat ${value.repTime} times`}
-                  </Button>
-                );
-              }
-              return null;
-            })
-          }
+              Array.from(pinActuate.keys()).map((key) => {
+                const value = pinActuate.get(key);
+                if (value.type === 'loop') {
+                  let appendString = '';
+                  value.content.forEach((e) => { appendString += (`${pinActuate.get(e).order.toString()}, `); });
+                  appendString = appendString.slice(0, -2);
+                  const startBlock = pinActuate.get(value.content[0]);
+                  const padding = startBlock.order;
+                  return (
+                    <Button
+                      className={classes.loop}
+                      style={{
+                        position: 'absolute',
+                        top: 5,
+                        left: `calc(calc(15% + 10px) * ${padding} )`,
+                        width: `calc(calc(15% + 10px) * ${value.content.length} - 10px)`,
+                        height: 25,
+                      }}
+                      onClick={() => {
+                        if (pause) {
+                          const loop = pinActuate.get(key);
+                          setFrom(pinActuate.get(loop.content[0]).order.toString());
+                          setTo(pinActuate.get(loop.content[loop.content.length - 1])
+                            .order.toString());
+                          setRepTime(loop.repTime.toString());
+                          setUpdate(key);
+                          modelOpen();
+                        } else {
+                          bannerRef.current.getAlert('error', 'Please stop playing before editing!');
+                        }
+                      }}
+                      key={key}
+                      data-testid="loop-button"
+                    >
+                      {`Step ${appendString} | Repeat ${value.repTime} times`}
+                    </Button>
+                  );
+                }
+                return null;
+              })
+            }
           </div>
           <div className={classes.subcontainer}>
             {Array.from(pinActuate.keys()).map((key) => {
@@ -516,6 +534,7 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
                     style={{ backgroundColor: currentStep === key ? '#D4A373' : '#FEFAE0' }}
                     onClick={() => {
                       if (pause) {
+                        setIndex(key);
                         setCurrentStep(key);
                       }
                     }}
@@ -531,7 +550,7 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
                     data-testid="seq-button"
                   >
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <p>{`Frame Number: ${value.order}`}</p>
+                      <p>{`Frame Number: ${value.order + 1}`}</p>
                       <p>{`Actuated Pins: ${appendString}`}</p>
                       <TextField
                         variant="outlined"
@@ -578,10 +597,10 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
             onClose={handleClose}
             anchorReference="anchorPosition"
             anchorPosition={
-            mouseState.mouseY && mouseState.mouseX
-              ? { top: mouseState.mouseY, left: mouseState.mouseX }
-              : undefined
-          }
+              mouseState.mouseY && mouseState.mouseX
+                ? { top: mouseState.mouseY, left: mouseState.mouseX }
+                : undefined
+            }
             data-testid="act-context-menu"
           >
             <MenuItem onClick={handleInsert}>Insert</MenuItem>

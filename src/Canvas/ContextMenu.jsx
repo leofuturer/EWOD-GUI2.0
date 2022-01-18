@@ -90,9 +90,11 @@ export default function ContextMenu({ setMenuClick }) {
         const newInits = [];
         const newDels = [];
         const { squares } = clipboard;
+        const offsetX = squares[0][0];
+        const offsetY = squares[0][1];
         for (let i = 0; i < numSquaresCopied; i += 1) {
-          newInits.push([x, y]);
-          newDels.push([squares[i][0] - squares[0][0], squares[i][1] - squares[0][1]]);
+          newInits.add([x + squares[i][0] - offsetX, y + squares[i][1] - offsetY]);
+          newDels.push([0, 0]);
         }
 
         const maxID = Math.max(...electrodes.ids) + 1;

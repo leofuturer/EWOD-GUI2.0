@@ -96,6 +96,7 @@ export default function ContextMenu({ setMenuClick }) {
           const temp = [x + squares[i][0] - offsetX, y + squares[i][1] - offsetY];
           if (!(
             electrodes.initPositions.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
+            || allCombined.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
           )) {
             newInits.push(temp);
             newDels.push([0, 0]);
@@ -122,7 +123,8 @@ export default function ContextMenu({ setMenuClick }) {
         for (let k = 0; k < numCombinedCopied; k += 1) {
           const temp = [x + combined[k][0] - first[0], y + combined[k][1] - first[1]];
           if (!(
-            allCombined.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
+            electrodes.initPositions.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
+            || allCombined.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
           )) {
             newCombs.push([
               temp[0],

@@ -88,12 +88,22 @@ export default function ContextMenu({ setMenuClick }) {
       const y = yInt - (yInt % ELEC_SIZE);
       if (numSquaresCopied > 0) {
         const newInits = [];
-        for (let i = 0; i < numSquaresCopied; i += 1) newInits.push([x, y]);
-
         const newDels = [];
         const { squares } = clipboard;
-        for (let j = 0; j < numSquaresCopied; j += 1) {
-          newDels.push([squares[j][0] - squares[0][0], squares[j][1] - squares[0][1]]);
+        const offsetX = squares[0][0];
+        const offsetY = squares[0][1];
+        for (let i = 0; i < numSquaresCopied; i += 1) {
+          const temp = [x + squares[i][0] - offsetX, y + squares[i][1] - offsetY];
+          if (!(
+            electrodes.initPositions.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
+            || allCombined.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
+          )) {
+            newInits.push(temp);
+            newDels.push([0, 0]);
+          } else {
+            window.alert('Pasted electrodes overlap!');
+            return;
+          }
         }
 
         const maxID = Math.max(...electrodes.ids) + 1;
@@ -111,11 +121,20 @@ export default function ContextMenu({ setMenuClick }) {
         const combIds = allCombined.map((el) => el[2]);
         const maxID = Math.max(...combIds);
         for (let k = 0; k < numCombinedCopied; k += 1) {
-          newCombs.push([
-            x + combined[k][0] - first[0],
-            y + combined[k][1] - first[1],
-            combined[k][2] + maxID + 1,
-          ]);
+          const temp = [x + combined[k][0] - first[0], y + combined[k][1] - first[1]];
+          if (!(
+            electrodes.initPositions.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
+            || allCombined.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
+          )) {
+            newCombs.push([
+              temp[0],
+              temp[1],
+              combined[k][2] + maxID + 1,
+            ]);
+          } else {
+            window.alert('Pasted combined electrode overlap!');
+            return;
+          }
         }
         setComboLayout(allCombined.concat(newCombs));
       }

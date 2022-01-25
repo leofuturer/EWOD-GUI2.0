@@ -737,7 +737,7 @@ export default function Canvas() {
   }, [selected, combSelected, clipboard, electrodes, allCombined]);
 
   useHotkeys('delete', () => {
-    squaresDelete();
+    BothDelete();
   }, [selected, combSelected, electrodes, pinActuate, pinToElec, elecToPin]);
 
   useHotkeys('c', (e) => {

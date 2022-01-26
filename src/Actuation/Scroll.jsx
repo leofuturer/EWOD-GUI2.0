@@ -289,7 +289,7 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
     if (time) {
       clearTimeout(time);
     }
-    setIndex((ind) => ind % fullseq.length);
+    setIndex((ind) => (ind - 1) % fullseq.length);
     setPause(true);
   }
 
@@ -482,7 +482,7 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
                 const value = pinActuate.get(key);
                 if (value.type === 'loop') {
                   let appendString = '';
-                  value.content.forEach((e) => { appendString += (`${pinActuate.get(e).order.toString()}, `); });
+                  value.content.forEach((e) => { appendString += (`${(pinActuate.get(e).order + 1).toString()}, `); });
                   appendString = appendString.slice(0, -2);
                   const startBlock = pinActuate.get(value.content[0]);
                   const padding = startBlock.order;

@@ -149,8 +149,7 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
   const [forever, setForever] = useState(false);
   const [flush, setFlush] = useState(false);
   const [duration, setDuration] = useState(100);
-  const [playorPause, setPlayorPause] = useState(true);
-  const [init, setInit] = useState(true);
+  const [showPlayButton, setShowPlayButton] = useState(true);
   const indexRef = useRef();
   indexRef.current = index;
   const scrollRef = useRef();
@@ -252,7 +251,7 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
     if (fullseq.length === 0) return;
     if (indexRef.current === fullseq.length) {
       setPause(true);
-      setPlayorPause(true);
+      setShowPlayButton(true);
       setIndex(0);
       setCurrentStep(fullseq[0]);
       clearTimeout(time);
@@ -278,10 +277,10 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
       setPause(false);
       proceed();
     }
-    if (indexRef.current === 0 && init) {
-      setPlayorPause(true);
+    if (indexRef.current === 0) {
+      setShowPlayButton(true);
     } else {
-      setPlayorPause(false);
+      setShowPlayButton(false);
     }
   }
 
@@ -375,14 +374,13 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
               <img src={icons.back.icon} alt="one step back" />
             </IconButton>
           </Tooltip>
-          {playorPause
+          {showPlayButton
             ? (
               <Tooltip title="Play">
                 <IconButton
                   onClick={() => {
                     handlePlay();
-                    setInit(false);
-                    setPlayorPause(false);
+                    setShowPlayButton(false);
                   }}
                   data-testid="play-button"
                 >
@@ -393,8 +391,7 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
               <Tooltip title="Pause">
                 <IconButton onClick={() => {
                   handlePause();
-                  setInit(false);
-                  setPlayorPause(true);
+                  setShowPlayButton(true);
                 }}
                 >
                   <img src={icons.pause.icon} alt="pause" />
@@ -418,7 +415,7 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
               setCurrentStep(fullseq[0]);
               setIndex(0);
               setForever(false);
-              setPlayorPause(true);
+              setShowPlayButton(true);
             }}
             >
               <img src={icons.startOver.icon} alt="start over" />

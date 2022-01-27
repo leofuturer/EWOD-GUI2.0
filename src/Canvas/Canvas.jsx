@@ -721,30 +721,58 @@ export default function Canvas() {
 
   // keyboard shortcuts
   useHotkeys('m', () => {
+    if (mode === 'DRAW') {
+      window.alert('Cannot move electrodes in draw mode');
+      return;
+    }
     move();
   }, [selected, combSelected]);
 
   useHotkeys('ctrl+c', () => {
+    if (mode === 'DRAW') {
+      window.alert('Cannot copy electrodes in draw mode');
+      return;
+    }
     copy();
   }, [selected, combSelected, clipboard, electrodes, allCombined]);
 
   useHotkeys('ctrl+v', () => {
+    if (mode === 'DRAW') {
+      window.alert('Cannot paste electrodes in draw mode');
+      return;
+    }
     paste(null, relativeX, relativeY);
   }, [selected, combSelected, clipboard, electrodes, allCombined, relativeX, relativeY]);
 
   useHotkeys('ctrl+x', () => {
+    if (mode === 'DRAW') {
+      window.alert('Cannot cut electrodes in draw mode');
+      return;
+    }
     cut();
   }, [selected, combSelected, clipboard, electrodes, allCombined]);
 
   useHotkeys('delete', () => {
+    if (mode === 'DRAW') {
+      window.alert('Cannot delete electrodes in draw mode');
+      return;
+    }
     BothDelete();
   }, [selected, combSelected, electrodes, pinActuate, pinToElec, elecToPin]);
 
   useHotkeys('c', (e) => {
+    if (mode === 'DRAW') {
+      window.alert('Cannot combine electrodes in draw mode');
+      return;
+    }
     handleCombine(e);
   }, [selected, combSelected, electrodes, allCombined]);
 
   useHotkeys('s', () => {
+    if (mode === 'DRAW') {
+      window.alert('Cannot separate electrodes in draw mode');
+      return;
+    }
     separate();
   }, [selected, combSelected, electrodes, allCombined]);
 

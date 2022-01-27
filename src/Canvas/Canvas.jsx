@@ -726,7 +726,7 @@ export default function Canvas() {
       return;
     }
     move();
-  }, [selected, combSelected]);
+  }, [mode, selected, combSelected]);
 
   useHotkeys('ctrl+c', () => {
     if (mode === 'DRAW') {
@@ -734,7 +734,7 @@ export default function Canvas() {
       return;
     }
     copy();
-  }, [selected, combSelected, clipboard, electrodes, allCombined]);
+  }, [mode, selected, combSelected, clipboard, electrodes, allCombined]);
 
   useHotkeys('ctrl+v', () => {
     if (mode === 'DRAW') {
@@ -742,7 +742,7 @@ export default function Canvas() {
       return;
     }
     paste(null, relativeX, relativeY);
-  }, [selected, combSelected, clipboard, electrodes, allCombined, relativeX, relativeY]);
+  }, [mode, selected, combSelected, clipboard, electrodes, allCombined, relativeX, relativeY]);
 
   useHotkeys('ctrl+x', () => {
     if (mode === 'DRAW') {
@@ -750,7 +750,7 @@ export default function Canvas() {
       return;
     }
     cut();
-  }, [selected, combSelected, clipboard, electrodes, allCombined]);
+  }, [mode, selected, combSelected, clipboard, electrodes, allCombined]);
 
   useHotkeys('delete', () => {
     if (mode === 'DRAW') {
@@ -758,7 +758,7 @@ export default function Canvas() {
       return;
     }
     BothDelete();
-  }, [selected, combSelected, electrodes, pinActuate, pinToElec, elecToPin]);
+  }, [mode, selected, combSelected, electrodes, pinActuate, pinToElec, elecToPin]);
 
   useHotkeys('c', (e) => {
     if (mode === 'DRAW') {
@@ -766,7 +766,7 @@ export default function Canvas() {
       return;
     }
     handleCombine(e);
-  }, [selected, combSelected, electrodes, allCombined]);
+  }, [mode, selected, combSelected, electrodes, allCombined]);
 
   useHotkeys('s', () => {
     if (mode === 'DRAW') {
@@ -774,7 +774,7 @@ export default function Canvas() {
       return;
     }
     separate();
-  }, [selected, combSelected, electrodes, allCombined]);
+  }, [mode, selected, combSelected, electrodes, allCombined]);
 
   return (
     <div

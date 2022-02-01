@@ -757,7 +757,11 @@ export default function Canvas() {
       window.alert('Cannot delete electrodes in draw mode');
       return;
     }
-    BothDelete();
+    if (mode === 'PIN') {
+      deleteSelectedMappings();
+    } else {
+      BothDelete();
+    }
   }, [mode, selected, combSelected, electrodes, pinActuate, pinToElec, elecToPin]);
 
   useHotkeys('c', (e) => {

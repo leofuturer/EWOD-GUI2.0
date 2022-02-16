@@ -508,7 +508,7 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
                     key={key}
                     data-testid="loop-button"
                   >
-                    {`Step ${appendString} | Repeat ${value.repTime} times`}
+                    {`Frame ${appendString} | Repeat ${value.repTime} times`}
                   </Button>
                 );
               }

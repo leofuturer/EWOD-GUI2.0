@@ -495,8 +495,8 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
                     onClick={() => {
                       if (pause) {
                         const loop = pinActuate.get(key);
-                        setFrom(pinActuate.get(loop.content[0]).order.toString());
-                        setTo(pinActuate.get(loop.content[loop.content.length - 1])
+                        setFrom(pinActuate.get(loop.content[0]).order + 1);
+                        setTo(pinActuate.get(loop.content[loop.content.length - 1] + 1)
                           .order.toString());
                         setRepTime(loop.repTime.toString());
                         setUpdate(key);

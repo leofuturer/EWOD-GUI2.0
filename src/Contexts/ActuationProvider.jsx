@@ -168,7 +168,7 @@ const ActuationProvider = ({ children }) => {
           const contentList = [];
           let error = 0;
           newList.forEach((value) => {
-            if (value.type === 'simple' && value.order >= from && value.order <= to) {
+            if (value.type === 'simple' && value.order >= from - 1 && value.order <= to - 1) {
               if (error === 1) return;
               if (value.parent) {
                 error = 1;
@@ -196,7 +196,7 @@ const ActuationProvider = ({ children }) => {
           const contentList = [];
           let error = 0;
           newList.forEach((value) => {
-            if (value.type === 'simple' && value.order >= from && value.order <= to) {
+            if (value.type === 'simple' && value.order >= from - 1 && value.order <= to - 1) {
               if (error === 1) return;
               if (value.parent && value.parent !== loopKey) {
                 error = 1;

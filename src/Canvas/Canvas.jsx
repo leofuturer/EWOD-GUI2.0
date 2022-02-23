@@ -49,6 +49,7 @@ export default function Canvas() {
   const [clipboard, setClipboard] = useState([]);
   const [relativeX, setRelativeX] = useState('0px');
   const [relativeY, setRelativeY] = useState('0px');
+  const [cutFlag, setCutFlag] = useState(false);
 
   const startShift = useCallback((event) => {
     if (event.keyCode === 16) setShiftDown(true);
@@ -445,6 +446,23 @@ export default function Canvas() {
     setClipboard({ squares, combined });
   }
 
+  function handleCutFlag(squares, combined, numSquaresCopied, numCombinedCopied) {
+    if (numSquaresCopied > 0) {
+      const newDels = new Array(numSquaresCopied).fill([0, 0]);
+      const maxID = Math.max(...electrodes.ids) + 1;
+      const newIDs = [...new Array(numSquaresCopied).keys()].map((num) => num + maxID);
+      setElectrodes({
+        initPositions: electrodes.initPositions.concat(squares),
+        deltas: electrodes.deltas.concat(newDels),
+        ids: electrodes.ids.concat(newIDs),
+      });
+    }
+    if (numCombinedCopied > 0) {
+      setComboLayout(allCombined.concat(combined));
+    }
+    setCutFlag(false);
+  }
+
   function paste(e, relX, relY) {
     if (selected.length > 0) setSelected([]);
     if (combSelected.length > 0) setCombSelected([]);
@@ -456,10 +474,9 @@ export default function Canvas() {
       const yInt = parseInt(relY, 10);
       const x = xInt - (xInt % ELEC_SIZE);
       const y = yInt - (yInt % ELEC_SIZE);
+      const { squares, combined } = clipboard;
       if (numSquaresCopied > 0) {
         const newInits = [];
-        const newDels = [];
-        const { squares } = clipboard;
         const offsetX = squares[0][0];
         const offsetY = squares[0][1];
         for (let i = 0; i < numSquaresCopied; i += 1) {
@@ -469,13 +486,17 @@ export default function Canvas() {
             || allCombined.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
           )) {
             newInits.push(temp);
-            newDels.push([0, 0]);
           } else {
             window.alert('Pasted electrodes overlap!');
+            if (cutFlag) {
+              handleCutFlag(squares, combined, numSquaresCopied,
+                numCombinedCopied);
+            }
             return;
           }
         }
 
+        const newDels = new Array(numSquaresCopied).fill([0, 0]);
         const maxID = Math.max(...electrodes.ids) + 1;
         const newIDs = [...new Array(numSquaresCopied).keys()].map((num) => num + maxID);
         setElectrodes({
@@ -485,7 +506,6 @@ export default function Canvas() {
         });
       }
       if (numCombinedCopied > 0) {
-        const { combined } = clipboard;
         const first = clipboard.squares.length > 0 ? clipboard.squares[0] : combined[0];
         const newCombs = [];
         const combIds = allCombined.map((el) => el[2]);
@@ -503,6 +523,10 @@ export default function Canvas() {
             ]);
           } else {
             window.alert('Pasted combined electrode overlap!');
+            if (cutFlag) {
+              handleCutFlag(squares, combined, numSquaresCopied,
+                numCombinedCopied);
+            }
             return;
           }
         }
@@ -568,6 +592,7 @@ export default function Canvas() {
   }
 
   function cut() {
+    setCutFlag(true);
     copy();
     BothDelete();
   }

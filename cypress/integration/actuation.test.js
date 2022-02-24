@@ -10,8 +10,8 @@ describe('Actuation', () => {
     cy.get('[data-testid="seq-button"]').should('have.length', 2);
     cy.get('[data-testid="seq-button"]').first().rightclick();
     cy.contains('Loop').click();
-    cy.get('[data-testid="input-from"]').type('0');
-    cy.get('[data-testid="input-to"]').type('1');
+    cy.get('[data-testid="input-from"]').type('1');
+    cy.get('[data-testid="input-to"]').type('2');
     cy.get('[data-testid="input-rept"]').type('2');
     cy.contains('Confirm').click();
     cy.get('[data-testid="loop-button"]').should('have.length', 1);
@@ -22,8 +22,8 @@ describe('Actuation', () => {
     cy.get('[data-testid="add-button"]').click();
     cy.get('[data-testid="seq-button"]').first().rightclick();
     cy.contains('Loop').click();
-    cy.get('[data-testid="input-from"]').type('0');
-    cy.get('[data-testid="input-to"]').type('1');
+    cy.get('[data-testid="input-from"]').type('1');
+    cy.get('[data-testid="input-to"]').type('2');
     cy.get('[data-testid="input-rept"]').type('2');
     cy.contains('Confirm').click();
     cy.get('[data-testid="loop-button"]').click();
@@ -37,14 +37,14 @@ describe('Actuation', () => {
     cy.get('[data-testid="add-button"]').click();
     cy.get('[data-testid="seq-button"]').first().rightclick();
     cy.contains('Loop').click();
-    cy.get('[data-testid="input-from"]').type('0');
-    cy.get('[data-testid="input-to"]').type('1');
+    cy.get('[data-testid="input-from"]').type('1');
+    cy.get('[data-testid="input-to"]').type('2');
     cy.get('[data-testid="input-rept"]').type('2');
     cy.contains('Confirm').click();
     cy.get('[data-testid="seq-button"]').first().rightclick();
     cy.contains('Loop').click();
-    cy.get('[data-testid="input-from"]').type('1');
-    cy.get('[data-testid="input-to"]').type('2');
+    cy.get('[data-testid="input-from"]').type('2');
+    cy.get('[data-testid="input-to"]').type('3');
     cy.get('[data-testid="input-rept"]').type('3');
     cy.contains('Confirm').click();
     cy.get('[data-testid="alert-box-error"]').should('be.visible');
@@ -66,14 +66,14 @@ describe('Actuation', () => {
     }
     cy.get('[data-testid="seq-button"]').first().rightclick();
     cy.contains('Loop').click();
-    cy.get('[data-testid="input-from"]').type('0');
-    cy.get('[data-testid="input-to"]').type('1');
+    cy.get('[data-testid="input-from"]').type('1');
+    cy.get('[data-testid="input-to"]').type('2');
     cy.get('[data-testid="input-rept"]').type('2');
     cy.contains('Confirm').click();
     cy.get('[data-testid="seq-button"]').first().rightclick();
     cy.contains('Loop').click();
-    cy.get('[data-testid="input-from"]').type('3');
-    cy.get('[data-testid="input-to"]').type('4');
+    cy.get('[data-testid="input-from"]').type('4');
+    cy.get('[data-testid="input-to"]').type('5');
     cy.get('[data-testid="input-rept"]').type('2');
     cy.contains('Confirm').click();
     cy.get('[data-testid="loop-button"]').should('have.length', 2);
@@ -112,14 +112,14 @@ describe('Actuation', () => {
     }
     cy.get('[data-testid="seq-button"]').first().rightclick();
     cy.contains('Loop').click();
-    cy.get('[data-testid="input-from"]').type('0');
-    cy.get('[data-testid="input-to"]').type('1');
+    cy.get('[data-testid="input-from"]').type('1');
+    cy.get('[data-testid="input-to"]').type('2');
     cy.get('[data-testid="input-rept"]').type('2');
     cy.contains('Confirm').click();
     cy.get('[data-testid="seq-button"]').first().rightclick();
     cy.contains('Loop').click();
-    cy.get('[data-testid="input-from"]').type('3');
-    cy.get('[data-testid="input-to"]').type('4');
+    cy.get('[data-testid="input-from"]').type('4');
+    cy.get('[data-testid="input-to"]').type('5');
     cy.get('[data-testid="input-rept"]').type('2');
     cy.contains('Confirm').click();
     cy.get('[data-testid="set-all-duration"]').click();
@@ -134,8 +134,8 @@ describe('Actuation', () => {
     }
     cy.get('[data-testid="seq-button"]').first().rightclick();
     cy.contains('Loop').click();
-    cy.get('[data-testid="input-from"]').type('0');
-    cy.get('[data-testid="input-to"]').type('1');
+    cy.get('[data-testid="input-from"]').type('1');
+    cy.get('[data-testid="input-to"]').type('2');
     cy.get('[data-testid="input-rept"]').type('2');
     cy.contains('Confirm').click();
     cy.get('[data-testid="loop-button"]').first().click();

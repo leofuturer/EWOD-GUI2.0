@@ -390,4 +390,113 @@ describe('Canvas', () => {
     cy.get('[data-testid="square"]').should('have.class', 'selected');
     cy.get('[data-testid="combined"]').should('not.have.class', 'selected');
   });
+
+  it('Shortcut move square', () => {
+    cy.createSquare(CELL1);
+
+    cy.get('[data-testid="CAN"]').click();
+    cy.get('[data-testid="square"]').click({ force: true });
+
+    cy.get('body').type('m');
+    cy.get('[data-testid="square"]')
+      .then(($square) => cy.moveElec($square, CELL1, POSITION));
+
+    cy.get('[data-testid="square"]')
+      .should('have.attr', 'x', POSITION.x - 10)
+      .should('have.attr', 'y', POSITION.y - 10);
+  });
+
+  it('Shortcut delete square', () => {
+    cy.createSquare(CELL1);
+    cy.get('[data-testid="CAN"]').click();
+    cy.get('[data-testid="square"]').click({ force: true });
+
+    cy.get('body').type('{del}');
+    cy.get('[data-testid="square"]').should('have.length', 0);
+  });
+
+  it('Combine', () => {
+    cy.createSquare(CELL2);
+    cy.createSquare(CELL3);
+
+    cy.get('[data-testid="CAN"]').click();
+    cy.drag(CELL3, CELL2);
+    cy.get('body').type('c');
+    cy.get('[data-testid="square"]').should('have.length', 0);
+    cy.get('[data-testid="combined"]').should('have.length', 1);
+  });
+
+  it('Shortcut separate', () => {
+    cy.createSquare(CELL2);
+    cy.createSquare(CELL3);
+
+    // combine
+    cy.get('[data-testid="CAN"]').click();
+    cy.drag(CELL3, CELL2);
+    cy.get('body').type('c');
+
+    // now separate
+    cy.get('[data-testid="combined"]').click({ force: true });
+    cy.get('body').type('s');
+    cy.get('[data-testid="square"]')
+      .should((sub) => {
+        expect(sub[0].id).to.match(/S[01]/);
+        expect(sub[1].id).to.match(/S[01]/);
+      });
+  });
+
+  it('Shortcut copy paste square', () => {
+    cy.createSquare(CELL2);
+    cy.get('[data-testid="CAN"]').click();
+    cy.get('[data-testid="square"]').click({ force: true });
+
+    cy.get('body').type('{ctrl}c');
+
+    cy.get('.greenArea').click(CELL4.x, CELL4.y);
+    cy.get('body').type('{ctrl}v');
+
+    cy.get('[data-testid="square"]')
+      .eq(1)
+      .should('have.attr', 'x', CELL4.x - 10, CELL4.y - 10);
+  });
+
+  it('Shortcut copy paste multiple combined', () => {
+    // combine 2 electrodes
+    cy.createSquare(CELL2);
+    cy.createSquare(CELL3);
+    cy.get('[data-testid="CAN"]').click();
+    cy.drag(CELL3, CELL2);
+    cy.get('body').type('c');
+
+    // copy
+    cy.drag(CELL2, CELL3);
+    cy.get('body').type('{ctrl}c');
+
+    // paste
+    const pos1 = 7 * ELEC_SIZE + 10;
+    cy.get('.greenArea').click(pos1, pos1);
+    cy.get('body').type('{ctrl}v');
+
+    // paste again
+    const pos2 = 9 * ELEC_SIZE + 10;
+    cy.get('.greenArea').click(pos2, pos2);
+    cy.get('body').type('{ctrl}v');
+
+    // assert they all have diff ids
+    cy.get('[data-testid="combined"]')
+      .should(($el) => {
+        expect($el).to.have.lengthOf(3);
+        expect($el[0].getAttribute('id')).not.to.equal($el[1].getAttribute('id'));
+        expect($el[1].getAttribute('id')).not.to.equal($el[2].getAttribute('id'));
+        expect($el[2].getAttribute('id')).not.to.equal($el[0].getAttribute('id'));
+      });
+
+    // hard to assert positions since they're path objs with no clear singular coordinates
+    // but try to drag select 3rd combined electrode and see if it turns blue
+    // cy.drag({ x: pos2, y: pos2 }, { x: pos2, y: pos2 });
+    // cy.get('path.selected').should(($el) => {
+    //   expect($el).to.have.lengthOf(1);
+    //   expect($el[0].getAttribute('id')).to.equal('C2');
+    // });
+  });
 });

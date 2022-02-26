@@ -4,6 +4,8 @@ import React, {
 // eslint-disable-next-line import/no-unresolved
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import SVGContainer from 'react-svg-drag-and-select';
+import { useHotkeys } from 'react-hotkeys-hook';
+
 import DraggableItem from './DraggableItem';
 import DraggableComb from './DraggableComb';
 
@@ -17,7 +19,9 @@ import {
   CANVAS_TRUE_HEIGHT, CANVAS_TRUE_WIDTH,
   CANVAS_RIGHT_EDGE, CANVAS_LEFT_EDGE, CANVAS_TOP_EDGE, CANVAS_BOTTOM_EDGE,
 } from '../constants';
+import range from '../Pins/range';
 
+// hotkey library
 // const chassis = require('./chassis-with-background.svg');
 
 export default function Canvas() {
@@ -27,19 +31,25 @@ export default function Canvas() {
   const { allCombined } = canvasContext.combined;
   const combSelected = canvasContext.combined.selected;
   const {
-    setMouseDown, setElectrodes, setSelected, setCombSelected,
+    setMouseDown, setElectrodes, setSelected, setCombSelected, setComboLayout, setMoving,
   } = canvasContext;
 
   const actuationContext = useContext(ActuationContext);
   const { currentStep, pinActuate } = actuationContext.actuation;
-  const { actuatePin, pushHistory } = actuationContext;
+  const { actuatePin, pushHistory, setPinActuation } = actuationContext;
 
   const {
     mode, currElec, elecToPin, setCurrElec, panning, setScaleXY, scaleXY, setPanning,
+    pinToElec, setPinToElec, setElecToPin,
   } = useContext(GeneralContext);
 
   const [middleDown, setMiddleDown] = useState(false);
   const [shiftDown, setShiftDown] = useState(false);
+
+  const [clipboard, setClipboard] = useState([]);
+  const [relativeX, setRelativeX] = useState('0px');
+  const [relativeY, setRelativeY] = useState('0px');
+  const [cutFlag, setCutFlag] = useState(false);
 
   const startShift = useCallback((event) => {
     if (event.keyCode === 16) setShiftDown(true);
@@ -71,6 +81,8 @@ export default function Canvas() {
       default: // you're weird
         break;
     }
+    setRelativeX(`${event.offsetX}px`);
+    setRelativeY(`${event.offsetY}px`);
   }, [setMouseDown]);
 
   const handleMouseUp = useCallback(() => {
@@ -393,6 +405,406 @@ export default function Canvas() {
   // val doesn't matter -- just need to toggle state to trigger rerender of SVGContainer
 
   /* ########################### COMBINE STUFF END ########################### */
+
+  /* ########################### CLIPBOARD STUFF ########################### */
+
+  function move() {
+    if (selected.length || combSelected.length) setMoving(true);
+  }
+
+  function copy() {
+    const squares = [];
+    const combined = [];
+
+    if (selected.length > 0) {
+      const inits = electrodes.initPositions.filter((_, ind) => selected.includes(`${ind}`));
+      const dels = electrodes.deltas.filter((_, ind) => selected.includes(`${ind}`));
+      for (let i = 0; i < inits.length; i += 1) {
+        const tmp = [inits[i][0] + dels[i][0], inits[i][1] + dels[i][1]];
+        squares.push(tmp);
+      }
+      setSelected([]);
+    }
+    if (combSelected.length > 0) {
+      // ex: selected IDs 2 4 7
+      // want those to have some permutation of IDs 0 1 2 in clipboard
+      const record = {};
+      let ind = 0;
+      allCombined.forEach((comb) => {
+        if (combSelected.includes(`${comb[2]}`)) {
+          if (Object.prototype.hasOwnProperty.call(record, comb[2])) {
+            combined.push([comb[0], comb[1], record[comb[2]]]);
+          } else {
+            record[comb[2]] = ind;
+            combined.push([comb[0], comb[1], ind]);
+            ind += 1;
+          }
+        }
+      });
+      setCombSelected([]);
+    }
+    setClipboard({ squares, combined });
+  }
+
+  function handleCutFlag(squares, combined, numSquaresCopied, numCombinedCopied) {
+    if (numSquaresCopied > 0) {
+      const newDels = new Array(numSquaresCopied).fill([0, 0]);
+      const maxID = Math.max(...electrodes.ids) + 1;
+      const newIDs = [...new Array(numSquaresCopied).keys()].map((num) => num + maxID);
+      setElectrodes({
+        initPositions: electrodes.initPositions.concat(squares),
+        deltas: electrodes.deltas.concat(newDels),
+        ids: electrodes.ids.concat(newIDs),
+      });
+    }
+    if (numCombinedCopied > 0) {
+      setComboLayout(allCombined.concat(combined));
+    }
+    setCutFlag(false);
+  }
+
+  function paste(e, relX, relY) {
+    if (selected.length > 0) setSelected([]);
+    if (combSelected.length > 0) setCombSelected([]);
+    if (!clipboard.squares && !clipboard.combined) return;
+    const numSquaresCopied = clipboard.squares.length;
+    const numCombinedCopied = clipboard.combined.length;
+    if (numSquaresCopied > 0 || numCombinedCopied > 0) {
+      const xInt = parseInt(relX, 10);
+      const yInt = parseInt(relY, 10);
+      const x = xInt - (xInt % ELEC_SIZE);
+      const y = yInt - (yInt % ELEC_SIZE);
+      const { squares, combined } = clipboard;
+      if (numSquaresCopied > 0) {
+        const newInits = [];
+        const offsetX = squares[0][0];
+        const offsetY = squares[0][1];
+        for (let i = 0; i < numSquaresCopied; i += 1) {
+          const temp = [x + squares[i][0] - offsetX, y + squares[i][1] - offsetY];
+          if (!(
+            electrodes.initPositions.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
+            || allCombined.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
+          )) {
+            newInits.push(temp);
+          } else {
+            window.alert('Pasted electrodes overlap!');
+            if (cutFlag) {
+              handleCutFlag(squares, combined, numSquaresCopied,
+                numCombinedCopied);
+            }
+            return;
+          }
+        }
+
+        const newDels = new Array(numSquaresCopied).fill([0, 0]);
+        const maxID = Math.max(...electrodes.ids) + 1;
+        const newIDs = [...new Array(numSquaresCopied).keys()].map((num) => num + maxID);
+        setElectrodes({
+          initPositions: electrodes.initPositions.concat(newInits),
+          deltas: electrodes.deltas.concat(newDels),
+          ids: electrodes.ids.concat(newIDs),
+        });
+      }
+      if (numCombinedCopied > 0) {
+        const first = clipboard.squares.length > 0 ? clipboard.squares[0] : combined[0];
+        const newCombs = [];
+        const combIds = allCombined.map((el) => el[2]);
+        const maxID = Math.max(...combIds);
+        for (let k = 0; k < numCombinedCopied; k += 1) {
+          const temp = [x + combined[k][0] - first[0], y + combined[k][1] - first[1]];
+          if (!(
+            electrodes.initPositions.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
+            || allCombined.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
+          )) {
+            newCombs.push([
+              temp[0],
+              temp[1],
+              combined[k][2] + maxID + 1,
+            ]);
+          } else {
+            window.alert('Pasted combined electrode overlap!');
+            if (cutFlag) {
+              handleCutFlag(squares, combined, numSquaresCopied,
+                numCombinedCopied);
+            }
+            return;
+          }
+        }
+        setComboLayout(allCombined.concat(newCombs));
+      }
+    }
+  }
+
+  function squaresDelete() {
+    const mappedPins = [];
+    // go through selected squares to erase any of their pin mappings
+    electrodes.ids.forEach((id) => {
+      if (selected.includes(`${id}`)) {
+        const square = `S${id}`;
+        const mappedPin = elecToPin[square];
+        if (mappedPin) { // mapping exists for this electrode so delete mapping
+          mappedPins.push(mappedPin);
+          delete pinToElec[mappedPin];
+          delete elecToPin[square];
+        }
+      }
+    });
+
+    Array.from(pinActuate.keys()).forEach((key) => {
+      const value = pinActuate.get(key);
+      value.content.forEach((e) => {
+        if (mappedPins.includes(e)) value.content.delete(e);
+      });
+    });
+
+    setPinActuation(new Map(pinActuate));
+
+    setPinToElec({ ...pinToElec });
+    setElecToPin({ ...elecToPin });
+    const newPos = electrodes.initPositions
+      .filter((val, ind) => !selected.includes(`${electrodes.ids[ind]}`));
+    const newDel = electrodes.deltas.filter((val, ind) => !selected.includes(`${electrodes.ids[ind]}`));
+    const newIds = electrodes.ids.filter((id) => !selected.includes(`${id}`));
+    setSelected([]);
+    setElectrodes({ initPositions: newPos, deltas: newDel, ids: newIds });
+  }
+
+  function combinedDelete() {
+    // go through selected combined elecs to erase any of their pin mappings
+    combSelected.forEach((index) => {
+      const combined = `C${index}`;
+      const mappedPin = elecToPin[combined];
+      if (mappedPin) { // mapping exists for this electrode so delete mapping
+        delete pinToElec[mappedPin];
+        delete elecToPin[combined];
+      }
+    });
+
+    setPinToElec({ ...pinToElec });
+    setElecToPin({ ...elecToPin });
+    setComboLayout(allCombined.filter((combi) => !combSelected.includes(`${combi[2]}`)));
+    setCombSelected([]);
+  }
+
+  function BothDelete() {
+    combinedDelete();
+    squaresDelete();
+  }
+
+  function cut() {
+    setCutFlag(true);
+    copy();
+    BothDelete();
+  }
+
+  function getCombinedLastFreeInd() {
+    if (!allCombined.length) return 0;
+    const layVals = new Set();
+    allCombined.forEach((comb) => layVals.add(comb[2]));
+
+    // probably don't actually need lowest last free index
+    // but would be unfortunate if they keep combining and deleting
+    // on the same design and if it kept picking the latest free index (allCombined.length)
+    const availIDs = range(0, Math.max(...layVals) + 1);
+    const newLastFreeInd = availIDs.find((layoutVal) => !layVals.has(layoutVal));
+    return newLastFreeInd;
+  }
+
+  function handleCombine(e) {
+    e.preventDefault();
+    if (selected.length < 2) {
+      window.alert('You need to combine at least 2 square electrodes.');
+      return;
+    }
+    if (combSelected.length > 0) {
+      window.alert("You can't combine already combined electrodes.");
+      return;
+    }
+
+    const positions = [];
+    // see if selected electrodes are adjacent to each other
+    const layVals = new Set([]);
+    for (let i = 0; i < allCombined.length; i += 1) layVals.add(allCombined[i][2]);
+
+    const newLastFreeInd = getCombinedLastFreeInd();
+
+    let xMin = Infinity;
+    let xMax = -1;
+    let yMin = Infinity;
+    let yMax = -1;
+    for (let j = 0; j < electrodes.initPositions.length; j += 1) {
+      if (selected.includes(`${electrodes.ids[j]}`)) {
+        const init = electrodes.initPositions[j];
+        const del = electrodes.deltas[j];
+        const x = init[0] + del[0];
+        const y = init[1] + del[1];
+        if (x < xMin) xMin = x;
+        if (x > xMax) xMax = x;
+
+        if (y < yMin) yMin = y;
+        if (y > yMax) yMax = y;
+
+        positions.push([x, y, newLastFreeInd]);
+      }
+    }
+    /* CHECK NODES ARE ADJACENT BEFORE COMBINING */
+    const numRows = (yMax - yMin) / ELEC_SIZE + 1;
+    const numCols = (xMax - xMin) / ELEC_SIZE + 1;
+    const adj = new Array(numRows).fill(0).map(() => new Array(numCols).fill(0));
+    // want 2D grid from xMin to xMax, yMin to yMax
+    // indexed 0 on both axes
+
+    /*
+            ex: y: 40-120, x: 80-160, startY = 1, startX = 2
+            (y , x)
+            (40, 80) ->  (1 - 1, 2 - 2) want (0, 0)
+            (120, 160) -> (3 - 1, 4 - 2)
+        */
+
+    const startY = yMin / ELEC_SIZE;
+    const startX = xMin / ELEC_SIZE;
+
+    positions.forEach((pos) => {
+      adj[(pos[1] / ELEC_SIZE) - startY][(pos[0] / ELEC_SIZE) - startX] = 1;
+    });
+
+    function connect(y, x) {
+      if (y < 0 || y >= numRows || x < 0 || x >= numCols) return;
+      if (adj[y][x] === 1) {
+        adj[y][x] = 0;
+        connect(y - 1, x);
+        connect(y + 1, x);
+        connect(y, x - 1);
+        connect(y, x + 1);
+      }
+    }
+    connect((positions[0][1] / ELEC_SIZE) - startY, (positions[0][0] / ELEC_SIZE) - startX);
+
+    // if selected electrodes aren't adj, alert then return
+    if (adj.some((row) => row.includes(1))) {
+      window.alert("Selected electrodes to combine aren't adjacent");
+      return;
+    }
+
+    setComboLayout(allCombined.concat(positions));
+    squaresDelete();
+  }
+
+  function separate() {
+    if (!combSelected.length || selected.length) {
+      window.alert('Can only separate combined electrodes');
+      return;
+    }
+    const selectedCombs = allCombined.filter((x) => combSelected.includes(`${x[2]}`));
+    const selectedCombCoords = [];
+    selectedCombs.forEach((coord) => {
+      selectedCombCoords.push([coord[0], coord[1]]);
+    });
+    const maxID = electrodes.ids.length ? Math.max(...electrodes.ids) + 1 : 0;
+    const newIDs = [...new Array(selectedCombs.length).keys()].map((num) => num + maxID);
+    setElectrodes({
+      initPositions: electrodes.initPositions.concat(selectedCombCoords),
+      deltas: electrodes.deltas
+        .concat(new Array(allCombined.length).fill(null).map(() => new Array(2).fill(0))),
+      ids: electrodes.ids.concat(newIDs),
+    });
+    combinedDelete();
+  }
+
+  function deleteSelectedMappings() {
+    if (selected.length || combSelected.length || currElec) {
+      const etp = { ...elecToPin };
+      const pte = { ...pinToElec };
+      if (currElec) {
+        if (etp[currElec]) {
+          delete pte[etp[currElec]];
+          delete etp[currElec];
+        }
+        setCurrElec(null);
+      } else {
+        if (selected.length) {
+          selected.forEach((num) => {
+            if (etp[`S${num}`]) {
+              delete pte[etp[`S${num}`]];
+              delete etp[`S${num}`];
+            }
+          });
+        }
+        if (combSelected.length) {
+          combSelected.forEach((num) => {
+            if (etp[`C${num}`]) {
+              delete pte[etp[`C${num}`]];
+              delete etp[`C${num}`];
+            }
+          });
+        }
+      }
+      setElecToPin(etp);
+      setPinToElec(pte);
+    }
+  }
+
+  // keyboard shortcuts
+  useHotkeys('m', () => {
+    if (mode === 'DRAW') {
+      window.alert('Cannot move electrodes in draw mode');
+      return;
+    }
+    move();
+  }, [mode, selected, combSelected]);
+
+  useHotkeys('ctrl+c', () => {
+    if (mode === 'DRAW') {
+      window.alert('Cannot copy electrodes in draw mode');
+      return;
+    }
+    copy();
+  }, [mode, selected, combSelected, clipboard, electrodes, allCombined]);
+
+  useHotkeys('ctrl+v', () => {
+    if (mode === 'DRAW') {
+      window.alert('Cannot paste electrodes in draw mode');
+      return;
+    }
+    paste(null, relativeX, relativeY);
+  }, [mode, selected, combSelected, clipboard, electrodes, allCombined, relativeX, relativeY]);
+
+  useHotkeys('ctrl+x', () => {
+    if (mode === 'DRAW') {
+      window.alert('Cannot cut electrodes in draw mode');
+      return;
+    }
+    cut();
+  }, [mode, selected, combSelected, clipboard, electrodes, allCombined]);
+
+  useHotkeys('delete', () => {
+    if (mode === 'DRAW') {
+      window.alert('Cannot delete electrodes in draw mode');
+      return;
+    }
+    if (mode === 'PIN') {
+      deleteSelectedMappings();
+    } else {
+      BothDelete();
+    }
+  }, [mode, selected, combSelected, electrodes, pinActuate, pinToElec, elecToPin]);
+
+  useHotkeys('c', (e) => {
+    if (mode === 'DRAW') {
+      window.alert('Cannot combine electrodes in draw mode');
+      return;
+    }
+    handleCombine(e);
+  }, [mode, selected, combSelected, electrodes, allCombined]);
+
+  useHotkeys('s', () => {
+    if (mode === 'DRAW') {
+      window.alert('Cannot separate electrodes in draw mode');
+      return;
+    }
+    separate();
+  }, [mode, selected, combSelected, electrodes, allCombined]);
+
   return (
     <div
       className="wrapper"
@@ -550,7 +962,17 @@ export default function Canvas() {
           </TransformWrapper>
         )
       }
-      <ContextMenu setMenuClick={setMenuClick} />
+      <ContextMenu
+        setMenuClick={setMenuClick}
+        contextCopy={copy}
+        contextPaste={paste}
+        contextCut={cut}
+        contextDelete={BothDelete}
+        contextMove={move}
+        separate={separate}
+        handleCombine={handleCombine}
+        deleteSelectedMappings={deleteSelectedMappings}
+      />
     </div>
   );
 }

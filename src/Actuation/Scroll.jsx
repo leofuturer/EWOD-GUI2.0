@@ -735,6 +735,7 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
                 error={Number.isNaN(duration)
                   || parseInt(Number(duration), 10) !== Number(duration)}
                 data-testid="duration-all"
+                label="(ms)"
               />
             </DialogContent>
             <DialogActions>

@@ -868,7 +868,7 @@ export default function Canvas() {
                       {Object.prototype.hasOwnProperty.call(elecToPin, `S${idx}`)
                         ? (
                           <text
-                            x={startPos[0] + 5}
+                            x={startPos[0] + 2}
                             y={startPos[1] + ELEC_SIZE / 2}
                             width={ELEC_SIZE - 5}
                             height={ELEC_SIZE - 5}

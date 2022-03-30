@@ -898,7 +898,7 @@ export default function Canvas() {
                     {Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
                       && (
                         <text
-                          x={comb[1][1] + 5}
+                          x={comb[1][1] + 2}
                           y={comb[1][2] + ELEC_SIZE / 2}
                           width={ELEC_SIZE - 5}
                           height={ELEC_SIZE - 5}

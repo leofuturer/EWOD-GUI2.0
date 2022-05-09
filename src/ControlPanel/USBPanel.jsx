@@ -145,7 +145,9 @@ export default function USBPanel({ usbConnected }) {
             onChange={(e) => { setVolt(parseInt(e.target.value, 10)); }}
             type="number"
             value={volt}
-            onBlur={() => { if (volt > 180 || volt < 0) { setVolt(0); } }}
+            onBlur={() => {
+              if (volt > 180) { setVolt(180); } else if (volt < 40) { setVolt(40); }
+            }}
           />
           <Button className={classes.transparentBtn} onClick={() => setAndCheckVolt(volt + 5)}>
             <img src={icons.increase.icon} alt="Increase" />

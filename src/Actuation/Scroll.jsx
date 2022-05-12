@@ -250,10 +250,10 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
   function proceed() {
     if (fullseq.length === 0) return;
     if (indexRef.current === fullseq.length) {
-      setPause(true);
-      setShowPlayButton(true);
       setIndex(0);
       setCurrentStep(fullseq[0]);
+      setPause(true);
+      setShowPlayButton(true);
       clearTimeout(time);
     } else {
       setCurrentStep(fullseq[indexRef.current]);
@@ -272,15 +272,17 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
 
   function handlePlay() {
     generateSeq();
-    setCurrentStep(fullseq[index]);
-    if (pause) {
-      setPause(false);
-      proceed();
-    }
-    if (indexRef.current === 0) {
+    if (indexRef.current === fullseq.length) {
+      setIndex(0);
+      setCurrentStep(fullseq[0]);
+      setPause(true);
       setShowPlayButton(true);
+      clearTimeout(time);
     } else {
+      setCurrentStep(fullseq[index]);
+      setPause(false);
       setShowPlayButton(false);
+      proceed();
     }
   }
 
@@ -288,8 +290,13 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
     if (time) {
       clearTimeout(time);
     }
-    setIndex((ind) => (ind % fullseq.length));
+    // pauses at beginning of the duration, not end.
+    // still doesn't work for the very last panel.
+    if (indexRef.current !== 0) {
+      setIndex(index - 1);
+    }
     setPause(true);
+    setShowPlayButton(true);
   }
 
   const handleDelete = () => {
@@ -380,7 +387,6 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
                 <IconButton
                   onClick={() => {
                     handlePlay();
-                    setShowPlayButton(false);
                   }}
                   data-testid="play-button"
                 >
@@ -391,7 +397,6 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
               <Tooltip title="Pause">
                 <IconButton onClick={() => {
                   handlePause();
-                  setShowPlayButton(true);
                 }}
                 >
                   <img src={icons.pause.icon} alt="pause" />

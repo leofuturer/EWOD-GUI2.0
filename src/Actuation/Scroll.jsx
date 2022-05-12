@@ -288,7 +288,7 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
     if (time) {
       clearTimeout(time);
     }
-    setIndex((ind) => (ind - 1) % fullseq.length);
+    setIndex((ind) => (ind % fullseq.length));
     setPause(true);
   }
 

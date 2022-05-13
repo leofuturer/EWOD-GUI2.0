@@ -272,18 +272,9 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
 
   function handlePlay() {
     generateSeq();
-    if (indexRef.current === fullseq.length) {
-      setIndex(0);
-      setCurrentStep(fullseq[0]);
-      setPause(true);
-      setShowPlayButton(true);
-      clearTimeout(time);
-    } else {
-      setCurrentStep(fullseq[index]);
-      setPause(false);
-      setShowPlayButton(false);
-      proceed();
-    }
+    setPause(false);
+    setShowPlayButton(false);
+    proceed();
   }
 
   function handlePause() {

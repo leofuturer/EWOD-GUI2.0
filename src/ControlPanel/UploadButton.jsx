@@ -140,9 +140,7 @@ export default function UploadButton() {
     if (electrodes.initPositions.length > 0) {
       const changeCanvas = window.confirm('Are you sure you want to replace your current canvas?');
       if (changeCanvas) openFilePicker();
-    } else {
-      openFilePicker();
-    }
+    } else openFilePicker();
   }
 
   return (

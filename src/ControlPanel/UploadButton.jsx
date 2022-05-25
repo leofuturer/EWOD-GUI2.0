@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 import React, { useContext } from 'react';
 import ListItem from '@material-ui/core/ListItem';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -74,18 +75,14 @@ export default function UploadButton() {
               newInitPositions.push([parseInt(words[1], 10), parseInt(words[2], 10)]);
               newDeltas.push([0, 0]);
               if (words.length > 3) {
-                // eslint-disable-next-line prefer-destructuring
                 newElecToPin[`S${i}`] = words[3];
-                // eslint-disable-next-line prefer-destructuring
                 newPinToElec[words[3]] = `S${i}`;
               }
             } else if (words.length >= 4 && words[0] === 'combine' && !Number.isNaN(words[1]) && !Number.isNaN(words[2]) && !Number.isNaN(words[1])) {
               newAllCombined.push([parseInt(words[1], 10),
                 parseInt(words[2], 10), parseInt(words[3], 10)]);
               if (words.length > 4) {
-                // eslint-disable-next-line prefer-destructuring
                 newElecToPin[`C${words[3]}`] = words[4];
-                // eslint-disable-next-line prefer-destructuring
                 newPinToElec[words[3]] = `C${i}`;
               }
             } else if (e.charAt(0) === '#') {

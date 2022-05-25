@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 import React, { useContext } from 'react';
 import ListItem from '@material-ui/core/ListItem';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -10,7 +11,7 @@ import icons from '../Icons/icons';
 export default function UploadButton() {
   const context = useContext(CanvasContext);
   const actuation = useContext(ActuationContext);
-  const { setElecToPin } = useContext(GeneralContext);
+  const { setElecToPin, setPinToElec } = useContext(GeneralContext);
   const {
     squares, setElectrodes, setSelected, setComboLayout,
   } = context;
@@ -63,6 +64,7 @@ export default function UploadButton() {
         const newAllCombined = [];
         const newPinActuate = new Map();
         const newElecToPin = {};
+        const newPinToElec = {};
         let newSimpleNum = 1;
         const stringList = content.split('\n');
         for (let i = 0; i < stringList.length; i += 1) {
@@ -72,19 +74,23 @@ export default function UploadButton() {
             if (words.length >= 3 && words[0] === 'square' && !Number.isNaN(words[1]) && !Number.isNaN(words[2])) {
               newInitPositions.push([parseInt(words[1], 10), parseInt(words[2], 10)]);
               newDeltas.push([0, 0]);
-              // eslint-disable-next-line prefer-destructuring
-              if (words.length > 3) newElecToPin[`S${i}`] = words[3];
+              if (words.length > 3) {
+                newElecToPin[`S${i}`] = words[3];
+                newPinToElec[words[3]] = `S${i}`;
+              }
             } else if (words.length >= 4 && words[0] === 'combine' && !Number.isNaN(words[1]) && !Number.isNaN(words[2]) && !Number.isNaN(words[1])) {
               newAllCombined.push([parseInt(words[1], 10),
                 parseInt(words[2], 10), parseInt(words[3], 10)]);
-              // eslint-disable-next-line prefer-destructuring
-              if (words.length > 4) newElecToPin[`C${words[3]}`] = words[4];
+              if (words.length > 4) {
+                newElecToPin[`C${words[3]}`] = words[4];
+                newPinToElec[words[3]] = `C${i}`;
+              }
             } else if (e.charAt(0) === '#') {
             // line starts with #
             } else if (!Number.isNaN(e.charAt(0))) {
               const sect = e.split(';');
               if (sect.length > 2) {
-                window.alert("Your file's contents are a bit funny");
+                window.alert("Your file's contents cannot be determined");
               }
               const id = parseInt(sect[0].split(':')[0], 10);
               const dur = parseInt(sect[0].split(':')[2], 10);
@@ -104,15 +110,14 @@ export default function UploadButton() {
                 newPinActuate.get(+sect[1].split(':')[0]).content.push(id);
                 newPinActuate.get(id).parent = +sect[1].split(':')[0];
               }
-              console.log(newPinActuate);
             } else {
-              window.alert("Your file's contents are a bit funny");
+              window.alert("Your file's contents cannot be determined");
               return;
             }
           }
         }
-
         setElecToPin(newElecToPin);
+        setPinToElec(newPinToElec);
         setSelected([]);
         setElectrodes({
           initPositions: newInitPositions,

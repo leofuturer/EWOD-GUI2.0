@@ -19,17 +19,16 @@ function DraggableItem({ ind, children, scaleXY }) {
   const { electrodes } = context.squares;
   const elecSelected = context.squares.selected;
 
-  const { deltas } = electrodes;
-
-  const isSelected = elecSelected && elecSelected.indexOf(`${electrodes.ids[ind]}`) >= 0;
+  const isSelected = elecSelected && elecSelected.indexOf(`${electrodes[ind].ids}`) >= 0;
 
   let transform = {};
   let boop;
   if (delta === null) boop = { x: 0, y: 0 };
   else boop = delta;
 
-  if (isSelected) transform = { transform: `translate(${boop.x + deltas[ind][0]}px, ${boop.y + deltas[ind][1]}px)` };
-  else transform = { transform: `translate(${deltas[ind][0]}px, ${deltas[ind][1]}px)` };
+  const { deltas } = electrodes[ind];
+  if (isSelected) transform = { transform: `translate(${boop.x + deltas[0]}px, ${boop.y + deltas[1]}px)` };
+  else transform = { transform: `translate(${deltas[0]}px, ${deltas[1]}px)` };
 
   const dragItem = useRef(null);
 

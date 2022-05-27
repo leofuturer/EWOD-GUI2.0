@@ -8,11 +8,7 @@ const CanvasContext = React.createContext();
 
 const CanvasProvider = ({ children }) => {
   const [squares, setSquares] = useState({
-    electrodes: {
-      initPositions: [],
-      deltas: [],
-      ids: [],
-    },
+    electrodes: [],
     selected: [],
   });
 
@@ -43,22 +39,22 @@ const CanvasProvider = ({ children }) => {
         // if there's no layout in local storage, add an empty one
         if (!squaresLayout) await db.formData.add({ id: 'squares', value: [] });
         else {
-          const initPos = []; const
-            dels = [];
+          const tempElectrodes = [];
+          let tempId = 0;
           squaresLayout.value.forEach((e) => {
             const mapping = e.split(' ');
             if (mapping[0] === 'square') {
-              initPos.push([parseInt(mapping[1], 10), parseInt(mapping[2], 10)]);
-              dels.push([0, 0]);
+              const temp = {};
+              temp.initPositions = [parseInt(mapping[1], 10), parseInt(mapping[2], 10)];
+              temp.deltas = [0, 0];
+              temp.ids = tempId;
+              tempId += 1;
+              tempElectrodes.push(temp);
             }
           });
           setSquares((stateBoi) => ({
             ...stateBoi,
-            electrodes: {
-              initPositions: initPos,
-              deltas: dels,
-              ids: [...new Array(dels.length).keys()],
-            },
+            electrodes: tempElectrodes,
           }));
         }
 

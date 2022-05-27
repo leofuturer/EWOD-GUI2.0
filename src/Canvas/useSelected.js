@@ -21,7 +21,6 @@ export default function useSelected(callback, savingChanges) {
   const elecSelected = context.squares.selected;
   const { allCombined } = context.combined;
   const combSelected = context.combined.selected;
-  const { deltas } = electrodes;
 
   function reset() {
     setDelta({ x: 0, y: 0 });
@@ -35,13 +34,13 @@ export default function useSelected(callback, savingChanges) {
       // want first pass through all existing positions + their ids and types
       // so if just drag to original position, won't consider them "overlaps"
       const positions = {};
-      for (let sInd = 0; sInd < electrodes.initPositions.length; sInd += 1) {
-        const init = electrodes.initPositions[sInd];
-        const newDelX = deltas[sInd][0];
-        const newDelY = deltas[sInd][1];
+      for (let sInd = 0; sInd < electrodes.length; sInd += 1) {
+        const init = electrodes[sInd].initPositions;
+        const newDelX = electrodes[sInd].deltas[0];
+        const newDelY = electrodes[sInd].deltas[1];
         const newX = newDelX + init[0];
         const newY = newDelY + init[1];
-        const typeId = `s${electrodes.ids[sInd]}`;
+        const typeId = `s${electrodes[sInd].ids}`;
         if (Object.prototype.hasOwnProperty.call(positions, newX)) {
           positions[newX].push([newY, typeId]);
         } else {
@@ -59,11 +58,11 @@ export default function useSelected(callback, savingChanges) {
       });
 
       // go through selected and see if overlap with anything in positions
-      const flag = electrodes.ids.some((id, selSqInd) => {
-        if (elecSelected.includes(`${id}`)) {
-          const init = electrodes.initPositions[selSqInd];
-          const newDelX = delta.x + deltas[selSqInd][0];
-          const newDelY = delta.y + deltas[selSqInd][1];
+      const flag = electrodes.some((element) => {
+        if (elecSelected.includes(`${element.ids}`)) {
+          const init = element.initPositions;
+          const newDelX = delta.x + element.deltas[0];
+          const newDelY = delta.y + element.deltas[1];
           const newX = newDelX + init[0];
           const newY = newDelY + init[1];
 
@@ -133,13 +132,13 @@ export default function useSelected(callback, savingChanges) {
       // handle dragged singles
       let copy;
       if (elecSelected.length > 0) {
-        copy = [...deltas];
+        copy = [...electrodes];
 
-        for (let j = 0; j < electrodes.initPositions.length; j += 1) {
-          if (elecSelected.includes(`${electrodes.ids[j]}`)) {
-            const init = electrodes.initPositions[j];
-            const newDelX = delta.x + deltas[j][0];
-            const newDelY = delta.y + deltas[j][1];
+        for (let j = 0; j < electrodes.length; j += 1) {
+          if (elecSelected.includes(`${electrodes[j].ids}`)) {
+            const init = electrodes[j].initPositions;
+            const newDelX = delta.x + electrodes[j].deltas[0];
+            const newDelY = delta.y + electrodes[j].deltas[1];
             const newX = newDelX + init[0];
             const newY = newDelY + init[1];
             if (newX < 0 || newX >= CANVAS_TRUE_WIDTH || newY < 0 || newY >= CANVAS_TRUE_HEIGHT) {
@@ -147,7 +146,7 @@ export default function useSelected(callback, savingChanges) {
               reset();
               return;
             }
-            copy[j] = [newDelX, newDelY];
+            copy[j].deltas = [newDelX, newDelY];
           }
         }
         // don't want to setElectrodes here because
@@ -184,16 +183,13 @@ export default function useSelected(callback, savingChanges) {
       }
 
       if (elecSelected.length > 0) {
-        setElectrodes({
-          initPositions: electrodes.initPositions, deltas: copy, ids: electrodes.ids,
-        });
+        setElectrodes(copy);
         setSelected([]);
       }
       setDelta(null);
 
       savedCallback.current();
     }
-  }, [savingChanges, allCombined, combSelected, delta,
-    deltas, elecSelected, electrodes.initPositions, setCombSelected,
+  }, [savingChanges, allCombined, combSelected, delta, elecSelected, setCombSelected,
     setComboLayout, setDelta, setElectrodes, setSelected]);
 }

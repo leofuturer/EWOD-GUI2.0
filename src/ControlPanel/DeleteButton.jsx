@@ -27,11 +27,7 @@ export default function DeleteButton({ name }) {
     setSelected([]);
     setCombSelected([]);
 
-    setElectrodes({
-      initPositions: [],
-      deltas: [],
-      ids: [],
-    });
+    setElectrodes([]);
     setComboLayout([]);
 
     setPinToElec({});

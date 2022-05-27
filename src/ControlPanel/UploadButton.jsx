@@ -59,8 +59,7 @@ export default function UploadButton() {
       if (file.name.slice(-4) !== 'ewds') window.alert('You can only upload .ewds files');
       else {
         const content = await readFile(file);
-        const newInitPositions = [];
-        const newDeltas = [];
+        const newElectrodes = [];
         const newAllCombined = [];
         const newPinActuate = new Map();
         const newElecToPin = {};
@@ -72,8 +71,11 @@ export default function UploadButton() {
           if (e !== '') {
             const words = e.split(' ');
             if (words.length >= 3 && words[0] === 'square' && !Number.isNaN(words[1]) && !Number.isNaN(words[2])) {
-              newInitPositions.push([parseInt(words[1], 10), parseInt(words[2], 10)]);
-              newDeltas.push([0, 0]);
+              const temp = {};
+              temp.initPositions = [parseInt(words[1], 10), parseInt(words[2], 10)];
+              temp.deltas = [0, 0];
+              temp.ids = i;
+              newElectrodes.push(temp);
               if (words.length > 3) {
                 newElecToPin[`S${i}`] = words[3];
                 newPinToElec[words[3]] = `S${i}`;
@@ -119,11 +121,7 @@ export default function UploadButton() {
         setElecToPin(newElecToPin);
         setPinToElec(newPinToElec);
         setSelected([]);
-        setElectrodes({
-          initPositions: newInitPositions,
-          deltas: newDeltas,
-          ids: [...new Array(newDeltas.length).keys()],
-        });
+        setElectrodes(newElectrodes);
         setComboLayout(newAllCombined);
         setPinActuation(newPinActuate);
         setSimpleNum(newSimpleNum + 1);
@@ -134,7 +132,7 @@ export default function UploadButton() {
   }
 
   function handleImport() {
-    if (electrodes.initPositions.length > 0) {
+    if (electrodes.length > 0) {
       const changeCanvas = window.confirm('Are you sure you want to replace your current canvas?');
       if (changeCanvas) openFilePicker();
     } else openFilePicker();

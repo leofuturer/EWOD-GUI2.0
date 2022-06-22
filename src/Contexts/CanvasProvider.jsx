@@ -8,6 +8,7 @@ const CanvasContext = React.createContext();
 
 const CanvasProvider = ({ children }) => {
   const [squares, setSquares] = useState({
+    // each electrode is a dictionary with keys `initPositions`, `deltas`, and `ids`
     electrodes: [],
     selected: [],
   });

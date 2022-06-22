@@ -106,8 +106,10 @@ export default function Canvas() {
     if (mode === 'DRAW' && mouseDown && !panning) {
       let elecAtXY = false;
 
-      // electrode curr pos = init + deltas[idx]
-      // wanna see if curr XY = electrodes[idx] + deltas[idx]
+      // electrode current position = electrodes[idx].initPositions[0] + electrodes[idx].deltas[0]
+      // wanna see if current X = current position
+      // = electrodes[idx].initPositions[0] + electrodes[idx].deltas[0]
+      // the same applies for current Y, only with electrodes[idx].initPositions[1] instead
       const x = Math.floor(e.offsetX / ELEC_SIZE) * ELEC_SIZE;
       const y = Math.floor(e.offsetY / ELEC_SIZE) * ELEC_SIZE;
 
@@ -129,6 +131,11 @@ export default function Canvas() {
       }
 
       if (!elecAtXY) { // create new electrode
+        // need unique ids for each electrode
+        // as electrodes are deleted and added in, ids will ALWAYS
+        // be in ascending order, so there will be no duplicates
+        // however, ids have the potential to increase to very large numbers
+        // don't anticipate this being a problem
         const newLastFreeInd = (electrodes.length === 0 ? 0
           : electrodes[electrodes.length - 1].ids + 1);
         const temp = {};

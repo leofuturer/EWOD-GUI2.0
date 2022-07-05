@@ -106,16 +106,17 @@ export default function Canvas() {
     if (mode === 'DRAW' && mouseDown && !panning) {
       let elecAtXY = false;
 
-      // electrode curr pos = init + deltas[idx]
-      // wanna see if curr XY = electrodes[idx] + deltas[idx]
-      const { initPositions, deltas, ids } = electrodes;
+      // electrode current position = electrodes[idx].initPositions[0] + electrodes[idx].deltas[0]
+      // wanna see if current X = current position
+      // = electrodes[idx].initPositions[0] + electrodes[idx].deltas[0]
+      // the same applies for current Y, only with electrodes[idx].initPositions[1] instead
       const x = Math.floor(e.offsetX / ELEC_SIZE) * ELEC_SIZE;
       const y = Math.floor(e.offsetY / ELEC_SIZE) * ELEC_SIZE;
 
-      for (let idx = 0; idx < deltas.length; idx += 1) {
+      for (let idx = 0; idx < electrodes.length; idx += 1) {
         // if an electrode already exists at this position
-        if (x === initPositions[idx][0] + deltas[idx][0]
-          && y === initPositions[idx][1] + deltas[idx][1]) {
+        if (x === electrodes[idx].initPositions[0] + electrodes[idx].deltas[0]
+          && y === electrodes[idx].initPositions[1] + electrodes[idx].deltas[1]) {
           elecAtXY = true;
           break;
         }
@@ -130,16 +131,19 @@ export default function Canvas() {
       }
 
       if (!elecAtXY) { // create new electrode
-        let newLastFreeInd = 0;
-        if (electrodes.initPositions.length) {
-          const availIDs = [...Array(Math.max(...electrodes.ids) + 2).keys()];
-          newLastFreeInd = availIDs.find((id) => !electrodes.ids.includes(id));
-        }
-        setElectrodes({
-          initPositions: initPositions.concat([[x, y]]),
-          deltas: deltas.concat([[0, 0]]),
-          ids: ids.concat(newLastFreeInd),
-        });
+        // need unique ids for each electrode
+        // as electrodes are deleted and added in, ids will ALWAYS
+        // be in ascending order, so there will be no duplicates
+        // however, ids have the potential to increase to very large numbers
+        // don't anticipate this being a problem
+        const newLastFreeInd = (electrodes.length === 0 ? 0
+          : electrodes[electrodes.length - 1].ids + 1);
+        const temp = {};
+        temp.ids = newLastFreeInd;
+        temp.initPositions = [x, y];
+        temp.deltas = [0, 0];
+        electrodes.push(temp);
+        setElectrodes(electrodes);
       }
     }
   }, [mode, electrodes, mouseDown, setElectrodes, allCombined]);
@@ -275,37 +279,36 @@ export default function Canvas() {
   }
   const [selectables, setSelectables] = useState([]);
   useEffect(() => {
-    const { deltas, ids } = electrodes;
     const newSelectables = [];
-    electrodes.initPositions.forEach((startPos, ind) => {
-      const id = ids[ind];
+    electrodes.forEach((element) => {
+      const { ids, initPositions, deltas } = element;
       newSelectables.push({
-        id: `S${id}`,
+        id: `S${ids}`,
         tagName: 'rect',
         'data-testid': 'square',
         className: `electrode
           ${mode === 'SEQ' && pinActuate.has(currentStep)
-          && Object.prototype.hasOwnProperty.call(elecToPin, `S${id}`)
-          && pinActuate.get(currentStep).content.has(elecToPin[`S${id}`]) ? 'toSeq' : ''}
-          ${mode === 'CAN' && selected.includes(`${id}`) ? 'selected' : ''}
-          ${mode === 'PIN' && (currElec === `S${id}` || selected.includes(`${id}`)) ? 'toPin' : ''}`,
-        x: startPos[0] + deltas[ind][0],
-        y: startPos[1] + deltas[ind][1],
+          && Object.prototype.hasOwnProperty.call(elecToPin, `S${ids}`)
+          && pinActuate.get(currentStep).content.has(elecToPin[`S${ids}`]) ? 'toSeq' : ''}
+          ${mode === 'CAN' && selected.includes(`${ids}`) ? 'selected' : ''}
+          ${mode === 'PIN' && (currElec === `S${ids}` || selected.includes(`${ids}`)) ? 'toPin' : ''}`,
+        x: initPositions[0] + deltas[0],
+        y: initPositions[1] + deltas[1],
         width: ELEC_SIZE - 5,
         height: ELEC_SIZE - 5,
       });
       // text elems for pin number mapped to square
-      if (Object.prototype.hasOwnProperty.call(elecToPin, `S${id}`)) {
+      if (Object.prototype.hasOwnProperty.call(elecToPin, `S${ids}`)) {
         newSelectables.push({
-          id: `TS${id}`,
+          id: `TS${ids}`,
           tagName: 'text',
-          style: { transform: `translate(${deltas[ind][0]}px, ${deltas[ind][1]}px)` },
-          x: startPos[0] + 2,
-          y: startPos[1] + ELEC_SIZE / 2,
+          style: { transform: `translate(${deltas[0]}px, ${deltas[1]}px)` },
+          x: initPositions[0] + 2,
+          y: initPositions[1] + ELEC_SIZE / 2,
           width: ELEC_SIZE - 5,
           height: ELEC_SIZE - 5,
           fill: 'white',
-          children: elecToPin[`S${id}`],
+          children: elecToPin[`S${ids}`],
         });
       }
     });
@@ -341,8 +344,8 @@ export default function Canvas() {
     });
 
     setSelectables(newSelectables);
-  }, [mode, moving, finalCombines, electrodes.initPositions, electrodes.deltas,
-    elecToPin, selected, combSelected, actuatePin, scaleXY, setScaleXY]);
+  }, [mode, moving, finalCombines, electrodes, elecToPin, selected,
+    combSelected, actuatePin, scaleXY, setScaleXY]);
 
   function onSelectChange(selectedElecs) {
     const sIds = []; // square ids
@@ -417,12 +420,12 @@ export default function Canvas() {
     const combined = [];
 
     if (selected.length > 0) {
-      const inits = electrodes.initPositions.filter((_, ind) => selected.includes(`${ind}`));
-      const dels = electrodes.deltas.filter((_, ind) => selected.includes(`${ind}`));
-      for (let i = 0; i < inits.length; i += 1) {
-        const tmp = [inits[i][0] + dels[i][0], inits[i][1] + dels[i][1]];
+      const elements = electrodes.filter((element) => selected.includes(`${element.ids}`));
+      elements.forEach((element) => {
+        const tmp = [element.initPositions[0] + element.deltas[0],
+          element.initPositions[1] + element.deltas[1]];
         squares.push(tmp);
-      }
+      });
       setSelected([]);
     }
     if (combSelected.length > 0) {
@@ -448,14 +451,17 @@ export default function Canvas() {
 
   function handleCutFlag(squares, combined, numSquaresCopied, numCombinedCopied) {
     if (numSquaresCopied > 0) {
-      const newDels = new Array(numSquaresCopied).fill([0, 0]);
-      const maxID = Math.max(...electrodes.ids) + 1;
-      const newIDs = [...new Array(numSquaresCopied).keys()].map((num) => num + maxID);
-      setElectrodes({
-        initPositions: electrodes.initPositions.concat(squares),
-        deltas: electrodes.deltas.concat(newDels),
-        ids: electrodes.ids.concat(newIDs),
+      let maxID = electrodes.length === 0 ? 0 : electrodes[electrodes.length - 1].ids + 1;
+      const tmps = [];
+      squares.forEach((element) => {
+        const tmp = {};
+        tmp.initPositions = element;
+        tmp.deltas = [0, 0];
+        tmp.ids = maxID;
+        maxID += 1;
+        tmps.push(tmp);
       });
+      setElectrodes(electrodes.concat(tmps));
     }
     if (numCombinedCopied > 0) {
       setComboLayout(allCombined.concat(combined));
@@ -482,7 +488,8 @@ export default function Canvas() {
         for (let i = 0; i < numSquaresCopied; i += 1) {
           const temp = [x + squares[i][0] - offsetX, y + squares[i][1] - offsetY];
           if (!(
-            electrodes.initPositions.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
+            electrodes.some((inner) => (inner.initPositions[0] === temp[0]
+              && inner.initPositions[1] === temp[1]))
             || allCombined.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
           )) {
             newInits.push(temp);
@@ -496,24 +503,28 @@ export default function Canvas() {
           }
         }
 
-        const newDels = new Array(numSquaresCopied).fill([0, 0]);
-        const maxID = Math.max(...electrodes.ids) + 1;
-        const newIDs = [...new Array(numSquaresCopied).keys()].map((num) => num + maxID);
-        setElectrodes({
-          initPositions: electrodes.initPositions.concat(newInits),
-          deltas: electrodes.deltas.concat(newDels),
-          ids: electrodes.ids.concat(newIDs),
+        let maxID = electrodes.length === 0 ? 0 : electrodes[electrodes.length - 1].ids + 1;
+        const tmps = [];
+        newInits.forEach((element) => {
+          const tmp = {};
+          tmp.initPositions = element;
+          tmp.deltas = [0, 0];
+          tmp.ids = maxID;
+          maxID += 1;
+          tmps.push(tmp);
         });
+        setElectrodes(electrodes.concat(tmps));
       }
       if (numCombinedCopied > 0) {
         const first = clipboard.squares.length > 0 ? clipboard.squares[0] : combined[0];
         const newCombs = [];
         const combIds = allCombined.map((el) => el[2]);
-        const maxID = Math.max(...combIds);
+        const maxID = (combIds.length === 0 ? 0 : Math.max(...combIds));
         for (let k = 0; k < numCombinedCopied; k += 1) {
           const temp = [x + combined[k][0] - first[0], y + combined[k][1] - first[1]];
           if (!(
-            electrodes.initPositions.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
+            electrodes.some((inner) => (inner.initPositions[0] === temp[0]
+              && inner.initPositions[1] === temp[1]))
             || allCombined.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
           )) {
             newCombs.push([
@@ -538,9 +549,9 @@ export default function Canvas() {
   function squaresDelete() {
     const mappedPins = [];
     // go through selected squares to erase any of their pin mappings
-    electrodes.ids.forEach((id) => {
-      if (selected.includes(`${id}`)) {
-        const square = `S${id}`;
+    electrodes.forEach((element) => {
+      if (selected.includes(`${element.ids}`)) {
+        const square = `S${element.ids}`;
         const mappedPin = elecToPin[square];
         if (mappedPin) { // mapping exists for this electrode so delete mapping
           mappedPins.push(mappedPin);
@@ -561,12 +572,9 @@ export default function Canvas() {
 
     setPinToElec({ ...pinToElec });
     setElecToPin({ ...elecToPin });
-    const newPos = electrodes.initPositions
-      .filter((val, ind) => !selected.includes(`${electrodes.ids[ind]}`));
-    const newDel = electrodes.deltas.filter((val, ind) => !selected.includes(`${electrodes.ids[ind]}`));
-    const newIds = electrodes.ids.filter((id) => !selected.includes(`${id}`));
+    const newElectrodes = electrodes.filter((element) => !selected.includes(`${element.ids}`));
     setSelected([]);
-    setElectrodes({ initPositions: newPos, deltas: newDel, ids: newIds });
+    setElectrodes(newElectrodes);
   }
 
   function combinedDelete() {
@@ -632,10 +640,10 @@ export default function Canvas() {
     let xMax = -1;
     let yMin = Infinity;
     let yMax = -1;
-    for (let j = 0; j < electrodes.initPositions.length; j += 1) {
-      if (selected.includes(`${electrodes.ids[j]}`)) {
-        const init = electrodes.initPositions[j];
-        const del = electrodes.deltas[j];
+    electrodes.forEach((element) => {
+      if (selected.includes(`${element.ids}`)) {
+        const init = element.initPositions;
+        const del = element.deltas;
         const x = init[0] + del[0];
         const y = init[1] + del[1];
         if (x < xMin) xMin = x;
@@ -646,7 +654,7 @@ export default function Canvas() {
 
         positions.push([x, y, newLastFreeInd]);
       }
-    }
+    });
     /* CHECK NODES ARE ADJACENT BEFORE COMBINING */
     const numRows = (yMax - yMin) / ELEC_SIZE + 1;
     const numCols = (xMax - xMin) / ELEC_SIZE + 1;
@@ -696,18 +704,17 @@ export default function Canvas() {
       return;
     }
     const selectedCombs = allCombined.filter((x) => combSelected.includes(`${x[2]}`));
-    const selectedCombCoords = [];
-    selectedCombs.forEach((coord) => {
-      selectedCombCoords.push([coord[0], coord[1]]);
+    let maxID = electrodes.length === 0 ? 0 : electrodes[electrodes.length - 1].ids + 1;
+    const tmps = [];
+    selectedCombs.forEach((element) => {
+      const tmp = {};
+      tmp.initPositions = [element[0], element[1]];
+      tmp.deltas = [0, 0];
+      tmp.ids = maxID;
+      maxID += 1;
+      tmps.push(tmp);
     });
-    const maxID = electrodes.ids.length ? Math.max(...electrodes.ids) + 1 : 0;
-    const newIDs = [...new Array(selectedCombs.length).keys()].map((num) => num + maxID);
-    setElectrodes({
-      initPositions: electrodes.initPositions.concat(selectedCombCoords),
-      deltas: electrodes.deltas
-        .concat(new Array(allCombined.length).fill(null).map(() => new Array(2).fill(0))),
-      ids: electrodes.ids.concat(newIDs),
-    });
+    setElectrodes(electrodes.concat(tmps));
     combinedDelete();
   }
 
@@ -847,15 +854,15 @@ export default function Canvas() {
                     linear-gradient(to bottom, grey 1px, transparent 1px)`,
                 }}
               >
-                {electrodes.initPositions.map((startPos, ind) => {
-                  const idx = electrodes.ids[ind];
+                {electrodes.map((element, ind) => {
+                  const idx = element.ids;
                   return (
-                    <DraggableItem key={ind.id} ind={ind} scaleXY={scaleXY}>
+                    <DraggableItem key={idx} ind={ind} scaleXY={scaleXY}>
                       <rect
                         id={`S${idx}`}
                         data-testid="square"
-                        x={startPos[0]}
-                        y={startPos[1]}
+                        x={element.initPositions[0]}
+                        y={element.initPositions[1]}
                         width={ELEC_SIZE - 5}
                         height={ELEC_SIZE - 5}
                         className={`electrode
@@ -868,8 +875,8 @@ export default function Canvas() {
                       {Object.prototype.hasOwnProperty.call(elecToPin, `S${idx}`)
                         ? (
                           <text
-                            x={startPos[0] + 2}
-                            y={startPos[1] + ELEC_SIZE / 2}
+                            x={element.initPositions[0] + 2}
+                            y={element.initPositions[1] + ELEC_SIZE / 2}
                             width={ELEC_SIZE - 5}
                             height={ELEC_SIZE - 5}
                             fill="white"

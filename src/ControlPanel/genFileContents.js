@@ -15,12 +15,12 @@ export default function genFileContents(electrodes, allCombined, pinActuate, ele
   }
 
   if (electrodes) {
-    for (let j = 0; j < electrodes.initPositions.length; j += 1) {
-      const x = electrodes.initPositions[j][0] + electrodes.deltas[j][0];
-      const y = electrodes.initPositions[j][1] + electrodes.deltas[j][1];
+    for (let j = 0; j < electrodes.length; j += 1) {
+      const x = electrodes[j].initPositions[0] + electrodes[j].deltas[0];
+      const y = electrodes[j].initPositions[1] + electrodes[j].deltas[1];
       let boop = `square ${x} ${y}`;
-      if (elecToPin[`S${electrodes.ids[j]}`]) {
-        boop = `${boop} ${elecToPin[`S${electrodes.ids[j]}`]}`;
+      if (elecToPin[`S${electrodes[j].ids}`]) {
+        boop = `${boop} ${elecToPin[`S${electrodes[j].ids}`]}`;
       }
       squares.push(boop);
     }

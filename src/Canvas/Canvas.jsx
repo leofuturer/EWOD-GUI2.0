@@ -487,6 +487,11 @@ export default function Canvas() {
         const offsetY = squares[0][1];
         for (let i = 0; i < numSquaresCopied; i += 1) {
           const temp = [x + squares[i][0] - offsetX, y + squares[i][1] - offsetY];
+          if (temp[0] < 0 || temp[0] >= CANVAS_TRUE_WIDTH
+            || temp[1] < 0 || temp[1] >= CANVAS_TRUE_HEIGHT) {
+            window.alert('Square electrode pasting off canvas!');
+            return;
+          }
           if (!(
             electrodes.some((inner) => (inner.initPositions[0] === temp[0]
               && inner.initPositions[1] === temp[1]))

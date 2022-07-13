@@ -903,7 +903,7 @@ export default function Canvas() {
                                     ${mode === 'SEQ' && pinActuate.has(currentStep)
                                     && Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
                                     && pinActuate.get(currentStep).content.has(elecToPin[`C${comb[0]}`]) ? 'toSeq' : ''}
-                                    ${mode === 'CAN' && combSelected.includes(`${ind}`) ? 'selected' : ''}
+                                    ${mode === 'CAN' && combSelected.includes(`${comb[0]}`) ? 'selected' : ''}
                                     ${mode === 'PIN' && currElec === `C${comb[0]}` ? 'toPin' : ''}`}
                       data-testid="combined"
                     />

@@ -13,7 +13,7 @@ export default function ContextMenu({
 }) {
   const canvasContext = useContext(CanvasContext);
   const {
-    setSelected, setCombSelected, setMoving,
+    setSelected, setCombSelected, setMoving, moving,
   } = canvasContext;
 
   const { mode } = useContext(GeneralContext);
@@ -104,7 +104,7 @@ export default function ContextMenu({
         document.querySelector('.greenArea').removeEventListener('click', handleClick);
       }
     };
-  }, [showMenu]);
+  }, [showMenu, setMoving, moving]);
 
   return (
     <Motion

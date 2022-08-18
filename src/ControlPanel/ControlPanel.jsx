@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useContext, useState } from 'react';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
@@ -152,7 +153,8 @@ export default function ControlPanel({ scrollOpen }) {
     mode, setMode, setCurrElec, panning, setPanning, setScaleXY,
   } = useContext(GeneralContext);
   const { setSelected, setCombSelected } = canvasContext;
-  const { undo, redo } = actuationContext;
+  const { undoSeq, redo } = actuationContext;
+  const { undoDraw } = canvasContext;
 
   const classes = useStyles();
   const [open, setOpen] = useState(false);
@@ -251,7 +253,20 @@ export default function ControlPanel({ scrollOpen }) {
             {
               mode === 'SEQ' && (
                 <>
-                  <ListItem button onClick={undo}>
+                  <ListItem button onClick={undoSeq}>
+                    <img src={icons.undo.icon} alt="Undo" />
+                  </ListItem>
+                  <ListItem button onClick={redo}>
+                    <img src={icons.redo.icon} alt="Redo" />
+                  </ListItem>
+                </>
+              )
+            }
+
+            {
+              mode === 'DRAW' && (
+                <>
+                  <ListItem button onClick={undoDraw}>
                     <img src={icons.undo.icon} alt="Undo" />
                   </ListItem>
                   <ListItem button onClick={redo}>

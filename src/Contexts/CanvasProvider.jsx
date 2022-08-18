@@ -111,6 +111,9 @@ const CanvasProvider = ({ children }) => {
         setMouseDown: (md) => {
           setState((stateBoi) => ({ ...stateBoi, mouseDown: md }));
         },
+        undoDraw: () => {
+          console.log('undoDraw called!');
+        },
       }}
     >
       {children}

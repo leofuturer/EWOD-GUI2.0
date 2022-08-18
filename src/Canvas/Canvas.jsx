@@ -47,6 +47,7 @@ export default function Canvas() {
   const [shiftDown, setShiftDown] = useState(false);
 
   const [clipboard, setClipboard] = useState([]);
+  const [drawHistory, setDrawHistory] = useState([]);
   const [relativeX, setRelativeX] = useState('0px');
   const [relativeY, setRelativeY] = useState('0px');
   const [cutFlag, setCutFlag] = useState(false);
@@ -144,6 +145,12 @@ export default function Canvas() {
         temp.deltas = [0, 0];
         electrodes.push(temp);
         setElectrodes(electrodes);
+        setDrawHistory((drawHist) => [...drawHist, [{
+          type: 'draw',
+          combined: false,
+          electrodeInfo: temp,
+        }]]);
+        console.log(drawHistory);
       }
     }
   }, [mode, electrodes, mouseDown, setElectrodes, allCombined]);
@@ -369,6 +376,7 @@ export default function Canvas() {
         }
       } else { // not holding 'shift' down
         if (selectedElecs.length === 1) {
+          console.log(elecToPin);
           if (sIds.length) setCurrElec(`S${sIds[0]}`); // if selected square
           else setCurrElec(`C${cIds[0]}`); // if selected combined
         } else { // selected multiple electrodes so has nothing to do with assigning pins
@@ -695,6 +703,8 @@ export default function Canvas() {
     }
 
     setComboLayout(allCombined.concat(positions));
+    console.log(electrodes);
+    console.log(allCombined);
     squaresDelete();
   }
 
@@ -811,6 +821,10 @@ export default function Canvas() {
     }
     separate();
   }, [mode, selected, combSelected, electrodes, allCombined]);
+
+  useHotkeys('0', () => {
+    console.log(drawHistory);
+  }, [drawHistory]);
 
   return (
     <div

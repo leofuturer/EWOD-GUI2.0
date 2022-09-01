@@ -28,6 +28,12 @@ const CanvasProvider = ({ children }) => {
 
   const { elecToPin } = React.useContext(GeneralContext);
 
+  const [actions, setActions] = useState({
+    history: [],
+    historyIndex: -1,
+    filler: 0,
+  });
+
   useEffect( // idb stuff
     () => {
       // create the store
@@ -91,6 +97,7 @@ const CanvasProvider = ({ children }) => {
         state,
         squares,
         combined,
+        actions,
         setMoving: (bool) => { setState((stateBoi) => ({ ...stateBoi, moving: bool })); },
         setDragging: (bool) => { setState((stateBoi) => ({ ...stateBoi, isDragging: bool })); },
         setCombSelected: (newSelected) => {
@@ -111,8 +118,164 @@ const CanvasProvider = ({ children }) => {
         setMouseDown: (md) => {
           setState((stateBoi) => ({ ...stateBoi, mouseDown: md }));
         },
+        pushDrawHistory: (obj) => {
+          /* const newHist = actions.history;
+          newHist.length = actions.historyIndex + 1;
+          newHist.push(obj);
+          let newIndex = actions.historyIndex + 1;
+          console.log(newHist);
+          if (newHist.length > 10) {
+            newHist.shift();
+            newIndex -= 1;
+          } */
+          console.log(actions.history);
+          setActions((stateBoi) => {
+            if (obj.electrodeInfo.length !== 0) {
+              const newHist = { ...stateBoi };
+              newHist.history = newHist.history.slice(0, newHist.historyIndex + 1);
+              newHist.history.push(obj);
+              newHist.historyIndex += 1;
+              return newHist;
+            }
+            return stateBoi;
+          });
+        },
+        consoleHist: () => {
+          console.log(actions.history, actions.historyIndex);
+        },
         undoDraw: () => {
-          console.log('undoDraw called!');
+          if (actions.historyIndex > -1) {
+            const obj = actions.history[actions.historyIndex];
+            let newList = squares.electrodes;
+            if (obj.type === 'draw') {
+              newList = newList.filter((element) => element.ids !== obj.electrodeInfo.ids);
+              setSquares((stateBoi) => ({ ...stateBoi, electrodes: newList }));
+            } else if (obj.type === 'delete') {
+              if (!obj.combined) {
+                obj.electrodeInfo.forEach((delElec) => {
+                  newList.push(delElec);
+                });
+                setSquares((stateBoi) => ({ ...stateBoi, electrodes: newList }));
+              } else {
+                const newComb = combined.allCombined;
+                obj.electrodeInfo.forEach((delComb) => {
+                  newComb.push(delComb);
+                });
+                setCombined((stateBoi) => ({ ...stateBoi, allCombined: newComb }));
+              }
+              const prevAction = actions.history[actions.historyIndex - 1];
+              if (prevAction) {
+                if (prevAction.type === 'combine') {
+                  // handle combine layout change as well since we
+                  // "delete" the single electrodes after combining them
+                  const combObj = prevAction;
+                  let newComb = combined.allCombined;
+                  newComb = newComb.filter((element) => element[2] !== combObj.electrodeInfo[0][2]);
+                  setCombined((stateBoi) => ({ ...stateBoi, allCombined: newComb }));
+                  setActions((stateBoi) => ({
+                    ...stateBoi,
+                    historyIndex: actions.historyIndex - 2,
+                  }));
+                } else if (prevAction.type === 'separate') {
+                  const sepObj = prevAction;
+                  const delIds = [];
+                  sepObj.electrodeInfo.forEach((element) => {
+                    delIds.push(element.ids);
+                  });
+                  newList = newList.filter((element) => !delIds.includes(element.ids));
+                  setSquares((stateBoi) => ({ ...stateBoi, electrodes: newList }));
+                  setActions((stateBoi) => ({
+                    ...stateBoi,
+                    historyIndex: actions.historyIndex - 2,
+                  }));
+                }
+                return;
+              }
+              setActions((stateBoi) => ({
+                ...stateBoi,
+                historyIndex: actions.historyIndex - 1,
+              }));
+            } else if (obj.type === 'paste') {
+              const delIds = [];
+              obj.electrodeInfo.forEach((element) => {
+                delIds.push(element.ids);
+              });
+              newList = newList.filter((element) => !delIds.includes(element.ids));
+              setSquares((stateBoi) => ({ ...stateBoi, electrodes: newList }));
+            }
+            setActions((stateBoi) => ({
+              ...stateBoi,
+              historyIndex: actions.historyIndex - 1,
+            }));
+          }
+        },
+        redoDraw: () => {
+          if (actions.historyIndex < actions.history.length - 1) {
+            const obj = actions.history[actions.historyIndex + 1];
+            let newList = squares.electrodes;
+            if (obj.type === 'draw') {
+              const newElec = obj.electrodeInfo;
+              newList.push(newElec);
+              setSquares((stateBoi) => ({ ...stateBoi, electrodes: newList }));
+            } else if (obj.type === 'delete') {
+              const delIds = [];
+              obj.electrodeInfo.forEach((element) => {
+                delIds.push(element.ids);
+              });
+              newList = newList.filter((element) => !delIds.includes(element.ids));
+              setSquares((stateBoi) => ({ ...stateBoi, electrodes: newList }));
+            } else if (obj.type === 'paste') {
+              obj.electrodeInfo.forEach((delElec) => {
+                newList.push(delElec);
+              });
+              setSquares((stateBoi) => ({ ...stateBoi, electrodes: newList }));
+            } else if (obj.type === 'combine') {
+              // Redraw the combined electrodes
+              // CURRENT BUG: NOT RERENDERING WHEN REDOING COMBINE
+              const newCombs = combined.allCombined;
+              obj.electrodeInfo.forEach((element) => {
+                newCombs.push(element);
+              });
+              // Remove the single electrodes that just got combined
+              const delObj = actions.history[actions.historyIndex + 2];
+              const delIds = [];
+              delObj.electrodeInfo.forEach((element) => {
+                delIds.push(element.ids);
+              });
+              newList = newList.filter((element) => !delIds.includes(element.ids));
+              setCombined((stateBoi) => ({ ...stateBoi, allCombined: newCombs }));
+              setSquares((stateBoi) => ({ ...stateBoi, electrodes: newList }));
+              // Have to advance the index twice since the delete is also being redone
+              setActions((stateBoi) => ({
+                ...stateBoi,
+                historyIndex: actions.historyIndex + 2,
+              }));
+              return;
+            } else if (obj.type === 'separate') {
+              // Redraw the separated electrodes
+              const newSep = squares.electrodes;
+              obj.electrodeInfo.forEach((element) => {
+                newSep.push(element);
+              });
+              // Remove the combined electrodes that got separated
+              const delObj = actions.history[actions.historyIndex + 2];
+              let newComb = combined.allCombined;
+              newComb = newComb.filter((element) => element[2] !== delObj.electrodeInfo[0][2]);
+              setCombined((stateBoi) => ({ ...stateBoi, allCombined: newComb }));
+              setSquares((stateBoi) => ({ ...stateBoi, electrodes: newSep }));
+            }
+            setActions((stateBoi) => ({
+              ...stateBoi,
+              historyIndex: actions.historyIndex + 1,
+            }));
+          }
+        },
+        clearDraw: () => {
+          setActions((stateBoi) => ({
+            ...stateBoi,
+            history: [],
+            historyIndex: -1,
+          }));
         },
       }}
     >

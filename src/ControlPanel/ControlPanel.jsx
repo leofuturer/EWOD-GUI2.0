@@ -150,11 +150,11 @@ export default function ControlPanel({ scrollOpen }) {
   const canvasContext = useContext(CanvasContext);
   const actuationContext = useContext(ActuationContext);
   const {
-    mode, setMode, setCurrElec, panning, setPanning, setScaleXY,
+    mode, setMode, setCurrElec, panning, setPanning, setScaleXY, undoPin, redoPin,
   } = useContext(GeneralContext);
-  const { setSelected, setCombSelected } = canvasContext;
-  const { undoSeq, redo } = actuationContext;
-  const { undoDraw } = canvasContext;
+  const { setSelected, setCombSelected, } = canvasContext;
+  const { undoSeq, redoSeq } = actuationContext;
+  const { undoDraw, redoDraw } = canvasContext;
 
   const classes = useStyles();
   const [open, setOpen] = useState(false);
@@ -256,7 +256,7 @@ export default function ControlPanel({ scrollOpen }) {
                   <ListItem button onClick={undoSeq}>
                     <img src={icons.undo.icon} alt="Undo" />
                   </ListItem>
-                  <ListItem button onClick={redo}>
+                  <ListItem button onClick={redoSeq}>
                     <img src={icons.redo.icon} alt="Redo" />
                   </ListItem>
                 </>
@@ -269,7 +269,20 @@ export default function ControlPanel({ scrollOpen }) {
                   <ListItem button onClick={undoDraw}>
                     <img src={icons.undo.icon} alt="Undo" />
                   </ListItem>
-                  <ListItem button onClick={redo}>
+                  <ListItem button onClick={redoDraw}>
+                    <img src={icons.redo.icon} alt="Redo" />
+                  </ListItem>
+                </>
+              )
+            }
+
+            {
+              mode === 'PIN' && (
+                <>
+                  <ListItem button onClick={undoPin}>
+                    <img src={icons.undo.icon} alt="Undo" />
+                  </ListItem>
+                  <ListItem button onClick={redoPin}>
                     <img src={icons.redo.icon} alt="Redo" />
                   </ListItem>
                 </>

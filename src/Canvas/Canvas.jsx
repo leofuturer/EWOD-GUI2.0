@@ -28,10 +28,12 @@ export default function Canvas() {
   const canvasContext = useContext(CanvasContext);
   const { electrodes, selected } = canvasContext.squares;
   const { mouseDown, moving } = canvasContext.state;
+  const { history, historyIndex } = canvasContext.actions;
   const { allCombined } = canvasContext.combined;
   const combSelected = canvasContext.combined.selected;
   const {
     setMouseDown, setElectrodes, setSelected, setCombSelected, setComboLayout, setMoving,
+    pushDrawHistory,
   } = canvasContext;
 
   const actuationContext = useContext(ActuationContext);
@@ -47,7 +49,6 @@ export default function Canvas() {
   const [shiftDown, setShiftDown] = useState(false);
 
   const [clipboard, setClipboard] = useState([]);
-  const [drawHistory, setDrawHistory] = useState([]);
   const [relativeX, setRelativeX] = useState('0px');
   const [relativeY, setRelativeY] = useState('0px');
   const [cutFlag, setCutFlag] = useState(false);
@@ -145,12 +146,11 @@ export default function Canvas() {
         temp.deltas = [0, 0];
         electrodes.push(temp);
         setElectrodes(electrodes);
-        setDrawHistory((drawHist) => [...drawHist, [{
+        pushDrawHistory({
           type: 'draw',
           combined: false,
           electrodeInfo: temp,
-        }]]);
-        console.log(drawHistory);
+        });
       }
     }
   }, [mode, electrodes, mouseDown, setElectrodes, allCombined]);
@@ -373,6 +373,7 @@ export default function Canvas() {
           if (selected.length + combSelected.length > 1) setCurrElec(null); // if deselecting
           else if (newSelected[0].length) setCurrElec(`S${sIds[0]}`); // if selected square
           else setCurrElec(`C${cIds[0]}`); // if selected combined
+          console.log(currElec);
         }
       } else { // not holding 'shift' down
         if (selectedElecs.length === 1) {
@@ -522,6 +523,11 @@ export default function Canvas() {
           tmps.push(tmp);
         });
         setElectrodes(electrodes.concat(tmps));
+        pushDrawHistory({
+          type: 'paste',
+          combined: false,
+          electrodeInfo: tmps,
+        });
       }
       if (numCombinedCopied > 0) {
         const first = clipboard.squares.length > 0 ? clipboard.squares[0] : combined[0];
@@ -550,6 +556,11 @@ export default function Canvas() {
           }
         }
         setComboLayout(allCombined.concat(newCombs));
+        pushDrawHistory({
+          type: 'paste',
+          combined: true,
+          electrodeInfo: newCombs,
+        });
       }
     }
   }
@@ -581,6 +592,12 @@ export default function Canvas() {
     setPinToElec({ ...pinToElec });
     setElecToPin({ ...elecToPin });
     const newElectrodes = electrodes.filter((element) => !selected.includes(`${element.ids}`));
+    const delElectrodes = electrodes.filter((element) => selected.includes(`${element.ids}`));
+    pushDrawHistory({
+      type: 'delete',
+      combined: false,
+      electrodeInfo: delElectrodes,
+    });
     setSelected([]);
     setElectrodes(newElectrodes);
   }
@@ -595,10 +612,14 @@ export default function Canvas() {
         delete elecToPin[combined];
       }
     });
-
     setPinToElec({ ...pinToElec });
     setElecToPin({ ...elecToPin });
     setComboLayout(allCombined.filter((combi) => !combSelected.includes(`${combi[2]}`)));
+    pushDrawHistory({
+      type: 'delete',
+      combined: true,
+      electrodeInfo: allCombined.filter((combi) => combSelected.includes(`${combi[2]}`)),
+    });
     setCombSelected([]);
   }
 
@@ -701,10 +722,14 @@ export default function Canvas() {
       window.alert("Selected electrodes to combine aren't adjacent");
       return;
     }
-
     setComboLayout(allCombined.concat(positions));
-    console.log(electrodes);
-    console.log(allCombined);
+    pushDrawHistory({
+      type: 'combine',
+      combined: true,
+      electrodeInfo: positions,
+    });
+    // console.log(electrodes);
+    // console.log(allCombined);
     squaresDelete();
   }
 
@@ -725,6 +750,11 @@ export default function Canvas() {
       tmps.push(tmp);
     });
     setElectrodes(electrodes.concat(tmps));
+    pushDrawHistory({
+      type: 'separate',
+      combined: false,
+      electrodeInfo: tmps,
+    });
     combinedDelete();
   }
 
@@ -823,8 +853,10 @@ export default function Canvas() {
   }, [mode, selected, combSelected, electrodes, allCombined]);
 
   useHotkeys('0', () => {
-    console.log(drawHistory);
-  }, [drawHistory]);
+    console.log(history, historyIndex);
+    console.log(electrodes);
+    console.log(allCombined);
+  }, [electrodes, allCombined, history, historyIndex]);
 
   return (
     <div

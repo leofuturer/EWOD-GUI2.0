@@ -286,7 +286,7 @@ const ActuationProvider = ({ children }) => {
             }));
           }
         },
-        redo: () => {
+        redoSeq: () => {
           if (actuation.historyIndex < actuation.history.length - 1) {
             const obj = actuation.history[actuation.historyIndex + 1];
             const newList = actuation.pinActuate;

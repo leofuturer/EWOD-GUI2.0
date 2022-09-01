@@ -11,6 +11,11 @@ const GeneralProvider = ({ children }) => {
   const [currElec, setCurrElec] = useState(null);
   const [pinToElec, setPinToElec] = useState({});
   const [elecToPin, setElecToPin] = useState({});
+  const [pinActions, setPinActions] = useState({
+    history: [],
+    historyIndex: -1,
+  });
+
   const bannerRef = React.useRef();
 
   const [scaleXY, setScaleXY] = useState({ scale: 1, svgX: 0, svgY: 0 });
@@ -66,6 +71,73 @@ const GeneralProvider = ({ children }) => {
         setPinToElec,
         elecToPin,
         setElecToPin,
+        pinActions,
+        setPinActions,
+        pushPinHistory: (obj) => {
+          const newHist = pinActions.history;
+          newHist.push(obj);
+          const newIndex = pinActions.historyIndex + 1;
+          console.log(pinActions.history);
+          setPinActions((stateBoi) => ({ ...stateBoi, history: newHist, historyIndex: newIndex }));
+        },
+        undoPin: () => {
+          if (pinActions.historyIndex > -1) {
+            const obj = pinActions.history[pinActions.historyIndex];
+            if (obj.type === 'map') {
+              setPinToElec((curr) => {
+                const newObj = { ...curr };
+                delete newObj[obj.pinAff];
+                return newObj;
+              });
+              setElecToPin((curr) => {
+                const newObj = { ...curr };
+                delete newObj[obj.elecAff];
+                return newObj;
+              });
+            } else if (obj.type === 'unmap') {
+              setPinToElec((curr) => {
+                const newObj = { ...curr };
+                newObj[obj.pinAff] = obj.elecAff;
+                return newObj;
+              });
+              setElecToPin((curr) => {
+                const newObj = { ...curr };
+                newObj[obj.elecAff] = obj.pinAff;
+                return newObj;
+              });
+            }
+            setPinActions({ ...pinActions, historyIndex: pinActions.historyIndex - 1 });
+          }
+        },
+        redoPin: () => {
+          if (pinActions.historyIndex < pinActions.history.length - 1) {
+            const obj = pinActions.history[pinActions.historyIndex + 1];
+            if (obj.type !== 'map') {
+              setPinToElec((curr) => {
+                const newObj = { ...curr };
+                delete newObj[obj.pinAff];
+                return newObj;
+              });
+              setElecToPin((curr) => {
+                const newObj = { ...curr };
+                delete newObj[obj.elecAff];
+                return newObj;
+              });
+            } else {
+              setPinToElec((curr) => {
+                const newObj = { ...curr };
+                newObj[obj.pinAff] = obj.elecAff;
+                return newObj;
+              });
+              setElecToPin((curr) => {
+                const newObj = { ...curr };
+                newObj[obj.elecAff] = obj.pinAff;
+                return newObj;
+              });
+            }
+            setPinActions({ ...pinActions, historyIndex: pinActions.historyIndex + 1 });
+          }
+        },
       }}
     >
       {children}

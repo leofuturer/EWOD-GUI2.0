@@ -16,7 +16,7 @@ export default function DeleteButton({ name }) {
   const context = useContext(CanvasContext);
   const actuation = useContext(ActuationContext);
   const {
-    setSelected, setElectrodes, setCombSelected, setComboLayout,
+    setSelected, setElectrodes, setCombSelected, setComboLayout, clearDraw,
   } = context;
   const { clearAll } = actuation;
 
@@ -33,6 +33,7 @@ export default function DeleteButton({ name }) {
     setPinToElec({});
     setElecToPin({});
 
+    clearDraw();
     clearAll();
     setOpen(false);
   }

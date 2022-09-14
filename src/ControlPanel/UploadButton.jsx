@@ -7,6 +7,7 @@ import { ActuationContext } from '../Contexts/ActuationProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 import ActuationSequence from '../Actuation/Actuation';
 import icons from '../Icons/icons';
+import { ELEC_SIZE } from '../constants';
 
 export default function UploadButton() {
   const context = useContext(CanvasContext);
@@ -56,8 +57,35 @@ export default function UploadButton() {
       } else {
         file = await getFileLegacy();
       }
-      if (file.name.slice(-4) !== 'ewds') window.alert('You can only upload .ewds files');
-      else {
+      if (file.name.slice(-3) === 'ecc') {
+        const fileContent = await readFile(file);
+        const content = fileContent.split(',');
+
+        if (content.length % 3 !== 0) {
+          window.alert('Invalid file');
+          return;
+        }
+
+        const newElectrodes = [];
+        const newElecToPin = {};
+        const newPinToElec = {};
+        for (let i = 0; i < content.length / 3; i += 1) {
+          const temp = {};
+          temp.initPositions = [
+            parseInt(content[i * 3] * ELEC_SIZE, 10),
+            parseInt(content[i * 3 + 1] * ELEC_SIZE, 10),
+          ];
+          temp.deltas = [0, 0];
+          temp.ids = i;
+          newElectrodes.push(temp);
+          newElecToPin[`S${i}`] = content[i * 3 + 2];
+          newPinToElec[content[i * 3 + 2]] = `S${i}`;
+        }
+        setElecToPin(newElecToPin);
+        setPinToElec(newPinToElec);
+        setSelected([]);
+        setElectrodes(newElectrodes);
+      } else if (file.name.slice(-4) === 'ewds') {
         const content = await readFile(file);
         const newElectrodes = [];
         const newAllCombined = [];
@@ -70,9 +98,17 @@ export default function UploadButton() {
           const e = stringList[i];
           if (e !== '') {
             const words = e.split(' ');
-            if (words.length >= 3 && words[0] === 'square' && !Number.isNaN(words[1]) && !Number.isNaN(words[2])) {
+            if (
+              words.length >= 3
+              && words[0] === 'square'
+              && !Number.isNaN(words[1])
+              && !Number.isNaN(words[2])
+            ) {
               const temp = {};
-              temp.initPositions = [parseInt(words[1], 10), parseInt(words[2], 10)];
+              temp.initPositions = [
+                parseInt(words[1], 10),
+                parseInt(words[2], 10),
+              ];
               temp.deltas = [0, 0];
               temp.ids = i;
               newElectrodes.push(temp);
@@ -80,15 +116,24 @@ export default function UploadButton() {
                 newElecToPin[`S${i}`] = words[3];
                 newPinToElec[words[3]] = `S${i}`;
               }
-            } else if (words.length >= 4 && words[0] === 'combine' && !Number.isNaN(words[1]) && !Number.isNaN(words[2]) && !Number.isNaN(words[1])) {
-              newAllCombined.push([parseInt(words[1], 10),
-                parseInt(words[2], 10), parseInt(words[3], 10)]);
+            } else if (
+              words.length >= 4
+              && words[0] === 'combine'
+              && !Number.isNaN(words[1])
+              && !Number.isNaN(words[2])
+              && !Number.isNaN(words[1])
+            ) {
+              newAllCombined.push([
+                parseInt(words[1], 10),
+                parseInt(words[2], 10),
+                parseInt(words[3], 10),
+              ]);
               if (words.length > 4) {
                 newElecToPin[`C${words[3]}`] = words[4];
                 newPinToElec[words[3]] = `C${i}`;
               }
             } else if (e.charAt(0) === '#') {
-            // line starts with #
+              // line starts with #
             } else if (!Number.isNaN(e.charAt(0))) {
               const sect = e.split(';');
               if (sect.length > 2) {
@@ -105,7 +150,10 @@ export default function UploadButton() {
               newPinActuate.set(id, newSeq);
               if (sect.length === 2) {
                 if (!newPinActuate.has(+sect[1].split(':')[0])) {
-                  const newLoop = new ActuationSequence(+sect[1].split(':')[0], 'loop');
+                  const newLoop = new ActuationSequence(
+                    +sect[1].split(':')[0],
+                    'loop',
+                  );
                   newLoop.repTime = +sect[1].split(':')[1];
                   newPinActuate.set(+sect[1].split(':')[0], newLoop);
                 }
@@ -125,6 +173,8 @@ export default function UploadButton() {
         setComboLayout(newAllCombined);
         setPinActuation(newPinActuate);
         setSimpleNum(newSimpleNum + 1);
+      } else {
+        window.alert('You can only upload .ewds files');
       }
     } catch (e) {
       console.log(e);
@@ -133,7 +183,9 @@ export default function UploadButton() {
 
   function handleImport() {
     if (electrodes.length > 0) {
-      const changeCanvas = window.confirm('Are you sure you want to replace your current canvas?');
+      const changeCanvas = window.confirm(
+        'Are you sure you want to replace your current canvas?',
+      );
       if (changeCanvas) openFilePicker();
     } else openFilePicker();
   }

@@ -59,32 +59,195 @@ export default function UploadButton() {
       }
       if (file.name.slice(-3) === 'ecc') {
         const fileContent = await readFile(file);
-        const content = fileContent.split(',');
-
-        if (content.length % 3 !== 0) {
-          window.alert('Invalid file');
-          return;
-        }
+        const line = fileContent.split('\n');
 
         const newElectrodes = [];
+        const newAllCombined = [];
         const newElecToPin = {};
         const newPinToElec = {};
-        for (let i = 0; i < content.length / 3; i += 1) {
-          const temp = {};
-          temp.initPositions = [
-            parseInt(content[i * 3] * ELEC_SIZE, 10),
-            parseInt(content[i * 3 + 1] * ELEC_SIZE, 10),
-          ];
-          temp.deltas = [0, 0];
-          temp.ids = i;
-          newElectrodes.push(temp);
-          newElecToPin[`S${i}`] = content[i * 3 + 2];
-          newPinToElec[content[i * 3 + 2]] = `S${i}`;
+        for (let i = 0; i < line.length - 1; i += 1) {
+          const split = line[i].split(' M ');
+          const content = split[0].split(' ');
+          const shape = split[1];
+          const basicShape = '0 0 L 1 0 L 1 1 L 0 1 Z';
+          if (shape === basicShape) {
+            const temp = {};
+            temp.initPositions = [
+              parseInt(content[0], 10) * ELEC_SIZE,
+              parseInt(content[1], 10) * ELEC_SIZE,
+            ];
+            temp.deltas = [0, 0];
+            temp.ids = i;
+            newElectrodes.push(temp);
+            newElecToPin[`S${i}`] = content[2];
+            newPinToElec[content[2]] = `S${i}`;
+          } else {
+            const shapeContent = shape.split(' ');
+            let xMax = parseInt(shapeContent[0], 10);
+            let yMax = parseInt(shapeContent[1], 10);
+            for (let j = 3; j < shapeContent.length; j += 3) {
+              if (parseInt(shapeContent[j], 10) > xMax) {
+                xMax = parseInt(shapeContent[j], 10);
+              }
+              if (parseInt(shapeContent[j + 1], 10) > yMax) {
+                yMax = parseInt(shapeContent[j + 1], 10);
+              }
+            }
+
+            const electrodeShape = [];
+            for (let j = 0; j < yMax; j += 1) {
+              const row = [];
+              for (let k = 0; k < xMax; k += 1) {
+                row.push(0);
+              }
+              electrodeShape.push(row);
+            }
+
+            for (let j = 3; j < shapeContent.length; j += 3) {
+              const x = parseInt(shapeContent[j], 10) - parseInt(shapeContent[j - 3], 10);
+              const y = parseInt(shapeContent[j + 1], 10) - parseInt(shapeContent[j - 2], 10);
+              if (x === 0) {
+                if (y > 0) {
+                  for (let k = 0; k < y; k += 1) {
+                    electrodeShape[parseInt(shapeContent[j - 2], 10) + k][
+                      parseInt(shapeContent[j - 3], 10) - 1] += 1;
+                  }
+                } else {
+                  for (let k = 0; k > y; k -= 1) {
+                    electrodeShape[parseInt(shapeContent[j - 2], 10) + k - 1][
+                      parseInt(shapeContent[j - 3], 10)] += 1;
+                  }
+                }
+              } else if (x > 0) {
+                for (let k = 0; k < x; k += 1) {
+                  electrodeShape[parseInt(shapeContent[j - 2], 10)][
+                    parseInt(shapeContent[j - 3], 10) + k] += 1;
+                }
+              } else {
+                for (let k = 0; k > x; k -= 1) {
+                  electrodeShape[parseInt(shapeContent[j - 2], 10) - 1][
+                    parseInt(shapeContent[j - 3], 10) + k - 1] += 1;
+                }
+              }
+            }
+
+            for (let j = 0; j < yMax; j += 1) {
+              for (let k = 0; k < xMax; k += 1) {
+                if (electrodeShape[j][k]) {
+                  newAllCombined.push([
+                    (parseInt(content[0], 10) + k) * ELEC_SIZE,
+                    (parseInt(content[1], 10) + j) * ELEC_SIZE,
+                    i,
+                  ]);
+                }
+              }
+            }
+            for (let j = 1; j < yMax - 1; j += 1) {
+              const countOne = electrodeShape[j].filter((x) => x === 1).length;
+              const countTwo = electrodeShape[j].filter((x) => x === 2).length;
+              if (countOne) {
+                if (countOne % 2 === 0) {
+                  let lastX = 0;
+                  for (let oneIndex = 0; oneIndex < countOne; oneIndex += 2) {
+                    const firstX = electrodeShape[j].indexOf(1, lastX);
+                    const secondX = electrodeShape[j].indexOf(1, firstX + 1);
+                    for (let k = firstX + 1; k < secondX; k += 1) {
+                      newAllCombined.push([
+                        (parseInt(content[0], 10) + k) * ELEC_SIZE,
+                        (parseInt(content[1], 10) + j) * ELEC_SIZE,
+                        i,
+                      ]);
+                    }
+                    lastX = firstX + 1;
+                  }
+                } else if (countOne === 1) {
+                  const firstX = electrodeShape[j].indexOf(1);
+                  for (let k = firstX + 1; k < xMax; k += 1) {
+                    if (electrodeShape[j][k] === 2) {
+                      for (let h = firstX + 1; h < k; h += 1) {
+                        newAllCombined.push([
+                          (parseInt(content[0], 10) + h) * ELEC_SIZE,
+                          (parseInt(content[1], 10) + j) * ELEC_SIZE,
+                          i,
+                        ]);
+                      }
+                      break;
+                    }
+                  }
+                  for (let k = firstX - 1; k >= 0; k -= 1) {
+                    if (electrodeShape[j][k] === 2) {
+                      for (let h = firstX - 1; h > k; h -= 1) {
+                        newAllCombined.push([
+                          (parseInt(content[0], 10) + h) * ELEC_SIZE,
+                          (parseInt(content[1], 10) + j) * ELEC_SIZE,
+                          i,
+                        ]);
+                      }
+                      break;
+                    }
+                  }
+                } else {
+                  let firstX = electrodeShape[j].indexOf(1);
+                  let secondX = electrodeShape[j].indexOf(1, firstX + 1);
+                  for (let oneIndex = 0; oneIndex < countOne - 1; oneIndex += 1) {
+                    let allZero = true;
+                    for (let k = firstX + 1; k < secondX; k += 1) {
+                      if (electrodeShape[j][k]) {
+                        allZero = false;
+                        break;
+                      }
+                    }
+                    if (allZero) {
+                      for (let k = firstX + 1; k < secondX; k += 1) {
+                        newAllCombined.push([
+                          (parseInt(content[0], 10) + k) * ELEC_SIZE,
+                          (parseInt(content[1], 10) + j) * ELEC_SIZE,
+                          i,
+                        ]);
+                      }
+                    }
+                    firstX = secondX;
+                    secondX = electrodeShape[j].indexOf(1, firstX + 1);
+                  }
+                }
+              }
+              if (countTwo > 1) {
+                let firstX = electrodeShape[j].indexOf(2);
+                let secondX = electrodeShape[j].indexOf(2, firstX + 1);
+                for (let twoIndex = 0; twoIndex < countTwo - 1; twoIndex += 1) {
+                  if (electrodeShape[j - 1][firstX] === 1 || electrodeShape[j + 1][firstX] === 1) {
+                    let allZero = true;
+                    for (let k = firstX + 1; k < secondX; k += 1) {
+                      if (electrodeShape[j][k]
+                        || (electrodeShape[j - 1][k] < 2 && electrodeShape[j + 1][k] < 2)) {
+                        allZero = false;
+                        break;
+                      }
+                    }
+                    if (allZero) {
+                      for (let k = firstX + 1; k < secondX; k += 1) {
+                        newAllCombined.push([
+                          (parseInt(content[0], 10) + k) * ELEC_SIZE,
+                          (parseInt(content[1], 10) + j) * ELEC_SIZE,
+                          i,
+                        ]);
+                      }
+                    }
+                  }
+                  firstX = secondX;
+                  secondX = electrodeShape[j].indexOf(2, firstX + 1);
+                }
+              }
+            }
+            newElecToPin[`C${i}`] = content[2];
+            newPinToElec[content[2]] = `C${i}`;
+          }
         }
         setElecToPin(newElecToPin);
         setPinToElec(newPinToElec);
         setSelected([]);
         setElectrodes(newElectrodes);
+        setComboLayout(newAllCombined);
       } else if (file.name.slice(-4) === 'ewds') {
         const content = await readFile(file);
         const newElectrodes = [];
@@ -174,7 +337,7 @@ export default function UploadButton() {
         setPinActuation(newPinActuate);
         setSimpleNum(newSimpleNum + 1);
       } else {
-        window.alert('You can only upload .ewds files');
+        window.alert('You can only upload .ecc or .ewds files');
       }
     } catch (e) {
       console.log(e);

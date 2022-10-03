@@ -541,11 +541,19 @@ export default function Canvas() {
               && inner.initPositions[1] === temp[1]))
             || allCombined.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
           )) {
-            newCombs.push([
-              temp[0],
-              temp[1],
-              combined[k][2] + maxID + 1,
-            ]);
+            if (cutFlag) {
+              newCombs.push([
+                temp[0],
+                temp[1],
+                combined[k][2],
+              ]);
+            } else {
+              newCombs.push([
+                temp[0],
+                temp[1],
+                combined[k][2] + maxID + 1,
+              ]);
+            }
           } else {
             window.alert('Pasted combined electrode overlap!');
             if (cutFlag) {
@@ -563,6 +571,7 @@ export default function Canvas() {
         });
       }
     }
+    setCutFlag(false);
   }
 
   function squaresDelete() {

@@ -386,9 +386,9 @@ export default function Canvas() {
       } else {
         setSelected(sIds);
         setCombSelected(cIds);
-      }
-      if (sIds.length > 0 || cIds.length > 0) {
-        setMoving(true);
+        if (sIds.length > 0 || cIds.length > 0) {
+          setMoving(true);
+        }
       }
     }
 

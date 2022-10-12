@@ -394,7 +394,6 @@ export default function Canvas() {
 
     // handle actuation
     if (selectedElecs.length === 1) {
-      setMoving(false);
       if (mode === 'SEQ') {
         if (sIds.length && Object.prototype.hasOwnProperty.call(elecToPin, `S${sIds[0]}`)) {
           handleActuationMapping(elecToPin[`S${sIds[0]}`]);

@@ -8,7 +8,7 @@ import { GeneralContext } from '../Contexts/GeneralProvider';
 
 export default function ContextMenu({
   setMenuClick, contextCopy, contextPaste, contextMove,
-  contextCut, contextDelete, deleteSelectedMappings,
+  contextCut, contextDelete, contextUnselect, deleteSelectedMappings,
   separate, handleCombine,
 }) {
   const canvasContext = useContext(CanvasContext);
@@ -28,9 +28,10 @@ export default function ContextMenu({
 
   const [menuContents, setMenuContents] = useState(null);
 
-  const canModeNames = ['Move', 'Cut', 'Copy', 'Paste', 'Delete', 'Combine', 'Separate'];
+  const canModeNames = ['Unselect', 'Move', 'Cut', 'Copy', 'Paste', 'Delete', 'Combine', 'Separate'];
   const canModeFuncs = [
-    contextMove, contextCut, contextCopy, contextPaste, contextDelete, handleCombine, separate,
+    contextUnselect, contextMove, contextCut, contextCopy, contextPaste, contextDelete,
+    handleCombine, separate,
   ];
 
   const pinModeNames = ['Delete Selected Mappings'];

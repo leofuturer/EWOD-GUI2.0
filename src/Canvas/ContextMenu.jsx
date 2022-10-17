@@ -28,10 +28,10 @@ export default function ContextMenu({
 
   const [menuContents, setMenuContents] = useState(null);
 
-  const canModeNames = ['Unselect', 'Move', 'Cut', 'Copy', 'Paste', 'Delete', 'Combine', 'Separate'];
+  const canModeNames = ['Move', 'Cut', 'Copy', 'Paste', 'Delete', 'Combine', 'Separate', 'Unselect'];
   const canModeFuncs = [
-    contextUnselect, contextMove, contextCut, contextCopy, contextPaste, contextDelete,
-    handleCombine, separate,
+    contextMove, contextCut, contextCopy, contextPaste, contextDelete,
+    handleCombine, separate, contextUnselect,
   ];
 
   const pinModeNames = ['Delete Selected Mappings'];

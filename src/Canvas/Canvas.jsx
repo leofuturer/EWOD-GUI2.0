@@ -415,6 +415,14 @@ export default function Canvas() {
 
   /* ########################### CLIPBOARD STUFF ########################### */
 
+  function unselect() {
+    if (selected.length || combSelected.length) {
+      setMoving(false);
+      setSelected([]);
+      setCombSelected([]);
+    }
+  }
+
   function move() {
     if (selected.length || combSelected.length) setMoving(true);
   }
@@ -835,6 +843,14 @@ export default function Canvas() {
     separate();
   }, [mode, selected, combSelected, electrodes, allCombined]);
 
+  useHotkeys('esc', () => {
+    if (!selected.length && !combSelected.length) {
+      window.alert('No electrodes selected');
+      return;
+    }
+    unselect();
+  }, [selected, combSelected]);
+
   return (
     <div
       className="wrapper"
@@ -994,6 +1010,7 @@ export default function Canvas() {
       }
       <ContextMenu
         setMenuClick={setMenuClick}
+        contextUnselect={unselect}
         contextCopy={copy}
         contextPaste={paste}
         contextCut={cut}

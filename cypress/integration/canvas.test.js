@@ -320,6 +320,9 @@ describe('Canvas', () => {
       .eq(0)
       .should('have.class', 'selected');
 
+    cy.get('.greenArea').rightclick({ force: true });
+    cy.get('ul.menu > li:nth-child(8)').click({ force: true });
+
     cy.get('[data-testid="square"]').eq(1).click();
     cy.get('[data-testid="square"]')
       .eq(0)
@@ -398,6 +401,19 @@ describe('Canvas', () => {
     cy.get('[data-testid="square"]').click({ force: true });
 
     cy.get('body').type('m');
+    cy.get('[data-testid="square"]')
+      .then(($square) => cy.moveElec($square, CELL1, POSITION));
+
+    cy.get('[data-testid="square"]')
+      .should('have.attr', 'x', POSITION.x - 10)
+      .should('have.attr', 'y', POSITION.y - 10);
+  });
+
+  it('Move by default after selecting an electrode', () => {
+    cy.createSquare(CELL1);
+    cy.get('[data-testid="CAN"]').click();
+    cy.get('[data-testid="square"]').click({ force: true });
+
     cy.get('[data-testid="square"]')
       .then(($square) => cy.moveElec($square, CELL1, POSITION));
 

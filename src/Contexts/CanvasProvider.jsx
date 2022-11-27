@@ -107,13 +107,21 @@ const CanvasProvider = ({ children }) => {
         });
         newList = newList.filter((element) => !delIds.includes(element.ids));
         break;
+      case 'move':
+        newList.forEach((element, index) => {
+          if (obj.electrodeInfo.indexOf(element.ids.toString()) >= 0) {
+            newList[index].deltas = [newList[index].deltas[0] - obj.delta_pos.x,
+              newList[index].deltas[1] - obj.delta_pos.y];
+          }
+        });
+        break;
       default:
     }
     return newList;
   }
 
   function redoIndividual(action) {
-    const obj = action.history[actions.historyIndex];
+    const obj = actions.history[actions.historyIndex + 1];
     let newList = squares.electrodes.slice();
     const delIds = [];
     switch (action) {
@@ -130,8 +138,17 @@ const CanvasProvider = ({ children }) => {
         newList = newList.filter((element) => !delIds.includes(element.ids));
         setSquares((stateBoi) => ({ ...stateBoi, electrodes: newList }));
         break;
+      case 'move':
+        newList.forEach((element, index) => {
+          if (obj.electrodeInfo.indexOf(element.ids.toString()) >= 0) {
+            newList[index].deltas = [newList[index].deltas[0] + obj.delta_pos.x,
+              newList[index].deltas[1] + obj.delta_pos.y];
+          }
+        });
+        break;
       default:
     }
+    return newList;
   }
 
   function undoCombined(action) {
@@ -353,6 +370,12 @@ const CanvasProvider = ({ children }) => {
                   }
                 }
               }
+            } else if (obj.type === 'move') {
+              if (!obj.combined) {
+                newList = undoIndividual('move');
+              } else {
+                console.log('not done yet');
+              }
             }
             setSquares((stateBoi) => ({ ...stateBoi, electrodes: newList }));
             setCombined((stateBoi) => ({ ...stateBoi, allCombined: newComb }));
@@ -456,6 +479,13 @@ const CanvasProvider = ({ children }) => {
                 historyIndex: actions.historyIndex + 2,
               }));
               return;
+            } else if (obj.type === 'move') {
+              if (!obj.combined) {
+                newList = redoIndividual('move');
+                setSquares((stateBoi) => ({ ...stateBoi, electrodes: newList }));
+              } else {
+                console.log('not done yet');
+              }
             }
             setActions((stateBoi) => ({
               ...stateBoi,

@@ -151,7 +151,7 @@ export default function ControlPanel({ scrollOpen }) {
   const {
     mode, setMode, setCurrElec, panning, setPanning, setScaleXY,
   } = useContext(GeneralContext);
-  const { setSelected, setCombSelected } = canvasContext;
+  const { setSelected, setCombSelected, setMoving } = canvasContext;
   const { undo, redo } = actuationContext;
 
   const classes = useStyles();
@@ -161,10 +161,15 @@ export default function ControlPanel({ scrollOpen }) {
   // const [refPanelOpen, setRefPanelOpen] = useState(false);
 
   function setNewMode(newMode) {
-    if (mode === 'PIN' && newMode !== 'PIN') {
-      setScaleXY({ scale: 1, svgX: 0, svgY: 0 });
+    if (mode === newMode && mode !== 'CAN') {
+      setMode('CAN');
+    } else {
+      if (mode === 'PIN' && newMode !== 'PIN') {
+        setScaleXY({ scale: 1, svgX: 0, svgY: 0 });
+      }
+      setMode(newMode);
     }
-    setMode(newMode);
+    setMoving(false);
     setSelected([]);
     setCombSelected([]);
     setCurrElec(null);

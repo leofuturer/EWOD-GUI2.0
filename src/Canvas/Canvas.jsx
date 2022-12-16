@@ -455,7 +455,9 @@ export default function Canvas() {
       });
       setCombSelected([]);
     }
-    setClipboard({ squares, combined });
+    if (selected.length > 0 || combSelected.length > 0) {
+      setClipboard({ squares, combined });
+    }
   }
 
   function handleCutFlag(squares, combined, numSquaresCopied, numCombinedCopied) {

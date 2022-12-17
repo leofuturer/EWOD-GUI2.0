@@ -535,6 +535,11 @@ export default function Canvas() {
         const maxID = (combIds.length === 0 ? 0 : Math.max(...combIds));
         for (let k = 0; k < numCombinedCopied; k += 1) {
           const temp = [x + combined[k][0] - first[0], y + combined[k][1] - first[1]];
+          if (temp[0] < 0 || temp[0] >= CANVAS_TRUE_WIDTH
+            || temp[1] < 0 || temp[1] >= CANVAS_TRUE_HEIGHT) {
+            window.alert('Combined electrode pasting off canvas!');
+            return;
+          }
           if (!(
             electrodes.some((inner) => (inner.initPositions[0] === temp[0]
               && inner.initPositions[1] === temp[1]))

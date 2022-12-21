@@ -18,6 +18,9 @@ export default function ContextMenu({
 
   const { mode } = useContext(GeneralContext);
 
+  // eslint-disable-next-line prefer-destructuring
+  const clipboard = canvasContext.clipboard;
+
   const [xPos, setXPos] = useState('0px');
   const [yPos, setYPos] = useState('0px');
 
@@ -28,9 +31,9 @@ export default function ContextMenu({
 
   const [menuContents, setMenuContents] = useState(null);
 
-  const canModeNames = ['Move', 'Cut', 'Copy', 'Paste', 'Delete', 'Combine', 'Separate', 'Unselect'];
+  const canModeNames = ['Move', 'Cut', 'Copy', 'Delete', 'Combine', 'Separate', 'Unselect'];
   const canModeFuncs = [
-    contextMove, contextCut, contextCopy, contextPaste, contextDelete,
+    contextMove, contextCut, contextCopy, contextDelete,
     handleCombine, separate, contextUnselect,
   ];
 
@@ -48,10 +51,20 @@ export default function ContextMenu({
           });
           break;
         case 'CAN':
-          setMenuContents({
-            names: canModeNames,
-            funcs: canModeFuncs,
-          });
+          if ((canvasContext.squares.selected.length || canvasContext.combined.selected.length)) {
+            setMenuContents({
+              names: canModeNames,
+              funcs: canModeFuncs,
+            });
+          // eslint-disable-next-line max-len
+          } else if ((clipboard.squares || clipboard.combined) && (clipboard.squares.length || clipboard.combined.length)) {
+            setMenuContents({
+              names: ['Paste'],
+              funcs: [contextPaste],
+            });
+          } else {
+            setMenuContents(null);
+          }
           break;
         default:
           setMenuContents(null);

@@ -95,7 +95,7 @@ describe('Pin', () => {
     cy.get('[data-testid="CAN"]').click();
     cy.drag(CELL3, CELL2);
     cy.get('.greenArea').rightclick({ force: true });
-    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(5)').click({ force: true });
     cy.get('[data-testid="square"]').should('have.length', 0);
     cy.get('[data-testid="combined"]').should('have.length', 1);
 
@@ -138,7 +138,7 @@ describe('Pin', () => {
     cy.get('[data-testid="CAN"]').click();
     cy.drag(CELL1, CELL2);
     cy.get('.greenArea').rightclick({ force: true });
-    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(5)').click({ force: true });
 
     // assign pins
     cy.get('[data-testid="PIN"]').click();
@@ -164,7 +164,7 @@ describe('Pin', () => {
     cy.get('[data-testid="CAN"]').click();
     cy.drag(CELL3, CELL2);
     cy.get('.greenArea').rightclick({ force: true });
-    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(5)').click({ force: true });
 
     // assign REF to combined then assign to CELL1
     cy.get('[data-testid="PIN"]').click();

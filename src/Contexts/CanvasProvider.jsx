@@ -167,13 +167,21 @@ const CanvasProvider = ({ children }) => {
         });
         newComb = newComb.filter((element) => !delIds.has(element[2]));
         break;
+      case 'move':
+        newComb = newComb.map((element) => {
+          if (obj.electrodeInfo.includes(element[2])) {
+            return [element[0] - obj.delta_pos.x, element[1] - obj.delta_pos.y, element[2]];
+          }
+          return element;
+        });
+        break;
       default:
     }
     return newComb;
   }
 
   function redoCombined(action) {
-    const obj = actions.history[actions.historyIndex];
+    const obj = actions.history[actions.historyIndex + 1];
     const delIds = new Set();
     let newComb = combined.allCombined.slice();
     switch (action) {
@@ -190,8 +198,19 @@ const CanvasProvider = ({ children }) => {
         });
         setCombined((stateBoi) => ({ ...stateBoi, allCombined: newComb }));
         break;
+      case 'move':
+        newComb = newComb.map((element) => {
+          if (obj.electrodeInfo.includes(element[2])) {
+            console.log(element);
+            return [element[0] + obj.delta_pos.x, element[1] + obj.delta_pos.y, element[2]];
+          }
+          return element;
+        });
+        setCombined((stateBoi) => ({ ...stateBoi, allCombined: newComb }));
+        break;
       default:
     }
+    return newComb;
   }
 
   function handlePrevActionForUndo(prevAction, newSquares, newCombined) {
@@ -285,7 +304,6 @@ const CanvasProvider = ({ children }) => {
             newHist.shift();
             newIndex -= 1;
           } */
-          console.log(actions.history);
           setActions((stateBoi) => {
             if (obj.electrodeInfo.length !== 0) {
               const newHist = { ...stateBoi };
@@ -313,7 +331,6 @@ const CanvasProvider = ({ children }) => {
               // Undo deletion of single electrodes
               if (!obj.combined) {
                 newList = undoIndividual('delete');
-                console.log(newList);
               } else { // Undo deletion of combined electrodes
                 newComb = undoCombined('delete');
               }
@@ -374,7 +391,7 @@ const CanvasProvider = ({ children }) => {
               if (!obj.combined) {
                 newList = undoIndividual('move');
               } else {
-                console.log('not done yet');
+                newComb = undoCombined('move');
               }
             }
             setSquares((stateBoi) => ({ ...stateBoi, electrodes: newList }));
@@ -389,13 +406,14 @@ const CanvasProvider = ({ children }) => {
           if (actions.historyIndex < actions.history.length - 1) {
             const obj = actions.history[actions.historyIndex + 1];
             let newList = squares.electrodes.slice();
+            let newCombs = combined.allCombined.slice();
             if (obj.type === 'draw') {
               const newElec = obj.electrodeInfo;
               newList.push(newElec);
               setSquares((stateBoi) => ({ ...stateBoi, electrodes: newList }));
             } else if (obj.type === 'delete') {
               if (!obj.combined) {
-                redoIndividual('delete');
+                newList = redoIndividual('delete');
                 const nextAction = actions.history[actions.historyIndex + 2];
                 if (nextAction) {
                   if (nextAction.type === 'paste') {
@@ -419,14 +437,14 @@ const CanvasProvider = ({ children }) => {
                   }
                 }
               } else {
-                redoCombined('delete');
+                newCombs = redoCombined('delete');
                 const nextAction = actions.history[actions.historyIndex + 2];
                 if (nextAction) {
                   if (nextAction.type === 'paste') {
                     nextAction.electrodeInfo.forEach((delElec) => {
-                      newList.push(delElec);
+                      newCombs.push(delElec);
                     });
-                    setSquares((stateBoi) => ({ ...stateBoi, electrodes: newList }));
+                    setCombined((stateBoi) => ({ ...stateBoi, allCombined: newCombs }));
                     setActions((stateBoi) => ({
                       ...stateBoi,
                       historyIndex: actions.historyIndex + 2,
@@ -443,7 +461,6 @@ const CanvasProvider = ({ children }) => {
               }
             } else if (obj.type === 'combine') {
               // Redraw the combined electrodes
-              const newCombs = combined.allCombined.slice();
               obj.electrodeInfo.forEach((element) => {
                 newCombs.push(element);
               });
@@ -470,9 +487,8 @@ const CanvasProvider = ({ children }) => {
               });
               // Remove the combined electrodes that got separated
               const delObj = actions.history[actions.historyIndex + 2];
-              let newComb = combined.allCombined.slice();
-              newComb = newComb.filter((element) => element[2] !== delObj.electrodeInfo[0][2]);
-              setCombined((stateBoi) => ({ ...stateBoi, allCombined: newComb }));
+              newCombs = newCombs.filter((element) => element[2] !== delObj.electrodeInfo[0][2]);
+              setCombined((stateBoi) => ({ ...stateBoi, allCombined: newCombs }));
               setSquares((stateBoi) => ({ ...stateBoi, electrodes: newSep }));
               setActions((stateBoi) => ({
                 ...stateBoi,
@@ -484,7 +500,7 @@ const CanvasProvider = ({ children }) => {
                 newList = redoIndividual('move');
                 setSquares((stateBoi) => ({ ...stateBoi, electrodes: newList }));
               } else {
-                console.log('not done yet');
+                redoCombined('move');
               }
             }
             setActions((stateBoi) => ({

@@ -45,7 +45,7 @@ describe('Canvas', () => {
     cy.get('[data-testid="square"]').click({ force: true });
 
     cy.get('.greenArea').rightclick({ force: true });
-    cy.get('ul.menu > li:nth-child(5)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(4)').click({ force: true });
     cy.get('[data-testid="square"]').should('have.length', 0);
   });
 
@@ -56,7 +56,7 @@ describe('Canvas', () => {
     cy.get('[data-testid="CAN"]').click();
     cy.drag(CELL3, CELL2);
     cy.get('.greenArea').rightclick({ force: true });
-    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(5)').click({ force: true });
     cy.get('[data-testid="square"]').should('have.length', 0);
     cy.get('[data-testid="combined"]').should('have.length', 1);
   });
@@ -69,12 +69,12 @@ describe('Canvas', () => {
     cy.get('[data-testid="CAN"]').click();
     cy.drag(CELL3, CELL2);
     cy.get('.greenArea').rightclick({ force: true });
-    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(5)').click({ force: true });
 
     // now separate
     cy.get('[data-testid="combined"]').click({ force: true });
     cy.get('.greenArea').rightclick({ force: true });
-    cy.get('ul.menu > li:nth-child(7)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
     cy.get('[data-testid="square"]')
       .should((sub) => {
         expect(sub[0].id).to.match(/S[01]/);
@@ -91,7 +91,7 @@ describe('Canvas', () => {
     cy.get('ul.menu > li:nth-child(3)').click({ force: true });
 
     cy.get('.greenArea').rightclick(CELL4.x, CELL4.y, { force: true });
-    cy.get('ul.menu > li:nth-child(4)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(1)').click({ force: true });
 
     cy.get('[data-testid="square"]')
       .eq(1)
@@ -105,7 +105,7 @@ describe('Canvas', () => {
     cy.get('[data-testid="CAN"]').click();
     cy.drag(CELL3, CELL2);
     cy.get('.greenArea').rightclick({ force: true });
-    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(5)').click({ force: true });
 
     // copy
     cy.drag(CELL2, CELL3);
@@ -115,12 +115,12 @@ describe('Canvas', () => {
     // paste
     const pos1 = 7 * ELEC_SIZE + 10;
     cy.get('.greenArea').rightclick(pos1, pos1, { force: true });
-    cy.get('ul.menu > li:nth-child(4)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(1)').click({ force: true });
 
     // paste again
     const pos2 = 9 * ELEC_SIZE + 10;
     cy.get('.greenArea').rightclick(pos2, pos2, { force: true });
-    cy.get('ul.menu > li:nth-child(4)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(1)').click({ force: true });
 
     // assert they all have diff ids
     cy.get('[data-testid="combined"]')
@@ -148,7 +148,7 @@ describe('Canvas', () => {
 
     cy.drag(CELL3, CELL2);
     cy.get('.greenArea').rightclick({ force: true });
-    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(5)').click({ force: true });
 
     cy.get('[data-testid="square"]')
       .click({ force: true })
@@ -168,7 +168,7 @@ describe('Canvas', () => {
 
     cy.drag(CELL2, CELL3);
     cy.get('.greenArea').rightclick({ force: true });
-    cy.get('ul.menu > li:nth-child(6)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(5)').click({ force: true });
 
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000); // wait 1s for all the electrodes to be deleted
@@ -383,7 +383,7 @@ describe('Canvas', () => {
     cy.get('[data-testid="CAN"]').click();
     cy.drag({ x: min, y: min }, { x: max, y: max });
     cy.get('.greenArea').rightclick({ force: true });
-    cy.get('ul.menu > li:nth-child(6)').click({ force: true }); // combine
+    cy.get('ul.menu > li:nth-child(5)').click({ force: true }); // combine
 
     cy.get('[data-testid="draw-button"]').click();
     cy.createSquare({ x: mid, y: mid });

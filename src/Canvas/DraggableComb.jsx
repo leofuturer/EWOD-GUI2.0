@@ -21,6 +21,8 @@ function DraggableComb({ id, children, scaleXY }) {
 
   const { selected } = context.combined;
 
+  const elecSelected = context.squares.selected.length > 0 ? context.squares.selected : null;
+
   const isSelected = selected && selected.indexOf(`${id}`) >= 0;
 
   let transform = {};
@@ -65,8 +67,8 @@ function DraggableComb({ id, children, scaleXY }) {
             const selIds = selected.map(Number);
             pushDrawHistory({
               type: 'move',
-              combined: true,
-              electrodeInfo: selIds,
+              electrodeInfo: elecSelected,
+              combinedInfo: selIds,
               delta_pos: delta,
             });
           } else setResetting(true);

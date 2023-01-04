@@ -148,8 +148,8 @@ export default function Canvas() {
         setElectrodes(electrodes);
         pushDrawHistory({
           type: 'draw',
-          combined: false,
           electrodeInfo: temp,
+          combinedInfo: null,
         });
       }
     }
@@ -484,6 +484,7 @@ export default function Canvas() {
     if (!clipboard.squares && !clipboard.combined) return;
     const numSquaresCopied = clipboard.squares.length;
     const numCombinedCopied = clipboard.combined.length;
+    let elecHolder = [];
     if (numSquaresCopied > 0 || numCombinedCopied > 0) {
       const xInt = parseInt(relX, 10);
       const yInt = parseInt(relY, 10);
@@ -523,11 +524,15 @@ export default function Canvas() {
           tmps.push(tmp);
         });
         setElectrodes(electrodes.concat(tmps));
-        pushDrawHistory({
-          type: 'paste',
-          combined: false,
-          electrodeInfo: tmps,
-        });
+        elecHolder = tmps;
+        // If combined electrodes were pasted as well, we'll update the history there instead
+        if (numSquaresCopied > 0 && numCombinedCopied === 0) {
+          pushDrawHistory({
+            type: 'paste',
+            electrodeInfo: tmps,
+            combinedInfo: null,
+          });
+        }
       }
       if (numCombinedCopied > 0) {
         const first = clipboard.squares.length > 0 ? clipboard.squares[0] : combined[0];
@@ -564,11 +569,19 @@ export default function Canvas() {
           }
         }
         setComboLayout(allCombined.concat(newCombs));
-        pushDrawHistory({
-          type: 'paste',
-          combined: true,
-          electrodeInfo: newCombs,
-        });
+        if (numSquaresCopied > 0) {
+          pushDrawHistory({
+            type: 'paste',
+            electrodeInfo: elecHolder,
+            combinedInfo: newCombs,
+          });
+        } else {
+          pushDrawHistory({
+            type: 'paste',
+            electrodeInfo: null,
+            combinedInfo: newCombs,
+          });
+        }
       }
     }
     setCutFlag(false);
@@ -597,16 +610,9 @@ export default function Canvas() {
     });
 
     setPinActuation(new Map(pinActuate));
-
     setPinToElec({ ...pinToElec });
     setElecToPin({ ...elecToPin });
     const newElectrodes = electrodes.filter((element) => !selected.includes(`${element.ids}`));
-    const delElectrodes = electrodes.filter((element) => selected.includes(`${element.ids}`));
-    pushDrawHistory({
-      type: 'delete',
-      combined: false,
-      electrodeInfo: delElectrodes,
-    });
     setSelected([]);
     setElectrodes(newElectrodes);
   }
@@ -624,10 +630,14 @@ export default function Canvas() {
     setPinToElec({ ...pinToElec });
     setElecToPin({ ...elecToPin });
     setComboLayout(allCombined.filter((combi) => !combSelected.includes(`${combi[2]}`)));
+    let delElectrodes = electrodes.filter((element) => selected.includes(`${element.ids}`));
+    delElectrodes = delElectrodes.length === 0 ? null : delElectrodes;
+    let delCombs = allCombined.filter((combi) => combSelected.includes(`${combi[2]}`));
+    delCombs = delCombs.length === 0 ? null : delCombs;
     pushDrawHistory({
       type: 'delete',
-      combined: true,
-      electrodeInfo: allCombined.filter((combi) => combSelected.includes(`${combi[2]}`)),
+      electrodeInfo: delElectrodes,
+      combinedInfo: delCombs,
     });
     setCombSelected([]);
   }
@@ -734,11 +744,17 @@ export default function Canvas() {
     setComboLayout(allCombined.concat(positions));
     pushDrawHistory({
       type: 'combine',
-      combined: true,
-      electrodeInfo: positions,
+      electrodeInfo: null,
+      combinedInfo: JSON.parse(JSON.stringify(positions)), // Need to make a deep copy, not shallow
     });
-    // console.log(electrodes);
-    // console.log(allCombined);
+
+    const delElectrodes = electrodes.filter((element) => selected.includes(`${element.ids}`));
+    pushDrawHistory({
+      type: 'delete',
+      electrodeInfo: delElectrodes,
+      combinedInfo: null,
+    });
+
     squaresDelete();
   }
 
@@ -759,10 +775,18 @@ export default function Canvas() {
       tmps.push(tmp);
     });
     setElectrodes(electrodes.concat(tmps));
+
     pushDrawHistory({
       type: 'separate',
-      combined: false,
       electrodeInfo: tmps,
+      combinedInfo: null,
+    });
+
+    const delCombs = allCombined.filter((combi) => combSelected.includes(`${combi[2]}`));
+    pushDrawHistory({
+      type: 'delete',
+      electrodeInfo: null,
+      combinedInfo: delCombs,
     });
     combinedDelete();
   }

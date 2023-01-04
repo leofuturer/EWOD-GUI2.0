@@ -321,7 +321,7 @@ describe('Canvas', () => {
       .should('have.class', 'selected');
 
     cy.get('.greenArea').rightclick({ force: true });
-    cy.get('ul.menu > li:nth-child(8)').click({ force: true });
+    cy.get('ul.menu > li:nth-child(7)').click({ force: true });
 
     cy.get('[data-testid="square"]').eq(1).click();
     cy.get('[data-testid="square"]')

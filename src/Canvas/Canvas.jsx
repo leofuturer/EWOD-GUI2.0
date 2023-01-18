@@ -386,7 +386,7 @@ export default function Canvas() {
       } else {
         setSelected(sIds);
         setCombSelected(cIds);
-        if (sIds.length > 0 || cIds.length > 0) {
+        if (mode === 'CAN' && (sIds.length > 0 || cIds.length > 0)) {
           setMoving(true);
         }
       }

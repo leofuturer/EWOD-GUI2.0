@@ -26,6 +26,8 @@ const CanvasProvider = ({ children }) => {
     allCombined: [],
   });
 
+  const [clipboard, setClipboard] = useState([]);
+
   const { elecToPin } = React.useContext(GeneralContext);
 
   const [actions, setActions] = useState({
@@ -263,6 +265,8 @@ const CanvasProvider = ({ children }) => {
         squares,
         combined,
         actions,
+        clipboard,
+        setClipboard,
         setMoving: (bool) => { setState((stateBoi) => ({ ...stateBoi, moving: bool })); },
         setDragging: (bool) => { setState((stateBoi) => ({ ...stateBoi, isDragging: bool })); },
         setCombSelected: (newSelected) => {

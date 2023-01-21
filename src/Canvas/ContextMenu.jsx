@@ -8,15 +8,18 @@ import { GeneralContext } from '../Contexts/GeneralProvider';
 
 export default function ContextMenu({
   setMenuClick, contextCopy, contextPaste, contextMove,
-  contextCut, contextDelete, deleteSelectedMappings,
+  contextCut, contextDelete, contextUnselect, deleteSelectedMappings,
   separate, handleCombine,
 }) {
   const canvasContext = useContext(CanvasContext);
   const {
-    setSelected, setCombSelected, setMoving,
+    setSelected, setCombSelected, setMoving, moving,
   } = canvasContext;
 
   const { mode } = useContext(GeneralContext);
+
+  // eslint-disable-next-line prefer-destructuring
+  const clipboard = canvasContext.clipboard;
 
   const [xPos, setXPos] = useState('0px');
   const [yPos, setYPos] = useState('0px');
@@ -28,9 +31,10 @@ export default function ContextMenu({
 
   const [menuContents, setMenuContents] = useState(null);
 
-  const canModeNames = ['Move', 'Cut', 'Copy', 'Paste', 'Delete', 'Combine', 'Separate'];
+  const canModeNames = ['Move', 'Cut', 'Copy', 'Delete', 'Combine', 'Separate', 'Unselect'];
   const canModeFuncs = [
-    contextMove, contextCut, contextCopy, contextPaste, contextDelete, handleCombine, separate,
+    contextMove, contextCut, contextCopy, contextDelete,
+    handleCombine, separate, contextUnselect,
   ];
 
   const pinModeNames = ['Delete Selected Mappings'];
@@ -47,10 +51,20 @@ export default function ContextMenu({
           });
           break;
         case 'CAN':
-          setMenuContents({
-            names: canModeNames,
-            funcs: canModeFuncs,
-          });
+          if ((canvasContext.squares.selected.length || canvasContext.combined.selected.length)) {
+            setMenuContents({
+              names: canModeNames,
+              funcs: canModeFuncs,
+            });
+          // eslint-disable-next-line max-len
+          } else if ((clipboard.squares || clipboard.combined) && (clipboard.squares.length || clipboard.combined.length)) {
+            setMenuContents({
+              names: ['Paste'],
+              funcs: [contextPaste],
+            });
+          } else {
+            setMenuContents(null);
+          }
           break;
         default:
           setMenuContents(null);
@@ -104,7 +118,7 @@ export default function ContextMenu({
         document.querySelector('.greenArea').removeEventListener('click', handleClick);
       }
     };
-  }, [showMenu]);
+  }, [showMenu, setMoving, moving]);
 
   return (
     <Motion

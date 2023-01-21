@@ -31,6 +31,8 @@ export default function Canvas() {
   const { history, historyIndex } = canvasContext.actions;
   const { allCombined } = canvasContext.combined;
   const combSelected = canvasContext.combined.selected;
+  // eslint-disable-next-line prefer-destructuring
+  const clipboard = canvasContext.clipboard;
   const {
     setMouseDown, setElectrodes, setSelected, setCombSelected, setComboLayout, setMoving,
     pushDrawHistory,
@@ -47,8 +49,6 @@ export default function Canvas() {
 
   const [middleDown, setMiddleDown] = useState(false);
   const [shiftDown, setShiftDown] = useState(false);
-
-  const [clipboard, setClipboard] = useState([]);
   const [relativeX, setRelativeX] = useState('0px');
   const [relativeY, setRelativeY] = useState('0px');
   const [cutFlag, setCutFlag] = useState(false);
@@ -420,6 +420,14 @@ export default function Canvas() {
 
   /* ########################### CLIPBOARD STUFF ########################### */
 
+  function unselect() {
+    if (selected.length || combSelected.length) {
+      setMoving(false);
+      setSelected([]);
+      setCombSelected([]);
+    }
+  }
+
   function move() {
     if (selected.length || combSelected.length) setMoving(true);
   }
@@ -455,7 +463,9 @@ export default function Canvas() {
       });
       setCombSelected([]);
     }
-    setClipboard({ squares, combined });
+    if (selected.length > 0 || combSelected.length > 0) {
+      setClipboard({ squares, combined });
+    }
   }
 
   function handleCutFlag(squares, combined, numSquaresCopied, numCombinedCopied) {
@@ -497,6 +507,11 @@ export default function Canvas() {
         const offsetY = squares[0][1];
         for (let i = 0; i < numSquaresCopied; i += 1) {
           const temp = [x + squares[i][0] - offsetX, y + squares[i][1] - offsetY];
+          if (temp[0] < 0 || temp[0] >= CANVAS_TRUE_WIDTH
+            || temp[1] < 0 || temp[1] >= CANVAS_TRUE_HEIGHT) {
+            window.alert('Square electrode pasting off canvas!');
+            return;
+          }
           if (!(
             electrodes.some((inner) => (inner.initPositions[0] === temp[0]
               && inner.initPositions[1] === temp[1]))
@@ -541,6 +556,11 @@ export default function Canvas() {
         const maxID = (combIds.length === 0 ? 0 : Math.max(...combIds));
         for (let k = 0; k < numCombinedCopied; k += 1) {
           const temp = [x + combined[k][0] - first[0], y + combined[k][1] - first[1]];
+          if (temp[0] < 0 || temp[0] >= CANVAS_TRUE_WIDTH
+            || temp[1] < 0 || temp[1] >= CANVAS_TRUE_HEIGHT) {
+            window.alert('Combined electrode pasting off canvas!');
+            return;
+          }
           if (!(
             electrodes.some((inner) => (inner.initPositions[0] === temp[0]
               && inner.initPositions[1] === temp[1]))
@@ -884,12 +904,14 @@ export default function Canvas() {
     }
     separate();
   }, [mode, selected, combSelected, electrodes, allCombined]);
-
-  useHotkeys('0', () => {
-    console.log(history, historyIndex);
-    console.log(electrodes);
-    console.log(allCombined);
-  }, [electrodes, allCombined, history, historyIndex]);
+  
+  useHotkeys('esc', () => {
+    if (!selected.length && !combSelected.length) {
+      window.alert('No electrodes selected');
+      return;
+    }
+    unselect();
+  }, [selected, combSelected]);
 
   return (
     <div
@@ -977,7 +999,7 @@ export default function Canvas() {
                                     ${mode === 'SEQ' && pinActuate.has(currentStep)
                                     && Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
                                     && pinActuate.get(currentStep).content.has(elecToPin[`C${comb[0]}`]) ? 'toSeq' : ''}
-                                    ${mode === 'CAN' && combSelected.includes(`${ind}`) ? 'selected' : ''}
+                                    ${mode === 'CAN' && combSelected.includes(`${comb[0]}`) ? 'selected' : ''}
                                     ${mode === 'PIN' && currElec === `C${comb[0]}` ? 'toPin' : ''}`}
                       data-testid="combined"
                     />
@@ -1050,6 +1072,7 @@ export default function Canvas() {
       }
       <ContextMenu
         setMenuClick={setMenuClick}
+        contextUnselect={unselect}
         contextCopy={copy}
         contextPaste={paste}
         contextCut={cut}

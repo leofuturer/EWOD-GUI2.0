@@ -28,14 +28,13 @@ export default function Canvas() {
   const canvasContext = useContext(CanvasContext);
   const { electrodes, selected } = canvasContext.squares;
   const { mouseDown, moving } = canvasContext.state;
-  const { history, historyIndex } = canvasContext.actions;
   const { allCombined } = canvasContext.combined;
   const combSelected = canvasContext.combined.selected;
   // eslint-disable-next-line prefer-destructuring
   const clipboard = canvasContext.clipboard;
   const {
-    setMouseDown, setElectrodes, setSelected, setCombSelected, setComboLayout, setMoving,
-    pushDrawHistory,
+    setClipboard, setMouseDown, setElectrodes, setSelected, setCombSelected,
+    setComboLayout, setMoving, pushDrawHistory,
   } = canvasContext;
 
   const actuationContext = useContext(ActuationContext);
@@ -904,7 +903,7 @@ export default function Canvas() {
     }
     separate();
   }, [mode, selected, combSelected, electrodes, allCombined]);
-  
+
   useHotkeys('esc', () => {
     if (!selected.length && !combSelected.length) {
       window.alert('No electrodes selected');

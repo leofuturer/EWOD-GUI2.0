@@ -30,9 +30,11 @@ export default function Canvas() {
   const { mouseDown, moving } = canvasContext.state;
   const { allCombined } = canvasContext.combined;
   const combSelected = canvasContext.combined.selected;
+  // eslint-disable-next-line prefer-destructuring
+  const clipboard = canvasContext.clipboard;
   const {
-    setMouseDown, setElectrodes, setSelected, setCombSelected, setComboLayout, setMoving,
-    setDragging,
+    setClipboard, setMouseDown, setElectrodes, setSelected, setCombSelected, setComboLayout,
+    setMoving, setDragging,
   } = canvasContext;
 
   const actuationContext = useContext(ActuationContext);
@@ -46,8 +48,6 @@ export default function Canvas() {
 
   const [middleDown, setMiddleDown] = useState(false);
   const [shiftDown, setShiftDown] = useState(false);
-
-  const [clipboard, setClipboard] = useState([]);
   const [relativeX, setRelativeX] = useState('0px');
   const [relativeY, setRelativeY] = useState('0px');
   const [cutFlag, setCutFlag] = useState(false);
@@ -460,7 +460,9 @@ export default function Canvas() {
       });
       setCombSelected([]);
     }
-    setClipboard({ squares, combined });
+    if (selected.length > 0 || combSelected.length > 0) {
+      setClipboard({ squares, combined });
+    }
   }
 
   function handleCutFlag(squares, combined, numSquaresCopied, numCombinedCopied) {
@@ -543,6 +545,11 @@ export default function Canvas() {
         const maxID = (combIds.length === 0 ? 0 : Math.max(...combIds));
         for (let k = 0; k < numCombinedCopied; k += 1) {
           const temp = [x + combined[k][0] - first[0], y + combined[k][1] - first[1]];
+          if (temp[0] < 0 || temp[0] >= CANVAS_TRUE_WIDTH
+            || temp[1] < 0 || temp[1] >= CANVAS_TRUE_HEIGHT) {
+            window.alert('Combined electrode pasting off canvas!');
+            return;
+          }
           if (!(
             electrodes.some((inner) => (inner.initPositions[0] === temp[0]
               && inner.initPositions[1] === temp[1]))

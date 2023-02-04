@@ -1,5 +1,6 @@
 import React from 'react';
 import { GeneralContext } from '../Contexts/GeneralProvider';
+import { setPin } from '../USBCommunication/USBCommunication';
 
 export default function useMap(callback, pin) {
   const savedCallback = React.useRef();
@@ -21,6 +22,7 @@ export default function useMap(callback, pin) {
           // e.g. pin 100 <-> electrode S3
           // then hit pin 100 again while select electrode S3
           // then set the absolute state and return immediately
+          setPin([elecToPin[currElec]], 0);
           setPinToElec((curr) => {
             const newObj = { ...curr };
             delete newObj[pin];
@@ -41,6 +43,7 @@ export default function useMap(callback, pin) {
         delete elecToPin[pinToElec[pin]];
       }
       if (Object.prototype.hasOwnProperty.call(elecToPin, currElec)) {
+        setPin([elecToPin[currElec]], 0);
         delete pinToElec[elecToPin[currElec]];
       }
 

@@ -10,7 +10,7 @@ export default function PinsBottom() {
 
   return (
     <>
-      <div className="row" style={{ marginTop: 44 }}>
+      <div className="row" style={{ marginTop: 57 }}>
         {
           range(169, 175).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setPin(e.target.innerText)}>{pinNum}</button>)
         }

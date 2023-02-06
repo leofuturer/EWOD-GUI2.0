@@ -33,8 +33,13 @@ export default function Canvas() {
   // eslint-disable-next-line prefer-destructuring
   const clipboard = canvasContext.clipboard;
   const {
+<<<<<<< HEAD
     setClipboard, setMouseDown, setElectrodes, setSelected, setCombSelected, setComboLayout,
     setMoving, setDragging,
+=======
+    // eslint-disable-next-line max-len
+    setClipboard, setMouseDown, setElectrodes, setSelected, setCombSelected, setComboLayout, setMoving, setDragging,
+>>>>>>> d24e1624ee3f849e844c4831db0d88aa16077b29
   } = canvasContext;
 
   const actuationContext = useContext(ActuationContext);

@@ -33,7 +33,7 @@ export default function Canvas() {
   // eslint-disable-next-line prefer-destructuring
   const clipboard = canvasContext.clipboard;
   const {
-    setClipboard, setMouseDown, setElectrodes, setSelected, setCombSelected, setComboLayout, 
+    setClipboard, setMouseDown, setElectrodes, setSelected, setCombSelected, setComboLayout,
     setMoving, setDragging,
   } = canvasContext;
 

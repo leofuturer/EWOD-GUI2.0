@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { GeneralContext } from '../Contexts/GeneralProvider';
+import { ActuationContext } from '../Contexts/ActuationProvider';
 import { setPin } from '../USBCommunication/USBCommunication';
 
 export default function useMap(callback, pin) {
   const savedCallback = React.useRef();
-
+  const context = useContext(ActuationContext);
+  const { actuation, clearAll } = context;
   // Remember the latest callback.
   React.useEffect(() => {
     savedCallback.current = callback;
@@ -16,6 +18,15 @@ export default function useMap(callback, pin) {
 
   React.useEffect(() => {
     if (currElec && pin) {
+      if (actuation.history.length) {
+        // eslint-disable-next-line no-restricted-globals
+        if (confirm('Are you sure you want to change pin mappings? Doing so will delete actuation steps, including saved history.')) {
+          clearAll();
+        } else {
+          return;
+        }
+      }
+
       if (Object.prototype.hasOwnProperty.call(pinToElec, pin)) {
         if (pinToElec[pin] === currElec) {
           // when user wants to erase one pin <-> elec mapping

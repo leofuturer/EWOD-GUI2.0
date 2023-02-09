@@ -393,6 +393,9 @@ export default function Canvas() {
       } else {
         setSelected(sIds);
         setCombSelected(cIds);
+        if (mode === 'CAN' && (sIds.length > 0 || cIds.length > 0)) {
+          setMoving(true);
+        }
       }
     }
 
@@ -432,6 +435,8 @@ export default function Canvas() {
   }
 
   function copy() {
+    setMoving(false);
+    setDragging(false);
     const squares = [];
     const combined = [];
 
@@ -488,6 +493,8 @@ export default function Canvas() {
   }
 
   function paste(e, relX, relY) {
+    setMoving(false);
+    setDragging(false);
     if (selected.length > 0) setSelected([]);
     if (combSelected.length > 0) setCombSelected([]);
     if (!clipboard.squares && !clipboard.combined) return;
@@ -662,11 +669,15 @@ export default function Canvas() {
   }
 
   function BothDelete() {
+    setMoving(false);
+    setDragging(false);
     combinedDelete();
     squaresDelete();
   }
 
   function cut() {
+    setMoving(false);
+    setDragging(false);
     setCutFlag(true);
     copy();
     BothDelete();
@@ -686,6 +697,8 @@ export default function Canvas() {
   }
 
   function handleCombine(e) {
+    setMoving(false);
+    setDragging(false);
     e.preventDefault();
     if (selected.length < 2) {
       window.alert('You need to combine at least 2 square electrodes.');
@@ -778,6 +791,8 @@ export default function Canvas() {
   }
 
   function separate() {
+    setMoving(false);
+    setDragging(false);
     if (!combSelected.length || selected.length) {
       window.alert('Can only separate combined electrodes');
       return;
@@ -811,6 +826,8 @@ export default function Canvas() {
   }
 
   function deleteSelectedMappings() {
+    setMoving(false);
+    setDragging(false);
     if (selected.length || combSelected.length || currElec) {
       const etp = { ...elecToPin };
       const pte = { ...pinToElec };

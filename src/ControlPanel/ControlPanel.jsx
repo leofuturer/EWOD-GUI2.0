@@ -152,7 +152,8 @@ export default function ControlPanel({ scrollOpen }) {
   const {
     mode, setMode, setCurrElec, panning, setPanning, setScaleXY, undoPin, redoPin,
   } = useContext(GeneralContext);
-  const { setSelected, setCombSelected, } = canvasContext;
+
+  const { setSelected, setCombSelected, setMoving, setDragging} = canvasContext;
   const { undoSeq, redoSeq } = actuationContext;
   const { undoDraw, redoDraw } = canvasContext;
 
@@ -169,6 +170,8 @@ export default function ControlPanel({ scrollOpen }) {
     setMode(newMode);
     setSelected([]);
     setCombSelected([]);
+    setMoving(false);
+    setDragging(false);
     setCurrElec(null);
   }
 

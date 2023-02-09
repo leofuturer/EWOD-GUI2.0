@@ -23,10 +23,10 @@ export default function PinsTop() {
   }, pin);
 
   React.useEffect(() => {
-    if (currElec && actuation.history.length) {
+    if (currElec && actuation.history.length && tempPin) {
       setOpen(true);
-    } else {
-      setPin(tempPin);
+    } else if (tempPin) {
+      setPin(tempPin.target.innerText);
     }
   }, [tempPin]);
 
@@ -50,7 +50,7 @@ export default function PinsTop() {
           <Button
             onClick={() => {
               clearAll();
-              setPin(tempPin);
+              setPin(tempPin.target.innerText);
               setOpen(false);
             }}
             color="primary"
@@ -63,35 +63,35 @@ export default function PinsTop() {
       </Dialog>
       <div className="row">
         {
-          range(97, 128).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e.target.innerText)}>{pinNum}</button>)
+          range(97, 128).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
         }
       </div>
       <div className="row">
         {
-          range(96, 65).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e.target.innerText)}>{pinNum}</button>)
+          range(96, 65).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
         }
       </div>
       <div className="row">
         {
-          range(225, 256).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e.target.innerText)}>{pinNum}</button>)
+          range(225, 256).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
         }
       </div>
       <div className="row" style={{ marginBottom: 40 }}>
-        <button className="pin ref" type="button" onClick={(e) => setTempPin(e.target.innerText)}>REF</button>
+        <button className="pin ref" type="button" onClick={(e) => setTempPin(e)}>REF</button>
         {
-          range(224, 218).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e.target.innerText)}>{pinNum}</button>)
+          range(224, 218).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
         }
-        <button className="pin ref" type="button" onClick={(e) => setTempPin(e.target.innerText)}>REF</button>
+        <button className="pin ref" type="button" onClick={(e) => setTempPin(e)}>REF</button>
         {
-          range(217, 211).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e.target.innerText)}>{pinNum}</button>)
+          range(217, 211).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
         }
-        <button className="pin ref" type="button" onClick={(e) => setTempPin(e.target.innerText)}>REF</button>
+        <button className="pin ref" type="button" onClick={(e) => setTempPin(e)}>REF</button>
         {
-          range(210, 204).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e.target.innerText)}>{pinNum}</button>)
+          range(210, 204).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
         }
-        <button className="pin ref" type="button" onClick={(e) => setTempPin(e.target.innerText)}>REF</button>
+        <button className="pin ref" type="button" onClick={(e) => setTempPin(e)}>REF</button>
         {
-          range(203, 197).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e.target.innerText)}>{pinNum}</button>)
+          range(203, 197).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
         }
       </div>
     </>

@@ -20,7 +20,7 @@ export default function DeleteButton({ name }) {
   } = context;
   const { clearAll } = actuation;
 
-  const { setPinToElec, setElecToPin } = useContext(GeneralContext);
+  const { setPinToElec, setElecToPin, clearPin } = useContext(GeneralContext);
   const [open, setOpen] = useState(false);
 
   function handleDelete() {
@@ -34,6 +34,7 @@ export default function DeleteButton({ name }) {
     setElecToPin({});
 
     clearDraw();
+    clearPin();
     clearAll();
     setOpen(false);
   }

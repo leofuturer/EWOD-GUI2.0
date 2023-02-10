@@ -34,7 +34,7 @@ export default function Canvas() {
   const clipboard = canvasContext.clipboard;
   const {
     setClipboard, setMouseDown, setElectrodes, setSelected, setCombSelected,
-    setComboLayout, setMoving, pushDrawHistory,
+    setComboLayout, setMoving, setDragging, pushDrawHistory,
   } = canvasContext;
 
   const actuationContext = useContext(ActuationContext);

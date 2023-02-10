@@ -74,11 +74,14 @@ const GeneralProvider = ({ children }) => {
         pinActions,
         setPinActions,
         pushPinHistory: (obj) => {
-          const newHist = pinActions.history;
-          newHist.push(obj);
+          const newHist = pinActions;
+          newHist.history = newHist.history.slice(0, newHist.historyIndex + 1);
+          newHist.history.push(obj);
           const newIndex = pinActions.historyIndex + 1;
-          console.log(pinActions.history);
-          setPinActions((stateBoi) => ({ ...stateBoi, history: newHist, historyIndex: newIndex }));
+          console.log(newHist.history, newIndex);
+          setPinActions((stateBoi) => ({
+            ...stateBoi, history: newHist.history, historyIndex: newIndex,
+          }));
         },
         undoPin: () => {
           if (pinActions.historyIndex > -1) {
@@ -106,10 +109,12 @@ const GeneralProvider = ({ children }) => {
                 return newObj;
               });
             }
+            console.log(pinActions.history, pinActions.historyIndex);
             setPinActions({ ...pinActions, historyIndex: pinActions.historyIndex - 1 });
           }
         },
         redoPin: () => {
+          console.log(pinActions.history);
           if (pinActions.historyIndex < pinActions.history.length - 1) {
             const obj = pinActions.history[pinActions.historyIndex + 1];
             if (obj.type !== 'map') {
@@ -137,6 +142,13 @@ const GeneralProvider = ({ children }) => {
             }
             setPinActions({ ...pinActions, historyIndex: pinActions.historyIndex + 1 });
           }
+        },
+        clearPin: () => {
+          setPinActions({
+            ...pinActions,
+            history: [],
+            historyIndex: -1,
+          });
         },
       }}
     >

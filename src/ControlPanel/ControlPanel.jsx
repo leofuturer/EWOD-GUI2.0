@@ -267,7 +267,7 @@ export default function ControlPanel({ scrollOpen }) {
             }
 
             {
-              mode === 'DRAW' && (
+              (mode === 'DRAW' || mode === 'CAN') && (
                 <>
                   <ListItem button onClick={undoDraw}>
                     <img src={icons.undo.icon} alt="Undo" />

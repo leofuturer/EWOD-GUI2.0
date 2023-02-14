@@ -9,6 +9,7 @@ import range from './range';
 import useMap from './useMap';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 import { ActuationContext } from '../Contexts/ActuationProvider';
+import { setPin } from '../USBCommunication/USBCommunication';
 import './Pins.css';
 
 export default function PinsTop() {
@@ -16,17 +17,17 @@ export default function PinsTop() {
   const { currElec } = React.useContext(GeneralContext);
 
   const [open, setOpen] = React.useState(false);
-  const [pin, setPin] = React.useState(null);
+  const [mapPin, setMapPin] = React.useState(null);
   const [tempPin, setTempPin] = React.useState(null);
   useMap(() => {
-    setPin(null);
-  }, pin);
+    setMapPin(null);
+  }, mapPin);
 
   React.useEffect(() => {
     if (currElec && actuation.history.length && tempPin) {
       setOpen(true);
     } else if (tempPin) {
-      setPin(tempPin.target.innerText);
+      setMapPin(tempPin.target.innerText);
     }
   }, [tempPin]);
 
@@ -49,9 +50,11 @@ export default function PinsTop() {
           </Button>
           <Button
             onClick={() => {
-              clearAll();
-              setPin(tempPin.target.innerText);
-              setOpen(false);
+              setPin([], 0, true).then(() => {
+                clearAll();
+                setMapPin(tempPin.target.innerText);
+                setOpen(false);
+              });
             }}
             color="primary"
             autoFocus

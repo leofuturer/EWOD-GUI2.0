@@ -10,6 +10,7 @@ import range from './range';
 import useMap from './useMap';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 import { ActuationContext } from '../Contexts/ActuationProvider';
+import { setPin } from '../USBCommunication/USBCommunication';
 import './Pins.css';
 
 export default function PinsBottom() {
@@ -17,19 +18,19 @@ export default function PinsBottom() {
   const { currElec } = React.useContext(GeneralContext);
 
   const [open, setOpen] = React.useState(false);
-  const [pin, setPin] = React.useState(null);
+  const [mapPin, setMapPin] = React.useState(null);
   const [tempPin, setTempPin] = React.useState(null);
 
   useMap(() => {
-    setPin(null);
-  }, pin);
+    setMapPin(null);
+  }, mapPin);
   // using the event (e) from the click for the useeffect rather than the pin number
   // this allows you to select the pin twice and get it to toggle!
   React.useEffect(() => {
     if (currElec && actuation.history.length && tempPin) {
       setOpen(true);
     } else if (tempPin) {
-      setPin(tempPin.target.innerText);
+      setMapPin(tempPin.target.innerText);
     }
   }, [tempPin]);
 
@@ -54,9 +55,11 @@ export default function PinsBottom() {
           </Button>
           <Button
             onClick={() => {
-              setOpen(false);
-              clearAll();
-              setPin(tempPin.target.innerText);
+              setPin([], 0, true).then(() => {
+                clearAll();
+                setMapPin(tempPin.target.innerText);
+                setOpen(false);
+              });
             }}
             color="primary"
             autoFocus

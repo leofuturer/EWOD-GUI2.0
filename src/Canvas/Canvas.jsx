@@ -37,6 +37,8 @@ export default function Canvas() {
     setComboLayout, setMoving, setDragging, pushDrawHistory,
   } = canvasContext;
 
+  const { history, historyIndex } = canvasContext.actions;
+
   const actuationContext = useContext(ActuationContext);
   const { currentStep, pinActuate } = actuationContext.actuation;
   const { actuatePin, pushHistory, setPinActuation } = actuationContext;
@@ -443,8 +445,9 @@ export default function Canvas() {
     if (selected.length > 0) {
       const elements = electrodes.filter((element) => selected.includes(`${element.ids}`));
       elements.forEach((element) => {
+        console.log(element);
         const tmp = [element.initPositions[0] + element.deltas[0],
-          element.initPositions[1] + element.deltas[1]];
+          element.initPositions[1] + element.deltas[1], element.ids];
         squares.push(tmp);
       });
       setSelected([]);
@@ -512,7 +515,7 @@ export default function Canvas() {
         const offsetX = squares[0][0];
         const offsetY = squares[0][1];
         for (let i = 0; i < numSquaresCopied; i += 1) {
-          const temp = [x + squares[i][0] - offsetX, y + squares[i][1] - offsetY];
+          const temp = [x + squares[i][0] - offsetX, y + squares[i][1] - offsetY, squares[i][2]];
           if (temp[0] < 0 || temp[0] >= CANVAS_TRUE_WIDTH
             || temp[1] < 0 || temp[1] >= CANVAS_TRUE_HEIGHT) {
             window.alert('Square electrode pasting off canvas!');
@@ -533,21 +536,32 @@ export default function Canvas() {
             return;
           }
         }
-
-        let maxID = electrodes.length === 0 ? 0 : electrodes[electrodes.length - 1].ids + 1;
         const tmps = [];
-        newInits.forEach((element) => {
-          const tmp = {};
-          tmp.initPositions = element;
-          tmp.deltas = [0, 0];
-          tmp.ids = maxID;
-          maxID += 1;
-          tmps.push(tmp);
-        });
+        if (cutFlag) {
+          newInits.forEach((element) => {
+            const tmp = {
+              initPositions: [element[0], element[1]],
+              deltas: [0, 0],
+              ids: element[2],
+            };
+            tmps.push(tmp);
+          });
+        } else {
+          let maxID = electrodes.length === 0 ? 0 : electrodes[electrodes.length - 1].ids + 1;
+          newInits.forEach((element) => {
+            const tmp = {};
+            tmp.initPositions = [element[0], element[1]];
+            tmp.deltas = [0, 0];
+            tmp.ids = maxID;
+            maxID += 1;
+            tmps.push(tmp);
+          });
+        }
         setElectrodes(electrodes.concat(tmps));
         elecHolder = tmps;
         // If combined electrodes were pasted as well, we'll update the history there instead
         if (numSquaresCopied > 0 && numCombinedCopied === 0) {
+          console.log(newInits, tmps);
           pushDrawHistory({
             type: 'paste',
             electrodeInfo: tmps,
@@ -660,6 +674,7 @@ export default function Canvas() {
     delElectrodes = delElectrodes.length === 0 ? null : delElectrodes;
     let delCombs = allCombined.filter((combi) => combSelected.includes(`${combi[2]}`));
     delCombs = delCombs.length === 0 ? null : delCombs;
+    // add check to see if electrodes were cut or deleted to handle undo
     pushDrawHistory({
       type: 'delete',
       electrodeInfo: delElectrodes,
@@ -928,6 +943,12 @@ export default function Canvas() {
     }
     unselect();
   }, [selected, combSelected]);
+
+  useHotkeys('0', () => {
+    console.log(history, historyIndex);
+    console.log(electrodes);
+    console.log(allCombined);
+  }, [electrodes, allCombined, history, historyIndex]);
 
   return (
     <div

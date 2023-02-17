@@ -33,7 +33,6 @@ const CanvasProvider = ({ children }) => {
   const [actions, setActions] = useState({
     history: [],
     historyIndex: -1,
-    filler: 0,
   });
 
   useEffect( // idb stuff
@@ -343,6 +342,7 @@ const CanvasProvider = ({ children }) => {
                   let combMatch = true;
                   if (obj.electrodeInfo && prevAction.electrodeInfo) {
                     for (let i = 0; i < obj.electrodeInfo.length; i += 1) {
+                      console.log(obj.electrodeInfo[i].ids, prevAction.electrodeInfo[i].ids);
                       if (obj.electrodeInfo[i].ids !== prevAction.electrodeInfo[i].ids) {
                         match = false;
                       }
@@ -350,7 +350,10 @@ const CanvasProvider = ({ children }) => {
                     if (match) {
                       handlePrevActionForUndo(prevAction, newList, newComb, false);
                     }
+                  } else {
+                    match = false;
                   } if (obj.combinedInfo && prevAction.combinedInfo) {
+                    console.log('REACHED');
                     const delObjIds = new Set();
                     const prevObjIds = new Set();
                     obj.combinedInfo.forEach((element) => {
@@ -367,6 +370,8 @@ const CanvasProvider = ({ children }) => {
                     if (combMatch) {
                       handlePrevActionForUndo(prevAction, newList, newComb, true);
                     }
+                  } else {
+                    combMatch = false;
                   }
                   if (match || combMatch) {
                     step += 1;
@@ -448,7 +453,7 @@ const CanvasProvider = ({ children }) => {
                 }
               }
             } else if (obj.type === 'paste') {
-              if (!obj.combined) {
+              if (obj.electrodeInfo) {
                 redoIndividual('paste');
               } else {
                 redoCombined('paste');

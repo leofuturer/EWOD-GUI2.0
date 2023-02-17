@@ -53,11 +53,21 @@ export default function Canvas() {
   const [cutFlag, setCutFlag] = useState(false);
 
   const startShift = useCallback((event) => {
-    if (event.keyCode === 16) setShiftDown(true);
+    if (event.keyCode === 16) {
+      setShiftDown(true);
+      if (selected || combSelected) {
+        setMoving(false);
+      }
+    }
   });
 
   const endShift = useCallback((event) => {
-    if (event.keyCode === 16) setShiftDown(false);
+    if (event.keyCode === 16) {
+      setShiftDown(false);
+      if (selected || combSelected) {
+        setMoving(true);
+      }
+    }
   });
 
   useEffect(() => {

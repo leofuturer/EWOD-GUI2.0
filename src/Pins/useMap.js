@@ -14,6 +14,10 @@ export default function useMap(callback, pin) {
   } = React.useContext(GeneralContext);
 
   React.useEffect(() => {
+    // at this point, actuation sequence should be emptied
+    // due to actuation tracking electrodes not pins
+    // changing an electrode mapping causes many problems
+    // thus, we preemptively have cleared actuation sequences in Pins<XXX>.jsx
     if (currElec && pin) {
       if (Object.prototype.hasOwnProperty.call(pinToElec, pin)) {
         if (pinToElec[pin] === currElec) {

@@ -20,6 +20,7 @@ import {
   CANVAS_RIGHT_EDGE, CANVAS_LEFT_EDGE, CANVAS_TOP_EDGE, CANVAS_BOTTOM_EDGE,
 } from '../constants';
 import range from '../Pins/range';
+import { setPin } from '../USBCommunication/USBCommunication';
 
 // hotkey library
 // const chassis = require('./chassis-with-background.svg');
@@ -55,11 +56,21 @@ export default function Canvas() {
   const [cutFlag, setCutFlag] = useState(false);
 
   const startShift = useCallback((event) => {
-    if (event.keyCode === 16) setShiftDown(true);
+    if (event.keyCode === 16) {
+      setShiftDown(true);
+      if (selected || combSelected) {
+        setMoving(false);
+      }
+    }
   });
 
   const endShift = useCallback((event) => {
-    if (event.keyCode === 16) setShiftDown(false);
+    if (event.keyCode === 16) {
+      setShiftDown(false);
+      if (selected || combSelected) {
+        setMoving(true);
+      }
+    }
   });
 
   useEffect(() => {
@@ -636,6 +647,7 @@ export default function Canvas() {
         const mappedPin = elecToPin[square];
         if (mappedPin) { // mapping exists for this electrode so delete mapping
           mappedPins.push(mappedPin);
+          setPin([mappedPin], 0);
           delete pinToElec[mappedPin];
           delete elecToPin[square];
         }
@@ -665,6 +677,7 @@ export default function Canvas() {
       if (mappedPin) { // mapping exists for this electrode so delete mapping
         delete pinToElec[mappedPin];
         delete elecToPin[combined];
+        setPin([mappedPin], 0);
       }
     });
     setPinToElec({ ...pinToElec });
@@ -848,6 +861,7 @@ export default function Canvas() {
       const pte = { ...pinToElec };
       if (currElec) {
         if (etp[currElec]) {
+          setPin([etp[currElec]], 0);
           delete pte[etp[currElec]];
           delete etp[currElec];
         }
@@ -856,6 +870,7 @@ export default function Canvas() {
         if (selected.length) {
           selected.forEach((num) => {
             if (etp[`S${num}`]) {
+              setPin([etp[`S${num}`]], 0);
               delete pte[etp[`S${num}`]];
               delete etp[`S${num}`];
             }
@@ -864,6 +879,7 @@ export default function Canvas() {
         if (combSelected.length) {
           combSelected.forEach((num) => {
             if (etp[`C${num}`]) {
+              setPin([etp[`C${num}`]], 0);
               delete pte[etp[`C${num}`]];
               delete etp[`C${num}`];
             }

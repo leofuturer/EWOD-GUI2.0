@@ -38,6 +38,7 @@ import Increase from './Increase.svg';
 import Search from './SearchFile.svg';
 import SearchLogo from './SearchLogo.svg';
 import VoltageWarning from './VoltageWarning.svg';
+import EDroplets from './eDroplets.svg';
 
 const icons = {
   actuation: {
@@ -84,6 +85,9 @@ const icons = {
   },
   info: {
     icon: Information,
+  },
+  logo: {
+    icon: EDroplets,
   },
   menu: {
     icon: Menu,

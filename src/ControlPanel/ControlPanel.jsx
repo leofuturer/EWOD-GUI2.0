@@ -209,6 +209,10 @@ export default function ControlPanel({ scrollOpen }) {
           })}
         >
           <List style={{ display: 'flex', flexDirection: 'row' }}>
+            <ListItem>
+              <img src={icons.logo.icon} alt="eDroplets" />
+            </ListItem>
+
             <DeleteButton name="New File" />
             <UploadButton />
             <DownloadButton />

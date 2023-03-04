@@ -16,7 +16,7 @@ export default function UploadButton() {
     squares, setElectrodes, setSelected, setComboLayout,
   } = context;
   const { electrodes } = squares;
-  const { setPinActuation, setSimpleNum } = actuation;
+  const { setPinActuation, setSimpleNum, setCurrentStep } = actuation;
   const filePicker = document.getElementById('filePicker');
   async function getFileLegacy() {
     return new Promise((resolve, reject) => {
@@ -64,7 +64,9 @@ export default function UploadButton() {
         const newPinActuate = new Map();
         const newElecToPin = {};
         const newPinToElec = {};
+        let currStep = 0;
         let newSimpleNum = 1;
+        let prevOrd = Infinity;
         const stringList = content.split('\n');
         for (let i = 0; i < stringList.length; i += 1) {
           const e = stringList[i];
@@ -88,7 +90,7 @@ export default function UploadButton() {
                 newPinToElec[words[3]] = `C${i}`;
               }
             } else if (e.charAt(0) === '#') {
-            // line starts with #
+              // line starts with #
             } else if (!Number.isNaN(e.charAt(0))) {
               const sect = e.split(';');
               if (sect.length > 2) {
@@ -97,6 +99,10 @@ export default function UploadButton() {
               const id = parseInt(sect[0].split(':')[0], 10);
               const dur = parseInt(sect[0].split(':')[2], 10);
               const ord = parseInt(sect[0].split(':')[3], 10);
+              if (ord < prevOrd) {
+                currStep = id;
+                prevOrd = ord;
+              }
               newSimpleNum = Math.max(ord, newSimpleNum);
               const newSeq = new ActuationSequence(id, 'simple', ord);
               newSeq.duration = dur;
@@ -123,6 +129,7 @@ export default function UploadButton() {
         setSelected([]);
         setElectrodes(newElectrodes);
         setComboLayout(newAllCombined);
+        setCurrentStep(currStep);
         setPinActuation(newPinActuate);
         setSimpleNum(newSimpleNum + 1);
       }

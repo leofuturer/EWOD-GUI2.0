@@ -65,8 +65,12 @@ export default function Canvas() {
   const endShift = useCallback((event) => {
     if (event.keyCode === 16) {
       setShiftDown(false);
-      if (selected || combSelected) {
+      if (selected.length + combSelected.length > 0) {
+        // There are some electrodes still selected, so we need to keep default movement
         setMoving(true);
+      } else if (selected.length + combSelected.length === 0) {
+        // All electrodes have been deselected, go back to regular mode
+        setMoving(false);
       }
     }
   });

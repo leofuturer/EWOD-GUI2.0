@@ -34,9 +34,11 @@ export default function Canvas() {
   // eslint-disable-next-line prefer-destructuring
   const clipboard = canvasContext.clipboard;
   const {
-    // eslint-disable-next-line max-len
-    setClipboard, setMouseDown, setElectrodes, setSelected, setCombSelected, setComboLayout, setMoving, setDragging,
+    setClipboard, setMouseDown, setElectrodes, setSelected, setCombSelected,
+    setComboLayout, setMoving, setDragging, pushDrawHistory,
   } = canvasContext;
+
+  const { history, historyIndex } = canvasContext.actions;
 
   const actuationContext = useContext(ActuationContext);
   const { currentStep, pinActuate } = actuationContext.actuation;
@@ -160,6 +162,11 @@ export default function Canvas() {
         temp.deltas = [0, 0];
         electrodes.push(temp);
         setElectrodes(electrodes);
+        pushDrawHistory({
+          type: 'draw',
+          electrodeInfo: temp,
+          combinedInfo: null,
+        });
       }
     }
   }, [mode, electrodes, mouseDown, setElectrodes, allCombined]);
@@ -382,9 +389,11 @@ export default function Canvas() {
           if (selected.length + combSelected.length > 1) setCurrElec(null); // if deselecting
           else if (newSelected[0].length) setCurrElec(`S${sIds[0]}`); // if selected square
           else setCurrElec(`C${cIds[0]}`); // if selected combined
+          console.log(currElec);
         }
       } else { // not holding 'shift' down
         if (selectedElecs.length === 1) {
+          console.log(elecToPin);
           if (sIds.length) setCurrElec(`S${sIds[0]}`); // if selected square
           else setCurrElec(`C${cIds[0]}`); // if selected combined
         } else { // selected multiple electrodes so has nothing to do with assigning pins
@@ -451,8 +460,9 @@ export default function Canvas() {
     if (selected.length > 0) {
       const elements = electrodes.filter((element) => selected.includes(`${element.ids}`));
       elements.forEach((element) => {
+        console.log(element);
         const tmp = [element.initPositions[0] + element.deltas[0],
-          element.initPositions[1] + element.deltas[1]];
+          element.initPositions[1] + element.deltas[1], element.ids];
         squares.push(tmp);
       });
       setSelected([]);
@@ -508,6 +518,7 @@ export default function Canvas() {
     if (!clipboard.squares && !clipboard.combined) return;
     const numSquaresCopied = clipboard.squares.length;
     const numCombinedCopied = clipboard.combined.length;
+    let elecHolder = [];
     if (numSquaresCopied > 0 || numCombinedCopied > 0) {
       const xInt = parseInt(relX, 10);
       const yInt = parseInt(relY, 10);
@@ -519,7 +530,7 @@ export default function Canvas() {
         const offsetX = squares[0][0];
         const offsetY = squares[0][1];
         for (let i = 0; i < numSquaresCopied; i += 1) {
-          const temp = [x + squares[i][0] - offsetX, y + squares[i][1] - offsetY];
+          const temp = [x + squares[i][0] - offsetX, y + squares[i][1] - offsetY, squares[i][2]];
           if (temp[0] < 0 || temp[0] >= CANVAS_TRUE_WIDTH
             || temp[1] < 0 || temp[1] >= CANVAS_TRUE_HEIGHT) {
             window.alert('Square electrode pasting off canvas!');
@@ -540,18 +551,38 @@ export default function Canvas() {
             return;
           }
         }
-
-        let maxID = electrodes.length === 0 ? 0 : electrodes[electrodes.length - 1].ids + 1;
         const tmps = [];
-        newInits.forEach((element) => {
-          const tmp = {};
-          tmp.initPositions = element;
-          tmp.deltas = [0, 0];
-          tmp.ids = maxID;
-          maxID += 1;
-          tmps.push(tmp);
-        });
+        if (cutFlag) {
+          newInits.forEach((element) => {
+            const tmp = {
+              initPositions: [element[0], element[1]],
+              deltas: [0, 0],
+              ids: element[2],
+            };
+            tmps.push(tmp);
+          });
+        } else {
+          let maxID = electrodes.length === 0 ? 0 : electrodes[electrodes.length - 1].ids + 1;
+          newInits.forEach((element) => {
+            const tmp = {};
+            tmp.initPositions = [element[0], element[1]];
+            tmp.deltas = [0, 0];
+            tmp.ids = maxID;
+            maxID += 1;
+            tmps.push(tmp);
+          });
+        }
         setElectrodes(electrodes.concat(tmps));
+        elecHolder = tmps;
+        // If combined electrodes were pasted as well, we'll update the history there instead
+        if (numSquaresCopied > 0 && numCombinedCopied === 0) {
+          console.log(newInits, tmps);
+          pushDrawHistory({
+            type: 'paste',
+            electrodeInfo: tmps,
+            combinedInfo: null,
+          });
+        }
       }
       if (numCombinedCopied > 0) {
         const first = clipboard.squares.length > 0 ? clipboard.squares[0] : combined[0];
@@ -570,11 +601,19 @@ export default function Canvas() {
               && inner.initPositions[1] === temp[1]))
             || allCombined.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
           )) {
-            newCombs.push([
-              temp[0],
-              temp[1],
-              combined[k][2] + maxID + 1,
-            ]);
+            if (cutFlag) {
+              newCombs.push([
+                temp[0],
+                temp[1],
+                combined[k][2],
+              ]);
+            } else {
+              newCombs.push([
+                temp[0],
+                temp[1],
+                combined[k][2] + maxID + 1,
+              ]);
+            }
           } else {
             window.alert('Pasted combined electrode overlap!');
             if (cutFlag) {
@@ -585,8 +624,22 @@ export default function Canvas() {
           }
         }
         setComboLayout(allCombined.concat(newCombs));
+        if (numSquaresCopied > 0) {
+          pushDrawHistory({
+            type: 'paste',
+            electrodeInfo: elecHolder,
+            combinedInfo: newCombs,
+          });
+        } else {
+          pushDrawHistory({
+            type: 'paste',
+            electrodeInfo: null,
+            combinedInfo: newCombs,
+          });
+        }
       }
     }
+    setCutFlag(false);
   }
 
   function squaresDelete() {
@@ -613,7 +666,6 @@ export default function Canvas() {
     });
 
     setPinActuation(new Map(pinActuate));
-
     setPinToElec({ ...pinToElec });
     setElecToPin({ ...elecToPin });
     const newElectrodes = electrodes.filter((element) => !selected.includes(`${element.ids}`));
@@ -632,10 +684,19 @@ export default function Canvas() {
         setPin([mappedPin], 0);
       }
     });
-
     setPinToElec({ ...pinToElec });
     setElecToPin({ ...elecToPin });
     setComboLayout(allCombined.filter((combi) => !combSelected.includes(`${combi[2]}`)));
+    let delElectrodes = electrodes.filter((element) => selected.includes(`${element.ids}`));
+    delElectrodes = delElectrodes.length === 0 ? null : delElectrodes;
+    let delCombs = allCombined.filter((combi) => combSelected.includes(`${combi[2]}`));
+    delCombs = delCombs.length === 0 ? null : delCombs;
+    // add check to see if electrodes were cut or deleted to handle undo
+    pushDrawHistory({
+      type: 'delete',
+      electrodeInfo: delElectrodes,
+      combinedInfo: delCombs,
+    });
     setCombSelected([]);
   }
 
@@ -744,8 +805,20 @@ export default function Canvas() {
       window.alert("Selected electrodes to combine aren't adjacent");
       return;
     }
-
     setComboLayout(allCombined.concat(positions));
+    pushDrawHistory({
+      type: 'combine',
+      electrodeInfo: null,
+      combinedInfo: JSON.parse(JSON.stringify(positions)), // Need to make a deep copy, not shallow
+    });
+
+    const delElectrodes = electrodes.filter((element) => selected.includes(`${element.ids}`));
+    pushDrawHistory({
+      type: 'delete',
+      electrodeInfo: delElectrodes,
+      combinedInfo: null,
+    });
+
     squaresDelete();
   }
 
@@ -768,6 +841,19 @@ export default function Canvas() {
       tmps.push(tmp);
     });
     setElectrodes(electrodes.concat(tmps));
+
+    pushDrawHistory({
+      type: 'separate',
+      electrodeInfo: tmps,
+      combinedInfo: null,
+    });
+
+    const delCombs = allCombined.filter((combi) => combSelected.includes(`${combi[2]}`));
+    pushDrawHistory({
+      type: 'delete',
+      electrodeInfo: null,
+      combinedInfo: delCombs,
+    });
     combinedDelete();
   }
 
@@ -877,6 +963,12 @@ export default function Canvas() {
     }
     unselect();
   }, [selected, combSelected]);
+
+  useHotkeys('0', () => {
+    console.log(history, historyIndex);
+    console.log(electrodes);
+    console.log(allCombined);
+  }, [electrodes, allCombined, history, historyIndex]);
 
   return (
     <div

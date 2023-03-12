@@ -14,12 +14,17 @@ function DraggableComb({ id, children, scaleXY }) {
   const { mode } = useContext(GeneralContext);
 
   const context = useContext(CanvasContext);
-  const { setDelta, setDragging, setMoving } = context;
+  const {
+    setDelta, setDragging, setMoving, pushDrawHistory,
+  } = context;
   const { delta, isDragging } = context.state;
 
   const { selected } = context.combined;
 
+  const elecSelected = context.squares.selected.length > 0 ? context.squares.selected : null;
+
   const isSelected = selected && selected.indexOf(`${id}`) >= 0;
+
   let transform = {};
   let boop;
   if (delta === null) boop = { x: 0, y: 0 };
@@ -57,8 +62,16 @@ function DraggableComb({ id, children, scaleXY }) {
       }}
       onStop={() => {
         if (isDragging) {
-          if (delta.x !== 0 || delta.y !== 0) setSaveChanges(true);
-          else setResetting(true);
+          if (delta.x !== 0 || delta.y !== 0) {
+            setSaveChanges(true);
+            const selIds = selected.map(Number);
+            pushDrawHistory({
+              type: 'move',
+              electrodeInfo: elecSelected,
+              combinedInfo: selIds,
+              delta_pos: delta,
+            });
+          } else setResetting(true);
           setMoving(false);
           setDragging(false);
         }

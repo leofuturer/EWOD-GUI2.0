@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useContext, useState } from 'react';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
@@ -149,12 +150,12 @@ export default function ControlPanel({ scrollOpen }) {
   const canvasContext = useContext(CanvasContext);
   const actuationContext = useContext(ActuationContext);
   const {
-    mode, setMode, setCurrElec, panning, setPanning, setScaleXY,
+    mode, setMode, setCurrElec, panning, setPanning, setScaleXY, undoPin, redoPin,
   } = useContext(GeneralContext);
-  const {
-    setSelected, setCombSelected, setMoving, setDragging,
-  } = canvasContext;
-  const { undo, redo } = actuationContext;
+
+  const { setSelected, setCombSelected, setMoving, setDragging} = canvasContext;
+  const { undoSeq, redoSeq } = actuationContext;
+  const { undoDraw, redoDraw } = canvasContext;
 
   const classes = useStyles();
   const [open, setOpen] = useState(false);
@@ -255,10 +256,36 @@ export default function ControlPanel({ scrollOpen }) {
             {
               mode === 'SEQ' && (
                 <>
-                  <ListItem button onClick={undo}>
+                  <ListItem button onClick={undoSeq}>
                     <img src={icons.undo.icon} alt="Undo" />
                   </ListItem>
-                  <ListItem button onClick={redo}>
+                  <ListItem button onClick={redoSeq}>
+                    <img src={icons.redo.icon} alt="Redo" />
+                  </ListItem>
+                </>
+              )
+            }
+
+            {
+              (mode === 'DRAW' || mode === 'CAN') && (
+                <>
+                  <ListItem button onClick={undoDraw}>
+                    <img src={icons.undo.icon} alt="Undo" />
+                  </ListItem>
+                  <ListItem button onClick={redoDraw}>
+                    <img src={icons.redo.icon} alt="Redo" />
+                  </ListItem>
+                </>
+              )
+            }
+
+            {
+              mode === 'PIN' && (
+                <>
+                  <ListItem button onClick={undoPin}>
+                    <img src={icons.undo.icon} alt="Undo" />
+                  </ListItem>
+                  <ListItem button onClick={redoPin}>
                     <img src={icons.redo.icon} alt="Redo" />
                   </ListItem>
                 </>

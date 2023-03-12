@@ -14,10 +14,16 @@ function DraggableItem({ ind, children, scaleXY }) {
   const { mode } = useContext(GeneralContext);
 
   const context = useContext(CanvasContext);
-  const { setDelta, setDragging, setMoving } = context;
+  const {
+    setDelta, setDragging, setMoving, pushDrawHistory,
+  } = context;
   const { delta, isDragging } = context.state;
   const { electrodes } = context.squares;
   const elecSelected = context.squares.selected;
+
+  const { selected } = context.combined;
+
+  const combSelected = selected.length > 0 ? selected.map(Number) : null;
 
   const isSelected = elecSelected && elecSelected.indexOf(`${electrodes[ind].ids}`) >= 0;
 
@@ -60,8 +66,15 @@ function DraggableItem({ ind, children, scaleXY }) {
       }}
       onStop={() => {
         if (isDragging) {
-          if (delta.x !== 0 || delta.y !== 0) setSaveChanges(true);
-          else setResetting(true);
+          if (delta.x !== 0 || delta.y !== 0) {
+            setSaveChanges(true);
+            pushDrawHistory({
+              type: 'move',
+              electrodeInfo: elecSelected,
+              combinedInfo: combSelected,
+              delta_pos: delta,
+            });
+          } else setResetting(true);
           setMoving(false);
           setDragging(false);
         }

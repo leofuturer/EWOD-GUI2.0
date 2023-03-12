@@ -238,6 +238,7 @@ const ActuationProvider = ({ children }) => {
             newHist.shift();
             newIndex -= 1;
           }
+          console.log(actuation.history);
           setActuation((stateBoi) => ({ ...stateBoi, history: newHist, historyIndex: newIndex }));
         },
         clearAll: () => {
@@ -263,7 +264,7 @@ const ActuationProvider = ({ children }) => {
           });
           setActuation((stateBoi) => ({ ...stateBoi, pinActuate: newList }));
         },
-        undo: () => {
+        undoSeq: () => {
           if (actuation.historyIndex > -1) {
             const obj = actuation.history[actuation.historyIndex];
             const newList = actuation.pinActuate;
@@ -285,7 +286,7 @@ const ActuationProvider = ({ children }) => {
             }));
           }
         },
-        redo: () => {
+        redoSeq: () => {
           if (actuation.historyIndex < actuation.history.length - 1) {
             const obj = actuation.history[actuation.historyIndex + 1];
             const newList = actuation.pinActuate;

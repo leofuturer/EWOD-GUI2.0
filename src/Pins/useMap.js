@@ -10,7 +10,7 @@ export default function useMap(callback, pin) {
   }, [callback]);
 
   const {
-    currElec, pinToElec, setPinToElec, elecToPin, setElecToPin,
+    currElec, pinToElec, setPinToElec, elecToPin, setElecToPin, pushPinHistory,
   } = React.useContext(GeneralContext);
 
   React.useEffect(() => {
@@ -35,6 +35,11 @@ export default function useMap(callback, pin) {
             delete newObj[currElec];
             return newObj;
           });
+          pushPinHistory({
+            type: 'unmap',
+            pinAff: pin,
+            elecAff: currElec,
+          });
           savedCallback.current();
           return;
         }
@@ -43,9 +48,19 @@ export default function useMap(callback, pin) {
         // for instance, assign pin to ANOTHER electrode
         // than what that pin is currently assigned to
         delete elecToPin[pinToElec[pin]];
+        pushPinHistory({
+          type: 'unmap',
+          pinAff: pin,
+          elecAff: pinToElec[pin],
+        });
       }
       if (Object.prototype.hasOwnProperty.call(elecToPin, currElec)) {
         delete pinToElec[elecToPin[currElec]];
+        pushPinHistory({
+          type: 'unmap',
+          pinAff: elecToPin[currElec],
+          elecAff: currElec,
+        });
       }
 
       setPinToElec((curr) => {
@@ -57,6 +72,11 @@ export default function useMap(callback, pin) {
         const newObj = { ...curr };
         newObj[currElec] = pin;
         return newObj;
+      });
+      pushPinHistory({
+        type: 'map',
+        pinAff: pin,
+        elecAff: currElec,
       });
     }
     savedCallback.current();

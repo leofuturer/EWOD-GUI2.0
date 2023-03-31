@@ -136,7 +136,7 @@ export default function Canvas() {
       setPanning(false);
       setMiddleDown(false);
     }
-    if (mode === 'CAN' && mouseDown && !panning) {
+    if (mode === 'CAN' && mouseDown && !panning && !shiftDown) {
       const x = Math.floor(e.offsetX / ELEC_SIZE) * ELEC_SIZE;
       const y = Math.floor(e.offsetY / ELEC_SIZE) * ELEC_SIZE;
       const elecAtXY = checkElecAtXY(x, y);

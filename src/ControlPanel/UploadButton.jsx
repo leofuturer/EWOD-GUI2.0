@@ -65,7 +65,7 @@ export default function UploadButton() {
         const newElecToPin = {};
         const newPinToElec = {};
         let currStep = 0;
-        let newSimpleNum = 1;
+        let newSimpleNum = 0;
         let prevOrd = Infinity;
         const stringList = content.split('\n');
         for (let i = 0; i < stringList.length; i += 1) {
@@ -131,6 +131,7 @@ export default function UploadButton() {
         setComboLayout(newAllCombined);
         setCurrentStep(currStep);
         setPinActuation(newPinActuate);
+        // simple num should be the maximum of all the orders, + 1.
         setSimpleNum(newSimpleNum + 1);
       }
     } catch (e) {

@@ -303,6 +303,9 @@ const CanvasProvider = ({ children }) => {
         },
         undoDraw: () => {
           if (actions.historyIndex > -1) {
+            setSquares((stateBoi) => ({ ...stateBoi, selected: [] }));
+            setCombined((stateBoi) => ({ ...stateBoi, selected: [] }));
+            setState((stateBoi) => ({ ...stateBoi, moving: false }));
             let step = 1;
             const obj = actions.history[actions.historyIndex];
             let newList = squares.electrodes.slice();
@@ -353,7 +356,6 @@ const CanvasProvider = ({ children }) => {
                   } else {
                     match = false;
                   } if (obj.combinedInfo && prevAction.combinedInfo) {
-                    console.log('REACHED');
                     const delObjIds = new Set();
                     const prevObjIds = new Set();
                     obj.combinedInfo.forEach((element) => {
@@ -395,6 +397,9 @@ const CanvasProvider = ({ children }) => {
         },
         redoDraw: () => {
           if (actions.historyIndex < actions.history.length - 1) {
+            setSquares((stateBoi) => ({ ...stateBoi, selected: [] }));
+            setCombined((stateBoi) => ({ ...stateBoi, selected: [] }));
+            setState((stateBoi) => ({ ...stateBoi, moving: false }));
             let step = 1;
             const obj = actions.history[actions.historyIndex + 1];
             let newList = squares.electrodes.slice();

@@ -103,11 +103,15 @@ export default function Canvas() {
 
   function checkElecAtXY(x, y) {
     let elecAtXY = false;
+    let selectedElec = false;
+    let id = -1;
+
     for (let idx = 0; idx < electrodes.length; idx += 1) {
       // if an electrode already exists at this position
       if (x === electrodes[idx].initPositions[0] + electrodes[idx].deltas[0]
         && y === electrodes[idx].initPositions[1] + electrodes[idx].deltas[1]) {
         elecAtXY = true;
+        id = electrodes[idx].ids;
         break;
       }
     }
@@ -115,11 +119,19 @@ export default function Canvas() {
       for (let ind = 0; ind < allCombined.length; ind += 1) {
         if (allCombined[ind][0] === x && allCombined[ind][1] === y) {
           elecAtXY = true;
+          const [, , ids] = allCombined[ind];
+          id = ids;
           break;
         }
       }
     }
-    return elecAtXY;
+    if (combSelected.includes(id) || selected.includes(id)) {
+      selectedElec = true;
+    }
+    return {
+      elecPresent: elecAtXY,
+      isSelected: selectedElec,
+    };
   }
 
   function unselect() {
@@ -143,7 +155,9 @@ export default function Canvas() {
       // if in select + move mode and we click on the green area
       // where there aren't any electrodes and we have some selection,
       // we want to unselect those selections
-      if (!elecAtXY && (selected.length > 0 || combSelected.length > 0)) {
+      console.log(elecAtXY);
+      if ((!elecAtXY.elecPresent || !elecAtXY.isSelected)
+      && (selected.length > 0 || combSelected.length > 0)) {
         unselect();
       }
     }
@@ -160,8 +174,6 @@ export default function Canvas() {
 
   const handleMouseMove = useCallback((e) => { // creating new electrode
     if (mode === 'DRAW' && mouseDown && !panning) {
-      let elecAtXY = false;
-
       // electrode current position = electrodes[idx].initPositions[0] + electrodes[idx].deltas[0]
       // wanna see if current X = current position
       // = electrodes[idx].initPositions[0] + electrodes[idx].deltas[0]
@@ -169,9 +181,9 @@ export default function Canvas() {
 
       const x = Math.floor(e.offsetX / ELEC_SIZE) * ELEC_SIZE;
       const y = Math.floor(e.offsetY / ELEC_SIZE) * ELEC_SIZE;
-      elecAtXY = checkElecAtXY(x, y);
+      const elecAtXY = checkElecAtXY(x, y);
 
-      if (!elecAtXY) { // create new electrode
+      if (!elecAtXY.elecPresent) { // create new electrode
         // need unique ids for each electrode
         // as electrodes are deleted and added in, ids will ALWAYS
         // be in ascending order, so there will be no duplicates

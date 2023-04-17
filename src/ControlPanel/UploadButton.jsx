@@ -6,6 +6,7 @@ import { CanvasContext } from '../Contexts/CanvasProvider';
 import { ActuationContext } from '../Contexts/ActuationProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 import ActuationSequence from '../Actuation/Actuation';
+import { setPin } from '../USBCommunication/USBCommunication';
 import icons from '../Icons/icons';
 
 export default function UploadButton() {
@@ -58,6 +59,7 @@ export default function UploadButton() {
       }
       if (file.name.slice(-4) !== 'ewds') window.alert('You can only upload .ewds files');
       else {
+        setPin([], 0, true);
         const content = await readFile(file);
         const newElectrodes = [];
         const newAllCombined = [];

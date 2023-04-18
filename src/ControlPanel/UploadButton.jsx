@@ -110,6 +110,8 @@ export default function UploadButton() {
               newSeq.duration = dur;
               const set = new Set(sect[0].split(':')[1].split(','));
               newSeq.content = set;
+              // removes the element created by the leading comma for older files
+              newSeq.content.delete('');
               newPinActuate.set(id, newSeq);
               if (sect.length === 2) {
                 if (!newPinActuate.has(+sect[1].split(':')[0])) {

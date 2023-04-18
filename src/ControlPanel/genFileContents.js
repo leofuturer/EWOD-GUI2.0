@@ -33,6 +33,7 @@ export default function genFileContents(electrodes, allCombined, pinActuate, ele
         value.content.forEach((e) => {
           block = `${block + e.toString()},`;
         });
+        block = block.slice(1);
         block = block.slice(0, -1);
         block = `${value.id}:${block}:${value.duration.toString()}:${value.order}`;
         if (value.parent) {

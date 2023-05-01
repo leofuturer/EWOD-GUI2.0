@@ -104,6 +104,8 @@ export default function Canvas() {
   function checkElecAtXY(x, y) {
     let elecAtXY = false;
     let selectedElec = false;
+    let combClicked = false;
+    let elecClicked = false;
     let id = -1;
 
     for (let idx = 0; idx < electrodes.length; idx += 1) {
@@ -111,7 +113,12 @@ export default function Canvas() {
       if (x === electrodes[idx].initPositions[0] + electrodes[idx].deltas[0]
         && y === electrodes[idx].initPositions[1] + electrodes[idx].deltas[1]) {
         elecAtXY = true;
-        id = electrodes[idx].ids;
+        id = `'${electrodes[idx].ids}'`;
+        combClicked = false;
+        elecClicked = true;
+        if (selected.includes(id)) {
+          selectedElec = true;
+        }
         break;
       }
     }
@@ -120,17 +127,23 @@ export default function Canvas() {
         if (allCombined[ind][0] === x && allCombined[ind][1] === y) {
           elecAtXY = true;
           const [, , ids] = allCombined[ind];
-          id = ids;
+          id = `'${ids}'`;
+          combClicked = true;
+          elecClicked = false;
+          console.log(id, combSelected);
+          if (combSelected.includes(id)) {
+            selectedElec = true;
+          }
           break;
         }
       }
     }
-    if (combSelected.includes(id) || selected.includes(id)) {
-      selectedElec = true;
-    }
     return {
       elecPresent: elecAtXY,
       isSelected: selectedElec,
+      elec: elecClicked,
+      comb: combClicked,
+      selId: id,
     };
   }
 
@@ -155,10 +168,21 @@ export default function Canvas() {
       // if in select + move mode and we click on the green area
       // where there aren't any electrodes and we have some selection,
       // we want to unselect those selections
-      console.log(elecAtXY);
       if ((!elecAtXY.elecPresent || !elecAtXY.isSelected)
       && (selected.length > 0 || combSelected.length > 0)) {
         unselect();
+        console.log(elecAtXY);
+        if (elecAtXY.elecPresent) {
+          if (elecAtXY.comb) {
+            // eslint-disable-next-line no-use-before-define
+            setCombSelected(elecAtXY.selId);
+            setMoving(true);
+          } else {
+            // eslint-disable-next-line no-use-before-define
+            setSelected(elecAtXY.selId);
+            setMoving(true);
+          }
+        }
       }
     }
   }, [setMouseDown, middleDown]);
@@ -407,7 +431,6 @@ export default function Canvas() {
       if (elec.tagName === 'rect') sIds.push(elec.id.slice(1));
       else if (elec.tagName === 'path') cIds.push(elec.id.slice(1));
     });
-
     if (mode === 'PIN') {
       if (shiftDown) {
         const newSelected = processSelected(sIds, cIds);

@@ -76,7 +76,7 @@ export default function UploadButton() {
             const words = e.split(' ');
             if (words.length >= 3 && words[0] === 'square' && !Number.isNaN(words[1]) && !Number.isNaN(words[2])) {
               const temp = {};
-              temp.initPositions = [parseInt(words[1], 10), parseInt(words[2], 10)];
+              temp.initPositions = [parseInt(words[1], 10) * 35, parseInt(words[2], 10) * 35];
               temp.deltas = [0, 0];
               temp.ids = i;
               newElectrodes.push(temp);
@@ -85,8 +85,8 @@ export default function UploadButton() {
                 newPinToElec[words[3]] = `S${i}`;
               }
             } else if (words.length >= 4 && words[0] === 'combine' && !Number.isNaN(words[1]) && !Number.isNaN(words[2]) && !Number.isNaN(words[1])) {
-              newAllCombined.push([parseInt(words[1], 10),
-                parseInt(words[2], 10), parseInt(words[3], 10)]);
+              newAllCombined.push([parseInt(words[1], 10) * 35,
+                parseInt(words[2], 10) * 35, parseInt(words[3], 10)]);
               if (words.length > 4) {
                 newElecToPin[`C${words[3]}`] = words[4];
                 newPinToElec[words[3]] = `C${i}`;

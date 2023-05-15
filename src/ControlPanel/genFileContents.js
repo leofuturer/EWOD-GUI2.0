@@ -7,7 +7,6 @@ export default function genFileContents(electrodes, allCombined, pinActuate, ele
     for (let i = 0; i < allCombined.length; i += 1) {
       const comb = allCombined[i];
       let boop = `combine ${comb[0] / 35} ${comb[1] / 35} ${comb[2]}`;
-      console.log(boop);
       if (elecToPin[`C${comb[2]}`]) {
         boop = `${boop} ${elecToPin[`C${comb[2]}`]}`;
       }
@@ -34,7 +33,6 @@ export default function genFileContents(electrodes, allCombined, pinActuate, ele
         value.content.forEach((e) => {
           block = `${block + e.toString()},`;
         });
-        block = block.slice(1);
         block = block.slice(0, -1);
         block = `${value.id}:${block}:${value.duration.toString()}:${value.order}`;
         if (value.parent) {

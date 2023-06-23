@@ -2,6 +2,7 @@
 
 // Globals
 let EWODDevice;
+let appliedVoltage;
 const EWODDeviceView = new Uint8Array(64); // Stores pin states
 
 const filters = [
@@ -122,6 +123,11 @@ export async function setV(voltage) {
   EWODDeviceView[40] = voltage;
   await EWODDevice.sendReport(0x00, EWODDeviceView);
   setInterval(sendAck, 1000);
+
+  appliedVoltage = voltage;
+}
+export function getAppliedVoltage() {
+  return appliedVoltage;
 }
 
 // Sets EWOD's frequency

@@ -557,7 +557,6 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
                     >
 
                       <p>{`Frame Number: ${value.order + 1}`}</p>
-                      <p>{`Actuated Pins: ${appendString}`}</p>
                       <TextField
                         variant="outlined"
                         label="duration"
@@ -572,6 +571,7 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
                           updateDuration(key, event.target.value);
                         }}
                       />
+                      <p>{`Actuated Pins: ${appendString}`}</p>
                     </div>
                   </Button>
                 );

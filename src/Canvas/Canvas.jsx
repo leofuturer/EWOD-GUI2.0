@@ -20,7 +20,6 @@ import {
   CANVAS_RIGHT_EDGE, CANVAS_LEFT_EDGE, CANVAS_TOP_EDGE, CANVAS_BOTTOM_EDGE,
 } from '../constants';
 import range from '../Pins/range';
-import { setPin } from '../USBCommunication/USBCommunication';
 
 // hotkey library
 // const chassis = require('./chassis-with-background.svg');
@@ -35,7 +34,7 @@ export default function Canvas() {
   const clipboard = canvasContext.clipboard;
   const {
     // eslint-disable-next-line max-len
-    setClipboard, setMouseDown, setElectrodes, setSelected, setCombSelected, setComboLayout, setMoving, setDragging,
+    setClipboard, setMouseDown, setElectrodes, setSelected, setCombSelected, setComboLayout, setMoving,
   } = canvasContext;
 
   const actuationContext = useContext(ActuationContext);
@@ -54,25 +53,11 @@ export default function Canvas() {
   const [cutFlag, setCutFlag] = useState(false);
 
   const startShift = useCallback((event) => {
-    if (event.keyCode === 16) {
-      setShiftDown(true);
-      if (selected || combSelected) {
-        setMoving(false);
-      }
-    }
+    if (event.keyCode === 16) setShiftDown(true);
   });
 
   const endShift = useCallback((event) => {
-    if (event.keyCode === 16) {
-      setShiftDown(false);
-      if (selected.length + combSelected.length > 0) {
-        // There are some electrodes still selected, so we need to keep default movement
-        setMoving(true);
-      } else if (selected.length + combSelected.length === 0) {
-        // All electrodes have been deselected, go back to regular mode
-        setMoving(false);
-      }
-    }
+    if (event.keyCode === 16) setShiftDown(false);
   });
 
   useEffect(() => {
@@ -401,9 +386,6 @@ export default function Canvas() {
       } else {
         setSelected(sIds);
         setCombSelected(cIds);
-        if (mode === 'CAN' && (sIds.length > 0 || cIds.length > 0)) {
-          setMoving(true);
-        }
       }
     }
 
@@ -443,8 +425,6 @@ export default function Canvas() {
   }
 
   function copy() {
-    setMoving(false);
-    setDragging(false);
     const squares = [];
     const combined = [];
 
@@ -501,8 +481,6 @@ export default function Canvas() {
   }
 
   function paste(e, relX, relY) {
-    setMoving(false);
-    setDragging(false);
     if (selected.length > 0) setSelected([]);
     if (combSelected.length > 0) setCombSelected([]);
     if (!clipboard.squares && !clipboard.combined) return;
@@ -598,7 +576,6 @@ export default function Canvas() {
         const mappedPin = elecToPin[square];
         if (mappedPin) { // mapping exists for this electrode so delete mapping
           mappedPins.push(mappedPin);
-          setPin([mappedPin], 0);
           delete pinToElec[mappedPin];
           delete elecToPin[square];
         }
@@ -629,7 +606,6 @@ export default function Canvas() {
       if (mappedPin) { // mapping exists for this electrode so delete mapping
         delete pinToElec[mappedPin];
         delete elecToPin[combined];
-        setPin([mappedPin], 0);
       }
     });
 
@@ -640,15 +616,11 @@ export default function Canvas() {
   }
 
   function BothDelete() {
-    setMoving(false);
-    setDragging(false);
     combinedDelete();
     squaresDelete();
   }
 
   function cut() {
-    setMoving(false);
-    setDragging(false);
     setCutFlag(true);
     copy();
     BothDelete();
@@ -668,8 +640,6 @@ export default function Canvas() {
   }
 
   function handleCombine(e) {
-    setMoving(false);
-    setDragging(false);
     e.preventDefault();
     if (selected.length < 2) {
       window.alert('You need to combine at least 2 square electrodes.');
@@ -750,8 +720,6 @@ export default function Canvas() {
   }
 
   function separate() {
-    setMoving(false);
-    setDragging(false);
     if (!combSelected.length || selected.length) {
       window.alert('Can only separate combined electrodes');
       return;
@@ -772,14 +740,11 @@ export default function Canvas() {
   }
 
   function deleteSelectedMappings() {
-    setMoving(false);
-    setDragging(false);
     if (selected.length || combSelected.length || currElec) {
       const etp = { ...elecToPin };
       const pte = { ...pinToElec };
       if (currElec) {
         if (etp[currElec]) {
-          setPin([etp[currElec]], 0);
           delete pte[etp[currElec]];
           delete etp[currElec];
         }
@@ -788,7 +753,6 @@ export default function Canvas() {
         if (selected.length) {
           selected.forEach((num) => {
             if (etp[`S${num}`]) {
-              setPin([etp[`S${num}`]], 0);
               delete pte[etp[`S${num}`]];
               delete etp[`S${num}`];
             }
@@ -797,7 +761,6 @@ export default function Canvas() {
         if (combSelected.length) {
           combSelected.forEach((num) => {
             if (etp[`C${num}`]) {
-              setPin([etp[`C${num}`]], 0);
               delete pte[etp[`C${num}`]];
               delete etp[`C${num}`];
             }
@@ -882,9 +845,9 @@ export default function Canvas() {
     <div
       className="wrapper"
       style={{
-        height: CANVAS_REAL_HEIGHT,
-        width: CANVAS_REAL_WIDTH,
-        overflow: mode === 'PIN' ? 'hidden' : 'visible',
+        height: '1000px',
+        width: '1500px',
+        overflow: mode === 'SEQ' ? 'hidden' : 'visible',
       }}
     >
       {

@@ -15,7 +15,7 @@ import { GeneralContext } from '../Contexts/GeneralProvider';
 
 import ContextMenu from './ContextMenu';
 import {
-  ELEC_SIZE, CANVAS_REAL_HEIGHT, CANVAS_REAL_WIDTH,
+  ELEC_SIZE,
   CANVAS_TRUE_HEIGHT, CANVAS_TRUE_WIDTH,
   CANVAS_RIGHT_EDGE, CANVAS_LEFT_EDGE, CANVAS_TOP_EDGE, CANVAS_BOTTOM_EDGE,
 } from '../constants';

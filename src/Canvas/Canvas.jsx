@@ -882,9 +882,9 @@ export default function Canvas() {
     <div
       className="wrapper"
       style={{
-        height: CANVAS_REAL_HEIGHT,
-        width: CANVAS_REAL_WIDTH,
-        overflow: mode === 'PIN' ? 'hidden' : 'visible',
+        height: '1000px',
+        width: '1500px',
+        overflow: mode === 'SEQ' ? 'hidden' : 'visible',
       }}
     >
       {

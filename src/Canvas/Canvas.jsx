@@ -15,7 +15,7 @@ import { GeneralContext } from '../Contexts/GeneralProvider';
 
 import ContextMenu from './ContextMenu';
 import {
-  ELEC_SIZE,
+  ELEC_SIZE, CANVAS_REAL_HEIGHT, CANVAS_REAL_WIDTH,
   CANVAS_TRUE_HEIGHT, CANVAS_TRUE_WIDTH,
   CANVAS_RIGHT_EDGE, CANVAS_LEFT_EDGE, CANVAS_TOP_EDGE, CANVAS_BOTTOM_EDGE,
 } from '../constants';
@@ -882,9 +882,9 @@ export default function Canvas() {
     <div
       className="wrapper"
       style={{
-        height: '1000px',
-        width: '1500px',
-        overflow: mode === 'SEQ' ? 'hidden' : 'visible',
+        height: mode === 'SEQ' ? '600px': CANVAS_REAL_HEIGHT,
+        width: mode === 'SEQ' ? '1500px': CANVAS_REAL_WIDTH,
+        overflow: mode === 'SEQ' || mode === 'PIN' ? 'hidden' : 'visible',
       }}
     >
       {

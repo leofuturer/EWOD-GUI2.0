@@ -882,8 +882,8 @@ export default function Canvas() {
     <div
       className="wrapper"
       style={{
-        height: mode === 'SEQ' ? '600px': CANVAS_REAL_HEIGHT,
-        width: mode === 'SEQ' ? '1500px': CANVAS_REAL_WIDTH,
+        height: mode === 'SEQ' ? '600px' : CANVAS_REAL_HEIGHT,
+        width: mode === 'SEQ' ? '1500px' : CANVAS_REAL_WIDTH,
         overflow: mode === 'SEQ' || mode === 'PIN' ? 'hidden' : 'visible',
       }}
     >

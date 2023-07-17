@@ -150,6 +150,7 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
   const [flush, setFlush] = useState(false);
   const [duration, setDuration] = useState(100);
   const [showPlayButton, setShowPlayButton] = useState(true);
+  const [isOverlap, setIsOverlap] = useState(false);
   const indexRef = useRef();
   indexRef.current = index;
   const scrollRef = useRef();
@@ -165,14 +166,16 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
   };
 
   const handleWheel = (event) => {
+    if (isOverlap === false) {
     // event.preventDefault();
-    const container = scrollRef.current;
-    const containerScrollPosition = scrollRef.current.scrollLeft;
+      const container = scrollRef.current;
+      const containerScrollPosition = scrollRef.current.scrollLeft;
 
-    container.scrollTo({
-      top: 0,
-      left: containerScrollPosition + event.deltaY,
-    });
+      container.scrollTo({
+        top: 0,
+        left: containerScrollPosition + event.deltaY,
+      });
+    }
   };
 
   const handleClose = () => {
@@ -540,9 +543,20 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
                     key={key}
                     data-testid="seq-button"
                   >
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div
+                      id="nonOverlap"
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        overflow: 'scroll',
+                        height: '27vh',
+                        pointerEvents: 'auto',
+                      }}
+                      onMouseEnter={() => setIsOverlap(true)}
+                      onMouseLeave={() => setIsOverlap(false)}
+                    >
+
                       <p>{`Frame Number: ${value.order + 1}`}</p>
-                      <p>{`Actuated Pins: ${appendString}`}</p>
                       <TextField
                         variant="outlined"
                         label="duration"
@@ -557,6 +571,7 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
                           updateDuration(key, event.target.value);
                         }}
                       />
+                      <p>{`Actuated Pins: ${appendString}`}</p>
                     </div>
                   </Button>
                 );

@@ -3,6 +3,7 @@ import db from './DBStorage';
 import useInterval from '../useInterval';
 import handleSave from '../ControlPanel/handleSave';
 import { GeneralContext } from './GeneralProvider';
+import { ELEC_SIZE } from '../constants';
 
 const CanvasContext = React.createContext();
 
@@ -38,7 +39,6 @@ const CanvasProvider = ({ children }) => {
       db.transaction('rw', db.formData, async () => {
         // get elec layout from the data
         const squaresLayout = await db.formData.get('squares');
-
         // if there's no layout in local storage, add an empty one
         if (!squaresLayout) await db.formData.add({ id: 'squares', value: [] });
         else {
@@ -48,7 +48,8 @@ const CanvasProvider = ({ children }) => {
             const mapping = e.split(' ');
             if (mapping[0] === 'square') {
               const temp = {};
-              temp.initPositions = [parseInt(mapping[1], 10), parseInt(mapping[2], 10)];
+              temp.initPositions = [parseInt(mapping[1], 10) * ELEC_SIZE,
+                parseInt(mapping[2], 10) * ELEC_SIZE];
               temp.deltas = [0, 0];
               temp.ids = tempId;
               tempId += 1;
@@ -69,7 +70,7 @@ const CanvasProvider = ({ children }) => {
           const combs = [];
           combsLayout.value.forEach((e) => {
             const mapping = e.split(' ');
-            if (mapping[0] === 'combine') combs.push([parseInt(mapping[1], 10), parseInt(mapping[2], 10), parseInt(mapping[3], 10)]);
+            if (mapping[0] === 'combine') combs.push([parseInt(mapping[1], 10) * ELEC_SIZE, parseInt(mapping[2], 10) * ELEC_SIZE, parseInt(mapping[3], 10)]);
           });
           setCombined((stateBoi) => ({ ...stateBoi, allCombined: combs }));
         }

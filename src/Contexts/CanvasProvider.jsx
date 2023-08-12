@@ -314,7 +314,7 @@ const CanvasProvider = ({ children }) => {
             if (obj.type === 'draw') {
               newList = newList.filter((element) => element.ids !== obj.electrodeInfo.ids);
               setSquares((stateBoi) => ({ ...stateBoi, electrodes: newList }));
-            } else if (obj.type === 'delete') {
+            } else if (obj.type.includes('delete')) {
               // Undo deletion of single electrodes
               if (obj.electrodeInfo) {
                 newList = undoIndividual('delete');

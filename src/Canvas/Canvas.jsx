@@ -638,11 +638,13 @@ export default function Canvas() {
     setCutFlag(false);
   }
 
-  function squaresDelete() {
+  function squaresDelete(combine = false) {
     const mappedPins = [];
     // go through selected squares to erase any of their pin mappings
+    const delElecs = [];
     electrodes.forEach((element) => {
       if (selected.includes(`${element.ids}`)) {
+        delElecs.push(element);
         const square = `S${element.ids}`;
         const mappedPin = elecToPin[square];
         if (mappedPin) { // mapping exists for this electrode so delete mapping
@@ -653,14 +655,21 @@ export default function Canvas() {
         }
       }
     });
-
     Array.from(pinActuate.keys()).forEach((key) => {
       const value = pinActuate.get(key);
       value.content.forEach((e) => {
         if (mappedPins.includes(e)) value.content.delete(e);
       });
     });
-
+    // Only go in here if this deletion is the result of a separation
+    if (combine) {
+      console.log('print');
+      pushDrawHistory({
+        type: 'combine-delete',
+        electrodeInfo: delElecs,
+        combinedInfo: null,
+      });
+    }
     setPinActuation(new Map(pinActuate));
     setPinToElec({ ...pinToElec });
     setElecToPin({ ...elecToPin });
@@ -669,7 +678,7 @@ export default function Canvas() {
     setElectrodes(newElectrodes);
   }
 
-  function combinedDelete() {
+  function combinedDelete(separateElec = false) {
     // go through selected combined elecs to erase any of their pin mappings
     combSelected.forEach((index) => {
       const combined = `C${index}`;
@@ -688,8 +697,12 @@ export default function Canvas() {
     let delCombs = allCombined.filter((combi) => combSelected.includes(`${combi[2]}`));
     delCombs = delCombs.length === 0 ? null : delCombs;
     // add check to see if electrodes were cut or deleted to handle undo
+    let delType = 'delete';
+    if (separateElec) {
+      delType = 'separate-delete';
+    }
     pushDrawHistory({
-      type: 'delete',
+      type: delType,
       electrodeInfo: delElectrodes,
       combinedInfo: delCombs,
     });
@@ -736,7 +749,6 @@ export default function Canvas() {
       window.alert("You can't combine already combined electrodes.");
       return;
     }
-
     const positions = [];
     // see if selected electrodes are adjacent to each other
     const layVals = new Set([]);
@@ -807,15 +819,14 @@ export default function Canvas() {
       electrodeInfo: null,
       combinedInfo: JSON.parse(JSON.stringify(positions)), // Need to make a deep copy, not shallow
     });
-
-    const delElectrodes = electrodes.filter((element) => selected.includes(`${element.ids}`));
+    /*  const delElectrodes = electrodes.filter((element) => selected.includes(`${element.ids}`));
     pushDrawHistory({
       type: 'delete',
       electrodeInfo: delElectrodes,
       combinedInfo: null,
-    });
+    }); */
 
-    squaresDelete();
+    squaresDelete(true);
   }
 
   function separate() {
@@ -844,13 +855,13 @@ export default function Canvas() {
       combinedInfo: null,
     });
 
-    const delCombs = allCombined.filter((combi) => combSelected.includes(`${combi[2]}`));
+    /* const delCombs = allCombined.filter((combi) => combSelected.includes(`${combi[2]}`));
     pushDrawHistory({
       type: 'delete',
       electrodeInfo: null,
       combinedInfo: delCombs,
-    });
-    combinedDelete();
+    }); */
+    combinedDelete(true);
   }
 
   function deleteSelectedMappings() {

@@ -55,7 +55,7 @@ export default function Canvas() {
   const startShift = useCallback((event) => {
     if (event.keyCode === 16) {
       setShiftDown(true);
-      // If some electrodes are selected, turn off default movement so user can select the electrodes
+      // If some electrodes are selected, turn off default movement so user can select again
       if ((selected || combSelected) && mode === 'CAN') {
         setMoving(false);
       }

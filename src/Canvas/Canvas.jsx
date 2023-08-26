@@ -53,11 +53,26 @@ export default function Canvas() {
   const [cutFlag, setCutFlag] = useState(false);
 
   const startShift = useCallback((event) => {
-    if (event.keyCode === 16) setShiftDown(true);
+    if (event.keyCode === 16) {
+      setShiftDown(true);
+      // If some electrodes are selected, turn off default movement so user can select again
+      if ((selected || combSelected) && mode === 'CAN') {
+        setMoving(false);
+      }
+    }
   });
 
   const endShift = useCallback((event) => {
-    if (event.keyCode === 16) setShiftDown(false);
+    if (event.keyCode === 16) {
+      setShiftDown(false);
+      if (selected.length + combSelected.length > 0 && mode === 'CAN') {
+        // There are some electrodes still selected, so we need to keep default movement
+        setMoving(true);
+      } else if (selected.length + combSelected.length === 0 && mode === 'CAN') {
+        // All electrodes have been deselected, go back to regular mode
+        setMoving(false);
+      }
+    }
   });
 
   useEffect(() => {
@@ -86,11 +101,89 @@ export default function Canvas() {
     setRelativeY(`${event.offsetY}px`);
   }, [setMouseDown]);
 
-  const handleMouseUp = useCallback(() => {
+  function checkElecAtXY(x, y) {
+    let elecAtXY = false;
+    let selectedElec = false;
+    let combClicked = false;
+    let elecClicked = false;
+    let id = -1;
+
+    for (let idx = 0; idx < electrodes.length; idx += 1) {
+      // if an electrode already exists at this position
+      if (x === electrodes[idx].initPositions[0] + electrodes[idx].deltas[0]
+        && y === electrodes[idx].initPositions[1] + electrodes[idx].deltas[1]) {
+        elecAtXY = true;
+        id = `'${electrodes[idx].ids}'`;
+        combClicked = false;
+        elecClicked = true;
+        if (selected.includes(id)) {
+          selectedElec = true;
+        }
+        break;
+      }
+    }
+    if (!elecAtXY) {
+      for (let ind = 0; ind < allCombined.length; ind += 1) {
+        if (allCombined[ind][0] === x && allCombined[ind][1] === y) {
+          elecAtXY = true;
+          const [, , ids] = allCombined[ind];
+          id = `'${ids}'`;
+          combClicked = true;
+          elecClicked = false;
+          console.log(id, combSelected);
+          if (combSelected.includes(id)) {
+            selectedElec = true;
+          }
+          break;
+        }
+      }
+    }
+    return {
+      elecPresent: elecAtXY,
+      isSelected: selectedElec,
+      elec: elecClicked,
+      comb: combClicked,
+      selId: id,
+    };
+  }
+
+  function unselect() {
+    if (selected.length || combSelected.length) {
+      setMoving(false);
+      setSelected([]);
+      setCombSelected([]);
+    }
+  }
+
+  const handleMouseUp = useCallback((e) => {
     setMouseDown(false);
     if (middleDown) {
       setPanning(false);
       setMiddleDown(false);
+    }
+    if (mode === 'CAN' && mouseDown && !panning && !shiftDown) {
+      const x = Math.floor(e.offsetX / ELEC_SIZE) * ELEC_SIZE;
+      const y = Math.floor(e.offsetY / ELEC_SIZE) * ELEC_SIZE;
+      const elecAtXY = checkElecAtXY(x, y);
+      // if in select + move mode and we click on the green area
+      // where there aren't any electrodes and we have some selection,
+      // we want to unselect those selections
+      if ((!elecAtXY.elecPresent || !elecAtXY.isSelected)
+      && (selected.length > 0 || combSelected.length > 0)) {
+        unselect();
+        console.log(elecAtXY);
+        if (elecAtXY.elecPresent) {
+          if (elecAtXY.comb) {
+            // eslint-disable-next-line no-use-before-define
+            setCombSelected(elecAtXY.selId);
+            setMoving(true);
+          } else {
+            // eslint-disable-next-line no-use-before-define
+            setSelected(elecAtXY.selId);
+            setMoving(true);
+          }
+        }
+      }
     }
   }, [setMouseDown, middleDown]);
 
@@ -105,33 +198,16 @@ export default function Canvas() {
 
   const handleMouseMove = useCallback((e) => { // creating new electrode
     if (mode === 'DRAW' && mouseDown && !panning) {
-      let elecAtXY = false;
-
       // electrode current position = electrodes[idx].initPositions[0] + electrodes[idx].deltas[0]
       // wanna see if current X = current position
       // = electrodes[idx].initPositions[0] + electrodes[idx].deltas[0]
       // the same applies for current Y, only with electrodes[idx].initPositions[1] instead
+
       const x = Math.floor(e.offsetX / ELEC_SIZE) * ELEC_SIZE;
       const y = Math.floor(e.offsetY / ELEC_SIZE) * ELEC_SIZE;
+      const elecAtXY = checkElecAtXY(x, y);
 
-      for (let idx = 0; idx < electrodes.length; idx += 1) {
-        // if an electrode already exists at this position
-        if (x === electrodes[idx].initPositions[0] + electrodes[idx].deltas[0]
-          && y === electrodes[idx].initPositions[1] + electrodes[idx].deltas[1]) {
-          elecAtXY = true;
-          break;
-        }
-      }
-      if (!elecAtXY) {
-        for (let ind = 0; ind < allCombined.length; ind += 1) {
-          if (allCombined[ind][0] === x && allCombined[ind][1] === y) {
-            elecAtXY = true;
-            break;
-          }
-        }
-      }
-
-      if (!elecAtXY) { // create new electrode
+      if (!elecAtXY.elecPresent) { // create new electrode
         // need unique ids for each electrode
         // as electrodes are deleted and added in, ids will ALWAYS
         // be in ascending order, so there will be no duplicates
@@ -355,7 +431,6 @@ export default function Canvas() {
       if (elec.tagName === 'rect') sIds.push(elec.id.slice(1));
       else if (elec.tagName === 'path') cIds.push(elec.id.slice(1));
     });
-
     if (mode === 'PIN') {
       if (shiftDown) {
         const newSelected = processSelected(sIds, cIds);
@@ -411,14 +486,6 @@ export default function Canvas() {
   /* ########################### COMBINE STUFF END ########################### */
 
   /* ########################### CLIPBOARD STUFF ########################### */
-
-  function unselect() {
-    if (selected.length || combSelected.length) {
-      setMoving(false);
-      setSelected([]);
-      setCombSelected([]);
-    }
-  }
 
   function move() {
     if (selected.length || combSelected.length) setMoving(true);
@@ -840,6 +907,11 @@ export default function Canvas() {
     }
     unselect();
   }, [selected, combSelected]);
+
+  useHotkeys('0', () => {
+    console.log(electrodes);
+    console.log(allCombined);
+  }, [electrodes, allCombined]);
 
   return (
     <div

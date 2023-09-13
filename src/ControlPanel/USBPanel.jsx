@@ -66,8 +66,8 @@ export default function USBPanel({ usbConnected }) {
     if (isDeviceConnected()) {
       setV(0);
       setF(0);
-      setVolt(0);
-      setFreq(0);
+     document.getElementById('tf-voltage').value = volt;
+     document.getElementById('tf-frequency').value = freq;
     }
   }
   function setVpp() {
@@ -168,7 +168,7 @@ export default function USBPanel({ usbConnected }) {
         <div className={classes.text}>180</div>
       </div>
       <div style={{
-        display: (volt >= 60 && usbConnected) ? 'flex' : 'none',
+        display: (volt > 0 && usbConnected) ? 'flex' : 'none',
         flexDirection: 'row',
         justifyContent: 'center',
         paddingRight: '45px',
@@ -181,7 +181,7 @@ export default function USBPanel({ usbConnected }) {
       <div
         style={{
           paddingLeft: '10px',
-          paddingTop: (volt >= 60 && usbConnected) ? '15px' : '60px',
+          paddingTop: (volt > 0 && usbConnected) ? '15px' : '60px',
           marginBottom: '20px',
         }}
       >

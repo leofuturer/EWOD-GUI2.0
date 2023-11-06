@@ -66,8 +66,8 @@ export default function USBPanel({ usbConnected }) {
     if (isDeviceConnected()) {
       setV(0);
       setF(0);
-     document.getElementById('tf-voltage').value = volt;
-     document.getElementById('tf-frequency').value = freq;
+      document.getElementById('tf-voltage').value = volt;
+      document.getElementById('tf-frequency').value = freq;
     }
   }
   function setVpp() {

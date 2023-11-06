@@ -140,17 +140,18 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
   const [to, setTo] = useState('');
   const [repTime, setRepTime] = useState('');
   const [update, setUpdate] = useState(null);
-  const [index, setIndex] = useState(0);
-  const [pause, setPause] = useState(true);
   const [fullseq, setFullseq] = useState([0]);
+  const [index, setIndex] = useState(fullseq.length - 1);
+  const [pause, setPause] = useState(true);
   const [time, setTime] = useState(null);
   const [clipboard, setClipboard] = useState(null);
   const [alert, setAlert] = useState(false);
   const [forever, setForever] = useState(false);
   const [flush, setFlush] = useState(false);
   const [duration, setDuration] = useState(100);
-  const [showPlayButton, setShowPlayButton] = useState(true);
-  const [isOverlap, setIsOverlap] = useState(false);
+  const [showPlayPauseButton, setShowPlayPauseButton] = useState(true);
+  const [showReversePauseButton, setShowReversePauseButton] = useState(true);
+  const [reverseStartIndex, setReverseStartIndex] = useState(null);
   const indexRef = useRef();
   indexRef.current = index;
   const scrollRef = useRef();
@@ -166,16 +167,14 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
   };
 
   const handleWheel = (event) => {
-    if (isOverlap === false) {
     // event.preventDefault();
-      const container = scrollRef.current;
-      const containerScrollPosition = scrollRef.current.scrollLeft;
+    const container = scrollRef.current;
+    const containerScrollPosition = scrollRef.current.scrollLeft;
 
-      container.scrollTo({
-        top: 0,
-        left: containerScrollPosition + event.deltaY,
-      });
-    }
+    container.scrollTo({
+      top: 0,
+      left: containerScrollPosition + event.deltaY,
+    });
   };
 
   const handleClose = () => {
@@ -253,10 +252,11 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
   function proceed() {
     if (fullseq.length === 0) return;
     if (indexRef.current === fullseq.length) {
-      setIndex(0);
-      setCurrentStep(fullseq[0]);
+      setIndex(fullseq.length - 1);
+      setCurrentStep(fullseq[fullseq.length - 1]);
       setPause(true);
-      setShowPlayButton(true);
+      setShowPlayPauseButton(true);
+      setShowReversePauseButton(true);
       clearTimeout(time);
     } else {
       setCurrentStep(fullseq[indexRef.current]);
@@ -273,12 +273,37 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
     }
   }
 
-  function handlePlay() {
-    generateSeq();
-    setPause(false);
-    setShowPlayButton(false);
-    proceed();
+  function proceedBackward() {
+    if (indexRef.current - 1 === reverseStartIndex) {
+      setCurrentStep(fullseq[reverseStartIndex]);
+      setIndex(reverseStartIndex);
+      setPause(true);
+      setShowPlayPauseButton(false);
+      setShowReversePauseButton(false);
+      clearTimeout(time);
+      setReverseStartIndex(null);
+    } else if (indexRef.current === -1) {
+      setCurrentStep(fullseq[0]);
+      setIndex(0);
+      setPause(true);
+      setShowPlayPauseButton(true);
+      setShowReversePauseButton(true);
+      clearTimeout(time);
+    } else {
+      setCurrentStep(fullseq[indexRef.current]);
+      let dur = 100;
+      if (pinActuate.get(fullseq[indexRef.current]) !== undefined) {
+        dur = pinActuate.get(fullseq[indexRef.current]).duration;
+      }
+      setTime(setTimeout(proceedBackward.bind(this), dur));
+      setIndex((ind) => ind - 1);
+    }
   }
+  useEffect(() => {
+    if (!pause && index === fullseq.length - 1) {
+      proceedBackward();
+    }
+  }, []);
 
   function handlePause() {
     if (time) {
@@ -286,11 +311,36 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
     }
     // pauses at beginning of the duration, not end.
     // still doesn't work for the very last panel.
-    if (indexRef.current !== 0) {
-      setIndex(index - 1);
-    }
+    //  if (indexRef.current !== 0) {
+    //  setIndex(index - 1);
+    //  }
     setPause(true);
-    setShowPlayButton(true);
+    setShowPlayPauseButton(true);
+    setShowReversePauseButton(true);
+  }
+
+  function handlePlay() {
+    if (pause) {
+      setPause(false);
+      setShowPlayPauseButton(false);
+      proceed();
+    } else {
+      handlePause();
+    }
+    // generateSeq();
+    // setPause(false);
+    // setShowPlayButton(false);
+    // proceed();
+  }
+
+  function handleReverse() {
+    if (pause) {
+      setPause(false);
+      setShowReversePauseButton(false);
+      proceedBackward();
+    } else {
+      handlePause();
+    }
   }
 
   const handleDelete = () => {
@@ -375,7 +425,7 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
               <img src={icons.back.icon} alt="one step back" />
             </IconButton>
           </Tooltip>
-          {showPlayButton
+          {showPlayPauseButton
             ? (
               <Tooltip title="Play">
                 <IconButton
@@ -384,7 +434,7 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
                   }}
                   data-testid="play-button"
                 >
-                  <img src={icons.play.icon} alt="play" />
+                  <img src={icons.play.icon} alt="Play" />
                 </IconButton>
               </Tooltip>
             ) : (
@@ -393,10 +443,44 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
                   handlePause();
                 }}
                 >
-                  <img src={icons.pause.icon} alt="pause" />
+                  <img src={icons.pause.icon} alt="Pause" />
                 </IconButton>
               </Tooltip>
             )}
+          <Tooltip title="Start Over">
+            <IconButton onClick={() => {
+              handlePause();
+              setCurrentStep(fullseq[0]);
+              setIndex(0);
+              setForever(false);
+              setShowPlayPauseButton(true);
+              setShowReversePauseButton(true);
+            }}
+            >
+              <img src={icons.startOver.icon} alt="start over" />
+            </IconButton>
+          </Tooltip>
+          {showReversePauseButton ? (
+            <Tooltip title="Reverse">
+              <IconButton
+                onClick={() => {
+                  handleReverse();
+                }}
+              >
+                <img src={icons.reverse.icon} alt="Reverse" />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <Tooltip title="Pause">
+              <IconButton
+                onClick={() => {
+                  handlePause();
+                }}
+              >
+                <img src={icons.pause.icon} alt="Pause" />
+              </IconButton>
+            </Tooltip>
+          )}
           <Tooltip title="Forward">
             <IconButton onClick={() => {
               if (pause && index !== fullseq.length - 1) {
@@ -406,18 +490,6 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
             }}
             >
               <img src={icons.forward.icon} alt="one step forward" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Start Over">
-            <IconButton onClick={() => {
-              handlePause();
-              setCurrentStep(fullseq[0]);
-              setIndex(0);
-              setForever(false);
-              setShowPlayButton(true);
-            }}
-            >
-              <img src={icons.startOver.icon} alt="start over" />
             </IconButton>
           </Tooltip>
           <Tooltip title="Loop">
@@ -543,20 +615,9 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
                     key={key}
                     data-testid="seq-button"
                   >
-                    <div
-                      id="nonOverlap"
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        overflow: 'scroll',
-                        height: '27vh',
-                        pointerEvents: 'auto',
-                      }}
-                      onMouseEnter={() => setIsOverlap(true)}
-                      onMouseLeave={() => setIsOverlap(false)}
-                    >
-
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
                       <p>{`Frame Number: ${value.order + 1}`}</p>
+                      <p>{`Actuated Pins: ${appendString}`}</p>
                       <TextField
                         variant="outlined"
                         label="duration"
@@ -571,7 +632,6 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
                           updateDuration(key, event.target.value);
                         }}
                       />
-                      <p>{`Actuated Pins: ${appendString}`}</p>
                     </div>
                   </Button>
                 );

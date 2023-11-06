@@ -26,8 +26,10 @@ import SetVpponClick from './onClick/SetVpponClick.svg';
 import ActuationDelete from './ActuationDelete.svg';
 import Back from './Back.svg';
 import Play from './Play.svg';
+import Reverse from './Reverse.svg';
 import Forward from './Forward.svg';
 import Pause from './Pause.svg';
+import Pause1 from './Pause1.svg';
 import Repeat from './Repeat.svg';
 import ActuationDuration from './ActuationDuration.svg';
 import StartOver from './StartOver.svg';
@@ -91,8 +93,14 @@ const icons = {
   pause: {
     icon: Pause,
   },
+  pause1: {
+    icon: Pause1,
+  },
   play: {
     icon: Play,
+  },
+  reverse: {
+    icon: Reverse,
   },
   redo: {
     icon: Redo,

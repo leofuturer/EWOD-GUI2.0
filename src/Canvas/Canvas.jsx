@@ -2,6 +2,7 @@ import React, {
   useEffect, useState, useCallback, useContext,
 } from 'react';
 // eslint-disable-next-line import/no-unresolved
+/* eslint-disable react/jsx-no-bind */
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import SVGContainer from 'react-svg-drag-and-select';
 import { useHotkeys } from 'react-hotkeys-hook';

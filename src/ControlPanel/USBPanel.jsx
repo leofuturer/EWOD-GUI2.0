@@ -5,7 +5,7 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import { makeStyles } from '@material-ui/styles';
 import icons from '../Icons/icons';
-
+/* eslint-disable react/jsx-no-bind */
 import './USBPanel.css';
 // removed setPin from imports.
 import {

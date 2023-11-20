@@ -7,7 +7,7 @@ import { ActuationContext } from '../Contexts/ActuationProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 import ActuationSequence from '../Actuation/Actuation';
 import icons from '../Icons/icons';
-
+/* eslint-disable react/jsx-no-bind */
 export default function UploadButton() {
   const context = useContext(CanvasContext);
   const actuation = useContext(ActuationContext);

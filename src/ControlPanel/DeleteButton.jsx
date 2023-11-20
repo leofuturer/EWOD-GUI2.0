@@ -12,6 +12,8 @@ import { ActuationContext } from '../Contexts/ActuationProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 import icons from '../Icons/icons';
 
+/* eslint-disable react/jsx-no-bind */
+
 export default function DeleteButton({ name }) {
   const context = useContext(CanvasContext);
   const actuation = useContext(ActuationContext);

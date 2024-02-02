@@ -975,7 +975,8 @@ export default function Canvas() {
     console.log(history, historyIndex);
     console.log(electrodes);
     console.log(allCombined);
-  }, [electrodes, allCombined, history, historyIndex]);
+    console.log(selectables);
+  }, [electrodes, allCombined, history, historyIndex, selectables]);
 
   return (
     <div

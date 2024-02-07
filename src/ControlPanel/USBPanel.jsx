@@ -9,7 +9,7 @@ import icons from '../Icons/icons';
 import './USBPanel.css';
 // removed setPin from imports.
 import {
-  setV, setF, isDeviceConnected, voltApplied,
+  setV, setF, isDeviceConnected, isVoltApplied,
 } from '../USBCommunication/USBCommunication';
 
 const useStyles = makeStyles({
@@ -168,7 +168,7 @@ export default function USBPanel({ usbConnected }) {
         <div className={classes.text}>180</div>
       </div>
       <div style={{
-        display: (voltApplied() && usbConnected) ? 'flex' : 'none',
+        display: (isVoltApplied() && usbConnected) ? 'flex' : 'none',
         flexDirection: 'row',
         justifyContent: 'center',
         paddingRight: '45px',
@@ -181,7 +181,7 @@ export default function USBPanel({ usbConnected }) {
       <div
         style={{
           paddingLeft: '10px',
-          paddingTop: (voltApplied() && usbConnected) ? '15px' : '60px',
+          paddingTop: (isVoltApplied() && usbConnected) ? '15px' : '60px',
           marginBottom: '20px',
         }}
       >

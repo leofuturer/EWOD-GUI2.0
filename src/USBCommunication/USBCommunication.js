@@ -138,7 +138,7 @@ export async function setF(frequency) {
 }
 
 // Checks if voltage is being applied to EWOD
-export function voltApplied() {
+export function isVoltApplied() {
   if (!EWODDevice) {
     console.log('Device not connected');
     return 0;

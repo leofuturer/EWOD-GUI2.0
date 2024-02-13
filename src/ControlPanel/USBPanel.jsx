@@ -9,7 +9,7 @@ import icons from '../Icons/icons';
 import './USBPanel.css';
 // removed setPin from imports.
 import {
-  setV, setF, isDeviceConnected, isVoltApplied,
+  setV, setF, isDeviceConnected,
 } from '../USBCommunication/USBCommunication';
 
 const useStyles = makeStyles({
@@ -47,6 +47,7 @@ const useStyles = makeStyles({
 export default function USBPanel({ usbConnected }) {
   const classes = useStyles();
 
+  const [voltApplied, setVoltApplied] = useState(0);
   const [volt, setVolt] = useState(0);
   const [freq, setFreq] = useState(0);
 
@@ -68,12 +69,14 @@ export default function USBPanel({ usbConnected }) {
       setF(0);
       document.getElementById('tf-voltage').value = volt;
       document.getElementById('tf-frequency').value = freq;
+      setVoltApplied(0);
     }
   }
   function setVpp() {
     if (isDeviceConnected()) {
       setV(volt);
       setF(freq);
+      setVoltApplied(1);
     }
   }
 
@@ -168,7 +171,7 @@ export default function USBPanel({ usbConnected }) {
         <div className={classes.text}>180</div>
       </div>
       <div style={{
-        display: (isVoltApplied() && usbConnected) ? 'flex' : 'none',
+        display: (voltApplied && usbConnected) ? 'flex' : 'none',
         flexDirection: 'row',
         justifyContent: 'center',
         paddingRight: '45px',
@@ -181,7 +184,7 @@ export default function USBPanel({ usbConnected }) {
       <div
         style={{
           paddingLeft: '10px',
-          paddingTop: (isVoltApplied() && usbConnected) ? '15px' : '60px',
+          paddingTop: (voltApplied && usbConnected) ? '15px' : '60px',
           marginBottom: '20px',
         }}
       >

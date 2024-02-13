@@ -136,13 +136,3 @@ export async function setF(frequency) {
   await EWODDevice.sendReport(0x00, EWODDeviceView);
   setInterval(sendAck, 1000);
 }
-
-// Checks if voltage is being applied to EWOD
-export function isVoltApplied() {
-  if (!EWODDevice) {
-    console.log('Device not connected');
-    return 0;
-  }
-  if (EWODDeviceView[40] === 0) return 0;
-  return EWODDeviceView[40];
-}

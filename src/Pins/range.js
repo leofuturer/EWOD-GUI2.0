@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 export default function range(start, end) {
   // Brian's genius code
   if (start > end) {

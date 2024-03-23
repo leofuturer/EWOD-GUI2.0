@@ -1,20 +1,21 @@
+/* eslint-disable linebreak-style */
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Alert from '@material-ui/lab/Alert';
-import Collapse from '@material-ui/core/Collapse';
-import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
+// import { makeStyles } from '@material-ui/core/styles';
+import Alert from '@mui/material/Alert';
+import Collapse from '@mui/material/Collapse';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 
-const useStyles = makeStyles({
-  container: {
-    position: 'absolute',
-    top: 60,
-    left: 'calc(50% - 250px)',
-    height: 30,
-    width: 500,
-    zIndex: 3,
-  },
-});
+// const useStyles = makeStyles({
+//   container: {
+//     position: 'absolute',
+//     top: 60,
+//     left: 'calc(50% - 250px)',
+//     height: 30,
+//     width: 500,
+//     zIndex: 3,
+//   },
+// });
 
 const CustomAlert = forwardRef((props, ref) => {
   const [open, setOpen] = useState(false);
@@ -30,9 +31,20 @@ const CustomAlert = forwardRef((props, ref) => {
       },
     }),
   );
-  const classes = useStyles();
+  //  const classes = useStyles();
   return (
-    <Collapse in={open} className={classes.container}>
+    <Collapse
+      in={open}
+      //  className={classes.container}
+      sx={{
+        position: 'absolute',
+        top: 60,
+        left: 'calc(50% - 250px)',
+        height: 30,
+        width: 500,
+        zIndex: 3,
+      }}
+    >
       <Alert
         severity={severity}
         action={(

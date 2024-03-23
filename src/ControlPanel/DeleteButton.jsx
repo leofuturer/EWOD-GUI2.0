@@ -1,12 +1,13 @@
+/* eslint-disable linebreak-style */
 import React, { useContext, useState } from 'react';
-import Tooltip from '@material-ui/core/Tooltip';
-import ListItem from '@material-ui/core/ListItem';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Button from '@material-ui/core/Button';
-import { DialogContentText } from '@material-ui/core';
+import Tooltip from '@mui/material/Tooltip';
+import ListItem from '@mui/material/ListItem';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import Button from '@mui/material/Button';
+import { DialogContentText, ListItemButton } from '@mui/material';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { ActuationContext } from '../Contexts/ActuationProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
@@ -40,8 +41,10 @@ export default function DeleteButton({ name }) {
   return (
     <>
       <Tooltip title={name}>
-        <ListItem button onClick={() => { setOpen(true); }} data-testid={name === 'Delete' && 'clear'}>
-          <img src={name === 'Delete' ? icons.delete.icon : icons.create.icon} alt={name} />
+        <ListItem>
+          <ListItemButton button onClick={() => { setOpen(true); }} data-testid={name === 'Delete' && 'clear'}>
+            <img src={name === 'Delete' ? icons.delete.icon : icons.create.icon} alt={name} />
+          </ListItemButton>
         </ListItem>
       </Tooltip>
       <Dialog

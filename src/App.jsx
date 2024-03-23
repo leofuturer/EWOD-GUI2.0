@@ -1,5 +1,7 @@
+/* eslint-disable linebreak-style */
 import React from 'react';
 // eslint-disable-next-line import/no-unresolved
+import { createTheme, ThemeProvider } from '@mui/material';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import { CanvasProvider } from './Contexts/CanvasProvider';
 import { ActuationProvider } from './Contexts/ActuationProvider';
@@ -19,54 +21,58 @@ export default function App() {
   const { bannerRef, mode } = React.useContext(GeneralContext);
   const [scrollOpen, setScrollOpen] = React.useState(true);
 
-  return (
-    <div className="App">
-      <CustomAlert ref={bannerRef} />
+  const theme = createTheme();
 
-      <ActuationProvider>
-        <CanvasProvider>
-          <ControlPanel scrollOpen={scrollOpen} />
-          <ConditionalWrapper
-            condition={mode === 'PIN'}
-            wrapper={(children) => (
-              <TransformWrapper
-                minScale={0.51}
-                limitToBounds={false}
-                panning={{ excluded: ['svg'] }}
-                pinch={{ excluded: ['wrapper'] }}
-                doubleClick={{ excluded: ['wrapper'] }}
-                wheel={{ excluded: ['wrapper'] }}
-                velocityAnimation={{ disabled: true }}
-              >
-                <TransformComponent id="zoom_div">
-                  <div
-                    id="chassis"
-                    style={{
-                      backgroundImage: 'url(chassis-with-background.svg)',
-                      backgroundRepeat: 'no-repeat',
-                      backgroundSize: '90% 90%',
-                      width: CANVAS_WIDTH * ELEC_SIZE * 0.9,
-                      height: CANVAS_HEIGHT * ELEC_SIZE * 0.86,
-                      paddingTop: 108,
-                      paddingLeft: 115,
-                      marginLeft: 50, // width of left control bar
-                    }}
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    {children}
-                  </div>
-                </TransformComponent>
-              </TransformWrapper>
-            )}
-          >
-            {mode === 'PIN' ? <PinsTop /> : <></>}
-            <Canvas />
-            {mode === 'PIN' ? <PinsBottom /> : <></>}
-          </ConditionalWrapper>
-          <Scroll scrollOpen={scrollOpen} setScrollOpen={setScrollOpen} />
-        </CanvasProvider>
-      </ActuationProvider>
-    </div>
+  return (
+    <ThemeProvider theme={theme}>
+      <div className="App">
+        <CustomAlert ref={bannerRef} />
+
+        <ActuationProvider>
+          <CanvasProvider>
+            <ControlPanel scrollOpen={scrollOpen} />
+            <ConditionalWrapper
+              condition={mode === 'PIN'}
+              wrapper={(children) => (
+                <TransformWrapper
+                  minScale={0.51}
+                  limitToBounds={false}
+                  panning={{ excluded: ['svg'] }}
+                  pinch={{ excluded: ['wrapper'] }}
+                  doubleClick={{ excluded: ['wrapper'] }}
+                  wheel={{ excluded: ['wrapper'] }}
+                  velocityAnimation={{ disabled: true }}
+                >
+                  <TransformComponent id="zoom_div">
+                    <div
+                      id="chassis"
+                      style={{
+                        backgroundImage: 'url(chassis-with-background.svg)',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundSize: '90% 90%',
+                        width: CANVAS_WIDTH * ELEC_SIZE * 0.9,
+                        height: CANVAS_HEIGHT * ELEC_SIZE * 0.86,
+                        paddingTop: 108,
+                        paddingLeft: 115,
+                        marginLeft: 50, // width of left control bar
+                      }}
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      {children}
+                    </div>
+                  </TransformComponent>
+                </TransformWrapper>
+              )}
+            >
+              {mode === 'PIN' ? <PinsTop /> : <></>}
+              <Canvas />
+              {mode === 'PIN' ? <PinsBottom /> : <></>}
+            </ConditionalWrapper>
+            <Scroll scrollOpen={scrollOpen} setScrollOpen={setScrollOpen} />
+          </CanvasProvider>
+        </ActuationProvider>
+      </div>
+    </ThemeProvider>
   );
 }
 

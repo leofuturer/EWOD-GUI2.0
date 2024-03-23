@@ -1,9 +1,10 @@
+/* eslint-disable linebreak-style */
 import React, { useState } from 'react';
-import Button from '@material-ui/core/Button';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
-import CancelIcon from '@material-ui/icons/Cancel';
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import { makeStyles } from '@material-ui/styles';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+// import makeStyles from '@material-ui/styles/makeStyles';
 import icons from '../Icons/icons';
 
 import './USBPanel.css';
@@ -12,40 +13,40 @@ import {
   setV, setF, isDeviceConnected,
 } from '../USBCommunication/USBCommunication';
 
-const useStyles = makeStyles({
-  transparentBtn: {
-    border: 'none',
-  },
-  brownBtn: {
-    border: '2px solid #A06933',
-    color: '#FEFAE0',
-    backgroundColor: '#D4A373',
-    fontWeight: 900,
-    fontSize: '14px',
-    textTransform: 'none',
-    boxShadow: 'inset 0px 3px 4px rgba(250, 237, 205, 0.5)',
-  },
-  grayBtn: {
-    border: '2px solid #7D7B79',
-    color: '#FEFAE0',
-    backgroundColor: '#AEAEAE',
-    fontWeight: 900,
-    fontSize: '14px',
-    textTransform: 'none',
-    boxShadow: 'inset 0px 3px 4px rgba(255, 255, 255, 0.5)',
-  },
-  text: {
-    fontFamily: 'Roboto',
-    fontStyle: 'normal',
-    fontWeight: '700',
-    lineHeight: '12px',
-    fontSize: '12px',
-    color: '#A06933',
-  },
-});
+// const useStyles = makeStyles({
+//   transparentBtn: {
+//     border: 'none',
+//   },
+//   brownBtn: {
+//     border: '2px solid #A06933',
+//     color: '#FEFAE0',
+//     backgroundColor: '#D4A373',
+//     fontWeight: 900,
+//     fontSize: '14px',
+//     textTransform: 'none',
+//     boxShadow: 'inset 0px 3px 4px rgba(250, 237, 205, 0.5)',
+//   },
+//   grayBtn: {
+//     border: '2px solid #7D7B79',
+//     color: '#FEFAE0',
+//     backgroundColor: '#AEAEAE',
+//     fontWeight: 900,
+//     fontSize: '14px',
+//     textTransform: 'none',
+//     boxShadow: 'inset 0px 3px 4px rgba(255, 255, 255, 0.5)',
+//   },
+//   text: {
+//     fontFamily: 'Roboto',
+//     fontStyle: 'normal',
+//     fontWeight: '700',
+//     lineHeight: '12px',
+//     fontSize: '12px',
+//     color: '#A06933',
+//   },
+// });
 
 export default function USBPanel({ usbConnected }) {
-  const classes = useStyles();
+  // const classes = useStyles();
 
   const [volt, setVolt] = useState(0);
   const [freq, setFreq] = useState(0);
@@ -106,7 +107,7 @@ export default function USBPanel({ usbConnected }) {
 
       <div>
         <ButtonGroup size="small" style={{ width: '170px', float: 'left' }} className="inputCounters">
-          <Button className={classes.transparentBtn} onClick={() => setAndCheckFreq(freq - 5)}>
+          <Button sx={{ border: 'none' }} onClick={() => setAndCheckFreq(freq - 5)}>
             <img src={icons.decrease.icon} alt="Decrease" />
           </Button>
           <input
@@ -117,7 +118,7 @@ export default function USBPanel({ usbConnected }) {
             onBlur={() => { if (freq > 10000 || freq < 0) { setFreq(0); } }}
             style={{ border: '2px solid #D4A373', borderRadius: '3px' }}
           />
-          <Button className={classes.transparentBtn} onClick={() => setAndCheckFreq(freq + 5)}>
+          <Button sx={{ border: 'none' }} onClick={() => setAndCheckFreq(freq + 5)}>
             <img src={icons.increase.icon} alt="Increase" />
           </Button>
         </ButtonGroup>
@@ -131,13 +132,33 @@ export default function USBPanel({ usbConnected }) {
         paddingLeft: '45px',
       }}
       >
-        <div className={classes.text}>0</div>
-        <div className={classes.text}>10000</div>
+        <div style={{
+          fontFamily: 'Roboto',
+          fontStyle: 'normal',
+          fontWeight: '700',
+          lineHeight: '12px',
+          fontSize: '12px',
+          color: '#A06933',
+        }}
+        >
+          0
+        </div>
+        <div style={{
+          fontFamily: 'Roboto',
+          fontStyle: 'normal',
+          fontWeight: '700',
+          lineHeight: '12px',
+          fontSize: '12px',
+          color: '#A06933',
+        }}
+        >
+          10000
+        </div>
       </div>
 
       <div>
         <ButtonGroup size="small" style={{ width: '170px', float: 'left' }} className="inputCounters">
-          <Button className={classes.transparentBtn} onClick={() => setAndCheckVolt(volt - 5)}>
+          <Button sx={{ border: 'none' }} onClick={() => setAndCheckVolt(volt - 5)}>
             <img src={icons.decrease.icon} alt="Decrease" />
           </Button>
           <input
@@ -149,7 +170,7 @@ export default function USBPanel({ usbConnected }) {
               if (volt > 180) { setVolt(180); } else if (volt < 40) { setVolt(40); }
             }}
           />
-          <Button className={classes.transparentBtn} onClick={() => setAndCheckVolt(volt + 5)}>
+          <Button sx={{ border: 'none' }} onClick={() => setAndCheckVolt(volt + 5)}>
             <img src={icons.increase.icon} alt="Increase" />
           </Button>
         </ButtonGroup>
@@ -164,8 +185,28 @@ export default function USBPanel({ usbConnected }) {
         paddingLeft: '45px',
       }}
       >
-        <div className={classes.text}>40</div>
-        <div className={classes.text}>180</div>
+        <div style={{
+          fontFamily: 'Roboto',
+          fontStyle: 'normal',
+          fontWeight: '700',
+          lineHeight: '12px',
+          fontSize: '12px',
+          color: '#A06933',
+        }}
+        >
+          40
+        </div>
+        <div style={{
+          fontFamily: 'Roboto',
+          fontStyle: 'normal',
+          fontWeight: '700',
+          lineHeight: '12px',
+          fontSize: '12px',
+          color: '#A06933',
+        }}
+        >
+          180
+        </div>
       </div>
       <div style={{
         display: (volt >= 60 && usbConnected) ? 'flex' : 'none',
@@ -189,7 +230,27 @@ export default function USBPanel({ usbConnected }) {
           size="small"
           onClick={setZero}
           variant="contained"
-          className={usbConnected && volt ? classes.brownBtn : classes.grayBtn}
+          // className={usbConnected && volt ? classes.brownBtn : classes.grayBtn}
+          sx={{
+            ...(usbConnected && volt ? {
+              border: '2px solid #A06933',
+              color: '#FEFAE0',
+              backgroundColor: '#D4A373',
+              fontWeight: 900,
+              fontSize: '14px',
+              textTransform: 'none',
+              boxShadow: 'inset 0px 3px 4px rgba(250, 237, 205, 0.5)',
+            }
+              : {
+                border: '2px solid #7D7B79',
+                color: '#FEFAE0',
+                backgroundColor: '#AEAEAE',
+                fontWeight: 900,
+                fontSize: '14px',
+                textTransform: 'none',
+                boxShadow: 'inset 0px 3px 4px rgba(255, 255, 255, 0.5)',
+              }),
+          }}
         >
           Set voltage to 0 V
         </Button>
@@ -199,7 +260,27 @@ export default function USBPanel({ usbConnected }) {
           size="small"
           onClick={setVpp}
           variant="contained"
-          className={usbConnected ? classes.brownBtn : classes.grayBtn}
+          // className={usbConnected ? classes.brownBtn : classes.grayBtn}
+          sx={{
+            ...(usbConnected ? {
+              border: '2px solid #A06933',
+              color: '#FEFAE0',
+              backgroundColor: '#D4A373',
+              fontWeight: 900,
+              fontSize: '14px',
+              textTransform: 'none',
+              boxShadow: 'inset 0px 3px 4px rgba(250, 237, 205, 0.5)',
+            }
+              : {
+                border: '2px solid #7D7B79',
+                color: '#FEFAE0',
+                backgroundColor: '#AEAEAE',
+                fontWeight: 900,
+                fontSize: '14px',
+                textTransform: 'none',
+                boxShadow: 'inset 0px 3px 4px rgba(255, 255, 255, 0.5)',
+              }),
+          }}
         >
           Set Vpp
         </Button>

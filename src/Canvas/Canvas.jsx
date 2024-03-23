@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 import React, {
   useEffect, useState, useCallback, useContext,
 } from 'react';

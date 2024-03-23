@@ -1,8 +1,9 @@
+/* eslint-disable linebreak-style */
 import React, {
   useState, useCallback, useEffect, useContext,
 } from 'react';
 import { Motion, spring } from 'react-motion';
-import MenuItem from '@material-ui/core/MenuItem';
+import MenuItem from '@mui/material/MenuItem';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 

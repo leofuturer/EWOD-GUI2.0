@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 export const ELEC_SIZE = 35;
 export const CANVAS_WIDTH = 80; // electrodes
 export const CANVAS_HEIGHT = 40; // electrodes

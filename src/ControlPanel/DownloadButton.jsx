@@ -1,6 +1,8 @@
+/* eslint-disable linebreak-style */
 import React, { useContext } from 'react';
-import ListItem from '@material-ui/core/ListItem';
-import Tooltip from '@material-ui/core/Tooltip';
+import ListItem from '@mui/material/ListItem';
+import Tooltip from '@mui/material/Tooltip';
+import { ListItemButton } from '@mui/material';
 import genFileContents from './genFileContents';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { ActuationContext } from '../Contexts/ActuationProvider';
@@ -67,8 +69,10 @@ export default function DownloadButton() {
 
   return (
     <Tooltip title="Download">
-      <ListItem button onClick={handleDownload}>
-        <img src={icons.downloadfile.icon} alt="Download File" />
+      <ListItem>
+        <ListItemButton button onClick={handleDownload}>
+          <img src={icons.downloadfile.icon} alt="Download File" />
+        </ListItemButton>
       </ListItem>
     </Tooltip>
   );

@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 import React, { useState, useEffect } from 'react';
 import db from './DBStorage';
 import useInterval from '../useInterval';

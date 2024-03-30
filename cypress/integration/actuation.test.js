@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /// <reference types="cypress" />
 beforeEach(() => {
   cy.visit('localhost:3000');

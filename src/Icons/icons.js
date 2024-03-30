@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /* Unable to require due to ESLint */
 import Actuation from './Actuation.svg';
 import Delete from './Delete.svg';

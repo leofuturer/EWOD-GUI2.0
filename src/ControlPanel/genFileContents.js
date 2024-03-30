@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 import { ELEC_SIZE } from '../constants';
 
 export default function genFileContents(electrodes, allCombined, pinActuate, elecToPin) {

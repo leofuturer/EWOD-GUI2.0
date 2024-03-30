@@ -1,7 +1,9 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable prefer-destructuring */
 import React, { useContext } from 'react';
-import ListItem from '@material-ui/core/ListItem';
-import Tooltip from '@material-ui/core/Tooltip';
+import ListItem from '@mui/material/ListItem';
+import Tooltip from '@mui/material/Tooltip';
+import { ListItemButton } from '@mui/material';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { ActuationContext } from '../Contexts/ActuationProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
@@ -166,8 +168,10 @@ export default function UploadButton() {
 
   return (
     <Tooltip title="Upload">
-      <ListItem button onClick={handleImport}>
-        <img src={icons.import.icon} alt="Import File" />
+      <ListItem>
+        <ListItemButton button onClick={handleImport}>
+          <img src={icons.import.icon} alt="Import File" />
+        </ListItemButton>
       </ListItem>
     </Tooltip>
   );

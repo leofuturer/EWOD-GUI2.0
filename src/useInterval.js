@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 import { useEffect, useRef } from 'react';
 
 export default function useInterval(callback, delay) {

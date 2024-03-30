@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /// <reference types="cypress" />
 import { ELEC_SIZE } from '../../src/constants';
 

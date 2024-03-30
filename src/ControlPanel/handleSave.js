@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 import genFileContents from './genFileContents';
 
 export default function handleSave(electrodes, allCombined, pinActuate, pinToElec, elecToPin, db) {

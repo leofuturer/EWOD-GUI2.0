@@ -1,18 +1,20 @@
+/* eslint-disable linebreak-style */
 import React, { useContext, useState } from 'react';
-import { makeStyles, withStyles } from '@material-ui/core/styles';
-import clsx from 'clsx';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Drawer from '@material-ui/core/Drawer';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import List from '@material-ui/core/List';
-import IconButton from '@material-ui/core/IconButton';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import Collapse from '@material-ui/core/Collapse';
-import { OpenWith } from '@material-ui/icons';
-import Tooltip from '@material-ui/core/Tooltip';
+// import { makeStyles } from '@material-ui/core/styles';
+import { ListItemButton, useTheme } from '@mui/material';
+// import clsx from 'clsx';
+import CssBaseline from '@mui/material/CssBaseline';
+import Drawer from '@mui/material/Drawer';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import List from '@mui/material/List';
+import IconButton from '@mui/material/IconButton';
+import ListItem from '@mui/material/ListItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import Collapse from '@mui/material/Collapse';
+import OpenWithIcon from '@mui/icons-material/OpenWith';
+import Tooltip from '@mui/material/Tooltip';
 import icons from '../Icons/icons';
 
 import { ActuationContext } from '../Contexts/ActuationProvider';
@@ -32,122 +34,124 @@ import { initiateConnection, isDeviceConnected } from '../USBCommunication/USBCo
 
 const drawerWidth = 240;
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-    height: '8vh',
-  },
-  appBar: {
-    zIndex: theme.zIndex.drawer - 1,
-    marginLeft: '3vh',
-    backgroundColor: '#FAEDCD',
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  appBarShift: {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  menuButton: {
-    marginRight: 20,
-  },
-  hide: {
-    display: 'none',
-  },
-  drawer: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    zIndex: theme.zIndex.drawer + 1,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-  },
-  drawerOpen: {
-    width: drawerWidth,
-    backgroundColor: '#FAEDCD',
-    border: '1px solid #A06933',
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  drawerClose: {
-    backgroundColor: '#FAEDCD',
-    border: '1px solid #A06933',
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    overflowX: 'hidden',
-    width: theme.spacing(5) + 1,
-    [theme.breakpoints.up('sm')]: {
-      width: theme.spacing(6) + 1,
-    },
-  },
-  toolbar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
+// const useStyles = makeStyles(() => ({
+// root: {
+//   display: 'flex',
+//   height: '8vh',
+// },
+// appBar: {
+//   zIndex: theme.zIndex.drawer - 1,
+//   marginLeft: '3vh',
+//   backgroundColor: '#FAEDCD',
+//   transition: theme.transitions.create(['width', 'margin'], {
+//     easing: theme.transitions.easing.sharp,
+//     duration: theme.transitions.duration.leavingScreen,
+//   }),
+// },
+// appBarShift: {
+//   marginLeft: drawerWidth,
+//   width: `calc(100% - ${drawerWidth}px)`,
+//   transition: theme.transitions.create(['width', 'margin'], {
+//     easing: theme.transitions.easing.sharp,
+//     duration: theme.transitions.duration.enteringScreen,
+//   }),
+// },
+// menuButton: {
+//   marginRight: 20,
+// },
+// hide: {
+//   display: 'none',
+// },
+// drawer: {
+//   position: 'fixed',
+//   top: 0,
+//   left: 0,
+//   zIndex: theme.zIndex.drawer + 1,
+//   flexShrink: 0,
+//   whiteSpace: 'nowrap',
+// },
+// drawerOpen: {
+//   width: drawerWidth,
+//   backgroundColor: '#FAEDCD',
+//   border: '1px solid #A06933',
+//   transition: theme.transitions.create('width', {
+//     easing: theme.transitions.easing.sharp,
+//     duration: theme.transitions.duration.enteringScreen,
+//   }),
+// },
+// drawerClose: {
+//   backgroundColor: '#FAEDCD',
+//   border: '1px solid #A06933',
+//   transition: theme.transitions.create('width', {
+//     easing: theme.transitions.easing.sharp,
+//     duration: theme.transitions.duration.leavingScreen,
+//   }),
+//   overflowX: 'hidden',
+//   width: theme.spacing(5) + 1,
+//   [theme.breakpoints.up('sm')]: {
+//     width: theme.spacing(6) + 1,
+//   },
+// },
+// scrollOpen: {
+//   height: `${100 - SCROLL_HEIGHT}vh`,
+// },
+// scrollClose: {
+//   height: 'calc(100vh - 40px)',
+// },
+// fullHeight: {
+//   height: '100vh',
+// },
+// toolbar: {
+//   display: 'flex',
+//   alignItems: 'center',
+//   justifyContent: 'flex-end',
 
-    // necessary for content to be below app bar
-    ...theme.mixins.toolbar,
-  },
-  content: {
-    flexGrow: 1,
-    padding: theme.spacing(3),
-  },
-  listItemText: {
-    fontWeight: 700,
-    color: '#A06933',
-  },
-  toolbarContainer: {
-    backgroundColor: '#FAEDCD',
-    boxShadow: '2px 2px 4px 3px rgba(0, 0, 0, 0.2)',
-    justifyContent: 'space-between',
-    border: '1px solid #A06933',
-  },
-  toolbarContainerShift: {
-    marginLeft: 40,
-    transition: theme.transitions.create(['margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  scrollOpen: {
-    height: `${100 - SCROLL_HEIGHT}vh`,
-  },
-  scrollClose: {
-    height: 'calc(100vh - 40px)',
-  },
-  fullHeight: {
-    height: '100vh',
-  },
-  borderTop: {
-    borderTop: '1px solid #D4A373',
-  },
-  bkgrdGradient: {
-    backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0), rgba(212, 163, 115, 0.25))',
-  },
-}));
+//   // necessary for content to be below app bar
+//   ...theme.mixins.toolbar,
+// },
+// content: {
+//   flexGrow: 1,
+//   padding: theme.spacing(3),
+// },
+// listItemText: {
+//   fontWeight: 700,
+//   color: '#A06933',
+// },
+// toolbarContainer: {
+//   backgroundColor: '#FAEDCD',
+//   boxShadow: '2px 2px 4px 3px rgba(0, 0, 0, 0.2)',
+//   justifyContent: 'space-between',
+//   border: '1px solid #A06933',
+// },
+// toolbarContainerShift: {
+//   marginLeft: 40,
+//   transition: theme.transitions.create(['margin'], {
+//     easing: theme.transitions.easing.sharp,
+//     duration: theme.transitions.duration.enteringScreen,
+//   }),
+// },
+// borderTop: {
+//   borderTop: '1px solid #D4A373',
+// },
+// bkgrdGradient: {
+//   backgroundImage: 'linear-gradient(to right,
+// rgba(255, 255, 255, 0), rgba(212, 163, 115, 0.25))',
+// },
+// }));
 
-const MuiListItem = withStyles({
-  root: {
-    '&:hover': {
-      backgroundImage: 'linear-gradient(to right, #FAEDCD 0%, rgba(212, 163, 115, 0.25) 100%)',
-      border: '1px solid #D4A373',
-    },
-  },
-})(ListItem);
+// const MuiListItem = withStyles({
+//   root: {
+//     '&:hover': {
+//       backgroundImage: 'linear-gradient(to right, #FAEDCD 0%, rgba(212, 163, 115, 0.25) 100%)',
+//       border: '1px solid #D4A373',
+//     },
+//   },
+// })(ListItem);
 
 export default function ControlPanel({ scrollOpen }) {
   const canvasContext = useContext(CanvasContext);
   const actuationContext = useContext(ActuationContext);
+  const theme = useTheme();
   const {
     mode, setMode, setCurrElec, panning, setPanning, setScaleXY,
   } = useContext(GeneralContext);
@@ -156,7 +160,7 @@ export default function ControlPanel({ scrollOpen }) {
   } = canvasContext;
   const { undo, redo } = actuationContext;
 
-  const classes = useStyles();
+  // const classes = useStyles();
   const [open, setOpen] = useState(false);
   const [usbPanelOpen, setUsbPanelOpen] = useState(false);
   const [usbConnected, setUsbConnected] = useState(false);
@@ -198,58 +202,105 @@ export default function ControlPanel({ scrollOpen }) {
   }
 
   return (
-    <div className={classes.root} id="topbar-buffer">
+    <div
+      style={{
+        display: 'flex',
+        height: '10vh',
+      }}
+      id="topbar-buffer"
+    >
       <CssBaseline />
       <AppBar
         position="fixed"
         color="inherit"
-        className={clsx(classes.appBar, {
-          [classes.appBarShift]: open,
-        })}
+        // className={clsx(classes.appBar, {
+        //   [classes.appBarShift]: open,
+        // })}
+        sx={{
+          zIndex: theme.zIndex.drawer - 1,
+          marginLeft: '3vh',
+          backgroundColor: '#FAEDCD',
+          transition: theme.transitions.create(['width', 'margin'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+          }),
+          ...(open && {
+            marginLeft: drawerWidth,
+            width: `calc(100% - ${drawerWidth}px)`,
+            transition: theme.transitions.create(['width', 'margin'], {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.enteringScreen,
+            }),
+          }),
+        }}
       >
         <Toolbar
-          className={clsx(classes.toolbarContainer, {
-            [classes.toolbarContainerShift]: !open,
-          })}
+          // className={clsx(classes.toolbarContainer, {
+          //   [classes.toolbarContainerShift]: !open,
+          // })}
+          sx={{
+            backgroundColor: '#FAEDCD',
+            boxShadow: '2px 2px 4px 3px rgba(0, 0, 0, 0.2)',
+            justifyContent: 'space-between',
+            border: '1px solid #A06933',
+            ...(!open && {
+              marginLeft: '5vh',
+              transition: theme.transitions.create(['margin'], {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.enteringScreen,
+              }),
+            }),
+          }}
         >
-          <List style={{ display: 'flex', flexDirection: 'row' }}>
+          <List sx={{ display: 'flex', flexDirection: 'row' }}>
             <DeleteButton name="New File" />
             <UploadButton />
             <DownloadButton />
 
             <Tooltip title="Sequence Actuation">
-              <ListItem button onClick={() => setNewMode('SEQ')} data-testid="act-seq-start">
-                <img src={mode === 'SEQ' ? icons.actuation.onClick : icons.actuation.icon} alt="Actuation Sequence" />
+              <ListItem>
+                <ListItemButton button onClick={() => setNewMode('SEQ')} data-testid="act-seq-start">
+                  <img src={mode === 'SEQ' ? icons.actuation.onClick : icons.actuation.icon} alt="Actuation Sequence" />
+                </ListItemButton>
               </ListItem>
             </Tooltip>
 
             <Tooltip title="Map Pins" data-testid="PIN">
-              <ListItem
-                button
-                onClick={() => {
-                  setScaleXY({ scale: 0.51, svgX: 0, svgY: 0 });
-                  setNewMode('PIN');
-                }}
-              >
-                <img src={mode === 'PIN' ? icons.electrodenumbering.onClick : icons.electrodenumbering.icon} alt="Electrode Numbering" />
+              <ListItem>
+                <ListItemButton
+                  button
+                  onClick={() => {
+                    setScaleXY({ scale: 0.51, svgX: 0, svgY: 0 });
+                    setNewMode('PIN');
+                  }}
+                >
+                  <img src={mode === 'PIN' ? icons.electrodenumbering.onClick : icons.electrodenumbering.icon} alt="Electrode Numbering" />
+                </ListItemButton>
               </ListItem>
             </Tooltip>
 
             <Tooltip title="Select and Move Electrodes" data-testid="CAN">
-              <ListItem button onClick={() => setNewMode('CAN')}>
-                <img src={mode === 'CAN' ? icons.selectiontool.onClick : icons.selectiontool.icon} alt="Selection Tool" />
+              <ListItem>
+                <ListItemButton button onClick={() => setNewMode('CAN')}>
+                  <img src={mode === 'CAN' ? icons.selectiontool.onClick : icons.selectiontool.icon} alt="Selection Tool" />
+                </ListItemButton>
               </ListItem>
             </Tooltip>
+
             <Tooltip title="Draw">
-              <ListItem button onClick={() => setNewMode('DRAW')} data-testid="draw-button">
-                <img src={mode === 'DRAW' ? icons.electrodepen.onClick : icons.electrodepen.icon} alt="Electrode Pen" />
+              <ListItem>
+                <ListItemButton button onClick={() => setNewMode('DRAW')} data-testid="draw-button">
+                  <img src={mode === 'DRAW' ? icons.electrodepen.onClick : icons.electrodepen.icon} alt="Electrode Pen" />
+                </ListItemButton>
               </ListItem>
             </Tooltip>
 
             <Tooltip title="Pan Canvas" data-testid="PAN">
+              {/* <ListItem> */}
               <ListItem button onClick={() => setPanning(!panning)}>
-                <OpenWith style={{ color: panning ? '#23A829' : '#A06933', marginBottom: panning && 5 }} />
+                <OpenWithIcon style={{ color: panning ? '#23A829' : '#A06933', marginBottom: panning && 5 }} />
               </ListItem>
+              {/* </ListItem> */}
             </Tooltip>
 
             {
@@ -277,30 +328,79 @@ export default function ControlPanel({ scrollOpen }) {
       </AppBar>
       <Drawer
         variant="permanent"
-        className={classes.drawer}
-        classes={{
-          paper: clsx({
-            [classes.drawerOpen]: open,
-            [classes.drawerClose]: !open,
-            [classes.scrollOpen]: scrollOpen,
-            [classes.scrollClose]: !scrollOpen,
-            [classes.fullHeight]: mode !== 'SEQ',
-          }),
+        // className={classes.drawer}
+        // classes={{
+        //   paper: clsx({
+        //     [classes.drawerOpen]: open,
+        //     [classes.drawerClose]: !open,
+        //     [classes.scrollOpen]: scrollOpen,
+        //     [classes.scrollClose]: !scrollOpen,
+        //     [classes.fullHeight]: mode !== 'SEQ',
+        //   }),
+        // }}
+        sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          zIndex: theme.zIndex.drawer + 1,
+          flexShrink: 0,
+          whiteSpace: 'nowrap',
+          '& .MuiDrawer-paper': {
+            ...(open ? {
+              width: drawerWidth,
+              backgroundColor: '#FAEDCD',
+              border: '1px solid #A06933',
+              transition: theme.transitions.create('width', {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.enteringScreen,
+              }),
+            } : {
+              backgroundColor: '#FAEDCD',
+              border: '1px solid #A06933',
+              transition: theme.transitions.create('width', {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.leavingScreen,
+              }),
+              overflowX: 'hidden',
+              width: theme.spacing(6),
+              [theme.breakpoints.up('sm')]: {
+                width: theme.spacing(6) + 1,
+              },
+            }),
+            ...(scrollOpen ? {
+              height: `${100 - SCROLL_HEIGHT}vh`,
+            } : {
+              height: 'calc(100vh - 40px)',
+            }),
+            ...(mode !== 'SEQ' && {
+              height: '100vh',
+            }),
+          },
         }}
       >
-        <div className={classes.toolbar}>
-          <IconButton onClick={() => {
-            setUsbPanelOpen(false);
-            setOpen(!open);
-          //  setRefPanelOpen(false);
+        <div
+          // className={classes.toolbar}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            // necessary for content to be below app bar
+            ...theme.mixins.toolbar,
           }}
+        >
+          <IconButton
+            onClick={() => {
+              setUsbPanelOpen(false);
+              setOpen(!open);
+            //  setRefPanelOpen(false);
+            }}
           >
             <img src={icons.menu.icon} alt="Sidebar menu" />
           </IconButton>
         </div>
         <List>
           <Tooltip title="USB Connection">
-            <MuiListItem
+            <ListItem
               button
               onClick={() => {
                 setOpen(true);
@@ -309,13 +409,31 @@ export default function ControlPanel({ scrollOpen }) {
                 }
                 setUsbPanelOpen(!usbPanelOpen);
               }}
-              className={`${usbPanelOpen && classes.bkgrdGradient} ${usbPanelOpen && classes.borderTop}`}
+              // eslint-disable-next-line max-len
+              // className={`${usbPanelOpen && classes.bkgrdGradient} ${usbPanelOpen && classes.borderTop}`}
+              sx={{
+                '&:hover': {
+                  backgroundImage: 'linear-gradient(to right, #FAEDCD 0%, rgba(212, 163, 115, 0.25) 100%)',
+                  border: '1px solid #D4A373',
+                },
+                ...(usbPanelOpen && {
+                  borderTop: '1px solid #D4A373',
+                  backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0), rgba(212, 163, 115, 0.25))',
+                }),
+              }}
             >
               <ListItemIcon>
                 <img src={usbConnected ? icons.usb.connected : icons.usb.disconnected} alt="USB Connection" />
               </ListItemIcon>
-              <ListItemText classes={{ primary: classes.listItemText }} primary="USB Connection" />
-            </MuiListItem>
+              <ListItemText
+                sx={{
+                  fontWeight: 700,
+                  color: '#A06933',
+                }}
+                // classes={{ primary: classes.listItemText }}
+                primary="USB Connection"
+              />
+            </ListItem>
           </Tooltip>
 
           <Collapse in={usbPanelOpen} timeout="auto">

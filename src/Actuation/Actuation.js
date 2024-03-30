@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 import { setPin } from '../USBCommunication/USBCommunication';
 
 export default class ActuationSequence {

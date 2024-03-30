@@ -1,21 +1,12 @@
+/* eslint-disable linebreak-style */
 import React, {
   useContext, useState, useRef, useEffect,
 } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Drawer from '@material-ui/core/Drawer';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import TextField from '@material-ui/core/TextField';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import { AddCircleOutline } from '@material-ui/icons';
-import Tooltip from '@material-ui/core/Tooltip';
-import IconButton from '@material-ui/core/IconButton';
-import { DialogContentText } from '@material-ui/core';
-import clsx from 'clsx';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import {
+  DialogContentText, Drawer, Menu, MenuItem, Button, Dialog,
+  DialogActions, DialogContent, TextField, DialogTitle, Tooltip, IconButton, useTheme,
+} from '@mui/material';
 import ActuationSequence from './Actuation';
 import { ActuationContext } from '../Contexts/ActuationProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
@@ -29,105 +20,9 @@ const initState = {
   mouseY: null,
 };
 
-const useStyles = makeStyles((theme) => ({
-  container: {
-    zIndex: 2,
-    display: 'flex',
-    flexDirection: 'column',
-    position: 'absolute',
-    left: 0,
-    top: 40,
-    flexShrink: 0,
-    overflowX: 'scroll',
-    width: '100vw',
-    height: `calc(${SCROLL_HEIGHT}vh - 40px)`,
-    backgroundColor: '#FAEDCD',
-    scrollPaddingRight: '10px',
-    justifyContent: 'center',
-  },
-  subcontainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    flexShrink: 0,
-    // overflowX: "scroll",
-    alignItems: 'center',
-    marginLeft: '10px', // to align with the loop bar
-    // scrollPaddingRight: "10px"
-  },
-  button: {
-    width: '15%',
-    minWidth: '15%',
-    height: '27vh',
-    borderRadius: 5,
-    borderWidth: 2,
-    borderColor: '#A06933',
-    color: '#A06933',
-    margin: '5px',
-    marginTop: 30,
-    textTransform: 'none',
-    boxShadow: '0px 4px 4px #bfbbb4',
-  },
-  add: {
-    width: '6%',
-    minWidth: '6%',
-    height: '27vh',
-    borderRadius: 5,
-    borderWidth: 2,
-    borderColor: '#A06933',
-    color: '#A06933',
-    backgroundColor: '#FEFAE0',
-    marginTop: 30,
-    margin: '10px',
-    boxShadow: '0px 4px 4px #bfbbb4',
-  },
-  modal: {
-    width: 400,
-    height: 200,
-    backgroundColor: '#778899',
-  },
-  loop: {
-    height: '4vh',
-    backgroundColor: '#D4A373',
-    color: '#FEFAE0',
-    border: '2px solid #A06933',
-    marginLeft: 10,
-    textTransform: 'none',
-    boxShadow: '2px 2px 3px 1px #bfbbb4',
-  },
-  playTab: {
-    position: 'fixed',
-    top: 'inherit',
-    height: '40px',
-    width: '100vw',
-    backgroundColor: '#FEFAE0',
-    zIndex: 2,
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    border: '1px solid #A06933',
-  },
-  input: {
-    color: '#A06933',
-  },
-  drawer: {
-    flexShrink: 0,
-  },
-  drawerOpen: {
-    height: `${SCROLL_HEIGHT}vh`,
-    top: `${100 - SCROLL_HEIGHT}vh`,
-    transition: `top ${theme.transitions.duration.enteringScreen}ms ${theme.transitions.easing.sharp} 0s`,
-  },
-  drawerClose: {
-    height: 40,
-    top: 'calc(100vh - 40px)',
-    transition: `top ${theme.transitions.duration.leavingScreen}ms ${theme.transitions.easing.sharp} 0s`,
-  },
-}));
-
 export default function Scroll({ scrollOpen, setScrollOpen }) {
   const context = useContext(ActuationContext);
-  const classes = useStyles();
+  const theme = useTheme();
   const { actuation } = context;
   const { pinActuate, currentStep } = actuation;
   const {
@@ -343,16 +238,32 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
       anchor="bottom"
       open={mode === 'SEQ'}
       variant="persistent"
-      className={classes.drawer}
-      classes={{
-        paper: clsx({
-          [classes.drawerOpen]: scrollOpen,
-          [classes.drawerClose]: !scrollOpen,
-        }),
+      sx={{
+        flexShrink: 0,
+        '& .MuiDrawer-paper': {
+          height: scrollOpen ? `${SCROLL_HEIGHT}vh` : '40px',
+          top: scrollOpen ? `${100 - SCROLL_HEIGHT}vh` : 'calc(100vh - 40px)',
+          transition: scrollOpen ? `top ${theme.transitions.duration.enteringScreen}ms ${theme.transitions.easing.sharp} 0s` : `top ${theme.transitions.duration.leavingScreen}ms ${theme.transitions.easing.sharp} 0s`,
+        },
       }}
     >
       <div>
-        <div className={classes.playTab}>
+        <div
+          // className={classes.playTab}
+          style={{
+            position: 'fixed',
+            top: 'inherit',
+            height: '40px',
+            width: '100vw',
+            backgroundColor: '#FEFAE0',
+            zIndex: 2,
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            border: '1px solid #A06933',
+          }}
+        >
           <p style={{
             position: 'absolute', left: '48vw', fontSize: 14, color: '#A06933', fontWeight: 'bold', margin: 0,
           }}
@@ -465,14 +376,32 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
 
         <div
           data-testid="act-contents"
-          className={clsx(classes.container, {
-            [classes.containerOpen]: scrollOpen,
-            [classes.containerClose]: !scrollOpen,
-          })}
+          // className={clsx(classes.container, {
+          //   [classes.containerOpen]: scrollOpen,
+          //   [classes.containerClose]: !scrollOpen,
+          // })}
+          style={{
+            zIndex: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            position: 'absolute',
+            left: 0,
+            top: 40,
+            flexShrink: 0,
+            overflowX: 'scroll',
+            width: '100vw',
+            height: `calc(${SCROLL_HEIGHT}vh - 40px)`,
+            backgroundColor: '#FAEDCD',
+            scrollPaddingRight: '10px',
+            justifyContent: 'center',
+          }}
           ref={scrollRef}
           onWheel={handleWheel}
         >
-          <div className={classes.subcontainer} style={{ overflowX: 'visible' }}>
+          <div style={{
+            overflowX: 'visible', display: 'flex', flexDirection: 'row', flexShrink: 0, alignItems: 'center', marginLeft: '10px',
+          }}
+          >
             {Array.from(pinActuate.keys()).map((key) => {
               const value = pinActuate.get(key);
               if (value.type === 'loop') {
@@ -483,14 +412,26 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
                 const padding = startBlock.order;
                 return (
                   <Button
-                    className={classes.loop}
-                    style={{
+                    sx={{
+                      height: 25,
+                      backgroundColor: '#D4A373',
+                      color: '#FEFAE0',
+                      border: '2px solid #A06933',
+                      marginLeft: 10,
+                      textTransform: 'none',
+                      boxShadow: '2px 2px 3px 1px #bfbbb4',
                       position: 'absolute',
-                      top: 5,
+                      top: '2vh',
                       left: `calc(calc(15% + 10px) * ${padding} )`,
                       width: `calc(calc(15% + 10px) * ${value.content.length} - 10px)`,
-                      height: 25,
                     }}
+                    // style={{
+                    //   position: 'absolute',
+                    //   top: 5,
+                    //   left: `calc(calc(15% + 10px) * ${padding} )`,
+                    //   width: `calc(calc(15% + 10px) * ${value.content.length} - 10px)`,
+                    //   height: 25,
+                    // }}
                     onClick={() => {
                       if (pause) {
                         const loop = pinActuate.get(key);
@@ -514,7 +455,17 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
               return null;
             })}
           </div>
-          <div className={classes.subcontainer}>
+          <div
+            // className={classes.subcontainer}
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              flexShrink: 0,
+              // overflowX: "scroll",
+              alignItems: 'center',
+              marginLeft: '10px',
+            }}
+          >
             {Array.from(pinActuate.keys()).map((key) => {
               const value = pinActuate.get(key);
               let appendString = '';
@@ -523,9 +474,24 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
               if (value.type === 'simple') {
                 return (
                   <Button
-                    className={classes.button}
+                    // className={classes.button}
+                    sx={{
+                      width: '15%',
+                      minWidth: '15%',
+                      height: '27vh',
+                      borderRadius: 5,
+                      borderWidth: 2,
+                      borderColor: '#A06933',
+                      color: '#A06933',
+                      margin: '5px',
+                      mt: 5,
+                      marginBottom: '2vh',
+                      textTransform: 'none',
+                      boxShadow: '0px 4px 4px #bfbbb4',
+                      backgroundColor: currentStep === key ? '#D4A373' : '#FEFAE0',
+                    }}
                     variant="outlined"
-                    style={{ backgroundColor: currentStep === key ? '#D4A373' : '#FEFAE0' }}
+                    // style={{ backgroundColor: currentStep === key ? '#D4A373' : '#FEFAE0' }}
                     onClick={() => {
                       if (pause) {
                         setIndex(key);
@@ -560,11 +526,20 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
                       <TextField
                         variant="outlined"
                         label="duration"
-                        inputProps={{
-                          className: classes.input,
-                        }}
-                        InputLabelProps={{
-                          className: classes.input,
+                        // inputProps={{
+                        //   className: classes.input,
+                        // }}
+                        // InputLabelProps={{
+                        //   className: classes.input,
+                        // }}
+                        sx={{
+                          color: '#A06933',
+                          '& input': {
+                            color: '#A06933', // Styling for the input text color
+                          },
+                          '& label': {
+                            color: '#A06933', // Styling for the label text color
+                          },
                         }}
                         value={pinActuate.get(key).duration}
                         onChange={(event) => {
@@ -579,7 +554,21 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
               return null;
             })}
             <Button
-              className={classes.add}
+              // className={classes.add}
+              sx={{
+                width: '6%',
+                minWidth: '6%',
+                height: '27vh',
+                borderRadius: 5,
+                borderWidth: 2,
+                borderColor: '#A06933',
+                color: '#A06933',
+                backgroundColor: '#FEFAE0',
+                mt: 5,
+                marginLeft: '1vh',
+                marginBottom: '2vh',
+                boxShadow: '0px 4px 4px #bfbbb4',
+              }}
               onClick={() => {
                 if (pause) {
                   let ind = pinActuate.size;
@@ -593,7 +582,7 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
               data-testid="add-button"
               variant="outlined"
             >
-              <AddCircleOutline />
+              <AddCircleOutlineIcon />
             </Button>
             <div style={{ minWidth: '20px', height: '100px', backgroundColor: 'transparent' }} />
           </div>
@@ -741,7 +730,7 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
                 variant="outlined"
                 value={duration}
                 onChange={(event) => { setDuration(event.target.value); }}
-                style={{ marginBottom: 10 }}
+                style={{ marginBottom: 10, marginTop: 10 }}
                 helperText={!Number.isNaN(duration) && parseInt(Number(duration), 10) === Number(duration) ? '' : 'need to be a number'}
                 error={Number.isNaN(duration)
                   || parseInt(Number(duration), 10) !== Number(duration)}

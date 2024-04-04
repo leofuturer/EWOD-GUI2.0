@@ -20,11 +20,7 @@ function DraggableItem({ ind, children, scaleXY }) {
   const { delta, isDragging } = context.state;
   const { electrodes } = context.squares;
   const elecSelected = context.squares.selected;
-
-  const { selected } = context.combined;
-
-  const combSelected = selected.length > 0 ? selected.map(Number) : null;
-
+  //  const { selected } = context.combined
   const isSelected = elecSelected && elecSelected.indexOf(`${electrodes[ind].ids}`) >= 0;
 
   let transform = {};
@@ -70,9 +66,13 @@ function DraggableItem({ ind, children, scaleXY }) {
             setSaveChanges(true);
             pushDrawHistory({
               type: 'move',
-              electrodeInfo: elecSelected,
-              combinedInfo: combSelected,
-              delta_pos: delta,
+              set: electrodes.slice(),
+              select: elecSelected.slice(),
+              // comb: selected.slice(),
+              // combSelect: [],
+              // electrodeInfo: elecSelected,
+              // combinedInfo: combSelected,
+              // delta_pos: delta,
             });
           } else setResetting(true);
           setMoving(false);

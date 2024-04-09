@@ -188,7 +188,7 @@ const CanvasProvider = ({ children }) => {
             if (obj.set || obj.comb) {
               const newHist = { ...stateBoi };
               newHist.history = newHist.history.slice(0, newHist.historyIndex + 1);
-              newHist.history.push(obj);
+              newHist.history.push(JSON.parse(JSON.stringify(obj)));
               newHist.historyIndex += 1;
               return newHist;
             }

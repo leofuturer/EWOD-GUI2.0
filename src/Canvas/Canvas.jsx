@@ -301,9 +301,9 @@ export default function Canvas() {
     return [Array.from(mushedSquares), Array.from(mushedCombines)];
   }
   const [selectables, setSelectables] = useState([]);
-  console.log(electrodes);
+  // console.log(electrodes);
   useEffect(() => {
-    console.log(electrodes);
+    // console.log(electrodes);
     const newSelectables = [];
     electrodes.forEach((element) => {
       const { ids, initPositions, deltas } = element;

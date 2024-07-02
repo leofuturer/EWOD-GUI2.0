@@ -23,7 +23,7 @@ function DraggableItem({ ind, children, scaleXY }) {
 
   const { selected } = context.combined;
 
-  const combSelected = selected.length > 0 ? selected.map(Number) : null;
+  // const combSelected = selected.length > 0 ? selected.map(Number) : null;
 
   const isSelected = elecSelected && elecSelected.indexOf(`${electrodes[ind].ids}`) >= 0;
 
@@ -70,9 +70,8 @@ function DraggableItem({ ind, children, scaleXY }) {
             setSaveChanges(true);
             pushDrawHistory({
               type: 'move',
-              electrodeInfo: elecSelected,
-              combinedInfo: combSelected,
-              delta_pos: delta,
+              squares: JSON.parse(JSON.stringify(electrodes)),
+              select: JSON.parse(JSON.stringify(selected)),
             });
           } else setResetting(true);
           setMoving(false);

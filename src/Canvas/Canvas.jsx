@@ -160,8 +160,8 @@ export default function Canvas() {
         setElectrodes(electrodes);
         pushDrawHistory({
           type: 'draw',
-          electrodeInfo: temp,
-          combinedInfo: null,
+          squares: JSON.parse(JSON.stringify(electrodes)),
+          select: JSON.parse(JSON.stringify(selected)),
         });
       }
     }
@@ -514,7 +514,7 @@ export default function Canvas() {
     if (!clipboard.squares && !clipboard.combined) return;
     const numSquaresCopied = clipboard.squares.length;
     const numCombinedCopied = clipboard.combined.length;
-    let elecHolder = [];
+    // let elecHolder = [];
     if (numSquaresCopied > 0 || numCombinedCopied > 0) {
       const xInt = parseInt(relX, 10);
       const yInt = parseInt(relY, 10);
@@ -569,14 +569,14 @@ export default function Canvas() {
           });
         }
         setElectrodes(electrodes.concat(tmps));
-        elecHolder = tmps;
+        // elecHolder = tmps;
         // If combined electrodes were pasted as well, we'll update the history there instead
         if (numSquaresCopied > 0 && numCombinedCopied === 0) {
           console.log(newInits, tmps);
           pushDrawHistory({
             type: 'paste',
-            electrodeInfo: tmps,
-            combinedInfo: null,
+            squares: JSON.parse(JSON.stringify(electrodes)),
+            select: JSON.parse(JSON.stringify(selected)),
           });
         }
       }
@@ -623,14 +623,14 @@ export default function Canvas() {
         if (numSquaresCopied > 0) {
           pushDrawHistory({
             type: 'paste',
-            electrodeInfo: elecHolder,
-            combinedInfo: newCombs,
+            squares: JSON.parse(JSON.stringify(electrodes)),
+            select: JSON.parse(JSON.stringify(selected)),
           });
         } else {
           pushDrawHistory({
             type: 'paste',
-            electrodeInfo: null,
-            combinedInfo: newCombs,
+            squares: JSON.parse(JSON.stringify(electrodes)),
+            select: JSON.parse(JSON.stringify(selected)),
           });
         }
       }
@@ -666,8 +666,8 @@ export default function Canvas() {
       console.log('print');
       pushDrawHistory({
         type: 'combine-delete',
-        electrodeInfo: delElecs,
-        combinedInfo: null,
+        squares: JSON.parse(JSON.stringify(electrodes)),
+        select: JSON.parse(JSON.stringify(selected)),
       });
     }
     setPinActuation(new Map(pinActuate));
@@ -692,10 +692,10 @@ export default function Canvas() {
     setPinToElec({ ...pinToElec });
     setElecToPin({ ...elecToPin });
     setComboLayout(allCombined.filter((combi) => !combSelected.includes(`${combi[2]}`)));
-    let delElectrodes = electrodes.filter((element) => selected.includes(`${element.ids}`));
-    delElectrodes = delElectrodes.length === 0 ? null : delElectrodes;
-    let delCombs = allCombined.filter((combi) => combSelected.includes(`${combi[2]}`));
-    delCombs = delCombs.length === 0 ? null : delCombs;
+    // let delElectrodes = electrodes.filter((element) => selected.includes(`${element.ids}`));
+    // delElectrodes = delElectrodes.length === 0 ? null : delElectrodes;
+    // let delCombs = allCombined.filter((combi) => combSelected.includes(`${combi[2]}`));
+    // delCombs = delCombs.length === 0 ? null : delCombs;
     // add check to see if electrodes were cut or deleted to handle undo
     let delType = 'delete';
     if (separateElec) {
@@ -703,8 +703,8 @@ export default function Canvas() {
     }
     pushDrawHistory({
       type: delType,
-      electrodeInfo: delElectrodes,
-      combinedInfo: delCombs,
+      squares: JSON.parse(JSON.stringify(electrodes)),
+      select: JSON.parse(JSON.stringify(selected)),
     });
     setCombSelected([]);
   }
@@ -816,8 +816,8 @@ export default function Canvas() {
     setComboLayout(allCombined.concat(positions));
     pushDrawHistory({
       type: 'combine',
-      electrodeInfo: null,
-      combinedInfo: JSON.parse(JSON.stringify(positions)), // Need to make a deep copy, not shallow
+      squares: JSON.parse(JSON.stringify(electrodes)), // Need to make a deep copy, not shallow
+      select: JSON.parse(JSON.stringify(selected)),
     });
     /*  const delElectrodes = electrodes.filter((element) => selected.includes(`${element.ids}`));
     pushDrawHistory({
@@ -851,8 +851,8 @@ export default function Canvas() {
 
     pushDrawHistory({
       type: 'separate',
-      electrodeInfo: tmps,
-      combinedInfo: null,
+      squares: JSON.parse(JSON.stringify(electrodes)),
+      select: JSON.parse(JSON.stringify(selected)),
     });
 
     /* const delCombs = allCombined.filter((combi) => combSelected.includes(`${combi[2]}`));

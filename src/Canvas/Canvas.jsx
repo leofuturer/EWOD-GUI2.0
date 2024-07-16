@@ -3,7 +3,8 @@ import React, {
 } from 'react';
 // eslint-disable-next-line import/no-unresolved
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
-import SVGContainer from 'react-svg-drag-and-select';
+// import SVGContainer from 'react-svg-drag-and-select';
+import { DragSelection, useDragSelection } from 'react-drag-selection';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 import DraggableItem from './DraggableItem';
@@ -54,6 +55,21 @@ export default function Canvas() {
   const [relativeX, setRelativeX] = useState('0px');
   const [relativeY, setRelativeY] = useState('0px');
   const [cutFlag, setCutFlag] = useState(false);
+
+  const { selectionProps, isSelecting, selectionAreaRef } = useDragSelection({
+    onSelectionChanged: (selectionBox, newSelectedItems, setSelectedItems) => {
+        onSelectChange(selected);
+      return
+    },
+    selectionEnabled: (selectionBox) => {
+      // Can I actually start selecting in a particular region?
+      if (mode === 'CAN') {
+        return true;
+      } else {
+        return false;
+      }
+    },
+  });
 
   const startShift = useCallback((event) => {
     if (event.keyCode === 16) {
@@ -1023,7 +1039,7 @@ export default function Canvas() {
                 {electrodes.map((element, ind) => {
                   const idx = element.ids;
                   return (
-                    <DraggableItem key={idx} ind={ind} scaleXY={scaleXY}>
+                    <DraggableItem key={idx} ind={ind} scaleXY={scaleXY} className="DraggableItem">
                       <rect
                         id={`S${idx}`}
                         data-testid="square"
@@ -1110,7 +1126,7 @@ export default function Canvas() {
             })}
           >
             <TransformComponent id="zoom_div">
-              <SVGContainer
+              <DragSelection
                 menuClick={menuClick}
                 mode={mode}
                 scalexy={scaleXY}

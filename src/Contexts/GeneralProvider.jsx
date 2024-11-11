@@ -6,7 +6,7 @@ import handleSave from '../ControlPanel/handleSave';
 const GeneralContext = React.createContext();
 
 const GeneralProvider = ({ children }) => {
-  const [mode, setMode] = useState('DRAW'); // either "PIN", "SEQ", or "CAN", or "DRAW"
+  const [mode, setMode] = useState('PIN'); // either "PIN", "SEQ", or "CAN", or "DRAW"
   const [panning, setPanning] = useState(false);
   const [currElec, setCurrElec] = useState(null);
   const [pinToElec, setPinToElec] = useState({});

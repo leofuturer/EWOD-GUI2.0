@@ -4,10 +4,6 @@ import React, {
 // eslint-disable-next-line import/no-unresolved
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import SVGContainer from 'react-svg-drag-and-select';
-import { useHotkeys } from 'react-hotkeys-hook';
-
-import DraggableItem from './DraggableItem';
-import DraggableComb from './DraggableComb';
 
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { ActuationContext } from '../Contexts/ActuationProvider';
@@ -31,10 +27,9 @@ export default function Canvas() {
   const { allCombined } = canvasContext.combined;
   const combSelected = canvasContext.combined.selected;
   // eslint-disable-next-line prefer-destructuring
-  const clipboard = canvasContext.clipboard;
   const {
     // eslint-disable-next-line max-len
-    setClipboard, setMouseDown, setElectrodes, setSelected, setCombSelected, setComboLayout, setMoving,
+    setMouseDown, setElectrodes, setSelected, setCombSelected, setComboLayout, setMoving,
   } = canvasContext;
 
   const actuationContext = useContext(ActuationContext);
@@ -48,9 +43,6 @@ export default function Canvas() {
 
   const [middleDown, setMiddleDown] = useState(false);
   const [shiftDown, setShiftDown] = useState(false);
-  const [relativeX, setRelativeX] = useState('0px');
-  const [relativeY, setRelativeY] = useState('0px');
-  const [cutFlag, setCutFlag] = useState(false);
 
   const startShift = useCallback((event) => {
     if (event.keyCode === 16) setShiftDown(true);
@@ -82,8 +74,6 @@ export default function Canvas() {
       default: // you're weird
         break;
     }
-    setRelativeX(`${event.offsetX}px`);
-    setRelativeY(`${event.offsetY}px`);
   }, [setMouseDown]);
 
   const handleMouseUp = useCallback(() => {
@@ -103,59 +93,59 @@ export default function Canvas() {
     };
   }, [handleMouseDown, handleMouseUp]);
 
-  const handleMouseMove = useCallback((e) => { // creating new electrode
-    if (mode === 'DRAW' && mouseDown && !panning) {
-      let elecAtXY = false;
+  const handleMouseMove = useCallback(() => { // creating new electrode
+    // if (mode === 'DRAW' && mouseDown && !panning) {
+    //   let elecAtXY = false;
 
-      // electrode current position = electrodes[idx].initPositions[0] + electrodes[idx].deltas[0]
-      // wanna see if current X = current position
-      // = electrodes[idx].initPositions[0] + electrodes[idx].deltas[0]
-      // the same applies for current Y, only with electrodes[idx].initPositions[1] instead
-      const x = Math.floor(e.offsetX / ELEC_SIZE) * ELEC_SIZE;
-      const y = Math.floor(e.offsetY / ELEC_SIZE) * ELEC_SIZE;
+    //   // electrode position = electrodes[idx].initPositions[0] + electrodes[idx].deltas[0]
+    //   // wanna see if current X = current position
+    //   // = electrodes[idx].initPositions[0] + electrodes[idx].deltas[0]
+    //   // the same applies for current Y, only with electrodes[idx].initPositions[1] instead
+    //   const x = Math.floor(e.offsetX / ELEC_SIZE) * ELEC_SIZE;
+    //   const y = Math.floor(e.offsetY / ELEC_SIZE) * ELEC_SIZE;
 
-      for (let idx = 0; idx < electrodes.length; idx += 1) {
-        // if an electrode already exists at this position
-        if (x === electrodes[idx].initPositions[0] + electrodes[idx].deltas[0]
-          && y === electrodes[idx].initPositions[1] + electrodes[idx].deltas[1]) {
-          elecAtXY = true;
-          break;
-        }
-      }
-      if (!elecAtXY) {
-        for (let ind = 0; ind < allCombined.length; ind += 1) {
-          if (allCombined[ind][0] === x && allCombined[ind][1] === y) {
-            elecAtXY = true;
-            break;
-          }
-        }
-      }
+    //   for (let idx = 0; idx < electrodes.length; idx += 1) {
+    //     // if an electrode already exists at this position
+    //     if (x === electrodes[idx].initPositions[0] + electrodes[idx].deltas[0]
+    //       && y === electrodes[idx].initPositions[1] + electrodes[idx].deltas[1]) {
+    //       elecAtXY = true;
+    //       break;
+    //     }
+    //   }
+    //   if (!elecAtXY) {
+    //     for (let ind = 0; ind < allCombined.length; ind += 1) {
+    //       if (allCombined[ind][0] === x && allCombined[ind][1] === y) {
+    //         elecAtXY = true;
+    //         break;
+    //       }
+    //     }
+    //   }
 
-      if (!elecAtXY) { // create new electrode
-        // need unique ids for each electrode
-        // as electrodes are deleted and added in, ids will ALWAYS
-        // be in ascending order, so there will be no duplicates
-        // however, ids have the potential to increase to very large numbers
-        // don't anticipate this being a problem
-        const newLastFreeInd = (electrodes.length === 0 ? 0
-          : electrodes[electrodes.length - 1].ids + 1);
-        const temp = {};
-        temp.ids = newLastFreeInd;
-        temp.initPositions = [x, y];
-        temp.deltas = [0, 0];
-        electrodes.push(temp);
-        setElectrodes(electrodes);
-      }
-    }
+    //   if (!elecAtXY) { // create new electrode
+    //     // need unique ids for each electrode
+    //     // as electrodes are deleted and added in, ids will ALWAYS
+    //     // be in ascending order, so there will be no duplicates
+    //     // however, ids have the potential to increase to very large numbers
+    //     // don't anticipate this being a problem
+    //     const newLastFreeInd = (electrodes.length === 0 ? 0
+    //       : electrodes[electrodes.length - 1].ids + 1);
+    //     const temp = {};
+    //     temp.ids = newLastFreeInd;
+    //     temp.initPositions = [x, y];
+    //     temp.deltas = [0, 0];
+    //     electrodes.push(temp);
+    //     setElectrodes(electrodes);
+    //   }
+    // }
   }, [mode, electrodes, mouseDown, setElectrodes, allCombined]);
 
   useEffect(() => { // mouseover eventlistener over whole canvas
     // when dragging over a space that doesn't have an existing electrode, create new one
     // and stick in electrodes arr
-    document.querySelector('.greenArea').addEventListener('mousemove', handleMouseMove);
-    return () => {
-      document.querySelector('.greenArea').removeEventListener('mousemove', handleMouseMove);
-    };
+    // document.querySelector('.greenArea').addEventListener('mousemove', handleMouseMove);
+    // return () => {
+    //   document.querySelector('.greenArea').removeEventListener('mousemove', handleMouseMove);
+    // };
   }, [handleMouseMove]);
 
   /* ########################### ACTUATION START ########################### */
@@ -378,15 +368,13 @@ export default function Canvas() {
         setSelected(sIds);
         setCombSelected(cIds);
       }
-    } else if (mode !== 'DRAW') {
-      if (shiftDown) {
-        const newSelected = processSelected(sIds, cIds);
-        setSelected(newSelected[0]);
-        setCombSelected(newSelected[1]);
-      } else {
-        setSelected(sIds);
-        setCombSelected(cIds);
-      }
+    } else if (shiftDown) {
+      const newSelected = processSelected(sIds, cIds);
+      setSelected(newSelected[0]);
+      setCombSelected(newSelected[1]);
+    } else {
+      setSelected(sIds);
+      setCombSelected(cIds);
     }
 
     // handle actuation
@@ -420,152 +408,152 @@ export default function Canvas() {
     }
   }
 
-  function move() {
-    if (selected.length || combSelected.length) setMoving(true);
-  }
+  // function move() {
+  //   if (selected.length || combSelected.length) setMoving(true);
+  // }
 
-  function copy() {
-    const squares = [];
-    const combined = [];
+  // function copy() {
+  //   const squares = [];
+  //   const combined = [];
 
-    if (selected.length > 0) {
-      const elements = electrodes.filter((element) => selected.includes(`${element.ids}`));
-      elements.forEach((element) => {
-        const tmp = [element.initPositions[0] + element.deltas[0],
-          element.initPositions[1] + element.deltas[1]];
-        squares.push(tmp);
-      });
-      setSelected([]);
-    }
-    if (combSelected.length > 0) {
-      // ex: selected IDs 2 4 7
-      // want those to have some permutation of IDs 0 1 2 in clipboard
-      const record = {};
-      let ind = 0;
-      allCombined.forEach((comb) => {
-        if (combSelected.includes(`${comb[2]}`)) {
-          if (Object.prototype.hasOwnProperty.call(record, comb[2])) {
-            combined.push([comb[0], comb[1], record[comb[2]]]);
-          } else {
-            record[comb[2]] = ind;
-            combined.push([comb[0], comb[1], ind]);
-            ind += 1;
-          }
-        }
-      });
-      setCombSelected([]);
-    }
-    if (selected.length > 0 || combSelected.length > 0) {
-      setClipboard({ squares, combined });
-    }
-  }
+  //   if (selected.length > 0) {
+  //     const elements = electrodes.filter((element) => selected.includes(`${element.ids}`));
+  //     elements.forEach((element) => {
+  //       const tmp = [element.initPositions[0] + element.deltas[0],
+  //         element.initPositions[1] + element.deltas[1]];
+  //       squares.push(tmp);
+  //     });
+  //     setSelected([]);
+  //   }
+  //   if (combSelected.length > 0) {
+  //     // ex: selected IDs 2 4 7
+  //     // want those to have some permutation of IDs 0 1 2 in clipboard
+  //     const record = {};
+  //     let ind = 0;
+  //     allCombined.forEach((comb) => {
+  //       if (combSelected.includes(`${comb[2]}`)) {
+  //         if (Object.prototype.hasOwnProperty.call(record, comb[2])) {
+  //           combined.push([comb[0], comb[1], record[comb[2]]]);
+  //         } else {
+  //           record[comb[2]] = ind;
+  //           combined.push([comb[0], comb[1], ind]);
+  //           ind += 1;
+  //         }
+  //       }
+  //     });
+  //     setCombSelected([]);
+  //   }
+  //   if (selected.length > 0 || combSelected.length > 0) {
+  //     setClipboard({ squares, combined });
+  //   }
+  // }
 
-  function handleCutFlag(squares, combined, numSquaresCopied, numCombinedCopied) {
-    if (numSquaresCopied > 0) {
-      let maxID = electrodes.length === 0 ? 0 : electrodes[electrodes.length - 1].ids + 1;
-      const tmps = [];
-      squares.forEach((element) => {
-        const tmp = {};
-        tmp.initPositions = element;
-        tmp.deltas = [0, 0];
-        tmp.ids = maxID;
-        maxID += 1;
-        tmps.push(tmp);
-      });
-      setElectrodes(electrodes.concat(tmps));
-    }
-    if (numCombinedCopied > 0) {
-      setComboLayout(allCombined.concat(combined));
-    }
-    setCutFlag(false);
-  }
+  // function handleCutFlag(squares, combined, numSquaresCopied, numCombinedCopied) {
+  //   if (numSquaresCopied > 0) {
+  //     let maxID = electrodes.length === 0 ? 0 : electrodes[electrodes.length - 1].ids + 1;
+  //     const tmps = [];
+  //     squares.forEach((element) => {
+  //       const tmp = {};
+  //       tmp.initPositions = element;
+  //       tmp.deltas = [0, 0];
+  //       tmp.ids = maxID;
+  //       maxID += 1;
+  //       tmps.push(tmp);
+  //     });
+  //     setElectrodes(electrodes.concat(tmps));
+  //   }
+  //   if (numCombinedCopied > 0) {
+  //     setComboLayout(allCombined.concat(combined));
+  //   }
+  //   setCutFlag(false);
+  // }
 
-  function paste(e, relX, relY) {
-    if (selected.length > 0) setSelected([]);
-    if (combSelected.length > 0) setCombSelected([]);
-    if (!clipboard.squares && !clipboard.combined) return;
-    const numSquaresCopied = clipboard.squares.length;
-    const numCombinedCopied = clipboard.combined.length;
-    if (numSquaresCopied > 0 || numCombinedCopied > 0) {
-      const xInt = parseInt(relX, 10);
-      const yInt = parseInt(relY, 10);
-      const x = xInt - (xInt % ELEC_SIZE);
-      const y = yInt - (yInt % ELEC_SIZE);
-      const { squares, combined } = clipboard;
-      if (numSquaresCopied > 0) {
-        const newInits = [];
-        const offsetX = squares[0][0];
-        const offsetY = squares[0][1];
-        for (let i = 0; i < numSquaresCopied; i += 1) {
-          const temp = [x + squares[i][0] - offsetX, y + squares[i][1] - offsetY];
-          if (temp[0] < 0 || temp[0] >= CANVAS_TRUE_WIDTH
-            || temp[1] < 0 || temp[1] >= CANVAS_TRUE_HEIGHT) {
-            window.alert('Square electrode pasting off canvas!');
-            return;
-          }
-          if (!(
-            electrodes.some((inner) => (inner.initPositions[0] === temp[0]
-              && inner.initPositions[1] === temp[1]))
-            || allCombined.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
-          )) {
-            newInits.push(temp);
-          } else {
-            window.alert('Pasted electrodes overlap!');
-            if (cutFlag) {
-              handleCutFlag(squares, combined, numSquaresCopied,
-                numCombinedCopied);
-            }
-            return;
-          }
-        }
+  // function paste(e, relX, relY) {
+  //   if (selected.length > 0) setSelected([]);
+  //   if (combSelected.length > 0) setCombSelected([]);
+  //   if (!clipboard.squares && !clipboard.combined) return;
+  //   const numSquaresCopied = clipboard.squares.length;
+  //   const numCombinedCopied = clipboard.combined.length;
+  //   if (numSquaresCopied > 0 || numCombinedCopied > 0) {
+  //     const xInt = parseInt(relX, 10);
+  //     const yInt = parseInt(relY, 10);
+  //     const x = xInt - (xInt % ELEC_SIZE);
+  //     const y = yInt - (yInt % ELEC_SIZE);
+  //     const { squares, combined } = clipboard;
+  //     if (numSquaresCopied > 0) {
+  //       const newInits = [];
+  //       const offsetX = squares[0][0];
+  //       const offsetY = squares[0][1];
+  //       for (let i = 0; i < numSquaresCopied; i += 1) {
+  //         const temp = [x + squares[i][0] - offsetX, y + squares[i][1] - offsetY];
+  //         if (temp[0] < 0 || temp[0] >= CANVAS_TRUE_WIDTH
+  //           || temp[1] < 0 || temp[1] >= CANVAS_TRUE_HEIGHT) {
+  //           window.alert('Square electrode pasting off canvas!');
+  //           return;
+  //         }
+  //         if (!(
+  //           electrodes.some((inner) => (inner.initPositions[0] === temp[0]
+  //             && inner.initPositions[1] === temp[1]))
+  //           || allCombined.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
+  //         )) {
+  //           newInits.push(temp);
+  //         } else {
+  //           window.alert('Pasted electrodes overlap!');
+  //           if (cutFlag) {
+  //             handleCutFlag(squares, combined, numSquaresCopied,
+  //               numCombinedCopied);
+  //           }
+  //           return;
+  //         }
+  //       }
 
-        let maxID = electrodes.length === 0 ? 0 : electrodes[electrodes.length - 1].ids + 1;
-        const tmps = [];
-        newInits.forEach((element) => {
-          const tmp = {};
-          tmp.initPositions = element;
-          tmp.deltas = [0, 0];
-          tmp.ids = maxID;
-          maxID += 1;
-          tmps.push(tmp);
-        });
-        setElectrodes(electrodes.concat(tmps));
-      }
-      if (numCombinedCopied > 0) {
-        const first = clipboard.squares.length > 0 ? clipboard.squares[0] : combined[0];
-        const newCombs = [];
-        const combIds = allCombined.map((el) => el[2]);
-        const maxID = (combIds.length === 0 ? 0 : Math.max(...combIds));
-        for (let k = 0; k < numCombinedCopied; k += 1) {
-          const temp = [x + combined[k][0] - first[0], y + combined[k][1] - first[1]];
-          if (temp[0] < 0 || temp[0] >= CANVAS_TRUE_WIDTH
-            || temp[1] < 0 || temp[1] >= CANVAS_TRUE_HEIGHT) {
-            window.alert('Combined electrode pasting off canvas!');
-            return;
-          }
-          if (!(
-            electrodes.some((inner) => (inner.initPositions[0] === temp[0]
-              && inner.initPositions[1] === temp[1]))
-            || allCombined.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
-          )) {
-            newCombs.push([
-              temp[0],
-              temp[1],
-              combined[k][2] + maxID + 1,
-            ]);
-          } else {
-            window.alert('Pasted combined electrode overlap!');
-            if (cutFlag) {
-              handleCutFlag(squares, combined, numSquaresCopied,
-                numCombinedCopied);
-            }
-            return;
-          }
-        }
-        setComboLayout(allCombined.concat(newCombs));
-      }
-    }
-  }
+  //       let maxID = electrodes.length === 0 ? 0 : electrodes[electrodes.length - 1].ids + 1;
+  //       const tmps = [];
+  //       newInits.forEach((element) => {
+  //         const tmp = {};
+  //         tmp.initPositions = element;
+  //         tmp.deltas = [0, 0];
+  //         tmp.ids = maxID;
+  //         maxID += 1;
+  //         tmps.push(tmp);
+  //       });
+  //       setElectrodes(electrodes.concat(tmps));
+  //     }
+  //     if (numCombinedCopied > 0) {
+  //       const first = clipboard.squares.length > 0 ? clipboard.squares[0] : combined[0];
+  //       const newCombs = [];
+  //       const combIds = allCombined.map((el) => el[2]);
+  //       const maxID = (combIds.length === 0 ? 0 : Math.max(...combIds));
+  //       for (let k = 0; k < numCombinedCopied; k += 1) {
+  //         const temp = [x + combined[k][0] - first[0], y + combined[k][1] - first[1]];
+  //         if (temp[0] < 0 || temp[0] >= CANVAS_TRUE_WIDTH
+  //           || temp[1] < 0 || temp[1] >= CANVAS_TRUE_HEIGHT) {
+  //           window.alert('Combined electrode pasting off canvas!');
+  //           return;
+  //         }
+  //         if (!(
+  //           electrodes.some((inner) => (inner.initPositions[0] === temp[0]
+  //             && inner.initPositions[1] === temp[1]))
+  //           || allCombined.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
+  //         )) {
+  //           newCombs.push([
+  //             temp[0],
+  //             temp[1],
+  //             combined[k][2] + maxID + 1,
+  //           ]);
+  //         } else {
+  //           window.alert('Pasted combined electrode overlap!');
+  //           if (cutFlag) {
+  //             handleCutFlag(squares, combined, numSquaresCopied,
+  //               numCombinedCopied);
+  //           }
+  //           return;
+  //         }
+  //       }
+  //       setComboLayout(allCombined.concat(newCombs));
+  //     }
+  //   }
+  // }
 
   function squaresDelete() {
     const mappedPins = [];
@@ -615,16 +603,16 @@ export default function Canvas() {
     setCombSelected([]);
   }
 
-  function BothDelete() {
-    combinedDelete();
-    squaresDelete();
-  }
+  // function BothDelete() {
+  //   combinedDelete();
+  //   squaresDelete();
+  // }
 
-  function cut() {
-    setCutFlag(true);
-    copy();
-    BothDelete();
-  }
+  // function cut() {
+  //   setCutFlag(true);
+  //   copy();
+  //   BothDelete();
+  // }
 
   function getCombinedLastFreeInd() {
     if (!allCombined.length) return 0;
@@ -772,75 +760,6 @@ export default function Canvas() {
     }
   }
 
-  // keyboard shortcuts
-  useHotkeys('m', () => {
-    if (mode === 'DRAW') {
-      window.alert('Cannot move electrodes in draw mode');
-      return;
-    }
-    move();
-  }, [mode, selected, combSelected]);
-
-  useHotkeys('ctrl+c', () => {
-    if (mode === 'DRAW') {
-      window.alert('Cannot copy electrodes in draw mode');
-      return;
-    }
-    copy();
-  }, [mode, selected, combSelected, clipboard, electrodes, allCombined]);
-
-  useHotkeys('ctrl+v', () => {
-    if (mode === 'DRAW') {
-      window.alert('Cannot paste electrodes in draw mode');
-      return;
-    }
-    paste(null, relativeX, relativeY);
-  }, [mode, selected, combSelected, clipboard, electrodes, allCombined, relativeX, relativeY]);
-
-  useHotkeys('ctrl+x', () => {
-    if (mode === 'DRAW') {
-      window.alert('Cannot cut electrodes in draw mode');
-      return;
-    }
-    cut();
-  }, [mode, selected, combSelected, clipboard, electrodes, allCombined]);
-
-  useHotkeys('delete', () => {
-    if (mode === 'DRAW') {
-      window.alert('Cannot delete electrodes in draw mode');
-      return;
-    }
-    if (mode === 'PIN') {
-      deleteSelectedMappings();
-    } else {
-      BothDelete();
-    }
-  }, [mode, selected, combSelected, electrodes, pinActuate, pinToElec, elecToPin]);
-
-  useHotkeys('c', (e) => {
-    if (mode === 'DRAW') {
-      window.alert('Cannot combine electrodes in draw mode');
-      return;
-    }
-    handleCombine(e);
-  }, [mode, selected, combSelected, electrodes, allCombined]);
-
-  useHotkeys('s', () => {
-    if (mode === 'DRAW') {
-      window.alert('Cannot separate electrodes in draw mode');
-      return;
-    }
-    separate();
-  }, [mode, selected, combSelected, electrodes, allCombined]);
-
-  useHotkeys('esc', () => {
-    if (!selected.length && !combSelected.length) {
-      window.alert('No electrodes selected');
-      return;
-    }
-    unselect();
-  }, [selected, combSelected]);
-
   return (
     <div
       className="wrapper"
@@ -850,162 +769,58 @@ export default function Canvas() {
         overflow: mode === 'SEQ' || mode === 'PIN' ? 'hidden' : 'visible',
       }}
     >
-      {
-        mode === 'DRAW' || moving ? (
-          <TransformWrapper
-            minScale={0.51}
-            limitToBounds={false}
-            panning={{ disabled: !panning, excluded: ['react-transform-wrapper'] }}
-            pinch={{ excluded: ['react-transform-wrapper'] }}
-            doubleClick={{ excluded: ['react-transform-wrapper'] }}
-            wheel={{ excluded: ['react-transform-wrapper'] }}
-            onPanningStop={(ref) => {
-              setScaleXY({
-                scale: ref.state.scale,
-                svgX: ref.state.positionX,
-                svgY: ref.state.positionY,
-              });
-              panningStop(ref);
+      (
+      <TransformWrapper
+        minScale={0.51}
+        initialScale={mode === 'PIN' ? 0.51 : 1}
+        limitToBounds={false}
+        panning={{ disabled: !panning, excluded: ['react-transform-wrapper'] }}
+        pinch={{ excluded: ['react-transform-wrapper'] }}
+        doubleClick={{ excluded: ['react-transform-wrapper'] }}
+        wheel={{ excluded: ['react-transform-wrapper'] }}
+        onPanningStop={(ref) => {
+          setScaleXY({
+            scale: ref.state.scale,
+            svgX: ref.state.positionX,
+            svgY: ref.state.positionY,
+          });
+          panningStop(ref);
+        }}
+        velocityAnimation={{ disabled: true }}
+        onZoom={(ref) => setScaleXY({
+          scale: ref.state.scale,
+          svgX: ref.state.positionX,
+          svgY: ref.state.positionY,
+        })}
+      >
+        <TransformComponent id="zoom_div">
+          <SVGContainer
+            menuClick={menuClick}
+            mode={mode}
+            scalexy={scaleXY}
+            width={CANVAS_TRUE_WIDTH}
+            height={CANVAS_TRUE_HEIGHT}
+            onSelectChange={onSelectChange}
+            items={selectables}
+            isMovable={false}
+            // eslint-disable-next-line react/jsx-boolean-value
+            isSelectable={true}
+            style={{
+              backgroundColor: '#93D08C',
+              backgroundSize: `${ELEC_SIZE}px ${ELEC_SIZE}px`,
+              backgroundImage: `linear-gradient(to right, grey 1px, transparent 1px),
+                linear-gradient(to bottom, grey 1px, transparent 1px)`,
+              width: CANVAS_TRUE_WIDTH,
+              height: CANVAS_TRUE_HEIGHT,
             }}
-            velocityAnimation={{ disabled: true }}
-          >
-            <TransformComponent id="zoom_div">
-              <svg
-                className="greenArea"
-                xmlns="http://www.w3.org/2000/svg"
-                style={{
-                  width: CANVAS_TRUE_WIDTH,
-                  height: CANVAS_TRUE_HEIGHT,
-                  backgroundColor: '#93D08C',
-                  backgroundSize: `${ELEC_SIZE}px ${ELEC_SIZE}px`,
-                  backgroundImage:
-                    `linear-gradient(to right, grey 1px, transparent 1px),
-                    linear-gradient(to bottom, grey 1px, transparent 1px)`,
-                }}
-              >
-                {electrodes.map((element, ind) => {
-                  const idx = element.ids;
-                  return (
-                    <DraggableItem key={idx} ind={ind} scaleXY={scaleXY}>
-                      <rect
-                        id={`S${idx}`}
-                        data-testid="square"
-                        x={element.initPositions[0]}
-                        y={element.initPositions[1]}
-                        width={ELEC_SIZE - 5}
-                        height={ELEC_SIZE - 5}
-                        className={`electrode
-                                      ${mode === 'SEQ' && pinActuate.has(currentStep)
-                                      && Object.prototype.hasOwnProperty.call(elecToPin, `S${idx}`)
-                                      && pinActuate.get(currentStep).content.has(elecToPin[`S${idx}`]) ? 'toSeq' : ''}
-                                      ${mode === 'CAN' && selected.includes(`${idx}`) ? 'selected' : ''}
-                                      ${mode === 'PIN' && currElec === `S${idx}` ? 'toPin' : ''}`}
-                      />
-                      {Object.prototype.hasOwnProperty.call(elecToPin, `S${idx}`)
-                        ? (
-                          <text
-                            x={element.initPositions[0] + 2}
-                            y={element.initPositions[1] + ELEC_SIZE / 2}
-                            width={ELEC_SIZE - 5}
-                            height={ELEC_SIZE - 5}
-                            fill="white"
-                          >
-                            {elecToPin[`S${idx}`]}
-                          </text>
-                        ) : (
-                          <></>
-                        )}
-                    </DraggableItem>
-                  );
-                })}
-                {Object.entries(finalCombines).map((comb, ind) => (
-                  <DraggableComb key={ind.id} id={comb[0]} scaleXY={scaleXY}>
-                    <path
-                      id={`C${comb[0]}`}
-                      d={comb[1][0]}
-                      className={`electrode
-                                    ${mode === 'SEQ' && pinActuate.has(currentStep)
-                                    && Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
-                                    && pinActuate.get(currentStep).content.has(elecToPin[`C${comb[0]}`]) ? 'toSeq' : ''}
-                                    ${mode === 'CAN' && combSelected.includes(`${comb[0]}`) ? 'selected' : ''}
-                                    ${mode === 'PIN' && currElec === `C${comb[0]}` ? 'toPin' : ''}`}
-                      data-testid="combined"
-                    />
-                    {Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
-                      && (
-                        <text
-                          x={comb[1][1] + 2}
-                          y={comb[1][2] + ELEC_SIZE / 2}
-                          width={ELEC_SIZE - 5}
-                          height={ELEC_SIZE - 5}
-                          fill="white"
-                        >
-                          {elecToPin[`C${comb[0]}`]}
-                        </text>
-                      )}
-                  </DraggableComb>
-                ))}
-              </svg>
-            </TransformComponent>
-          </TransformWrapper>
-        ) : (
-          <TransformWrapper
-            minScale={0.51}
-            initialScale={mode === 'PIN' ? 0.51 : 1}
-            limitToBounds={false}
-            panning={{ disabled: !panning, excluded: ['react-transform-wrapper'] }}
-            pinch={{ excluded: ['react-transform-wrapper'] }}
-            doubleClick={{ excluded: ['react-transform-wrapper'] }}
-            wheel={{ excluded: ['react-transform-wrapper'] }}
-            onPanningStop={(ref) => {
-              setScaleXY({
-                scale: ref.state.scale,
-                svgX: ref.state.positionX,
-                svgY: ref.state.positionY,
-              });
-              panningStop(ref);
-            }}
-            velocityAnimation={{ disabled: true }}
-            onZoom={(ref) => setScaleXY({
-              scale: ref.state.scale,
-              svgX: ref.state.positionX,
-              svgY: ref.state.positionY,
-            })}
-          >
-            <TransformComponent id="zoom_div">
-              <SVGContainer
-                menuClick={menuClick}
-                mode={mode}
-                scalexy={scaleXY}
-                width={CANVAS_TRUE_WIDTH}
-                height={CANVAS_TRUE_HEIGHT}
-                onSelectChange={onSelectChange}
-                items={selectables}
-                isMovable={false}
-                // eslint-disable-next-line react/jsx-boolean-value
-                isSelectable={true}
-                style={{
-                  backgroundColor: '#93D08C',
-                  backgroundSize: `${ELEC_SIZE}px ${ELEC_SIZE}px`,
-                  backgroundImage: `linear-gradient(to right, grey 1px, transparent 1px),
-                    linear-gradient(to bottom, grey 1px, transparent 1px)`,
-                  width: CANVAS_TRUE_WIDTH,
-                  height: CANVAS_TRUE_HEIGHT,
-                }}
-                className="greenArea"
-              />
-            </TransformComponent>
-          </TransformWrapper>
-        )
-      }
+            className="greenArea"
+          />
+        </TransformComponent>
+      </TransformWrapper>
+      )
       <ContextMenu
         setMenuClick={setMenuClick}
         contextUnselect={unselect}
-        contextCopy={copy}
-        contextPaste={paste}
-        contextCut={cut}
-        contextDelete={BothDelete}
-        contextMove={move}
         separate={separate}
         handleCombine={handleCombine}
         deleteSelectedMappings={deleteSelectedMappings}

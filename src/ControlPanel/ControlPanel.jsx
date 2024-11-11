@@ -235,16 +235,18 @@ export default function ControlPanel({ scrollOpen }) {
               </ListItem>
             </Tooltip>
 
-            <Tooltip title="Select and Move Electrodes" data-testid="CAN">
+            {/* <Tooltip title="Select and Move Electrodes" data-testid="CAN">
               <ListItem button onClick={() => setNewMode('CAN')}>
-                <img src={mode === 'CAN' ? icons.selectiontool.onClick : icons.selectiontool.icon} alt="Selection Tool" />
+                <img src={mode === 'CAN' ? icons.selectiontool.onClick : icons.selectiontool.icon}
+                alt="Selection Tool" />
               </ListItem>
             </Tooltip>
             <Tooltip title="Draw">
               <ListItem button onClick={() => setNewMode('DRAW')} data-testid="draw-button">
-                <img src={mode === 'DRAW' ? icons.electrodepen.onClick : icons.electrodepen.icon} alt="Electrode Pen" />
+                <img src={mode === 'DRAW' ? icons.electrodepen.onClick : icons.electrodepen.icon}
+                alt="Electrode Pen" />
               </ListItem>
-            </Tooltip>
+            </Tooltip> */}
 
             <Tooltip title="Pan Canvas" data-testid="PAN">
               <ListItem button onClick={() => setPanning(!panning)}>

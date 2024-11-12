@@ -8,6 +8,7 @@ module.exports = {
     'plugin:react/recommended',
     'plugin:cypress/recommended',
     'airbnb',
+    'react-app',
   ],
   parserOptions: {
     ecmaFeatures: {
@@ -22,5 +23,6 @@ module.exports = {
   ],
   rules: {
     'react/prop-types': ['off'],
+    'linebreak-style': 'off',
   },
 };

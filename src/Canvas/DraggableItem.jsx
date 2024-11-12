@@ -1,14 +1,12 @@
 /* eslint-disable react/destructuring-assignment */
-import React, {
-  useRef, useContext, useState,
-} from 'react';
-import ReactDraggable from 'react-draggable';
-import useSelected from './useSelected';
-import useReset from './useReset';
-import './Canvas.css';
-import { CanvasContext } from '../Contexts/CanvasProvider';
-import { GeneralContext } from '../Contexts/GeneralProvider';
-import { ELEC_SIZE } from '../constants';
+import React, { useRef, useContext, useState } from "react";
+import ReactDraggable from "react-draggable";
+import useSelected from "./useSelected";
+import useReset from "./useReset";
+import "./Canvas.css";
+import { CanvasContext } from "../Contexts/CanvasProvider";
+import { GeneralContext } from "../Contexts/GeneralProvider";
+import { ELEC_SIZE } from "../constants";
 
 function DraggableItem({ ind, children, scaleXY }) {
   const { mode } = useContext(GeneralContext);
@@ -19,7 +17,8 @@ function DraggableItem({ ind, children, scaleXY }) {
   const { electrodes } = context.squares;
   const elecSelected = context.squares.selected;
 
-  const isSelected = elecSelected && elecSelected.indexOf(`${electrodes[ind].ids}`) >= 0;
+  const isSelected =
+    elecSelected && elecSelected.indexOf(`${electrodes[ind].ids}`) >= 0;
 
   let transform = {};
   let boop;
@@ -27,8 +26,16 @@ function DraggableItem({ ind, children, scaleXY }) {
   else boop = delta;
 
   const { deltas } = electrodes[ind];
-  if (isSelected) transform = { transform: `translate(${boop.x + deltas[0]}px, ${boop.y + deltas[1]}px)` };
-  else transform = { transform: `translate(${deltas[0]}px, ${deltas[1]}px)` };
+  if (isSelected)
+    transform = {
+      transform: `translate3d(${boop.x + deltas[0]}px, ${
+        boop.y + deltas[1]
+      }px, 0px)`,
+    };
+  else
+    transform = {
+      transform: `translate3d(${deltas[0]}px, ${deltas[1]}px, 0px)`,
+    };
 
   const dragItem = useRef(null);
 
@@ -68,14 +75,12 @@ function DraggableItem({ ind, children, scaleXY }) {
         return false;
       }}
       position={{ x: 0, y: 0 }}
-      disabled={mode !== 'CAN' || !isSelected}
+      disabled={mode !== "CAN" || !isSelected}
       grid={[ELEC_SIZE, ELEC_SIZE]}
       nodeRef={dragItem}
     >
       <g ref={dragItem}>
-        <g style={transform}>
-          {children}
-        </g>
+        <g style={transform}>{children}</g>
       </g>
     </ReactDraggable>
   );

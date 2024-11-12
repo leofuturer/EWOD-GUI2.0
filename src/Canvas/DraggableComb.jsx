@@ -1,14 +1,12 @@
 /* eslint-disable react/destructuring-assignment */
-import React, {
-  useRef, useContext, useState,
-} from 'react';
-import ReactDraggable from 'react-draggable';
-import useSelected from './useSelected';
-import useReset from './useReset';
-import './Canvas.css';
-import { CanvasContext } from '../Contexts/CanvasProvider';
-import { GeneralContext } from '../Contexts/GeneralProvider';
-import { ELEC_SIZE } from '../constants';
+import React, { useRef, useContext, useState } from "react";
+import ReactDraggable from "react-draggable";
+import useSelected from "./useSelected";
+import useReset from "./useReset";
+import "./Canvas.css";
+import { CanvasContext } from "../Contexts/CanvasProvider";
+import { GeneralContext } from "../Contexts/GeneralProvider";
+import { ELEC_SIZE } from "../constants";
 
 function DraggableComb({ id, children, scaleXY }) {
   const { mode } = useContext(GeneralContext);
@@ -25,7 +23,8 @@ function DraggableComb({ id, children, scaleXY }) {
   if (delta === null) boop = { x: 0, y: 0 };
   else boop = delta;
 
-  if (isSelected) transform = { transform: `translate(${boop.x}px, ${boop.y}px)` };
+  if (isSelected)
+    transform = { transform: `translate3d(${boop.x}px, ${boop.y}px, 0px)` };
 
   const dragItem = useRef(null);
 
@@ -65,14 +64,12 @@ function DraggableComb({ id, children, scaleXY }) {
         return false;
       }}
       position={{ x: 0, y: 0 }}
-      disabled={mode !== 'CAN' || !isSelected}
+      disabled={mode !== "CAN" || !isSelected}
       grid={[ELEC_SIZE, ELEC_SIZE]}
       nodeRef={dragItem}
     >
       <g ref={dragItem}>
-        <g style={transform}>
-          {children}
-        </g>
+        <g style={transform}>{children}</g>
       </g>
     </ReactDraggable>
   );

@@ -22,7 +22,20 @@ module.exports = {
     // 'jest',
   ],
   rules: {
-    'react/prop-types': ['off'],
+    'react/prop-types': 'off',
     'linebreak-style': 'off',
+
+    
+    'quotes': ['off', 'single'],                    
+    'object-curly-newline': 'off',       
+    'comma-dangle': 'off',                    
+    'operator-linebreak': 'off',       
+    'nonblock-statement-body-position': 'off',
+    'curly': 'off',
+    'react/jsx-no-bind': 'off',
+    'react/jsx-curly-newline': 'off',
+    'implicit-arrow-linebreak': 'off',
+    'indent': 'off',                  
+    'function-paren-newline': 'off',               
   },
 };

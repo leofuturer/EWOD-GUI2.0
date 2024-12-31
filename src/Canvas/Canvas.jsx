@@ -10,7 +10,7 @@ import DraggableItem from './DraggableItem';
 import DraggableComb from './DraggableComb';
 
 import { CanvasContext } from '../Contexts/CanvasProvider';
-import { ActuationContext } from '../Contexts/ActuationProvider';
+// import { ActuationContext } from '../Contexts/ActuationProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 
 import ContextMenu from './ContextMenu';
@@ -36,14 +36,13 @@ export default function Canvas() {
     // eslint-disable-next-line max-len
     setClipboard, setMouseDown, setElectrodes, setSelected, setCombSelected, setComboLayout, setMoving,
   } = canvasContext;
-
-  const actuationContext = useContext(ActuationContext);
-  const { currentStep, pinActuate } = actuationContext.actuation;
-  const { actuatePin, pushHistory, setPinActuation } = actuationContext;
+  // const actuationContext = useContext(ActuationContext);
+  // const { currentStep, pinActuate } = actuationContext.actuation;
+  // const { actuatePin } = actuationContext;
 
   const {
-    mode, currElec, elecToPin, setCurrElec, panning, setScaleXY, scaleXY, setPanning,
-    pinToElec, setPinToElec, setElecToPin,
+    mode, elecToPin, setCurrElec, panning, setScaleXY, scaleXY, setPanning,
+    pinToElec,
   } = useContext(GeneralContext);
 
   const [middleDown, setMiddleDown] = useState(false);
@@ -159,25 +158,7 @@ export default function Canvas() {
   }, [handleMouseMove]);
 
   /* ########################### ACTUATION START ########################### */
-  function handleActuationMapping(ind) {
-    if (mode === 'SEQ') {
-      if (ind === 'REF') {
-        window.alert('cannot actuate REF electrode');
-        return;
-      }
-      if (pinActuate.get(currentStep).content.has(ind)) {
-        pushHistory({
-          type: 'actuate', pin: ind, id: currentStep, act: false,
-        });
-      } else {
-        pushHistory({
-          type: 'actuate', pin: ind, id: currentStep, act: true,
-        });
-      }
-      actuatePin(ind);
-      console.log(`Actuate ${ind} electrode`);
-    }
-  }
+
   /* ########################### ACTUATION END ########################### */
   /* ########################### HELPERS START ########################### */
   function isArrayInArray(arr, item) {
@@ -288,11 +269,7 @@ export default function Canvas() {
         tagName: 'rect',
         'data-testid': 'square',
         className: `electrode
-          ${mode === 'SEQ' && pinActuate.has(currentStep)
-          && Object.prototype.hasOwnProperty.call(elecToPin, `S${ids}`)
-          && pinActuate.get(currentStep).content.has(elecToPin[`S${ids}`]) ? 'toSeq' : ''}
-          ${mode === 'CAN' && selected.includes(`${ids}`) ? 'selected' : ''}
-          ${mode === 'PIN' && (currElec === `S${ids}` || selected.includes(`${ids}`)) ? 'toPin' : ''}`,
+          ${mode === 'CAN' && selected.includes(`${ids}`) ? 'selected' : ''}`,
         x: initPositions[0] + deltas[0],
         y: initPositions[1] + deltas[1],
         width: ELEC_SIZE - 5,
@@ -320,11 +297,7 @@ export default function Canvas() {
         'data-testid': 'combined',
         d: comb[1][0],
         className: `electrode
-          ${mode === 'SEQ' && pinActuate.has(currentStep)
-          && Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
-          && pinActuate.get(currentStep).content.has(elecToPin[`C${comb[0]}`]) ? 'toSeq' : ''}
-          ${mode === 'CAN' && combSelected.includes(`${comb[0]}`) ? 'selected' : ''}
-          ${mode === 'PIN' && (currElec === `C${comb[0]}` || combSelected.includes(`${comb[0]}`)) ? 'toPin' : ''}`,
+          ${mode === 'CAN' && combSelected.includes(`${comb[0]}`) ? 'selected' : ''}`,
         scale: scaleXY.scale,
         svgx: scaleXY.svgX,
         svgy: scaleXY.svgY,
@@ -346,7 +319,7 @@ export default function Canvas() {
 
     setSelectables(newSelectables);
   }, [mode, moving, finalCombines, electrodes, elecToPin, selected,
-    combSelected, actuatePin, scaleXY, setScaleXY]);
+    combSelected, scaleXY, setScaleXY]);
 
   function onSelectChange(selectedElecs) {
     const sIds = []; // square ids
@@ -390,19 +363,20 @@ export default function Canvas() {
     }
 
     // handle actuation
-    if (selectedElecs.length === 1) {
-      if (mode === 'SEQ') {
-        if (sIds.length && Object.prototype.hasOwnProperty.call(elecToPin, `S${sIds[0]}`)) {
-          handleActuationMapping(elecToPin[`S${sIds[0]}`]);
-        } else if (cIds.length && Object.prototype.hasOwnProperty.call(elecToPin, `C${cIds[0]}`)) {
-          handleActuationMapping(elecToPin[`C${cIds[0]}`]);
-        } else {
-          window.alert('no pin number for this electrode');
-        }
-      } else {
-        handleActuationMapping(sIds[0]);
-      }
-    }
+    // if (selectedElecs.length === 1) {
+    //   if (mode === 'SEQ') {
+    //     if (sIds.length && Object.prototype.hasOwnProperty.call(elecToPin, `S${sIds[0]}`)) {
+    //       handleActuationMapping(elecToPin[`S${sIds[0]}`]);
+    //     } else if
+    //       (cIds.length && Object.prototype.hasOwnProperty.call(elecToPin, `C${cIds[0]}`)) {
+    //       handleActuationMapping(elecToPin[`C${cIds[0]}`]);
+    //     } else {
+    //       window.alert('no pin number for this electrode');
+    //     }
+    //   } else {
+    //     handleActuationMapping(sIds[0]);
+    //   }
+    // }
   }
 
   const [menuClick, setMenuClick] = useState(0);
@@ -568,31 +542,31 @@ export default function Canvas() {
   }
 
   function squaresDelete() {
-    const mappedPins = [];
+    // const mappedPins = [];
     // go through selected squares to erase any of their pin mappings
-    electrodes.forEach((element) => {
-      if (selected.includes(`${element.ids}`)) {
-        const square = `S${element.ids}`;
-        const mappedPin = elecToPin[square];
-        if (mappedPin) { // mapping exists for this electrode so delete mapping
-          mappedPins.push(mappedPin);
-          delete pinToElec[mappedPin];
-          delete elecToPin[square];
-        }
-      }
-    });
+    // electrodes.forEach((element) => {
+    //   if (selected.includes(`${element.ids}`)) {
+    //     const square = `S${element.ids}`;
+    //     const mappedPin = elecToPin[square];
+    //     if (mappedPin) { // mapping exists for this electrode so delete mapping
+    //       mappedPins.push(mappedPin);
+    //       delete pinToElec[mappedPin];
+    //       delete elecToPin[square];
+    //     }
+    //   }
+    // });
 
-    Array.from(pinActuate.keys()).forEach((key) => {
-      const value = pinActuate.get(key);
-      value.content.forEach((e) => {
-        if (mappedPins.includes(e)) value.content.delete(e);
-      });
-    });
+    // Array.from(pinActuate.keys()).forEach((key) => {
+    //   const value = pinActuate.get(key);
+    //   value.content.forEach((e) => {
+    //     if (mappedPins.includes(e)) value.content.delete(e);
+    //   });
+    // });
 
-    setPinActuation(new Map(pinActuate));
+    // setPinActuation(new Map(pinActuate));
 
-    setPinToElec({ ...pinToElec });
-    setElecToPin({ ...elecToPin });
+    // setPinToElec({ ...pinToElec });
+    // setElecToPin({ ...elecToPin });
     const newElectrodes = electrodes.filter((element) => !selected.includes(`${element.ids}`));
     setSelected([]);
     setElectrodes(newElectrodes);
@@ -600,17 +574,17 @@ export default function Canvas() {
 
   function combinedDelete() {
     // go through selected combined elecs to erase any of their pin mappings
-    combSelected.forEach((index) => {
-      const combined = `C${index}`;
-      const mappedPin = elecToPin[combined];
-      if (mappedPin) { // mapping exists for this electrode so delete mapping
-        delete pinToElec[mappedPin];
-        delete elecToPin[combined];
-      }
-    });
+    // combSelected.forEach((index) => {
+    //   const combined = `C${index}`;
+    //   const mappedPin = elecToPin[combined];
+    //   if (mappedPin) { // mapping exists for this electrode so delete mapping
+    //     delete pinToElec[mappedPin];
+    //     delete elecToPin[combined];
+    //   }
+    // });
 
-    setPinToElec({ ...pinToElec });
-    setElecToPin({ ...elecToPin });
+    // setPinToElec({ ...pinToElec });
+    // setElecToPin({ ...elecToPin });
     setComboLayout(allCombined.filter((combi) => !combSelected.includes(`${combi[2]}`)));
     setCombSelected([]);
   }
@@ -739,38 +713,38 @@ export default function Canvas() {
     combinedDelete();
   }
 
-  function deleteSelectedMappings() {
-    if (selected.length || combSelected.length || currElec) {
-      const etp = { ...elecToPin };
-      const pte = { ...pinToElec };
-      if (currElec) {
-        if (etp[currElec]) {
-          delete pte[etp[currElec]];
-          delete etp[currElec];
-        }
-        setCurrElec(null);
-      } else {
-        if (selected.length) {
-          selected.forEach((num) => {
-            if (etp[`S${num}`]) {
-              delete pte[etp[`S${num}`]];
-              delete etp[`S${num}`];
-            }
-          });
-        }
-        if (combSelected.length) {
-          combSelected.forEach((num) => {
-            if (etp[`C${num}`]) {
-              delete pte[etp[`C${num}`]];
-              delete etp[`C${num}`];
-            }
-          });
-        }
-      }
-      setElecToPin(etp);
-      setPinToElec(pte);
-    }
-  }
+  // function deleteSelectedMappings() {
+  //   if (selected.length || combSelected.length || currElec) {
+  //     const etp = { ...elecToPin };
+  //     const pte = { ...pinToElec };
+  //     if (currElec) {
+  //       if (etp[currElec]) {
+  //         delete pte[etp[currElec]];
+  //         delete etp[currElec];
+  //       }
+  //       setCurrElec(null);
+  //     } else {
+  //       if (selected.length) {
+  //         selected.forEach((num) => {
+  //           if (etp[`S${num}`]) {
+  //             delete pte[etp[`S${num}`]];
+  //             delete etp[`S${num}`];
+  //           }
+  //         });
+  //       }
+  //       if (combSelected.length) {
+  //         combSelected.forEach((num) => {
+  //           if (etp[`C${num}`]) {
+  //             delete pte[etp[`C${num}`]];
+  //             delete etp[`C${num}`];
+  //           }
+  //         });
+  //       }
+  //     }
+  //     setElecToPin(etp);
+  //     setPinToElec(pte);
+  //   }
+  // }
 
   // keyboard shortcuts
   useHotkeys('m', () => {
@@ -811,11 +785,11 @@ export default function Canvas() {
       return;
     }
     if (mode === 'PIN') {
-      deleteSelectedMappings();
+      // deleteSelectedMappings();
     } else {
       BothDelete();
     }
-  }, [mode, selected, combSelected, electrodes, pinActuate, pinToElec, elecToPin]);
+  }, [mode, selected, combSelected, electrodes, pinToElec, elecToPin]);
 
   useHotkeys('c', (e) => {
     if (mode === 'DRAW') {
@@ -895,11 +869,7 @@ export default function Canvas() {
                         width={ELEC_SIZE - 5}
                         height={ELEC_SIZE - 5}
                         className={`electrode
-                                      ${mode === 'SEQ' && pinActuate.has(currentStep)
-                                      && Object.prototype.hasOwnProperty.call(elecToPin, `S${idx}`)
-                                      && pinActuate.get(currentStep).content.has(elecToPin[`S${idx}`]) ? 'toSeq' : ''}
-                                      ${mode === 'CAN' && selected.includes(`${idx}`) ? 'selected' : ''}
-                                      ${mode === 'PIN' && currElec === `S${idx}` ? 'toPin' : ''}`}
+                                      ${mode === 'CAN' && selected.includes(`${idx}`) ? 'selected' : ''}`}
                       />
                       {Object.prototype.hasOwnProperty.call(elecToPin, `S${idx}`)
                         ? (
@@ -924,11 +894,7 @@ export default function Canvas() {
                       id={`C${comb[0]}`}
                       d={comb[1][0]}
                       className={`electrode
-                                    ${mode === 'SEQ' && pinActuate.has(currentStep)
-                                    && Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
-                                    && pinActuate.get(currentStep).content.has(elecToPin[`C${comb[0]}`]) ? 'toSeq' : ''}
-                                    ${mode === 'CAN' && combSelected.includes(`${comb[0]}`) ? 'selected' : ''}
-                                    ${mode === 'PIN' && currElec === `C${comb[0]}` ? 'toPin' : ''}`}
+                                    ${mode === 'CAN' && combSelected.includes(`${comb[0]}`) ? 'selected' : ''}`}
                       data-testid="combined"
                     />
                     {Object.prototype.hasOwnProperty.call(elecToPin, `C${comb[0]}`)
@@ -1008,7 +974,7 @@ export default function Canvas() {
         contextMove={move}
         separate={separate}
         handleCombine={handleCombine}
-        deleteSelectedMappings={deleteSelectedMappings}
+        // deleteSelectedMappings={deleteSelectedMappings}
       />
     </div>
   );

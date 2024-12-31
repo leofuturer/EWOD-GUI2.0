@@ -149,7 +149,7 @@ export default function ControlPanel({ scrollOpen }) {
   const canvasContext = useContext(CanvasContext);
   const actuationContext = useContext(ActuationContext);
   const {
-    mode, setMode, setCurrElec, panning, setPanning, setScaleXY,
+    mode, setMode, setCurrElec, panning, setPanning,
   } = useContext(GeneralContext);
   const {
     setSelected, setCombSelected, setMoving, setDragging,
@@ -163,9 +163,6 @@ export default function ControlPanel({ scrollOpen }) {
   // const [refPanelOpen, setRefPanelOpen] = useState(false);
 
   function setNewMode(newMode) {
-    if (mode === 'PIN' && newMode !== 'PIN') {
-      setScaleXY({ scale: 1, svgX: 0, svgY: 0 });
-    }
     setMode(newMode);
     setSelected([]);
     setCombSelected([]);
@@ -216,24 +213,6 @@ export default function ControlPanel({ scrollOpen }) {
             <DeleteButton name="New File" />
             <UploadButton />
             <DownloadButton />
-
-            <Tooltip title="Sequence Actuation">
-              <ListItem button onClick={() => setNewMode('SEQ')} data-testid="act-seq-start">
-                <img src={mode === 'SEQ' ? icons.actuation.onClick : icons.actuation.icon} alt="Actuation Sequence" />
-              </ListItem>
-            </Tooltip>
-
-            <Tooltip title="Map Pins" data-testid="PIN">
-              <ListItem
-                button
-                onClick={() => {
-                  setScaleXY({ scale: 0.51, svgX: 0, svgY: 0 });
-                  setNewMode('PIN');
-                }}
-              >
-                <img src={mode === 'PIN' ? icons.electrodenumbering.onClick : icons.electrodenumbering.icon} alt="Electrode Numbering" />
-              </ListItem>
-            </Tooltip>
 
             <Tooltip title="Select and Move Electrodes" data-testid="CAN">
               <ListItem button onClick={() => setNewMode('CAN')}>

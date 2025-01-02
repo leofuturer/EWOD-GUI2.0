@@ -1,9 +1,8 @@
 import { ELEC_SIZE } from '../constants';
 
-export default function genFileContents(electrodes, allCombined, pinActuate, elecToPin) {
+export default function genFileContents(electrodes, allCombined, elecToPin) {
   const newContents = {}; const squares = []; const
     combs = [];
-  const seq = [];
   if (allCombined) {
     for (let i = 0; i < allCombined.length; i += 1) {
       const comb = allCombined[i];
@@ -27,25 +26,7 @@ export default function genFileContents(electrodes, allCombined, pinActuate, ele
     }
   }
 
-  if (pinActuate) {
-    pinActuate.forEach((value) => {
-      if (value.type === 'simple') {
-        let block = '';
-        value.content.forEach((e) => {
-          block = `${block + e.toString()},`;
-        });
-        block = block.slice(0, -1);
-        block = `${value.id}:${block}:${value.duration.toString()}:${value.order}`;
-        if (value.parent) {
-          block = `${block};${value.parent}:${pinActuate.get(value.parent).repTime.toString()}`;
-        }
-        seq.push(block);
-      }
-    });
-  }
-
   newContents.squares = squares;
   newContents.combs = combs;
-  newContents.actuation = seq;
   return newContents;
 }

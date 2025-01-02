@@ -3,22 +3,18 @@ import React, { useContext } from 'react';
 import ListItem from '@material-ui/core/ListItem';
 import Tooltip from '@material-ui/core/Tooltip';
 import { CanvasContext } from '../Contexts/CanvasProvider';
-import { ActuationContext } from '../Contexts/ActuationProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
-import ActuationSequence from '../Actuation/Actuation';
 import { setPin } from '../USBCommunication/USBCommunication';
 import icons from '../Icons/icons';
 import { ELEC_SIZE, CANVAS_WIDTH, CANVAS_HEIGHT } from '../constants';
 
 export default function UploadButton() {
   const context = useContext(CanvasContext);
-  const actuation = useContext(ActuationContext);
   const { setElecToPin, setPinToElec } = useContext(GeneralContext);
   const {
     squares, setElectrodes, setSelected, setComboLayout,
   } = context;
   const { electrodes } = squares;
-  const { setPinActuation, setSimpleNum, setCurrentStep } = actuation;
   const filePicker = document.getElementById('filePicker');
   async function getFileLegacy() {
     return new Promise((resolve, reject) => {
@@ -64,10 +60,8 @@ export default function UploadButton() {
         const content = await readFile(file);
         const newElectrodes = [];
         const newAllCombined = [];
-        const newPinActuate = new Map();
         const newElecToPin = {};
         const newPinToElec = {};
-        let currStep = 0;
         let newSimpleNum = 0;
         let prevOrd = Infinity;
         const stringList = content.split('\n');
@@ -112,30 +106,11 @@ export default function UploadButton() {
               if (sect.length > 2) {
                 window.alert("Your file's contents cannot be determined");
               }
-              const id = parseInt(sect[0].split(':')[0], 10);
-              const dur = parseInt(sect[0].split(':')[2], 10);
               const ord = parseInt(sect[0].split(':')[3], 10);
               if (ord < prevOrd) {
-                currStep = id;
                 prevOrd = ord;
               }
               newSimpleNum = Math.max(ord, newSimpleNum);
-              const newSeq = new ActuationSequence(id, 'simple', ord);
-              newSeq.duration = dur;
-              const set = new Set(sect[0].split(':')[1].split(','));
-              newSeq.content = set;
-              // removes the element created by the leading comma for older files
-              newSeq.content.delete('');
-              newPinActuate.set(id, newSeq);
-              if (sect.length === 2) {
-                if (!newPinActuate.has(+sect[1].split(':')[0])) {
-                  const newLoop = new ActuationSequence(+sect[1].split(':')[0], 'loop');
-                  newLoop.repTime = +sect[1].split(':')[1];
-                  newPinActuate.set(+sect[1].split(':')[0], newLoop);
-                }
-                newPinActuate.get(+sect[1].split(':')[0]).content.push(id);
-                newPinActuate.get(id).parent = +sect[1].split(':')[0];
-              }
             } else {
               window.alert("Your file's contents cannot be determined");
               return;
@@ -147,10 +122,7 @@ export default function UploadButton() {
         setSelected([]);
         setElectrodes(newElectrodes);
         setComboLayout(newAllCombined);
-        setCurrentStep(currStep);
-        setPinActuation(newPinActuate);
         // simple num should be the maximum of all the orders, + 1.
-        setSimpleNum(newSimpleNum + 1);
       }
     } catch (e) {
       console.log(e);

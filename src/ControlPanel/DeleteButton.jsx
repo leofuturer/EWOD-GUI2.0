@@ -8,18 +8,15 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import { DialogContentText } from '@material-ui/core';
 import { CanvasContext } from '../Contexts/CanvasProvider';
-import { ActuationContext } from '../Contexts/ActuationProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 import icons from '../Icons/icons';
 import { setPin } from '../USBCommunication/USBCommunication';
 
 export default function DeleteButton({ name }) {
   const context = useContext(CanvasContext);
-  const actuation = useContext(ActuationContext);
   const {
     setSelected, setElectrodes, setCombSelected, setComboLayout,
   } = context;
-  const { clearAll } = actuation;
 
   const { setPinToElec, setElecToPin } = useContext(GeneralContext);
   const [open, setOpen] = useState(false);
@@ -34,7 +31,7 @@ export default function DeleteButton({ name }) {
     setPinToElec({});
     setElecToPin({});
     setPin([], 0, true);
-    clearAll();
+    // clearAll();
     setOpen(false);
   }
   return (

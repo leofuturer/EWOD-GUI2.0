@@ -3,17 +3,14 @@ import ListItem from '@material-ui/core/ListItem';
 import Tooltip from '@material-ui/core/Tooltip';
 import genFileContents from './genFileContents';
 import { CanvasContext } from '../Contexts/CanvasProvider';
-import { ActuationContext } from '../Contexts/ActuationProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 import icons from '../Icons/icons';
 
 export default function DownloadButton() {
   const canvasContext = useContext(CanvasContext);
-  const actuationContext = useContext(ActuationContext);
   const { elecToPin } = useContext(GeneralContext);
   const { electrodes } = canvasContext.squares;
   const { allCombined } = canvasContext.combined;
-  const { pinActuate } = actuationContext.actuation;
   const aDownloadFile = document.getElementById('aDownloadFile');
   async function getNewFileHandle() {
     const options = {
@@ -40,9 +37,9 @@ export default function DownloadButton() {
     await writable.close();
   }
   async function handleDownload() {
-    const contents = genFileContents(electrodes, allCombined, pinActuate, elecToPin);
+    const contents = genFileContents(electrodes, allCombined, elecToPin);
     const fileText = `${contents.squares.join('\n')}\n${contents.combs.join('\n')
-    }\n#ENDOFELECTRODE#\n${contents.actuation.join('\n')}\n#ENDOFSEQUENCE#\n`;
+    }\n#ENDOFELECTRODE#\n`;
     if ('showSaveFilePicker' in window) {
       const handle = await getNewFileHandle();
       writeFile(handle, fileText);

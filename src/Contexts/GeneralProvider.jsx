@@ -47,7 +47,7 @@ const GeneralProvider = ({ children }) => {
   );
 
   useInterval(() => {
-    handleSave(null, null, null, pinToElec, elecToPin, db);
+    handleSave(null, null, pinToElec, elecToPin, db);
   }, 10000);
 
   return (

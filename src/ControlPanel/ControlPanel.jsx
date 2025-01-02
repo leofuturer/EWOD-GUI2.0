@@ -15,7 +15,6 @@ import { OpenWith } from '@material-ui/icons';
 import Tooltip from '@material-ui/core/Tooltip';
 import icons from '../Icons/icons';
 
-import { ActuationContext } from '../Contexts/ActuationProvider';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 
@@ -147,14 +146,12 @@ const MuiListItem = withStyles({
 
 export default function ControlPanel({ scrollOpen }) {
   const canvasContext = useContext(CanvasContext);
-  const actuationContext = useContext(ActuationContext);
   const {
     mode, setMode, setCurrElec, panning, setPanning,
   } = useContext(GeneralContext);
   const {
     setSelected, setCombSelected, setMoving, setDragging,
   } = canvasContext;
-  const { undo, redo } = actuationContext;
 
   const classes = useStyles();
   const [open, setOpen] = useState(false);
@@ -230,19 +227,6 @@ export default function ControlPanel({ scrollOpen }) {
                 <OpenWith style={{ color: panning ? '#23A829' : '#A06933', marginBottom: panning && 5 }} />
               </ListItem>
             </Tooltip>
-
-            {
-              mode === 'SEQ' && (
-                <>
-                  <ListItem button onClick={undo}>
-                    <img src={icons.undo.icon} alt="Undo" />
-                  </ListItem>
-                  <ListItem button onClick={redo}>
-                    <img src={icons.redo.icon} alt="Redo" />
-                  </ListItem>
-                </>
-              )
-            }
           </List>
 
           <List style={{ display: 'flex', flexDirection: 'row' }}>

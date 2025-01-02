@@ -85,7 +85,7 @@ const CanvasProvider = ({ children }) => {
   );
 
   useInterval(() => {
-    handleSave(squares.electrodes, combined.allCombined, null, null, elecToPin, db);
+    handleSave(squares.electrodes, combined.allCombined, null, elecToPin, db);
   }, 10000);
 
   return (

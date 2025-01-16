@@ -67,7 +67,11 @@ export default function DownloadButton() {
 
   return (
     <Tooltip title="Download">
-      <ListItem button onClick={handleDownload}>
+      <ListItem
+        button
+        // eslint-disable-next-line react/jsx-no-bind
+        onClick={handleDownload}
+      >
         <img src={icons.downloadfile.icon} alt="Download File" />
       </ListItem>
     </Tooltip>

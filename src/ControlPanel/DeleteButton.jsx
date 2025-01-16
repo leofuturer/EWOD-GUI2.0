@@ -60,6 +60,7 @@ export default function DeleteButton({ name }) {
             Cancel
           </Button>
           <Button
+            // eslint-disable-next-line react/jsx-no-bind
             onClick={handleDelete}
             color="primary"
             autoFocus

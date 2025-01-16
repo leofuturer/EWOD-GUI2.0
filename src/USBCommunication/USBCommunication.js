@@ -7,7 +7,7 @@ const EWODDeviceView = new Uint8Array(64); // Stores pin states
 const filters = [
   {
     vendorId: 1155,
-    productId: 22352,
+    productId: 22353,
   },
 ];
 

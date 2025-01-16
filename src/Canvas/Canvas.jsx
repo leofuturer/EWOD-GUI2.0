@@ -23,7 +23,7 @@ import range from '../Pins/range';
 export default function Canvas() {
   const canvasContext = useContext(CanvasContext);
   const { electrodes, selected } = canvasContext.squares;
-  const { mouseDown, moving } = canvasContext.state;
+  const { moving } = canvasContext.state;
   const { allCombined } = canvasContext.combined;
   const combSelected = canvasContext.combined.selected;
   // eslint-disable-next-line prefer-destructuring
@@ -92,7 +92,6 @@ export default function Canvas() {
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [handleMouseDown, handleMouseUp]);
-
 
   /* ########################### ACTUATION START ########################### */
   function handleActuationMapping(ind) {
@@ -354,7 +353,6 @@ export default function Canvas() {
     }
   }
 
-
   function squaresDelete() {
     const mappedPins = [];
     // go through selected squares to erase any of their pin mappings
@@ -402,7 +400,6 @@ export default function Canvas() {
     setComboLayout(allCombined.filter((combi) => !combSelected.includes(`${combi[2]}`)));
     setCombSelected([]);
   }
-
 
   function getCombinedLastFreeInd() {
     if (!allCombined.length) return 0;
@@ -590,6 +587,7 @@ export default function Canvas() {
             scalexy={scaleXY}
             width={CANVAS_TRUE_WIDTH}
             height={CANVAS_TRUE_HEIGHT}
+            // eslint-disable-next-line react/jsx-no-bind
             onSelectChange={onSelectChange}
             items={selectables}
             isMovable={false}
@@ -610,9 +608,13 @@ export default function Canvas() {
       )
       <ContextMenu
         setMenuClick={setMenuClick}
+        // eslint-disable-next-line react/jsx-no-bind
         contextUnselect={unselect}
+        // eslint-disable-next-line react/jsx-no-bind
         separate={separate}
+        // eslint-disable-next-line react/jsx-no-bind
         handleCombine={handleCombine}
+        // eslint-disable-next-line react/jsx-no-bind
         deleteSelectedMappings={deleteSelectedMappings}
       />
     </div>

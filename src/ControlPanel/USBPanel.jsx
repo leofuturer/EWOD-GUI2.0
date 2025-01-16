@@ -187,6 +187,7 @@ export default function USBPanel({ usbConnected }) {
       >
         <Button
           size="small"
+          // eslint-disable-next-line react/jsx-no-bind
           onClick={setZero}
           variant="contained"
           className={usbConnected && volt ? classes.brownBtn : classes.grayBtn}
@@ -196,7 +197,9 @@ export default function USBPanel({ usbConnected }) {
       </div>
       <div className="rButton">
         <Button
+          // eslint-disable-next-line react/jsx-no-bind
           size="small"
+          // eslint-disable-next-line react/jsx-no-bind
           onClick={setVpp}
           variant="contained"
           className={usbConnected ? classes.brownBtn : classes.grayBtn}

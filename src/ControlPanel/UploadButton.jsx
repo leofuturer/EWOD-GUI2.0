@@ -166,7 +166,11 @@ export default function UploadButton() {
 
   return (
     <Tooltip title="Upload">
-      <ListItem button onClick={handleImport}>
+      <ListItem
+        button
+        // eslint-disable-next-line react/jsx-no-bind
+        onClick={handleImport}
+      >
         <img src={icons.import.icon} alt="Import File" />
       </ListItem>
     </Tooltip>

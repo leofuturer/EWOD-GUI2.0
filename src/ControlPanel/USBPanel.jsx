@@ -47,11 +47,11 @@ const useStyles = makeStyles({
 export default function USBPanel({ usbConnected }) {
   const classes = useStyles();
 
-  const [volt, setVolt] = useState(0);
+  const [volt, setVolt] = useState(2.5);
   const [freq, setFreq] = useState(0);
 
   function setAndCheckVolt(v) {
-    if (v <= 180 && v >= 0) {
+    if (v <= 5.5 && v >= 1) {
       setVolt(v);
     }
   }
@@ -137,7 +137,7 @@ export default function USBPanel({ usbConnected }) {
 
       <div>
         <ButtonGroup size="small" style={{ width: '170px', float: 'left' }} className="inputCounters">
-          <Button className={classes.transparentBtn} onClick={() => setAndCheckVolt(volt - 5)}>
+          <Button className={classes.transparentBtn} onClick={() => setAndCheckVolt(volt - 0.5)}>
             <img src={icons.decrease.icon} alt="Decrease" />
           </Button>
           <input
@@ -146,10 +146,10 @@ export default function USBPanel({ usbConnected }) {
             type="number"
             value={volt}
             onBlur={() => {
-              if (volt > 180) { setVolt(180); } else if (volt < 40) { setVolt(40); }
+              if (volt > 5.5) { setVolt(5.5); } else if (volt < 1) { setVolt(1); }
             }}
           />
-          <Button className={classes.transparentBtn} onClick={() => setAndCheckVolt(volt + 5)}>
+          <Button className={classes.transparentBtn} onClick={() => setAndCheckVolt(volt + 0.5)}>
             <img src={icons.increase.icon} alt="Increase" />
           </Button>
         </ButtonGroup>
@@ -164,8 +164,8 @@ export default function USBPanel({ usbConnected }) {
         paddingLeft: '45px',
       }}
       >
-        <div className={classes.text}>40</div>
-        <div className={classes.text}>180</div>
+        <div className={classes.text}>1</div>
+        <div className={classes.text}>5.5</div>
       </div>
       <div style={{
         display: (volt >= 60 && usbConnected) ? 'flex' : 'none',

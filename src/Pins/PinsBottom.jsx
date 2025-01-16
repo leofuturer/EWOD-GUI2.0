@@ -71,38 +71,25 @@ export default function PinsBottom() {
       </Dialog>
       <div className="row" style={{ marginTop: 57 }}>
         {
-          range(169, 175).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
-        }
-        <button className="pin ref" type="button" onClick={(e) => setTempPin(e)}>REF</button>
-        {
-          range(176, 182).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
-        }
-        <button className="pin ref" type="button" onClick={(e) => setTempPin(e)}>REF</button>
-        {
-          range(183, 189).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
-        }
-        <button className="pin ref" type="button" onClick={(e) => setTempPin(e)}>REF</button>
-        {
-          range(190, 196).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
-        }
-        <button className="pin ref" type="button" onClick={(e) => setTempPin(e)}>REF</button>
-      </div>
-      <div className="row">
-        {
-          range(168, 137).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
+          range(161, 192).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
         }
       </div>
       <div className="row">
         {
-          range(41, 64).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
-        }
-        {
-          range(129, 136).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
+          range(160, 129).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
         }
       </div>
       <div className="row">
         {
-          range(40, 9).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
+          range(33, 56).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
+        }
+        {
+          range(121, 128).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
+        }
+      </div>
+      <div className="row">
+        {
+          range(32, 1).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
         }
       </div>
     </>

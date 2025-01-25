@@ -168,7 +168,7 @@ export default function USBPanel({ usbConnected }) {
         <div className={classes.text}>5.5</div>
       </div>
       <div style={{
-        display: (volt >= 60 && usbConnected) ? 'flex' : 'none',
+        display: 'flex',
         flexDirection: 'row',
         justifyContent: 'center',
         paddingRight: '45px',
@@ -181,7 +181,7 @@ export default function USBPanel({ usbConnected }) {
       <div
         style={{
           paddingLeft: '10px',
-          paddingTop: (volt >= 60 && usbConnected) ? '15px' : '60px',
+          paddingTop: '15px',
           marginBottom: '20px',
         }}
       >

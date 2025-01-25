@@ -87,7 +87,7 @@ export async function setPin(pins, value, reset = false) {
     return;
   }
 
-  const flag = pins.some((pin) => (pin < 9 || pin > 256));
+  const flag = pins.some((pin) => (pin < 1 || pin > 256));
   if (flag) {
     console.log('Pin out of range');
     return;
@@ -101,9 +101,9 @@ export async function setPin(pins, value, reset = false) {
 
   pins.forEach((pin) => {
     console.log(`Pin ${pin} set to ${value}`);
-    const index = 5 + Math.floor((pin - 9) / 8);
-    if (value) EWODDeviceView[index] |= (1 << ((pin - 9) % 8));
-    else EWODDeviceView[index] &= ~(1 << ((pin - 9) % 8));
+    const index = 5 + Math.floor((pin - 1) / 8);
+    if (value) EWODDeviceView[index] |= (1 << ((pin - 1) % 8));
+    else EWODDeviceView[index] &= ~(1 << ((pin - 1) % 8));
   });
 
   EWODDeviceView[0] = 0xAA;

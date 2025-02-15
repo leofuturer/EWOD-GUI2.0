@@ -76,7 +76,7 @@ export function isDeviceConnected() {
 
 // Set a list of pins to a given value (value is either 0 or 1)
 //   ex. setPin([9,10], 1) sets pins 9 and 10 to high
-export async function setPin(pins, value, reset = false, ack=false) {
+export async function setPin(pins, value, reset = false, ack = true) {
   if (!EWODDevice) {
     console.log('Device not connected');
     return;
@@ -113,21 +113,21 @@ export async function setPin(pins, value, reset = false, ack=false) {
 }
 
 // Sets EWOD's voltage
-export async function setV(voltage, ack=false) {
+export async function setV(voltage, ack = true) {
   if (!EWODDevice) {
     console.log('Device not connected');
     return;
   }
-
+  console.log(EWODDevice);
   if (ack) EWODDeviceView[0] = 0xAC;
   else EWODDeviceView[0] = 0xAA;
-  EWODDeviceView[40] = voltage;
+  EWODDeviceView[40] = voltage * 100;
   await EWODDevice.sendReport(0x00, EWODDeviceView);
   setInterval(sendAck, 1000);
 }
 
 // Sets EWOD's frequency
-export async function setF(frequency, ack=false) {
+export async function setF(frequency, ack = true) {
   const msb = frequency >> 8; // The highest bit is always 0 (max freq 10000 Hz)
   const lsb = frequency & 0xFF;
 

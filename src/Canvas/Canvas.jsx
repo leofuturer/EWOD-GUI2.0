@@ -16,6 +16,7 @@ import {
   CANVAS_RIGHT_EDGE, CANVAS_LEFT_EDGE, CANVAS_TOP_EDGE, CANVAS_BOTTOM_EDGE,
 } from '../constants';
 import range from '../Pins/range';
+import './Canvas.css';
 
 // hotkey library
 // const chassis = require('./chassis-with-background.svg');

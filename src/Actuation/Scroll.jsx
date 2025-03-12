@@ -334,10 +334,15 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
     handleClose();
   };
 
+  if (pinActuate?.has(currentStep)) {
+    console.log('SETTING PIN ACTUATIONS (INITIAL)');
+    setPin(Array.from(pinActuate.get(currentStep).content), 1, true);
+  }
+
   useEffect(() => {
+    console.log('SETTING PIN ACTUATIONS');
     setPin(Array.from(pinActuate.get(currentStep).content), 1, true);
   }, [currentStep]);
-
   return (
     <Drawer
       anchor="bottom"

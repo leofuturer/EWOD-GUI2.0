@@ -1,0 +1,101 @@
+{
+  "name": "ewod_gui_2.0",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.57",
+    "@material-ui/styles": "^4.11.3",
+    "@pronestor/react-zoom-pan-pinch": "^2.4.5",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "bootstrap": "^5.0.0-beta1",
+    "clsx": "^1.1.1",
+    "cra-template": "1.1.0",
+    "dexie": "^3.0.3",
+    "dragselect": "^3.1.1",
+    "file-loader": "^6.2.0",
+    "idb": "^5.0.7",
+    "patch-package": "^6.4.7",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-draggable": "4.3.1",
+    "react-hotkeys-hook": "^3.4.4",
+    "react-motion": "^0.5.2",
+    "react-redux": "^7.2.2",
+    "react-scripts": "^5.0.1",
+    "react-svg-drag-and-select": "^1.1.0",
+    "redux": "^4.0.5",
+    "web-vitals": "^0.2.4",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4",
+    "workbox-background-sync": "^6.6.1",
+    "workbox-broadcast-update": "^6.6.1",
+    "workbox-cacheable-response": "^6.6.1",
+    "workbox-core": "^6.6.1",
+    "workbox-expiration": "^6.6.1",
+    "workbox-google-analytics": "^6.6.1",
+    "workbox-navigation-preload": "^6.6.1",
+    "workbox-precaching": "^6.6.1",
+    "workbox-range-requests": "^6.6.1",
+    "workbox-routing": "^6.6.1",
+    "workbox-strategies": "^6.6.1",
+    "workbox-streams": "^6.6.1"
+  },
+  "scripts": {
+  "start": "set GENERATE_SOURCEMAP=false && set NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
+  "build": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts build",
+  "test": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts test",
+  "eject": "react-scripts eject",
+  "lint": "yarn run eslint \"src/**/*.js\" \"src/**/*.jsx\" \"cypress/**/*.js\"",
+  "postinstall": "patch-package",
+  "serve": "set NODE_OPTIONS=--openssl-legacy-provider && yarn build && serve -s build",
+  "cy:run": "set NODE_OPTIONS=--openssl-legacy-provider && cypress run -C cypress.json",
+  "cy:open": "set NODE_OPTIONS=--openssl-legacy-provider && cypress open",
+  "e2e": "set NODE_OPTIONS=--openssl-legacy-provider && concurrently \"set BROWSER=none && yarn start\" \"wait-on http-get://localhost:3000 && yarn cy:run\" --kill-others --success first",
+  "e2e-gui": "set NODE_OPTIONS=--openssl-legacy-provider && concurrently \"set BROWSER=none && yarn start\" \"wait-on http-get://localhost:3000 && yarn cy:open\" --kill-others --success first"
+},
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "overrides": {
+    "react-zoom-pan-pinch": {
+      "generateSourceMap": false
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "concurrently": "^6.0.2",
+    "cypress": "8.2.0",
+    "eslint": "^9.13.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-config-react-app": "^7.0.1",
+    "eslint-plugin-cypress": "^2.11.2",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jest": "^24.3.5",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-react": "^7.37.2",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "react-test-renderer": "^17.0.2",
+    "wait-on": "^5.3.0"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}

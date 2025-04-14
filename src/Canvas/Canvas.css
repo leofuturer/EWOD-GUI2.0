@@ -1,0 +1,40 @@
+.item {
+  color: #fff;
+  border-radius: 5px;
+  padding: 20px;
+  font-size: 150%;
+}
+
+.wrapper {
+  margin-left: 49px;
+}
+
+#zoom_div{
+  transform-origin: 0 0;
+  -webkit-transform-origin: 0 0;
+}
+
+.greenArea {
+  /* background-color: #93D08C;
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, grey 1px, transparent 1px),
+    linear-gradient(to bottom, grey 1px, transparent 1px); */
+}
+
+.electrode {
+  cursor: pointer;
+}
+
+.selected {
+  fill: blue;
+  cursor: grab;
+}
+
+.toSeq {
+  fill: red;
+}
+
+.toPin {
+  fill: green;
+}

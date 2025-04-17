@@ -557,7 +557,6 @@ export default function Canvas() {
         overflow: mode === 'SEQ' || mode === 'PIN' ? 'hidden' : 'visible',
       }}
     >
-      (
       <TransformWrapper
         minScale={0.51}
         initialScale={mode === 'PIN' ? 0.51 : 1}
@@ -606,7 +605,6 @@ export default function Canvas() {
           />
         </TransformComponent>
       </TransformWrapper>
-      )
       <ContextMenu
         setMenuClick={setMenuClick}
         // eslint-disable-next-line react/jsx-no-bind

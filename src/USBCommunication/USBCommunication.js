@@ -7,7 +7,7 @@ const EWODDeviceView = new Uint8Array(64); // Stores pin states
 const filters = [
   {
     vendorId: 1155,
-    productId: 22353,
+    productId: localStorage.getItem('deviceID') || 22353,
   },
 ];
 
@@ -77,9 +77,12 @@ export function isDeviceConnected() {
 
 // Set a list of pins to a given value (value is either 0 or 1)
 //   ex. setPin([9,10], 1) sets pins 9 and 10 to high
+
+// change this name to setElectrode or setSelectrodeVoltage
 export async function setPin(pins, value, reset = false, ack = true) {
   if (!EWODDevice) {
     console.log('Device not connected');
+    console.log(filters[0].productId);
     return;
   }
 

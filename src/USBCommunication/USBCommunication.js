@@ -56,7 +56,6 @@ async function getDevices(onRecvData) {
 
 async function sendAck() {
   EWODDeviceView[0] = 0xAB;
-  console.log(EWODDevice.opened);
   await EWODDevice.sendReport(0x00, EWODDeviceView);
 }
 
@@ -77,13 +76,9 @@ export function isDeviceConnected() {
 
 // Set a list of pins to a given value (value is either 0 or 1)
 //   ex. setPin([9,10], 1) sets pins 9 and 10 to high
-
-// change this name to setElectrode or setSelectrodeVoltage
 export async function setPin(pins, value, reset = false, ack = true) {
-  const filters = getFilter();
   if (!EWODDevice) {
     console.log('Device not connected');
-    console.log(filters.productId);
     return;
   }
 
@@ -111,30 +106,30 @@ export async function setPin(pins, value, reset = false, ack = true) {
     else EWODDeviceView[index] &= ~(1 << ((pin - 9) % 8));
   });
 
-  if (ack) EWODDeviceView[0] = 0xAC;
-  else EWODDeviceView[0] = 0xAA;
-  console.log(EWODDeviceView);
+  const filter = getFilter();
+  EWODDeviceView[0] = 0xAA;
+  if (filter.productId === 22353 && ack) EWODDeviceView[0] = 0xAC;
+
   await EWODDevice.sendReport(0x00, EWODDeviceView);
 }
 
 // Sets EWOD's voltage
 export async function setV(voltage, ack = true) {
+  const filter = getFilter();
   if (!EWODDevice) {
     console.log('Device not connected');
     return;
   }
-  console.log(voltage);
 
-  if (ack) EWODDeviceView[0] = 0xAC;
-  else EWODDeviceView[0] = 0xAA;
-
-  EWODDeviceView[40] = voltage * 100;
-  console.log(EWODDeviceView);
-  try {
-    await EWODDevice.sendReport(0x00, EWODDeviceView);
-  } catch (err) {
-    console.log(err);
+  EWODDeviceView[0] = 0xAA;
+  EWODDeviceView[40] = voltage;
+  if (filter.productId === 22353) {
+    EWODDeviceView[40] *= 100;
+    if (ack) EWODDeviceView[0] = 0xAC;
   }
+  console.log(EWODDeviceView);
+  console.log(EWODDevice);
+  await EWODDevice.sendReport(0x00, EWODDeviceView);
   setInterval(sendAck, 1000);
 }
 
@@ -143,8 +138,10 @@ export async function setF(frequency, ack = true) {
   const msb = frequency >> 8; // The highest bit is always 0 (max freq 10000 Hz)
   const lsb = frequency & 0xFF;
 
-  if (ack) EWODDeviceView[0] = 0xAC;
-  else EWODDeviceView[0] = 0xAA;
+  const filter = getFilter();
+
+  EWODDeviceView[0] = 0xAA;
+  if (filter.productId === 22353 && ack) EWODDeviceView[0] = 0xAC;
   EWODDeviceView[36] = lsb;
   EWODDeviceView[37] = msb;
 

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import db from './DBStorage';
 
 const DeviceContext = React.createContext();
 
@@ -11,26 +10,25 @@ const DeviceProvider = ({ children }) => {
       // create the store
 
       // perform a read/write transatiction on the new store
-      db.transaction('rw', db.formData, async () => {
-        const deviceId = await db.formData.get('deviceId');
-        // if there's no device id in local storage, add an empty one
-        if (!deviceId) await db.formData.add({ id: 'deviceId', value: 22353 });
-        else {
-          setId(parseInt(deviceId, 10));
-        }
-      }).catch((e) => console.log(e.stack || e));
+      const deviceId = localStorage.getItem('deviceId');
+      console.log('Initial device id');
+      console.log(deviceId);
+      if (!deviceId) localStorage.setItem('deviceId', 22353);
+
+      else setId(parseInt(deviceId, 10));
     },
     // run effect whenever the database connection changes
-    [db],
+    [],
   );
 
   const updateDeviceId = async (newDeviceId) => {
     try {
       // Update the state with the new device ID
+      // console.log(`trying to set id ${newDeviceId}`);
+      console.log(id);
+      console.log(localStorage.getItem('deviceId'));
       setId(newDeviceId);
-
-      // Update the device ID in IndexedDB
-      await db.formData.put({ id: 'deviceId', value: newDeviceId });
+      localStorage.setItem('deviceId', newDeviceId);
     } catch (e) {
       console.error('Error updating deviceId:', e.stack || e);
     }

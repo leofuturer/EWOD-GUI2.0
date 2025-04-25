@@ -18,6 +18,7 @@ import icons from '../Icons/icons';
 import { ActuationContext } from '../Contexts/ActuationProvider';
 import { CanvasContext } from '../Contexts/CanvasProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
+import { DeviceContext } from '../Contexts/DeviceProvider';
 
 import SaveButton from './SaveButton';
 import UploadButton from './UploadButton';
@@ -148,6 +149,7 @@ const MuiListItem = withStyles({
 export default function ControlPanel({ scrollOpen }) {
   const canvasContext = useContext(CanvasContext);
   const actuationContext = useContext(ActuationContext);
+  const { setId } = useContext(DeviceContext);
   const {
     mode, setMode, setCurrElec, panning, setPanning, setScaleXY,
   } = useContext(GeneralContext);
@@ -196,6 +198,15 @@ export default function ControlPanel({ scrollOpen }) {
     await initiateConnection(recvData);
     setUsbConnected(isDeviceConnected());
   }
+
+  const [selectedVoltage, setSelectedVoltage] = useState(parseInt(localStorage.getItem('deviceId'), 10) === 22353 ? 'lo' : 'hi');
+
+  const handleChange = (event) => {
+    const deviceId = event.target.value === 'lo' ? 22353 : 22352;
+    setSelectedVoltage(event.target.value);
+    setId(deviceId);
+    actuationContext.clearAll();
+  };
 
   return (
     <div className={classes.root} id="topbar-buffer">
@@ -266,6 +277,16 @@ export default function ControlPanel({ scrollOpen }) {
                 </>
               )
             }
+
+            <div>
+              <select
+                value={selectedVoltage}
+                onChange={handleChange}
+              >
+                <option value="lo">Low Voltage</option>
+                <option value="hi">High Voltage</option>
+              </select>
+            </div>
           </List>
 
           <List style={{ display: 'flex', flexDirection: 'row' }}>

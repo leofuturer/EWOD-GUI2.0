@@ -4,12 +4,12 @@
 let EWODDevice;
 const EWODDeviceView = new Uint8Array(64); // Stores pin states
 
-const filters = [
-  {
-    vendorId: 1155,
-    productId: localStorage.getItem('deviceID') || 22353,
-  },
-];
+function getFilter() {
+  console.log('getting filter');
+  let product = parseInt(localStorage.getItem('deviceId'), 10);
+  if (!product) product = 22353;
+  return { vendorId: 1155, productId: product };
+}
 
 // Internal
 
@@ -26,10 +26,10 @@ function handleData(data, onRecvData) {
 // and if not, will open pop up for new devices.
 async function getDevices(onRecvData) {
   let devices = await navigator.hid.getDevices();
-
+  const filter = getFilter();
   if (devices.length === 0) {
     // requestDevice will open a pop up for the user to give permission for
-    await navigator.hid.requestDevice({ filters });
+    await navigator.hid.requestDevice({ filters: [filter] });
     devices = await navigator.hid.getDevices();
   }
 
@@ -49,7 +49,7 @@ async function getDevices(onRecvData) {
 
   EWODDevice.addEventListener('inputreport', (event) => {
     const { data, device } = event;
-    if (device.productId !== filters[0].productId) return;
+    if (device.productId !== filter.productId) return;
     handleData(data, onRecvData);
   });
 }
@@ -80,9 +80,10 @@ export function isDeviceConnected() {
 
 // change this name to setElectrode or setSelectrodeVoltage
 export async function setPin(pins, value, reset = false, ack = true) {
+  const filters = getFilter();
   if (!EWODDevice) {
     console.log('Device not connected');
-    console.log(filters[0].productId);
+    console.log(filters.productId);
     return;
   }
 

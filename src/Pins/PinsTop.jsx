@@ -7,12 +7,14 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { DialogContentText } from '@material-ui/core';
 import range from './range';
 import useMap from './useMap';
+import { DeviceContext } from '../Contexts/DeviceProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 import { ActuationContext } from '../Contexts/ActuationProvider';
 import { setPin } from '../USBCommunication/USBCommunication';
 import './Pins.css';
 
 export default function PinsTop() {
+  const { id } = React.useContext(DeviceContext);
   const { actuation, clearAll } = React.useContext(ActuationContext);
   const { currElec } = React.useContext(GeneralContext);
 
@@ -64,26 +66,68 @@ export default function PinsTop() {
           </Button>
         </DialogActions>
       </Dialog>
-      <div className="row">
-        {
-          range(97, 128).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
-        }
-      </div>
-      <div className="row">
-        {
-          range(96, 65).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
-        }
-      </div>
-      <div className="row">
-        {
-          range(225, 256).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
-        }
-      </div>
-      <div className="row" style={{ marginBottom: 40 }}>
-        {
-          range(224, 193).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
-        }
-      </div>
+      {id === 22353
+        ? (
+          <div>
+            <div className="row">
+              {
+                range(97, 128).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
+              }
+            </div>
+            <div className="row">
+              {
+                range(96, 65).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
+              }
+            </div>
+            <div className="row">
+              {
+                range(225, 256).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
+              }
+            </div>
+            <div className="row" style={{ marginBottom: 40 }}>
+              {
+                range(224, 193).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
+              }
+            </div>
+          </div>
+        )
+        : (
+          <div>
+            <div className="row">
+              {
+                range(97, 128).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
+              }
+            </div>
+            <div className="row">
+              {
+                range(96, 65).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
+              }
+            </div>
+            <div className="row">
+              {
+                range(225, 256).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
+              }
+            </div>
+            <div className="row" style={{ marginBottom: 40 }}>
+              <button className="pin ref" type="button" onClick={(e) => setTempPin(e)}>REF</button>
+              {
+                range(224, 218).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
+              }
+              <button className="pin ref" type="button" onClick={(e) => setTempPin(e)}>REF</button>
+              {
+                range(217, 211).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
+              }
+              <button className="pin ref" type="button" onClick={(e) => setTempPin(e)}>REF</button>
+              {
+                range(210, 204).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
+              }
+              <button className="pin ref" type="button" onClick={(e) => setTempPin(e)}>REF</button>
+              {
+                range(203, 197).map((pinNum, ind) => <button className="pin" type="button" key={ind.id} onClick={(e) => setTempPin(e)}>{pinNum}</button>)
+              }
+            </div>
+          </div>
+        )}
     </>
   );
 }

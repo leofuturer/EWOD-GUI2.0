@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import CancelIcon from '@material-ui/icons/Cancel';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import { makeStyles } from '@material-ui/styles';
+import { DeviceContext } from '../Contexts/DeviceProvider';
 import icons from '../Icons/icons';
 
 import './USBPanel.css';
@@ -45,13 +46,16 @@ const useStyles = makeStyles({
 });
 
 export default function USBPanel({ usbConnected }) {
+  const { id } = useContext(DeviceContext);
+  const voltageBounds = [{ hi: 180, lo: 40 }, { hi: 5.5, lo: 1 }];
   const classes = useStyles();
 
-  const [volt, setVolt] = useState(2.5);
+  const [volt, setVolt] = useState(0);
   const [freq, setFreq] = useState(0);
 
   function setAndCheckVolt(v) {
-    if (v <= 5.5 && v >= 1) {
+    const index = id - 22352;
+    if (v <= voltageBounds[index].hi && v >= voltageBounds[index].hi) {
       setVolt(v);
     }
   }
@@ -137,7 +141,10 @@ export default function USBPanel({ usbConnected }) {
 
       <div>
         <ButtonGroup size="small" style={{ width: '170px', float: 'left' }} className="inputCounters">
-          <Button className={classes.transparentBtn} onClick={() => setAndCheckVolt(volt - 0.5)}>
+          <Button
+            className={classes.transparentBtn}
+            onClick={() => setAndCheckVolt(id === 22353 ? volt - 0.5 : volt - 5)}
+          >
             <img src={icons.decrease.icon} alt="Decrease" />
           </Button>
           <input
@@ -146,10 +153,18 @@ export default function USBPanel({ usbConnected }) {
             type="number"
             value={volt}
             onBlur={() => {
-              if (volt > 5.5) { setVolt(5.5); } else if (volt < 1) { setVolt(1); }
+              const index = id - 22352;
+              if (volt > voltageBounds[index].hi) {
+                setVolt(voltageBounds[index].hi);
+              } else if (volt < voltageBounds[index].lo) {
+                setVolt(voltageBounds[index].lo);
+              }
             }}
           />
-          <Button className={classes.transparentBtn} onClick={() => setAndCheckVolt(volt + 0.5)}>
+          <Button
+            className={classes.transparentBtn}
+            onClick={() => setAndCheckVolt(id === 22353 ? volt - 0.5 : volt - 5)}
+          >
             <img src={icons.increase.icon} alt="Increase" />
           </Button>
         </ButtonGroup>
@@ -164,8 +179,8 @@ export default function USBPanel({ usbConnected }) {
         paddingLeft: '45px',
       }}
       >
-        <div className={classes.text}>1</div>
-        <div className={classes.text}>5.5</div>
+        <div className={classes.text}>{ id === 22353 ? 1 : 0 }</div>
+        <div className={classes.text}>{ id === 22353 ? 5.5 : 180 }</div>
       </div>
       <div style={{
         display: 'flex',

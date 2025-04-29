@@ -28,7 +28,7 @@ module.exports = {
     'no-unused-vars': 'off',
     'max-len': 'off',
     'object-curly-newline': 'off',
-    'no-trailing-spaces': 'off'
+    'no-trailing-spaces': 'off',
     'react/jsx-no-bind': 'off'
   },
 };

@@ -1,3 +1,8 @@
 {
-    "video": false
+  "baseUrl": "http://localhost:3000",
+  "integrationFolder": "cypress/integration",
+  "testFiles": "**/*.test.js",
+  "video": false,
+  "viewportWidth": 1280,
+  "viewportHeight": 720
 }

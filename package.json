@@ -45,17 +45,17 @@
     "workbox-streams": "^6.6.1"
   },
   "scripts": {
-  "start": "set GENERATE_SOURCEMAP=false && set NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
-  "build": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts build",
-  "test": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts test",
+  "start": "GENERATE_SOURCEMAP=false NODE_OPTIONS=--openssl-legacy-provider react-scripts start",
+  "build": "NODE_OPTIONS=--openssl-legacy-provider react-scripts build",
+  "test": "NODE_OPTIONS=--openssl-legacy-provider react-scripts test",
   "eject": "react-scripts eject",
   "lint": "yarn run eslint \"src/**/*.js\" \"src/**/*.jsx\" \"cypress/**/*.js\"",
   "postinstall": "patch-package",
-  "serve": "set NODE_OPTIONS=--openssl-legacy-provider && yarn build && serve -s build",
-  "cy:run": "set NODE_OPTIONS=--openssl-legacy-provider && cypress run -C cypress.json",
-  "cy:open": "set NODE_OPTIONS=--openssl-legacy-provider && cypress open",
-  "e2e": "set NODE_OPTIONS=--openssl-legacy-provider && concurrently \"set BROWSER=none && yarn start\" \"wait-on http-get://localhost:3000 && yarn cy:run\" --kill-others --success first",
-  "e2e-gui": "set NODE_OPTIONS=--openssl-legacy-provider && concurrently \"set BROWSER=none && yarn start\" \"wait-on http-get://localhost:3000 && yarn cy:open\" --kill-others --success first"
+  "serve": "NODE_OPTIONS=--openssl-legacy-provider yarn build && serve -s build",
+  "cy:run": "cypress run",
+  "cy:open": "cypress open",
+  "e2e": "concurrently \"BROWSER=none yarn start\" \"wait-on http://localhost:3000 && cypress run\" --kill-others --success first",
+  "e2e-gui": "concurrently \"BROWSER=none yarn start\" \"wait-on http://localhost:3000 && cypress open\" --kill-others --success first"
 },
   "eslintConfig": {
     "extends": [

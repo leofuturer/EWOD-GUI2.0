@@ -24,6 +24,7 @@ module.exports = {
     'react/prop-types': ['off'],
     'quotes': 'off',
     'arrow-parens': 'off',
+    'no-console': 'off',
     'react/jsx-boolean-value': 'off',
     'no-unused-vars': 'off',
     'max-len': 'off',

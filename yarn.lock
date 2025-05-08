@@ -4570,6 +4570,11 @@ dotenv@^10.0.0:
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-10.0.0.tgz#3d4227b8fb95f81096cdd2b66653fb2c7085ba81"
   integrity sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==
 
+dragselect@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/dragselect/-/dragselect-3.1.1.tgz#456e9b0829e29cbb0071b1cd67af61f44708589d"
+  integrity sha512-vaTAVcCSvv8xMLD9jD2Qe/Y0nEwnj1yQjyacDAd+znp97b5V0Prw+MxG6OknmjbnYWaN3vtsQVr+BUL9J838zA==
+
 dunder-proto@^1.0.0, dunder-proto@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/dunder-proto/-/dunder-proto-1.0.1.tgz#d7ae667e1dc83482f8b70fd0f6eefc50da30f58a"

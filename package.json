@@ -14,6 +14,7 @@
     "clsx": "^1.1.1",
     "cra-template": "1.1.0",
     "dexie": "^3.0.3",
+    "dragselect": "^3.1.1",
     "file-loader": "^6.2.0",
     "idb": "^5.0.7",
     "patch-package": "^6.4.7",
@@ -74,7 +75,7 @@
     ]
   },
   "engines": {
-    "node": ">=23.0.0"
+    "node": "23.x"
   },
   "devDependencies": {
     "concurrently": "^6.0.2",

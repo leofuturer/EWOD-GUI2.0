@@ -75,7 +75,7 @@
     ]
   },
   "engines": {
-    "node": "23.x"
+    "node": "18.x"
   },
   "devDependencies": {
     "concurrently": "^6.0.2",

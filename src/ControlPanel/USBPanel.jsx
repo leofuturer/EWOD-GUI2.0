@@ -5,6 +5,7 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import { makeStyles } from '@material-ui/styles';
 import { DeviceContext } from '../Contexts/DeviceProvider';
+import { ActuationContext } from '../Contexts/ActuationProvider';
 import icons from '../Icons/icons';
 
 import './USBPanel.css';
@@ -46,7 +47,8 @@ const useStyles = makeStyles({
 });
 
 export default function USBPanel({ usbConnected }) {
-  const { id } = useContext(DeviceContext);
+  const { id, setId } = useContext(DeviceContext);
+  const actuationContext = useContext(ActuationContext);
   const voltageBounds = [{ hi: 180, lo: 40 }, { hi: 5.5, lo: 1 }];
   const classes = useStyles();
 
@@ -80,6 +82,14 @@ export default function USBPanel({ usbConnected }) {
       setF(freq);
     }
   }
+
+  const [selectedVoltage, setSelectedVoltage] = useState(parseInt(localStorage.getItem('deviceId'), 10) === 22353 ? 'lo' : 'hi');
+  const handleChange = (event) => {
+    const deviceId = event.target.value === 'lo' ? 22353 : 22352;
+    setSelectedVoltage(event.target.value);
+    setId(deviceId);
+    actuationContext.clearAll();
+  };
 
   // function test() {
   //   if (isDeviceConnected()) {
@@ -193,13 +203,7 @@ export default function USBPanel({ usbConnected }) {
         <img src={icons.voltagewarning.icon} alt="Voltage Warning" />
 
       </div>
-      <div
-        style={{
-          paddingLeft: '10px',
-          paddingTop: '15px',
-          marginBottom: '20px',
-        }}
-      >
+      <div className="rButton" style={{ marginTop: 10 }}>
         <Button
           size="small"
           // eslint-disable-next-line react/jsx-no-bind
@@ -218,9 +222,31 @@ export default function USBPanel({ usbConnected }) {
           onClick={setVpp}
           variant="contained"
           className={usbConnected ? classes.brownBtn : classes.grayBtn}
+          style={{ paddingLeft: 30, paddingRight: 30 }}
         >
           Set Vpp
         </Button>
+      </div>
+      <div
+        style={{
+          display: 'flex', justifyContent: 'flex-end', paddingRight: '10px', paddingBottom: '10px',
+        }}
+      >
+        <select
+          value={selectedVoltage}
+          onChange={handleChange}
+          style={{
+            padding: '6px 10px',
+            borderRadius: '4px',
+            border: '1px solid #ccc',
+            fontSize: '14px',
+            backgroundColor: '#f9f9f9',
+            cursor: 'pointer',
+          }}
+        >
+          <option value="lo">Low Voltage</option>
+          <option value="hi">High Voltage</option>
+        </select>
       </div>
     </div>
   );

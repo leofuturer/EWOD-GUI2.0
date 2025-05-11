@@ -115,7 +115,8 @@ export default function ContextMenu({
     }
     return () => {
       if (!showMenu) {
-        document.querySelector('.greenArea').removeEventListener('click', handleClick);
+        const el = document.querySelector('.greenArea');
+        if (el) el.removeEventListener('click', handleClick);
       }
     };
   }, [showMenu, setMoving, moving]);

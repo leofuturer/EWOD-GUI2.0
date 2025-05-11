@@ -86,10 +86,12 @@ export default function Canvas() {
   }, [setMouseDown, middleDown]);
 
   useEffect(() => {
-    document.querySelector('.greenArea').addEventListener('mousedown', handleMouseDown);
+    let el = document.querySelector('.greenArea');
+    el.addEventListener('mousedown', handleMouseDown);
     document.addEventListener('mouseup', handleMouseUp);
     return () => {
-      document.querySelector('.greenArea').removeEventListener('mousedown', handleMouseDown);
+      el = document.querySelector('.greenArea');
+      if (el) el.removeEventListener('mousedown', handleMouseDown);
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [handleMouseDown, handleMouseUp]);

@@ -156,7 +156,9 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
   const scrollRef = useRef();
 
   const { mode, bannerRef } = useContext(GeneralContext);
-
+  // console.log(pinActuate);
+  // console.log(currentStep);
+  // console.log(pinActuate.get(currentStep));
   const handleClick = (event) => {
     event.preventDefault();
     setMouseState({
@@ -362,7 +364,7 @@ export default function Scroll({ scrollOpen, setScrollOpen }) {
             position: 'absolute', left: '48vw', fontSize: 14, color: '#A06933', fontWeight: 'bold', margin: 0,
           }}
           >
-            {`Step ${pinActuate.get(currentStep).order + 1} of ${pinActuate.size}`}
+            {`Step ${(pinActuate.get(currentStep)?.order ?? 0) + 1} of ${pinActuate.size}`}
           </p>
           <Tooltip title="Delete all Frames">
             <IconButton onClick={() => { setAlert(true); }} data-testid="delete-start">

@@ -17,13 +17,16 @@ const ActuationProvider = ({ children }) => {
 
   useEffect(
     () => {
+      let isMounted = true;
       db.transaction('rw', db.formData, async () => {
-        const act = await db.formData.get('actuation');
+        let act;
+        if (isMounted) act = await db.formData.get('actuation');
         if (!act) {
-          await db.formData.add({ id: 'actuation', value: [] });
-          await db.formData.add({ id: 'contents', value: [] });
+          if (isMounted) await db.formData.add({ id: 'actuation', value: [] });
+          if (isMounted) await db.formData.add({ id: 'contents', value: [] });
         } else {
-          const contents = await db.formData.get('contents');
+          let contents;
+          if (isMounted) contents = await db.formData.get('contents');
           const newList = new Map();
           const oldMap = new Map(JSON.parse(act.value[0]));
           let i = 0;
@@ -48,6 +51,9 @@ const ActuationProvider = ({ children }) => {
           }));
         }
       }).catch((e) => console.log(e.stack || e));
+      return () => {
+        isMounted = false;
+      };
     },
     [db],
   );

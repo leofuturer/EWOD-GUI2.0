@@ -6,6 +6,7 @@ import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import { makeStyles } from '@material-ui/styles';
 import { DeviceContext } from '../Contexts/DeviceProvider';
 import { ActuationContext } from '../Contexts/ActuationProvider';
+import { GeneralContext } from '../Contexts/GeneralProvider';
 import icons from '../Icons/icons';
 
 import './USBPanel.css';
@@ -51,7 +52,9 @@ export default function USBPanel({ usbConnected }) {
   const actuationContext = useContext(ActuationContext);
   const voltageBounds = [{ hi: 180, lo: 40 }, { hi: 5.5, lo: 1 }];
   const classes = useStyles();
-
+  const {
+    setPinToElec, setElecToPin,
+  } = React.useContext(GeneralContext);
   const [volt, setVolt] = useState(0);
   const [freq, setFreq] = useState(0);
 
@@ -89,6 +92,8 @@ export default function USBPanel({ usbConnected }) {
     setSelectedVoltage(event.target.value);
     setId(deviceId);
     actuationContext.clearAll();
+    setPinToElec({});
+    setElecToPin({});
   };
 
   // function test() {

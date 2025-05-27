@@ -22,5 +22,14 @@ module.exports = {
   ],
   rules: {
     'react/prop-types': ['off'],
+    'quotes': 'off',
+    'arrow-parens': 'off',
+    'no-console': 'off',
+    'react/jsx-boolean-value': 'off',
+    'no-unused-vars': 'off',
+    'max-len': 'off',
+    'object-curly-newline': 'off',
+    'no-trailing-spaces': 'off',
+    'react/jsx-no-bind': 'off'
   },
 };

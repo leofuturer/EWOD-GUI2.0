@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 // eslint-disable-next-line import/no-unresolved
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
-import SVGContainer from 'react-svg-drag-and-select';
+import Selecto from "react-selecto";
 import { useHotkeys } from 'react-hotkeys-hook';
 
 import DraggableItem from './DraggableItem';
@@ -355,18 +355,20 @@ export default function Canvas() {
       if (elec.tagName === 'rect') sIds.push(elec.id.slice(1));
       else if (elec.tagName === 'path') cIds.push(elec.id.slice(1));
     });
-
+  
     if (mode === 'PIN') {
       if (shiftDown) {
-        const newSelected = processSelected(sIds, cIds);
-        setSelected(newSelected[0]); // first off, set new selections
-        setCombSelected(newSelected[1]);
-
+        // Merge previous selection with new selection
+        const newSelected = Array.from(new Set([...selected, ...sIds]));
+        const newCombSelected = Array.from(new Set([...combSelected, ...cIds]));
+        setSelected(newSelected);
+        setCombSelected(newCombSelected);
+  
         // then figure out if user's selecting one electrode to set pin next
-        if (newSelected[0].length + newSelected[1].length === 1) { // if selected one
+        if (newSelected.length + newCombSelected.length === 1) { // if selected one
           if (selected.length + combSelected.length > 1) setCurrElec(null); // if deselecting
-          else if (newSelected[0].length) setCurrElec(`S${sIds[0]}`); // if selected square
-          else setCurrElec(`C${cIds[0]}`); // if selected combined
+          else if (newSelected.length) setCurrElec(`S${newSelected[0]}`); // if selected square
+          else setCurrElec(`C${newCombSelected[0]}`); // if selected combined
         }
       } else { // not holding 'shift' down
         if (selectedElecs.length === 1) {
@@ -380,16 +382,15 @@ export default function Canvas() {
       }
     } else if (mode !== 'DRAW') {
       if (shiftDown) {
-        const newSelected = processSelected(sIds, cIds);
-        setSelected(newSelected[0]);
-        setCombSelected(newSelected[1]);
+        // Merge previous selection with new selection
+        setSelected(Array.from(new Set([...selected, ...sIds])));
+        setCombSelected(Array.from(new Set([...combSelected, ...cIds])));
       } else {
         setSelected(sIds);
         setCombSelected(cIds);
       }
     }
-
-    // handle actuation
+    
     if (selectedElecs.length === 1) {
       if (mode === 'SEQ') {
         if (sIds.length && Object.prototype.hasOwnProperty.call(elecToPin, `S${sIds[0]}`)) {
@@ -404,6 +405,27 @@ export default function Canvas() {
       }
     }
   }
+
+  const handleSelect = (e) => {
+    // e.selected contains the selected DOM elements
+    // Map these to your electrode/combine IDs as needed
+    const selectedIds = [];
+    const combSelectedIds = [];
+    e.selected.forEach(el => {
+      if (el.classList.contains('electrode')) {
+        const id = el.getAttribute('id');
+        if (id && id.startsWith('S')) selectedIds.push(id.slice(1));
+        if (id && id.startsWith('C')) combSelectedIds.push(id.slice(1));
+      }
+    });
+    // Use your existing logic to update selection
+    onSelectChange(
+      e.selected.map(el => ({
+        id: el.getAttribute('id'),
+        tagName: el.tagName.toLowerCase(),
+      })),
+    );
+  };
 
   const [menuClick, setMenuClick] = useState(0);
   // val doesn't matter -- just need to toggle state to trigger rerender of SVGContainer
@@ -845,9 +867,9 @@ export default function Canvas() {
     <div
       className="wrapper"
       style={{
-        height: mode === 'SEQ' ? '600px' : CANVAS_REAL_HEIGHT,
-        width: mode === 'SEQ' ? '1500px' : CANVAS_REAL_WIDTH,
-        overflow: mode === 'SEQ' || mode === 'PIN' ? 'hidden' : 'visible',
+        height: CANVAS_REAL_HEIGHT,
+        width: CANVAS_REAL_WIDTH,
+        overflow: mode === 'PIN' ? 'hidden' : 'visible',
       }}
     >
       {
@@ -949,53 +971,101 @@ export default function Canvas() {
             </TransformComponent>
           </TransformWrapper>
         ) : (
-          <TransformWrapper
-            minScale={0.51}
-            initialScale={mode === 'PIN' ? 0.51 : 1}
-            limitToBounds={false}
-            panning={{ disabled: !panning, excluded: ['react-transform-wrapper'] }}
-            pinch={{ excluded: ['react-transform-wrapper'] }}
-            doubleClick={{ excluded: ['react-transform-wrapper'] }}
-            wheel={{ excluded: ['react-transform-wrapper'] }}
-            onPanningStop={(ref) => {
-              setScaleXY({
+          <div>
+            <TransformWrapper
+              minScale={0.51}
+              initialScale={mode === 'PIN' ? 0.51 : 1}
+              limitToBounds={false}
+              panning={{ disabled: !panning, excluded: ['react-transform-wrapper'] }}
+              pinch={{ excluded: ['react-transform-wrapper'] }}
+              doubleClick={{ excluded: ['react-transform-wrapper'] }}
+              wheel={{ excluded: ['react-transform-wrapper'] }}
+              onPanningStop={(ref) => {
+                setScaleXY({
+                  scale: ref.state.scale,
+                  svgX: ref.state.positionX,
+                  svgY: ref.state.positionY,
+                });
+                panningStop(ref);
+              }}
+              velocityAnimation={{ disabled: true }}
+              onZoom={(ref) => setScaleXY({
                 scale: ref.state.scale,
                 svgX: ref.state.positionX,
                 svgY: ref.state.positionY,
-              });
-              panningStop(ref);
-            }}
-            velocityAnimation={{ disabled: true }}
-            onZoom={(ref) => setScaleXY({
-              scale: ref.state.scale,
-              svgX: ref.state.positionX,
-              svgY: ref.state.positionY,
-            })}
-          >
-            <TransformComponent id="zoom_div">
-              <SVGContainer
-                menuClick={menuClick}
-                mode={mode}
-                scalexy={scaleXY}
-                width={CANVAS_TRUE_WIDTH}
-                height={CANVAS_TRUE_HEIGHT}
-                onSelectChange={onSelectChange}
-                items={selectables}
-                isMovable={false}
-                // eslint-disable-next-line react/jsx-boolean-value
-                isSelectable={true}
-                style={{
-                  backgroundColor: '#93D08C',
-                  backgroundSize: `${ELEC_SIZE}px ${ELEC_SIZE}px`,
-                  backgroundImage: `linear-gradient(to right, grey 1px, transparent 1px),
-                    linear-gradient(to bottom, grey 1px, transparent 1px)`,
-                  width: CANVAS_TRUE_WIDTH,
-                  height: CANVAS_TRUE_HEIGHT,
-                }}
-                className="greenArea"
+              })}
+            >
+              <TransformComponent id="zoom_div">
+                <svg
+                  className="greenArea"
+                  width={CANVAS_TRUE_WIDTH}
+                  height={CANVAS_TRUE_HEIGHT}
+                  style={{
+                    backgroundColor: '#93D08C',
+                    backgroundSize: `${ELEC_SIZE}px ${ELEC_SIZE}px`,
+                    backgroundImage: `linear-gradient(to right, grey 1px, transparent 1px),
+                      linear-gradient(to bottom, grey 1px, transparent 1px)`,
+                    width: CANVAS_TRUE_WIDTH,
+                    height: CANVAS_TRUE_HEIGHT,
+                  }}
+                >
+                  {selectables.map((item, idx) => {
+                    if (item.tagName === 'rect') {
+                      return (
+                        <rect
+                          key={item.id}
+                          id={item.id}
+                          className={item.className}
+                          x={item.x}
+                          y={item.y}
+                          width={item.width}
+                          height={item.height}
+                          data-testid={item['data-testid']}
+                        />
+                      );
+                    }
+                    if (item.tagName === 'path') {
+                      return (
+                        <path
+                          key={item.id}
+                          id={item.id}
+                          className={item.className}
+                          d={item.d}
+                          data-testid={item['data-testid']}
+                        />
+                      );
+                    }
+                    if (item.tagName === 'text') {
+                      return (
+                        <text
+                          key={item.id}
+                          id={item.id}
+                          x={item.x}
+                          y={item.y}
+                          fill={item.fill}
+                          style={item.style}
+                        >
+                          {item.children}
+                        </text>
+                      );
+                    }
+                    return null;
+                  })}
+                </svg>
+              </TransformComponent>
+            </TransformWrapper>
+            {!panning && (
+              <Selecto
+                container={document.querySelector(".greenArea")}
+                selectableTargets={[".electrode"]}
+                hitRate={0}
+                selectByClick={true}
+                selectFromInside={false}
+                toggleContinueSelect={["shift"]}
+                onSelect={handleSelect}
               />
-            </TransformComponent>
-          </TransformWrapper>
+            )}
+          </div>
         )
       }
       <ContextMenu

@@ -56,7 +56,6 @@ export default function ContextMenu({
               names: canModeNames,
               funcs: canModeFuncs,
             });
-          // eslint-disable-next-line max-len
           } else if ((clipboard.squares || clipboard.combined) && (clipboard.squares.length || clipboard.combined.length)) {
             setMenuContents({
               names: ['Paste'],
@@ -70,12 +69,37 @@ export default function ContextMenu({
           setMenuContents(null);
       }
 
-      const styleSplit = e.currentTarget.childNodes[0].childNodes[0].style.transform.split(/[(,)]/);
-      const scale = parseFloat(styleSplit[5], 10);
-      // if user opens context menu far right or far down the canvas,
-      // have context menu's bottom left corner start at mouse
-      // rather than having the context menu's top left corner start at mouse
-      let x = e.offsetX * scale + parseFloat(styleSplit[1].slice(0, -2), 10);
+      // Defensive: check if transform exists and has expected format
+      let styleSplit = [];
+      let scale = 1;
+      let translateX = 0;
+      let translateY = 0;
+      try {
+        const { transform } = e.currentTarget.childNodes[0].childNodes[0].style;
+        if (transform) {
+          styleSplit = transform.split(/[(,)]/);
+          // Example: "matrix(a, b, c, d, tx, ty)"
+          // For matrix, scale is a (styleSplit[1]), translateX is e (styleSplit[5]), translateY is f (styleSplit[6])
+          // For translate/scale, adjust accordingly
+          if (styleSplit[0].includes('matrix')) {
+            scale = parseFloat(styleSplit[1]) || 1;
+            translateX = parseFloat(styleSplit[5]) || 0;
+            translateY = parseFloat(styleSplit[6]) || 0;
+          } else if (styleSplit[0].includes('translate')) {
+            translateX = parseFloat(styleSplit[1]) || 0;
+            translateY = parseFloat(styleSplit[2]) || 0;
+          } else if (styleSplit[0].includes('scale')) {
+            scale = parseFloat(styleSplit[1]) || 1;
+          }
+        }
+      } catch (err) {
+        // fallback to defaults
+        scale = 1;
+        translateX = 0;
+        translateY = 0;
+      }
+
+      let x = e.offsetX * scale + translateX;
       if (mode !== 'PIN') x += 49; // left bar width
       else x += 215;
 
@@ -84,7 +108,7 @@ export default function ContextMenu({
       setRelativeX(`${e.offsetX}px`);
       setRelativeY(`${e.offsetY}px`);
 
-      let y = e.offsetY * scale + parseFloat(styleSplit[2].slice(0, -2), 10);
+      let y = e.offsetY * scale + translateY;
       if (mode !== 'PIN') y += 75; // top bar height + menu padding
       else y += 280;
 

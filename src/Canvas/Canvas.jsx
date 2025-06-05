@@ -380,6 +380,10 @@ export default function Canvas() {
         setSelected(sIds);
         setCombSelected(cIds);
       }
+    } else if (mode === 'SEQ') {
+      // In SEQ mode, always clear selection to allow re-clicking
+      setSelected([]);
+      setCombSelected([]);
     } else if (mode !== 'DRAW') {
       if (shiftDown) {
         // Merge previous selection with new selection
@@ -425,6 +429,19 @@ export default function Canvas() {
         tagName: el.tagName.toLowerCase(),
       })),
     );
+
+    // Force clear Selecto's internal selection in SEQ mode
+    if (mode === 'SEQ') {
+      // Small delay to ensure the selection event is processed first
+      setTimeout(() => {
+        const selecto = document.querySelector('.selecto-selection');
+        if (selecto) {
+          selecto.style.display = 'none';
+        }
+        // Or try to access the Selecto instance directly if available
+        e.currentTarget?.clearSelection?.();
+      }, 100);
+    }
   };
 
   const [menuClick, setMenuClick] = useState(0);
@@ -867,9 +884,9 @@ export default function Canvas() {
     <div
       className="wrapper"
       style={{
-        height: CANVAS_REAL_HEIGHT,
-        width: CANVAS_REAL_WIDTH,
-        overflow: mode === 'PIN' ? 'hidden' : 'visible',
+        height: mode === 'SEQ' ? '600px' : CANVAS_REAL_HEIGHT,
+        width: mode === 'SEQ' ? '1500px' : CANVAS_REAL_WIDTH,
+        overflow: mode === 'SEQ' || mode === 'PIN' ? 'hidden' : 'visible',
       }}
     >
       {
@@ -1021,6 +1038,15 @@ export default function Canvas() {
                           width={item.width}
                           height={item.height}
                           data-testid={item['data-testid']}
+                          onClick={mode === 'SEQ' ? (e) => {
+                            e.stopPropagation();
+                            const id = item.id.slice(1);
+                            if (Object.prototype.hasOwnProperty.call(elecToPin, item.id)) {
+                              handleActuationMapping(elecToPin[item.id]);
+                            } else {
+                              window.alert('no pin number for this electrode');
+                            }
+                          } : undefined}
                         />
                       );
                     }
@@ -1032,6 +1058,15 @@ export default function Canvas() {
                           className={item.className}
                           d={item.d}
                           data-testid={item['data-testid']}
+                          onClick={mode === 'SEQ' ? (e) => {
+                            e.stopPropagation();
+                            const id = item.id.slice(1);
+                            if (Object.prototype.hasOwnProperty.call(elecToPin, item.id)) {
+                              handleActuationMapping(elecToPin[item.id]);
+                            } else {
+                              window.alert('no pin number for this electrode');
+                            }
+                          } : undefined}
                         />
                       );
                     }
@@ -1044,6 +1079,17 @@ export default function Canvas() {
                           y={item.y}
                           fill={item.fill}
                           style={item.style}
+                          onClick={mode === 'SEQ' ? (e) => {
+                            e.stopPropagation();
+                            // For text elements, we need to get the parent electrode ID
+                            // Text IDs are like "TS123" or "TC123", so we need the parent "S123" or "C123"
+                            const parentId = item.id.slice(1); // Remove the "T" prefix
+                            if (Object.prototype.hasOwnProperty.call(elecToPin, parentId)) {
+                              handleActuationMapping(elecToPin[parentId]);
+                            } else {
+                              window.alert('no pin number for this electrode');
+                            }
+                          } : undefined}
                         >
                           {item.children}
                         </text>
@@ -1054,7 +1100,7 @@ export default function Canvas() {
                 </svg>
               </TransformComponent>
             </TransformWrapper>
-            {!panning && (
+            {!panning && mode !== 'SEQ' && (
               <Selecto
                 container={document.querySelector(".greenArea")}
                 selectableTargets={[".electrode"]}

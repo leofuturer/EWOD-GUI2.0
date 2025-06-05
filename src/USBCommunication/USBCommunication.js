@@ -124,7 +124,10 @@ export async function setV(voltage, ack = true) {
   EWODDeviceView[0] = 0xAA;
   EWODDeviceView[40] = voltage;
   if (filter.productId === 22353) {
-    EWODDeviceView[40] *= 100;
+    const msb = (voltage * 100) >> 8; // The highest bit is always 0 (max freq 10000 Hz)
+    const lsb = (voltage * 100) & 0xFF;
+    EWODDeviceView[40] = lsb;
+    EWODDeviceView[41] = msb;
     if (ack) EWODDeviceView[0] = 0xAC;
   }
   console.log(EWODDeviceView);

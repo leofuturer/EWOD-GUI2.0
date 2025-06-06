@@ -65,8 +65,18 @@ export default function USBPanel({ usbConnected }) {
 
   function setAndCheckVolt(v) {
     const index = id - 22352;
-    if (v <= voltageBounds[index].hi && v >= voltageBounds[index].hi) {
+    if (v <= voltageBounds[index].hi && v >= voltageBounds[index].lo) {
+      console.log(v);
       setVolt(v);
+    } else {
+      if (v < voltageBounds[index].lo && v > 0) {
+        setVolt(voltageBounds[index].lo);
+      }
+      if (v > voltageBounds[index].hi) {
+        setVolt(voltageBounds[index].hi);
+      }
+      console.log(v);
+      console.log('out of bounds');
     }
   }
 
@@ -167,8 +177,9 @@ export default function USBPanel({ usbConnected }) {
           </Button>
           <input
             id="tf-frequency"
-            onChange={(e) => { setFreq(parseInt(e.target.value, 10)); }}
+            onChange={(e) => { setFreq(parseFloat(e.target.value, 10)); }}
             type="number"
+            step="any"
             value={freq}
             onBlur={() => { if (freq > 10000 || freq < 0) { setFreq(0); } }}
             style={{ border: '2px solid #D4A373', borderRadius: '3px' }}
@@ -201,9 +212,10 @@ export default function USBPanel({ usbConnected }) {
           </Button>
           <input
             id="tf-voltage"
-            onChange={(e) => { setVolt(parseInt(e.target.value, 10)); }}
+            onChange={(e) => { setVolt(parseFloat(e.target.value, 10)); }}
             type="number"
             value={volt}
+            step="any"
             onBlur={() => {
               const index = id - 22352;
               if (volt > voltageBounds[index].hi) {
@@ -215,7 +227,7 @@ export default function USBPanel({ usbConnected }) {
           />
           <Button
             className={classes.transparentBtn}
-            onClick={() => setAndCheckVolt(id === 22353 ? volt - 0.5 : volt - 5)}
+            onClick={() => setAndCheckVolt(id === 22353 ? volt + 0.5 : volt + 5)}
           >
             <img src={icons.increase.icon} alt="Increase" />
           </Button>
@@ -231,7 +243,7 @@ export default function USBPanel({ usbConnected }) {
         paddingLeft: '45px',
       }}
       >
-        <div className={classes.text}>{ id === 22353 ? 1 : 0 }</div>
+        <div className={classes.text}>{ id === 22353 ? 1 : 40 }</div>
         <div className={classes.text}>{ id === 22353 ? 5.5 : 180 }</div>
       </div>
       <div style={{

@@ -6,7 +6,6 @@
   height: 30px;
   min-width: 30px;
   max-width: 30px;
-  margin: 2px;
   font-weight: 600;
   background-color: transparent;
   color: #A06933;
@@ -21,8 +20,8 @@
 
 .row {
   display: flex;
+  margin-left: 70px;
   justify-content: space-between;
-  margin-left: 110px;
-  width: 1600px;
+  width: 1330px;
   margin-bottom: 4px;
 }

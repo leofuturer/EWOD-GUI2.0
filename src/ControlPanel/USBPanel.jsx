@@ -4,6 +4,11 @@ import ButtonGroup from '@material-ui/core/ButtonGroup';
 import CancelIcon from '@material-ui/icons/Cancel';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import { makeStyles } from '@material-ui/styles';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import { DialogContentText } from '@material-ui/core';
 import { DeviceContext } from '../Contexts/DeviceProvider';
 import { ActuationContext } from '../Contexts/ActuationProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
@@ -87,10 +92,11 @@ export default function USBPanel({ usbConnected }) {
   }
 
   const [selectedVoltage, setSelectedVoltage] = useState(parseInt(localStorage.getItem('deviceId'), 10) === 22353 ? 'lo' : 'hi');
-  const handleChange = (event) => {
-    const deviceId = event.target.value === 'lo' ? 22353 : 22352;
-    setSelectedVoltage(event.target.value);
-    setId(deviceId);
+  const [open, setOpen] = React.useState(false);
+  const handleChange = () => {
+    const newDevice = 44705 - id;
+    setSelectedVoltage(newDevice === 22353 ? 'lo' : 'hi');
+    setId(newDevice);
     actuationContext.clearAll();
     setPinToElec({});
     setElecToPin({});
@@ -103,6 +109,37 @@ export default function USBPanel({ usbConnected }) {
   // }
   return (
     <div id="usb-panel">
+      <Dialog
+        open={open}
+        onClose={() => { setOpen(false); }}
+        aria-labelledby="alert-dialog-title"
+      >
+        <DialogTitle id="alert-dialog-title">
+          Are you sure you want to change the USB device type you are connecting to?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            After clicking Confirm, all pin mappings and actuation steps you made will be
+            deleted permanently.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setOpen(false); }} color="primary">
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              handleChange();
+              setOpen(false);
+            }}
+            color="primary"
+            autoFocus
+            data-testid="delete-button"
+          >
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
       <div id="usb-connect-status">
         {usbConnected
           ? (
@@ -239,7 +276,7 @@ export default function USBPanel({ usbConnected }) {
       >
         <select
           value={selectedVoltage}
-          onChange={handleChange}
+          onChange={() => setOpen(true)}
           style={{
             padding: '6px 10px',
             borderRadius: '4px',

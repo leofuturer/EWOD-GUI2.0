@@ -44,9 +44,9 @@ export default function App() {
                     style={{
                       backgroundImage: 'url(chassis-with-background.svg)',
                       backgroundRepeat: 'no-repeat',
-                      backgroundSize: '100% 100%',
-                      width: CANVAS_WIDTH * ELEC_SIZE,
-                      height: CANVAS_HEIGHT * ELEC_SIZE,
+                      backgroundSize: '90% 90%',
+                      width: CANVAS_WIDTH * ELEC_SIZE * 0.9,
+                      height: CANVAS_HEIGHT * ELEC_SIZE * 0.86,
                       paddingTop: 108,
                       paddingLeft: 115,
                       marginLeft: 50, // width of left control bar

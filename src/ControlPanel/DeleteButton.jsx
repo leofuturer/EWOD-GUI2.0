@@ -11,6 +11,7 @@ import { CanvasContext } from '../Contexts/CanvasProvider';
 import { ActuationContext } from '../Contexts/ActuationProvider';
 import { GeneralContext } from '../Contexts/GeneralProvider';
 import icons from '../Icons/icons';
+import { setPin } from '../USBCommunication/USBCommunication';
 
 export default function DeleteButton({ name }) {
   const context = useContext(CanvasContext);
@@ -32,7 +33,7 @@ export default function DeleteButton({ name }) {
 
     setPinToElec({});
     setElecToPin({});
-
+    setPin([], 0, true);
     clearAll();
     setOpen(false);
   }

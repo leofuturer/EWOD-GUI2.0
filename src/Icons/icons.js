@@ -38,6 +38,9 @@ import Increase from './Increase.svg';
 import Search from './SearchFile.svg';
 import SearchLogo from './SearchLogo.svg';
 import VoltageWarning from './VoltageWarning.svg';
+import Search from './SearchFile.svg';
+import SearchLogo from './SearchLogo.svg';
+import VoltageWarning from './VoltageWarning.svg';
 import EDroplets from './eDroplets.svg';
 
 const icons = {

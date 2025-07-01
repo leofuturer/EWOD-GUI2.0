@@ -466,16 +466,27 @@ export default function Canvas() {
   function copy() {
     const squares = [];
     const combined = [];
-
+    const squarePinMappings = [];
+    const combinedPinMappings = [];
+  
     if (selected.length > 0) {
       const elements = electrodes.filter((element) => selected.includes(`${element.ids}`));
       elements.forEach((element) => {
         const tmp = [element.initPositions[0] + element.deltas[0],
           element.initPositions[1] + element.deltas[1]];
         squares.push(tmp);
+        
+        // Store pin mapping if it exists
+        const squareKey = `S${element.ids}`;
+        if (elecToPin[squareKey]) {
+          squarePinMappings.push(elecToPin[squareKey]);
+        } else {
+          squarePinMappings.push(null);
+        }
       });
       setSelected([]);
     }
+    
     if (combSelected.length > 0) {
       // ex: selected IDs 2 4 7
       // want those to have some permutation of IDs 0 1 2 in clipboard
@@ -488,14 +499,27 @@ export default function Canvas() {
           } else {
             record[comb[2]] = ind;
             combined.push([comb[0], comb[1], ind]);
+            
+            // Store pin mapping if it exists
+            const combinedKey = `C${comb[2]}`;
+            if (elecToPin[combinedKey]) {
+              combinedPinMappings[ind] = elecToPin[combinedKey];
+            }
+            
             ind += 1;
           }
         }
       });
       setCombSelected([]);
     }
+    
     if (selected.length > 0 || combSelected.length > 0) {
-      setClipboard({ squares, combined });
+      setClipboard({ 
+        squares, 
+        combined, 
+        squarePinMappings, 
+        combinedPinMappings 
+      });
     }
   }
 
@@ -531,6 +555,11 @@ export default function Canvas() {
       const x = xInt - (xInt % ELEC_SIZE);
       const y = yInt - (yInt % ELEC_SIZE);
       const { squares, combined } = clipboard;
+      
+      // Store the pin mappings that need to be restored after pasting
+      const squarePinMappings = [];
+      const combinedPinMappings = [];
+      
       if (numSquaresCopied > 0) {
         const newInits = [];
         const offsetX = squares[0][0];
@@ -548,6 +577,13 @@ export default function Canvas() {
             || allCombined.some((inner) => (inner[0] === temp[0] && inner[1] === temp[1]))
           )) {
             newInits.push(temp);
+            
+            // Store pin mapping if it exists in clipboard
+            if (clipboard.squarePinMappings && clipboard.squarePinMappings[i]) {
+              squarePinMappings.push(clipboard.squarePinMappings[i]);
+            } else {
+              squarePinMappings.push(null);
+            }
           } else {
             window.alert('Pasted electrodes overlap!');
             if (cutFlag) {
@@ -557,24 +593,40 @@ export default function Canvas() {
             return;
           }
         }
-
+  
         let maxID = electrodes.length === 0 ? 0 : electrodes[electrodes.length - 1].ids + 1;
         const tmps = [];
-        newInits.forEach((element) => {
+        const newElecToPin = { ...elecToPin };
+        const newPinToElec = { ...pinToElec };
+        
+        newInits.forEach((element, index) => {
           const tmp = {};
           tmp.initPositions = element;
           tmp.deltas = [0, 0];
           tmp.ids = maxID;
+          
+          // Restore pin mapping if it exists
+          if (squarePinMappings[index]) {
+            const pinNumber = squarePinMappings[index];
+            newElecToPin[`S${maxID}`] = pinNumber;
+            newPinToElec[pinNumber] = `S${maxID}`;
+          }
+          
           maxID += 1;
           tmps.push(tmp);
         });
+        
         setElectrodes(electrodes.concat(tmps));
+        setElecToPin(newElecToPin);
+        setPinToElec(newPinToElec);
       }
+      
       if (numCombinedCopied > 0) {
         const first = clipboard.squares.length > 0 ? clipboard.squares[0] : combined[0];
         const newCombs = [];
         const combIds = allCombined.map((el) => el[2]);
         const maxID = (combIds.length === 0 ? 0 : Math.max(...combIds));
+        
         for (let k = 0; k < numCombinedCopied; k += 1) {
           const temp = [x + combined[k][0] - first[0], y + combined[k][1] - first[1]];
           if (temp[0] < 0 || temp[0] >= CANVAS_TRUE_WIDTH
@@ -592,6 +644,15 @@ export default function Canvas() {
               temp[1],
               combined[k][2] + maxID + 1,
             ]);
+            
+            // Store pin mapping if it exists in clipboard
+            if (clipboard.combinedPinMappings && clipboard.combinedPinMappings[k]) {
+              combinedPinMappings.push({
+                oldId: combined[k][2],
+                newId: combined[k][2] + maxID + 1,
+                pinNumber: clipboard.combinedPinMappings[k]
+              });
+            }
           } else {
             window.alert('Pasted combined electrode overlap!');
             if (cutFlag) {
@@ -601,6 +662,23 @@ export default function Canvas() {
             return;
           }
         }
+        
+        // Restore combined electrode pin mappings
+        if (combinedPinMappings.length > 0) {
+          const newElecToPin = { ...elecToPin };
+          const newPinToElec = { ...pinToElec };
+          
+          combinedPinMappings.forEach(mapping => {
+            if (mapping.pinNumber) {
+              newElecToPin[`C${mapping.newId}`] = mapping.pinNumber;
+              newPinToElec[mapping.pinNumber] = `C${mapping.newId}`;
+            }
+          });
+          
+          setElecToPin(newElecToPin);
+          setPinToElec(newPinToElec);
+        }
+        
         setComboLayout(allCombined.concat(newCombs));
       }
     }
